@@ -4,7 +4,7 @@ import DispositifTag from 'components/jeune/DispositifTag'
 import SituationTag from 'components/jeune/SituationTag'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { CategorieSituation } from 'interfaces/beneficiaire'
-import { estMilo } from 'interfaces/structure'
+import { estFranceTravail, estMilo } from 'interfaces/structure'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 import ListeBoutonsAjoutsFicheBeneficiaire from './ListeBoutonsAjoutsFicheBeneficiaire'
@@ -30,17 +30,22 @@ export default function HeaderDetailBeneficiaire({
       <div>
         <h1 className='text-m-bold'>{beneficiaire.nomComplet}</h1>
 
-        {estMilo(conseiller.structure) && (
+        {(estMilo(conseiller.structure) ||
+          estFranceTravail(conseiller.structure)) && (
           <dl className='mt-3 flex flex-row gap-1'>
             <dt className='sr-only'>Dispositif</dt>
             <dd>
               <DispositifTag dispositif={dispositif} onWhite={true} />
             </dd>
 
-            <dt className='sr-only'>Situation</dt>
-            <dd>
-              <SituationTag situation={situation} />
-            </dd>
+            {estMilo(conseiller.structure) && (
+              <>
+                <dt className='sr-only'>Situation</dt>
+                <dd>
+                  <SituationTag situation={situation} />
+                </dd>
+              </>
+            )}
           </dl>
         )}
       </div>

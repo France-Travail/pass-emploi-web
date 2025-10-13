@@ -22,7 +22,7 @@ function getStyle({ dispositif, onWhite }: DispositifTagProps): string {
     case Dispositif.ACCOMPAGNEMENT_GLOBAL:
       return 'text-success bg-success-lighten'
     case Dispositif.BRSA:
-      return 'text-additional-3 bg-accent-1-lighten'
+      return 'text-accent-1 bg-accent-1-lighten'
     case Dispositif.AIJ:
       return 'bg-additional-1-lighten'
     case Dispositif.CONSEIL_DEPT:
@@ -35,6 +35,8 @@ function getStyle({ dispositif, onWhite }: DispositifTagProps): string {
       return 'bg-warning-lighten'
     case Dispositif.CEJ:
     default:
-      return 'text-primary ' + (onWhite ? 'bg-white' : 'bg-primary-lighten')
+      return (
+        'text-primary-darken ' + (onWhite ? 'bg-white' : 'bg-primary-lighten')
+      )
   }
 }
