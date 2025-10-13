@@ -18,7 +18,6 @@ declare module 'next-auth' {
       structure: string
       estConseiller: boolean
       estSuperviseur: boolean
-      estSuperviseurResponsable: boolean
     }
   }
 }
@@ -32,6 +31,5 @@ declare module 'next-auth/jwt' {
     structureConseiller?: string
     estConseiller?: boolean
     estSuperviseur?: boolean
-    estSuperviseurResponsable?: boolean
   }
 }

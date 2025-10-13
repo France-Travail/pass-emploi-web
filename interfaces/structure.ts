@@ -22,17 +22,11 @@ const structuresFTConnect = [
   structureAvenirPro,
 ] as const
 
-export const structuresReaffectation = structuresFTConnect.filter(
-  (structure) => structure !== structureAvenirPro
-)
-
 /*** Types ***/
 
 type StructureCEJ = (typeof structuresCEJ)[number]
 
 type StructureFTConnect = (typeof structuresFTConnect)[number]
-
-export type StructureReaffectation = (typeof structuresReaffectation)[number]
 
 export type Structure =
   | StructureFTConnect
@@ -81,7 +75,7 @@ export function estFTConnect(
   return ([...structuresFTConnect] as string[]).includes(structure)
 }
 
-export function labelStructure(structure: StructureFTConnect): string {
+export function labelStructure(structure: string): string {
   switch (structure) {
     case structureFTCej:
       return 'CEJ'
@@ -97,6 +91,8 @@ export function labelStructure(structure: StructureFTConnect): string {
       return 'Equip’emploi / Equip’recrut'
     case structureAvenirPro:
       return 'Avenir pro'
+    default:
+      return structure
   }
 }
 

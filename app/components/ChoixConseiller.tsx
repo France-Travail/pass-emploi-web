@@ -14,14 +14,12 @@ import Label from 'components/ui/Form/Label'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ValueWithError } from 'components/ValueWithError'
 import { SimpleConseiller } from 'interfaces/conseiller'
-import { StructureReaffectation } from 'interfaces/structure'
 
 type ChoixConseillerProps = {
   name: string
   onInput: () => void
   onChoixConseiller: (conseiller: SimpleConseiller) => void
   idConseillerSelectionne?: string
-  structureReaffectation?: StructureReaffectation
   errorInput?: string
   errorChoice?: string
 }
@@ -29,7 +27,6 @@ type ChoixConseillerProps = {
 function ChoixConseiller(
   {
     idConseillerSelectionne,
-    structureReaffectation,
     name,
     onChoixConseiller,
     onInput,
@@ -77,10 +74,7 @@ function ChoixConseiller(
 
     const { getConseillers } = await import('services/conseiller.service')
     setRechercheConseillerEnCours(true)
-    const conseillers = await getConseillers(
-      queryConseiller.value,
-      structureReaffectation
-    )
+    const conseillers = await getConseillers(queryConseiller.value)
     if (conseillers.length) setChoixConseillers(conseillers)
     else {
       setQueryConseiller({

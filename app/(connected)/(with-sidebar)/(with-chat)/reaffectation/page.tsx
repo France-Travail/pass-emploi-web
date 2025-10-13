@@ -15,9 +15,7 @@ export default async function Reaffectation() {
     <>
       <PageHeaderPortal header='Réaffectation' />
 
-      <ReaffectationPage
-        estSuperviseurResponsable={user.estSuperviseurResponsable}
-      />
+      <ReaffectationPage />
     </>
   )
 }

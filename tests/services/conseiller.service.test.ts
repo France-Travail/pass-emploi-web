@@ -7,7 +7,7 @@ import {
   unConseiller,
   unConseillerJson,
 } from 'fixtures/conseiller'
-import { structureFTCej, structureMilo } from 'interfaces/structure'
+import { structureMilo } from 'interfaces/structure'
 import {
   getConseillers,
   getConseillerServerSide,
@@ -34,7 +34,6 @@ describe('ConseillerApiService', () => {
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
-        estSuperviseurResponsable: false,
       }
       ;(apiGet as jest.Mock).mockResolvedValue({
         content: unConseillerJson({
@@ -95,14 +94,11 @@ describe('ConseillerApiService', () => {
       })
 
       // When
-      const actual = await getConseillers(
-        'conseiller@email.com',
-        structureFTCej
-      )
+      const actual = await getConseillers('conseiller@email.com')
 
       // Then
       expect(apiGet).toHaveBeenCalledWith(
-        '/conseillers?q=conseiller@email.com&structure=POLE_EMPLOI',
+        '/conseillers?q=conseiller@email.com',
         accessToken
       )
       expect(actual).toEqual([

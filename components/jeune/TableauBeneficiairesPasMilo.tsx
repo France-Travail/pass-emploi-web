@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import TD from 'components/ui/Table/TD'
@@ -11,6 +11,8 @@ import {
 } from 'interfaces/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
 import { toRelativeDateTime } from 'utils/date'
+
+import DispositifTag from './DispositifTag'
 
 interface TableauBeneficiairesPasMiloProps {
   beneficiaires: BeneficiaireAvecInfosComplementaires[]
@@ -58,25 +60,32 @@ export default function TableauBeneficiairesPasMilo({
                 isBold
                 className='relative h-full p-2! rounded-tl-base! rounded-bl-none! after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 after:border-l-2 after:border-grey-500 layout-m:after:content-[""] layout-m:rounded-l-base!'
               >
-                {beneficiaire.isReaffectationTemporaire && (
-                  <span className='self-center mr-2'>
-                    <IconComponent
-                      name={IconName.Schedule}
-                      focusable={false}
-                      className='w-4 h-4'
-                      role='img'
-                      aria-labelledby={`label-beneficiaire-temporaire-${beneficiaire.id}`}
-                      title='bénéficiaire temporaire'
-                    />
-                    <span
-                      id={`label-beneficiaire-temporaire-${beneficiaire.id}`}
-                      className='sr-only'
-                    >
-                      bénéficiaire temporaire
+                <div className='flex items-center'>
+                  {beneficiaire.isReaffectationTemporaire && (
+                    <span className='self-center mr-2'>
+                      <IconComponent
+                        name={IconName.Schedule}
+                        focusable={false}
+                        className='w-4 h-4'
+                        role='img'
+                        aria-labelledby={`label-beneficiaire-temporaire-${beneficiaire.id}`}
+                        title='bénéficiaire temporaire'
+                      />
+                      <span
+                        id={`label-beneficiaire-temporaire-${beneficiaire.id}`}
+                        className='sr-only'
+                      >
+                        bénéficiaire temporaire
+                      </span>
                     </span>
-                  </span>
-                )}
-                {getNomBeneficiaireComplet(beneficiaire)}
+                  )}
+
+                  {getNomBeneficiaireComplet(beneficiaire)}
+                </div>
+
+                <div className='mt-1'>
+                  <DispositifTag dispositif={beneficiaire.dispositif} />
+                </div>
               </TD>
 
               <TD className='h-full p-2!'>

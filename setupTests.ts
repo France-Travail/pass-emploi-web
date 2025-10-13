@@ -39,7 +39,6 @@ jest.mock('next-auth/react', () => ({
     user: {
       id: 'id-conseiller-1',
       estSuperviseur: false,
-      estSuperviseurResponsable: false,
       structure: 'MILO',
     },
     accessToken: 'accessToken',

@@ -16,6 +16,18 @@ export enum CategorieSituation {
 
 export type Portefeuille = BeneficiaireWithActivity[]
 
+export enum Dispositif {
+  CEJ = 'CEJ',
+  PACEA = 'PACEA',
+  BRSA = 'BRSA',
+  AIJ = 'AIJ',
+  CONSEIL_DEPT = 'CONSEIL_DEPT',
+  AVENIR_PRO = 'AVENIR_PRO',
+  ACCOMPAGNEMENT_INTENSIF = 'ACCOMPAGNEMENT_INTENSIF',
+  ACCOMPAGNEMENT_GLOBAL = 'ACCOMPAGNEMENT_GLOBAL',
+  EQUIP_EMPLOI_RECRUT = 'EQUIP_EMPLOI_RECRUT',
+}
+
 export type IdentiteBeneficiaire = {
   id: string
   prenom: string

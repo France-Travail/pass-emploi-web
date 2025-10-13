@@ -2,7 +2,7 @@
 
 import { withTransaction } from '@elastic/apm-rum-react'
 import dynamic from 'next/dynamic'
-import React, { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 
 import ChoixConseiller from 'app/components/ChoixConseiller'
 import RadioBox from 'components/action/RadioBox'
@@ -23,26 +23,20 @@ import {
   getNomBeneficiaireComplet,
 } from 'interfaces/beneficiaire'
 import { SimpleConseiller } from 'interfaces/conseiller'
-import {
-  getUrlFormulaireSupport,
-  StructureReaffectation,
-  structuresReaffectation,
-} from 'interfaces/structure'
+import { getUrlFormulaireSupport } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useDebounce } from 'utils/hooks/useDebounce'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
+import DispositifTag from '../../../../../components/jeune/DispositifTag'
+
 const ConseillerIntrouvableSuggestionModal = dynamic(
   () => import('components/ConseillerIntrouvableSuggestionModal')
 )
 
-type ReaffectationProps = {
-  estSuperviseurResponsable: boolean
-}
-
-function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
+function ReaffectationPage() {
   const [_, setAlerte] = useAlerte()
   const [portefeuille] = usePortefeuille()
 
@@ -54,10 +48,6 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
 
   const toutSelectionnerCheckboxRef = useRef<HTMLInputElement>(null)
   const formErrorsRef = useRef<HTMLDivElement>(null)
-
-  const [structureReaffectation, setStructureReaffectation] = useState<
-    ValueWithError<StructureReaffectation | undefined>
-  >({ value: undefined })
 
   const [isReaffectationTemporaire, setIsReaffectationTemporaire] = useState<
     ValueWithError<boolean | undefined>
@@ -100,16 +90,7 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
     'Réaffectation jeunes – Etape 1 – Saisie mail cons. ini.'
   )
 
-  const numerosEtapes: NumeroEtape[] = estSuperviseurResponsable
-    ? [2, 3, 4, 5]
-    : [1, 2, 3, 4]
-
-  function handleInputStructureReaffectation(
-    structureSelectionnee: StructureReaffectation
-  ) {
-    setErreurReaffectation(undefined)
-    setStructureReaffectation({ value: structureSelectionnee })
-  }
+  const numerosEtapes: NumeroEtape[] = [1, 2, 3, 4]
 
   function handleInputTypeReaffectation(isTemporaire: boolean) {
     setErreurReaffectation(undefined)
@@ -235,17 +216,6 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
 
   function formIsValid() {
     let isFormValid = true
-
-    if (
-      estSuperviseurResponsable &&
-      structureReaffectation.value === undefined
-    ) {
-      setStructureReaffectation({
-        ...structureReaffectation,
-        error: 'Veuillez choisir un contrat de réaffectation',
-      })
-      isFormValid = false
-    }
 
     if (isReaffectationTemporaire.value === undefined) {
       setIsReaffectationTemporaire({
@@ -424,32 +394,6 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
       </p>
 
       <form onSubmit={preparerReaffectationBeneficiaires} className='grow'>
-        {estSuperviseurResponsable && (
-          <Etape numero={1} titre='Choisissez un accompagnement'>
-            {structureReaffectation.error && (
-              <InputError id='structure-reaffectation--error' className='mb-2'>
-                {structureReaffectation.error}
-              </InputError>
-            )}
-            <div
-              id='structure-reaffectation'
-              className='grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] auto-rows-fr gap-4'
-            >
-              {structuresReaffectation.map((structure) => (
-                <RadioBox
-                  key={structure}
-                  id={'structure-reaffectation--' + structure}
-                  isSelected={structureReaffectation.value === structure}
-                  onChange={() => handleInputStructureReaffectation(structure)}
-                  label={labelsStructures[structure]}
-                  name='structure-reaffectation'
-                  className='w-full'
-                />
-              ))}
-            </div>
-          </Etape>
-        )}
-
         <Etape
           numero={numerosEtapes[0]}
           titre='Choisissez un type de réaffectation'
@@ -486,7 +430,6 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
             name='initial'
             ref={conseillerInitialRef}
             idConseillerSelectionne={conseillerInitial.value?.id}
-            structureReaffectation={structureReaffectation.value}
             onInput={resetConseillerInitial}
             onChoixConseiller={(conseiller) =>
               setConseillerInitial({ value: conseiller })
@@ -564,6 +507,9 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
                           className='mr-4 ml-6'
                         />
                         {getNomBeneficiaireComplet(beneficiaire)}
+                        <div className='ml-4'>
+                          <DispositifTag dispositif={beneficiaire.dispositif} />
+                        </div>
                         {conseillerDestination?.value &&
                           beneficiaire.structureMilo?.id &&
                           beneficiaire.structureMilo.id !==
@@ -587,7 +533,6 @@ function ReaffectationPage({ estSuperviseurResponsable }: ReaffectationProps) {
                 <ChoixConseiller
                   name='destinataire'
                   idConseillerSelectionne={conseillerDestination.value?.id}
-                  structureReaffectation={structureReaffectation.value}
                   onInput={resetConseillerDestination}
                   onChoixConseiller={(conseiller) =>
                     choixConseillerDestination({ value: conseiller })
@@ -649,13 +594,4 @@ type StateChoixConseiller = {
   value: SimpleConseiller | undefined
   errorInput?: string
   errorChoice?: string
-}
-
-const labelsStructures: { [key in StructureReaffectation]: string } = {
-  FT_ACCOMPAGNEMENT_GLOBAL: 'Accompagnement global',
-  FT_ACCOMPAGNEMENT_INTENSIF: 'REN-Intensif / FTT-FTX',
-  FT_EQUIP_EMPLOI_RECRUT: 'Equip’emploi / Equip’recrut',
-  POLE_EMPLOI: 'CEJ',
-  POLE_EMPLOI_AIJ: 'AIJ',
-  POLE_EMPLOI_BRSA: 'BRSA',
 }
