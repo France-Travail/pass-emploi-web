@@ -21,7 +21,11 @@ jest.mock('components/ModalContainer')
 describe('Reaffectation', () => {
   let container: HTMLElement
   const jeunes: BeneficiaireFromListe[] = desItemsBeneficiaires().map(
-    (benef) => ({ ...benef, structureMilo: { nom: 'Agence', id: 'id-test' } })
+    (benef) => ({
+      ...benef,
+      structureMilo: { nom: 'Agence', id: 'id-test' },
+      dispositif: 'CEJ',
+    })
   )
   const conseillers: SimpleConseiller[] = [
     {
@@ -49,14 +53,36 @@ describe('Reaffectation', () => {
     // Given
     ;(getConseillers as jest.Mock).mockResolvedValue(conseillers)
     ;(getJeunesDuConseillerParId as jest.Mock).mockResolvedValue(jeunes)
+    ;({ container } = await renderWithContexts(<ReaffectationPage />))
   })
 
-  describe('Conseiller SUPERVISEUR_RESPONSABLE', () => {
-    beforeEach(async () => {
+  describe('Étape 1 : type réaffectation', () => {
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('contient un champ pour sélectionner le type de réaffectation', () => {
       // When
-      ;({ container } = await renderWithContexts(
-        <ReaffectationPage estSuperviseurResponsable={true} />
-      ))
+      const etape = screen.getByRole('group', {
+        name: 'Étape 1: Choisissez un type de réaffectation',
+      })
+      // Then
+      expect(
+        within(etape).getByRole('radio', { name: 'Définitive' })
+      ).toBeInTheDocument()
+      expect(
+        within(etape).getByRole('radio', { name: 'Temporaire' })
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('Étape 2 : conseiller initial', () => {
+    let etape: HTMLFieldSetElement
+    beforeEach(async () => {
+      etape = screen.getByRole('group', {
+        name: 'Étape 2: Saisissez le conseiller dont les bénéficiaires sont à réaffecter',
+      })
     })
 
     it('a11y', async () => {
@@ -64,48 +90,22 @@ describe('Reaffectation', () => {
       expect(results).toHaveNoViolations()
     })
 
-    describe('Étape 1 : contrat réaffectation', () => {
-      it('contient un champ pour sélectionner le contrat de réaffectation', () => {
-        // When
-        const etape = screen.getByRole('group', {
-          name: 'Étape 1: Choisissez un accompagnement',
+    it("affiche un champ de recherche d'un conseiller initial", async () => {
+      // THEN
+      expect(
+        within(etape).getByRole('searchbox', {
+          name: 'E-mail ou nom et prénom du conseiller',
         })
-        // Then
-        expect(
-          within(etape).getByRole('radio', { name: 'CEJ' })
-        ).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('radio', { name: 'BRSA' })
-        ).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('radio', { name: 'REN-Intensif / FTT-FTX' })
-        ).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('radio', { name: 'Accompagnement global' })
-        ).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('radio', {
-            name: 'Equip’emploi / Equip’recrut',
-          })
-        ).toBeInTheDocument()
-      })
+      ).toBeInTheDocument()
+      expect(
+        within(etape).getByRole('button', {
+          name: 'Rechercher un conseiller initial',
+        })
+      ).toBeInTheDocument()
     })
 
-    describe('Étape 3 : conseiller initial', () => {
-      let etape: HTMLFieldSetElement
+    describe('affiche la liste des conseillers possibles', () => {
       beforeEach(async () => {
-        etape = screen.getByRole('group', {
-          name: 'Étape 3: Saisissez le conseiller dont les bénéficiaires sont à réaffecter',
-        })
-        await userEvent.click(screen.getByRole('radio', { name: 'BRSA' }))
-      })
-
-      it('a11y', async () => {
-        const results = await axe(container)
-        expect(results).toHaveNoViolations()
-      })
-
-      it('affiche la liste des conseillers possibles pour le contrat sélectionné', async () => {
         // Given
         await userEvent.type(
           within(etape).getByRole('searchbox', {
@@ -120,9 +120,16 @@ describe('Reaffectation', () => {
             name: 'Rechercher un conseiller initial',
           })
         )
+      })
 
+      it('a11y', async () => {
+        const results = await axe(container)
+        expect(results).toHaveNoViolations()
+      })
+
+      it('contenu', () => {
         // Then
-        expect(getConseillers).toHaveBeenCalledWith('Nils', 'POLE_EMPLOI_BRSA')
+        expect(getConseillers).toHaveBeenCalledWith('Nils')
         const listeConseillers = within(etape).getByRole('group', {
           name: 'Choix du conseiller initial',
         })
@@ -140,33 +147,26 @@ describe('Reaffectation', () => {
       })
     })
 
-    describe('Étape 5 : conseiller destinataire et réaffectation', () => {
-      let etape: HTMLFieldSetElement
-      let conseillerDestinataireInput: HTMLInputElement
+    describe('recherche les jeunes du conseiller sélectionné', () => {
       beforeEach(async () => {
         // Given
-        await userEvent.click(screen.getByRole('radio', { name: 'BRSA' }))
-        await userEvent.click(screen.getByRole('radio', { name: 'Définitive' }))
-
         await userEvent.type(
-          screen.getByRole('searchbox', { name: /conseiller/ }),
+          within(etape).getByRole('searchbox', {
+            name: 'E-mail ou nom et prénom du conseiller',
+          }),
           'Nils'
         )
         await userEvent.click(
-          screen.getByRole('button', { name: /conseiller initial/ })
+          within(etape).getByRole('button', {
+            name: 'Rechercher un conseiller initial',
+          })
         )
+
+        // When
         await userEvent.click(
-          screen.getByRole('radio', { name: /Nils Tavernier/ })
+          within(etape).getByRole('radio', { name: /Nils Tavernier/ })
         )
         await act(() => new Promise((r) => setTimeout(r, 1000)))
-
-        etape = screen.getByRole('group', {
-          name: 'Étape 5: Saisissez le conseiller à qui affecter les bénéficiaires',
-        })
-        conseillerDestinataireInput = within(etape).getByRole('searchbox', {
-          name: 'E-mail ou nom et prénom du conseiller',
-        })
-        await userEvent.type(conseillerDestinataireInput, 'Nils')
       })
 
       it('a11y', async () => {
@@ -174,16 +174,167 @@ describe('Reaffectation', () => {
         expect(results).toHaveNoViolations()
       })
 
-      it('affiche la liste des conseillers possibles pour le contrat sélectionné', async () => {
+      it('contenu', () => {
+        // Then
+        expect(getJeunesDuConseillerParId).toHaveBeenCalledWith(
+          'id-nils-tavernier'
+        )
+      })
+    })
+  })
+
+  describe('Étape 3 : bénéficiaires', () => {
+    let etape: HTMLFieldSetElement
+    beforeEach(async () => {
+      // GIVEN
+      await userEvent.type(
+        screen.getByRole('searchbox', { name: /conseiller/ }),
+        'Nils'
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /conseiller initial/ })
+      )
+      await userEvent.click(
+        screen.getByRole('radio', { name: /Nils Tavernier/ })
+      )
+      await act(() => new Promise((r) => setTimeout(r, 1000)))
+
+      etape = screen.getByRole('group', {
+        name: 'Étape 3: Sélectionnez les bénéficiaires à réaffecter',
+      })
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('affiche les jeunes du conseiller', async () => {
+      // THEN
+      const liste = within(etape).getByRole('list')
+
+      expect(liste).toBeInTheDocument()
+      for (const jeune of jeunes) {
+        expect(
+          within(liste).getByRole('checkbox', {
+            name: `${jeune.nom} ${jeune.prenom} ${jeune.dispositif}`,
+          })
+        ).toBeInTheDocument()
+      }
+    })
+
+    it('selectionne tous les jeunes au clic sur la checkbox', async () => {
+      // When
+      await userEvent.click(
+        within(etape).getByRole('checkbox', {
+          name: 'Tout sélectionner',
+        })
+      )
+
+      // Then
+      expect(
+        within(etape).getByRole('checkbox', {
+          name: 'Tout sélectionner',
+        })
+      ).toBeChecked()
+      for (const jeune of jeunes) {
+        expect(
+          within(etape).getByRole('checkbox', {
+            name: `${jeune.nom} ${jeune.prenom} ${jeune.dispositif}`,
+          })
+        ).toBeChecked()
+      }
+
+      // When
+      await userEvent.click(
+        within(etape).getByRole('checkbox', {
+          name: 'Tout sélectionner',
+        })
+      )
+
+      // Then
+      expect(
+        within(etape).getByRole('checkbox', {
+          name: 'Tout sélectionner',
+        })
+      ).not.toBeChecked()
+      for (const jeune of jeunes) {
+        expect(
+          within(etape).getByRole('checkbox', {
+            name: `${jeune.nom} ${jeune.prenom} ${jeune.dispositif}`,
+          })
+        ).not.toBeChecked()
+      }
+    })
+  })
+
+  describe('Étape 4 : conseiller destinataire et réaffectation', () => {
+    let checkboxBeneficiaire: HTMLInputElement
+    let etape: HTMLFieldSetElement
+    let conseillerDestinataireInput: HTMLInputElement
+    beforeEach(async () => {
+      // GIVEN
+      await userEvent.type(
+        screen.getByRole('searchbox', { name: /conseiller/ }),
+        'Nils'
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /conseiller initial/ })
+      )
+      await userEvent.click(
+        screen.getByRole('radio', { name: /Nils Tavernier/ })
+      )
+      await act(() => new Promise((r) => setTimeout(r, 1000)))
+
+      checkboxBeneficiaire = screen.getByRole('checkbox', {
+        name: new RegExp(jeunes[1].nom),
+      })
+      etape = screen.getByRole('group', {
+        name: 'Étape 4: Saisissez le conseiller à qui affecter les bénéficiaires',
+      })
+      conseillerDestinataireInput = within(etape).getByRole('searchbox', {
+        name: 'E-mail ou nom et prénom du conseiller',
+      })
+
+      await userEvent.click(screen.getByRole('radio', { name: 'Définitive' }))
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it("affiche un champ de recherche d'un conseiller de destination", async () => {
+      // THEN
+      expect(conseillerDestinataireInput).toBeInTheDocument()
+      expect(
+        within(etape).getByRole('button', {
+          name: 'Rechercher un conseiller destinataire',
+        })
+      ).toBeInTheDocument()
+    })
+
+    describe('affiche la liste des conseillers possibles', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.type(conseillerDestinataireInput, 'Nils')
+
         // When
         await userEvent.click(
           within(etape).getByRole('button', {
             name: 'Rechercher un conseiller destinataire',
           })
         )
+      })
 
+      it('a11y', async () => {
+        const results = await axe(container)
+        expect(results).toHaveNoViolations()
+      })
+
+      it('contenu', () => {
         // Then
-        expect(getConseillers).toHaveBeenCalledWith('Nils', 'POLE_EMPLOI_BRSA')
+        expect(getConseillers).toHaveBeenCalledWith('Nils')
         const listeConseillers = within(etape).getByRole('group', {
           name: 'Choix du conseiller destinataire',
         })
@@ -200,434 +351,25 @@ describe('Reaffectation', () => {
         ).toBeInTheDocument()
       })
     })
-  })
 
-  describe('Conseiller non SUPERVISEUR_RESPONSABLE', () => {
-    beforeEach(async () => {
-      // When
-      ;({ container } = await renderWithContexts(
-        <ReaffectationPage estSuperviseurResponsable={false} />
-      ))
-    })
-
-    describe('Étape 1 : type réaffectation', () => {
-      it('a11y', async () => {
-        const results = await axe(container)
-        expect(results).toHaveNoViolations()
-      })
-
-      it('contient un champ pour sélectionner le type de réaffectation', () => {
-        // When
-        const etape = screen.getByRole('group', {
-          name: 'Étape 1: Choisissez un type de réaffectation',
-        })
-        // Then
-        expect(
-          within(etape).getByRole('radio', { name: 'Définitive' })
-        ).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('radio', { name: 'Temporaire' })
-        ).toBeInTheDocument()
-      })
-    })
-
-    describe('Étape 2 : conseiller initial', () => {
-      let etape: HTMLFieldSetElement
+    describe('réaffecte les jeunes vers le conseiller sélectionné', () => {
       beforeEach(async () => {
-        etape = screen.getByRole('group', {
-          name: 'Étape 2: Saisissez le conseiller dont les bénéficiaires sont à réaffecter',
-        })
-      })
-
-      it('a11y', async () => {
-        const results = await axe(container)
-        expect(results).toHaveNoViolations()
-      })
-
-      it("affiche un champ de recherche d'un conseiller initial", async () => {
-        // THEN
-        expect(
-          within(etape).getByRole('searchbox', {
-            name: 'E-mail ou nom et prénom du conseiller',
-          })
-        ).toBeInTheDocument()
-        expect(
+        // GIVEN
+        await userEvent.type(conseillerDestinataireInput, 'Nils')
+        await userEvent.click(
           within(etape).getByRole('button', {
-            name: 'Rechercher un conseiller initial',
+            name: /conseiller destinataire/,
           })
-        ).toBeInTheDocument()
-      })
-
-      describe('affiche la liste des conseillers possibles', () => {
-        beforeEach(async () => {
-          // Given
-          await userEvent.type(
-            within(etape).getByRole('searchbox', {
-              name: 'E-mail ou nom et prénom du conseiller',
-            }),
-            'Nils'
-          )
-
-          // When
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: 'Rechercher un conseiller initial',
-            })
-          )
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('contenu', () => {
-          // Then
-          expect(getConseillers).toHaveBeenCalledWith('Nils', undefined)
-          const listeConseillers = within(etape).getByRole('group', {
-            name: 'Choix du conseiller initial',
-          })
-          expect(listeConseillers).toBeInTheDocument()
-          expect(
-            within(listeConseillers).getByRole('radio', {
-              name: 'Nils Tavernier e-mail non renseignée',
-            })
-          ).toBeInTheDocument()
-          expect(
-            within(listeConseillers).getByRole('radio', {
-              name: 'Neil Armstrong , e-mail : neil.armstrong@nasa.fr',
-            })
-          ).toBeInTheDocument()
-        })
-      })
-
-      describe('recherche les jeunes du conseiller sélectionné', () => {
-        beforeEach(async () => {
-          // Given
-          await userEvent.type(
-            within(etape).getByRole('searchbox', {
-              name: 'E-mail ou nom et prénom du conseiller',
-            }),
-            'Nils'
-          )
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: 'Rechercher un conseiller initial',
-            })
-          )
-
-          // When
-          await userEvent.click(
-            within(etape).getByRole('radio', { name: /Nils Tavernier/ })
-          )
-          await act(() => new Promise((r) => setTimeout(r, 1000)))
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('contenu', () => {
-          // Then
-          expect(getJeunesDuConseillerParId).toHaveBeenCalledWith(
-            'id-nils-tavernier'
-          )
-        })
-      })
-    })
-
-    describe('Étape 3 : bénéficiaires', () => {
-      let etape: HTMLFieldSetElement
-      beforeEach(async () => {
-        // GIVEN
-        await userEvent.type(
-          screen.getByRole('searchbox', { name: /conseiller/ }),
-          'Nils'
         )
         await userEvent.click(
-          screen.getByRole('button', { name: /conseiller initial/ })
+          within(etape).getByRole('radio', { name: /Neil Armstrong/ })
         )
-        await userEvent.click(
-          screen.getByRole('radio', { name: /Nils Tavernier/ })
-        )
-        await act(() => new Promise((r) => setTimeout(r, 1000)))
-
-        etape = screen.getByRole('group', {
-          name: 'Étape 3: Sélectionnez les bénéficiaires à réaffecter',
-        })
-      })
-
-      it('a11y', async () => {
-        const results = await axe(container)
-        expect(results).toHaveNoViolations()
-      })
-
-      it('affiche les jeunes du conseiller', async () => {
-        // THEN
-        const liste = within(etape).getByRole('list')
-
-        expect(liste).toBeInTheDocument()
-        for (const jeune of jeunes) {
-          expect(
-            within(liste).getByRole('checkbox', {
-              name: `${jeune.nom} ${jeune.prenom}`,
-            })
-          ).toBeInTheDocument()
-        }
-      })
-
-      it('selectionne tous les jeunes au clic sur la checkbox', async () => {
-        // When
-        await userEvent.click(
-          within(etape).getByRole('checkbox', {
-            name: 'Tout sélectionner',
-          })
-        )
-
-        // Then
-        expect(
-          within(etape).getByRole('checkbox', {
-            name: 'Tout sélectionner',
-          })
-        ).toBeChecked()
-        for (const jeune of jeunes) {
-          expect(
-            within(etape).getByRole('checkbox', {
-              name: `${jeune.nom} ${jeune.prenom}`,
-            })
-          ).toBeChecked()
-        }
-
-        // When
-        await userEvent.click(
-          within(etape).getByRole('checkbox', {
-            name: 'Tout sélectionner',
-          })
-        )
-
-        // Then
-        expect(
-          within(etape).getByRole('checkbox', {
-            name: 'Tout sélectionner',
-          })
-        ).not.toBeChecked()
-        for (const jeune of jeunes) {
-          expect(
-            within(etape).getByRole('checkbox', {
-              name: `${jeune.nom} ${jeune.prenom}`,
-            })
-          ).not.toBeChecked()
-        }
-      })
-    })
-
-    describe('Étape 4 : conseiller destinataire et réaffectation', () => {
-      let checkboxBeneficiaire: HTMLInputElement
-      let etape: HTMLFieldSetElement
-      let conseillerDestinataireInput: HTMLInputElement
-      beforeEach(async () => {
-        // GIVEN
-        await userEvent.type(
-          screen.getByRole('searchbox', { name: /conseiller/ }),
-          'Nils'
-        )
-        await userEvent.click(
-          screen.getByRole('button', { name: /conseiller initial/ })
-        )
-        await userEvent.click(
-          screen.getByRole('radio', { name: /Nils Tavernier/ })
-        )
-        await act(() => new Promise((r) => setTimeout(r, 1000)))
-
-        checkboxBeneficiaire = screen.getByRole('checkbox', {
-          name: new RegExp(jeunes[1].nom),
-        })
-        etape = screen.getByRole('group', {
-          name: 'Étape 4: Saisissez le conseiller à qui affecter les bénéficiaires',
-        })
-        conseillerDestinataireInput = within(etape).getByRole('searchbox', {
-          name: 'E-mail ou nom et prénom du conseiller',
-        })
-
-        await userEvent.click(screen.getByRole('radio', { name: 'Définitive' }))
-      })
-
-      it('a11y', async () => {
-        const results = await axe(container)
-        expect(results).toHaveNoViolations()
-      })
-
-      it("affiche un champ de recherche d'un conseiller de destination", async () => {
-        // THEN
-        expect(conseillerDestinataireInput).toBeInTheDocument()
-        expect(
-          within(etape).getByRole('button', {
-            name: 'Rechercher un conseiller destinataire',
-          })
-        ).toBeInTheDocument()
-      })
-
-      describe('affiche la liste des conseillers possibles', () => {
-        beforeEach(async () => {
-          // Given
-          await userEvent.type(conseillerDestinataireInput, 'Nils')
-
-          // When
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: 'Rechercher un conseiller destinataire',
-            })
-          )
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('contenu', () => {
-          // Then
-          expect(getConseillers).toHaveBeenCalledWith('Nils', undefined)
-          const listeConseillers = within(etape).getByRole('group', {
-            name: 'Choix du conseiller destinataire',
-          })
-          expect(listeConseillers).toBeInTheDocument()
-          expect(
-            within(listeConseillers).getByRole('radio', {
-              name: 'Nils Tavernier e-mail non renseignée',
-            })
-          ).toBeInTheDocument()
-          expect(
-            within(listeConseillers).getByRole('radio', {
-              name: 'Neil Armstrong , e-mail : neil.armstrong@nasa.fr',
-            })
-          ).toBeInTheDocument()
-        })
-      })
-
-      describe('réaffecte les jeunes vers le conseiller sélectionné', () => {
-        beforeEach(async () => {
-          // GIVEN
-          await userEvent.type(conseillerDestinataireInput, 'Nils')
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: /conseiller destinataire/,
-            })
-          )
-          await userEvent.click(
-            within(etape).getByRole('radio', { name: /Neil Armstrong/ })
-          )
-          await userEvent.click(checkboxBeneficiaire)
-
-          // WHEN
-          await userEvent.click(
-            screen.getByRole('button', { name: 'Valider la réaffectation' })
-          )
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('contenu', () => {
-          // THEN
-          expect(reaffecter).toHaveBeenCalledWith(
-            'id-nils-tavernier',
-            'id-neil-armstrong',
-            ['id-beneficiaire-2'],
-            false
-          )
-        })
-      })
-
-      describe('bloque la réaffectation des jeunes vers le conseiller initial', () => {
-        beforeEach(async () => {
-          // GIVEN
-          await userEvent.type(conseillerDestinataireInput, 'Nils')
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: /conseiller destinataire/,
-            })
-          )
-          await userEvent.click(
-            within(etape).getByRole('radio', { name: /Nils Tavernier/ })
-          )
-          await userEvent.click(checkboxBeneficiaire)
-
-          // WHEN
-          await userEvent.click(
-            screen.getByRole('button', { name: 'Valider la réaffectation' })
-          )
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('contenu', () => {
-          // THEN
-          expect(
-            screen.getByText(
-              'Vous ne pouvez pas réaffecter des bénéficiaires à leur conseiller initial'
-            )
-          ).toBeInTheDocument()
-          expect(reaffecter).not.toHaveBeenCalled()
-        })
-      })
-
-      describe('empêche la réaffectation si elle se fait vers un conseiller avec une structure milo différente', () => {
-        beforeEach(async () => {
-          // GIVEN
-          await userEvent.type(conseillerDestinataireInput, 'Ada')
-          await userEvent.click(
-            within(etape).getByRole('button', {
-              name: /conseiller destinataire/,
-            })
-          )
-          await userEvent.click(
-            within(etape).getByRole('radio', { name: /Ada Lovelace/ })
-          )
-          await userEvent.click(checkboxBeneficiaire)
-
-          // WHEN
-          await userEvent.click(
-            screen.getByRole('button', { name: 'Valider la réaffectation' })
-          )
-        })
-
-        it('a11y', async () => {
-          const results = await axe(container)
-          expect(results).toHaveNoViolations()
-        })
-
-        it('affiche une modale', () => {
-          // THEN
-          expect(
-            screen.getByText(
-              'La réaffectation n’est pas autorisée lorsqu’un bénéficiaire n’appartient pas à la même Mission Locale du conseiller destinataire.'
-            )
-          ).toBeInTheDocument()
-          expect(reaffecter).not.toHaveBeenCalled()
-        })
-      })
-    })
-
-    describe('quand on modifie la recherche du conseiller initial', () => {
-      beforeEach(async () => {
-        // GIVEN
-        const conseillerInitialInput = screen.getByRole('searchbox', {
-          name: /conseiller/,
-        })
-        await userEvent.type(conseillerInitialInput, 'Nils')
-        await userEvent.click(
-          screen.getByRole('button', { name: /conseiller initial/ })
-        )
+        await userEvent.click(checkboxBeneficiaire)
 
         // WHEN
-        await userEvent.type(conseillerInitialInput, 'whatever')
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Valider la réaffectation' })
+        )
       })
 
       it('a11y', async () => {
@@ -635,17 +377,120 @@ describe('Reaffectation', () => {
         expect(results).toHaveNoViolations()
       })
 
-      it('reset le reste du formulaire', () => {
+      it('contenu', () => {
         // THEN
-        expect(screen.queryByRole('table')).not.toBeInTheDocument()
-        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
-        expect(
-          screen.queryAllByRole('searchbox', { name: /conseiller/ })
-        ).toHaveLength(1)
-        expect(
-          screen.queryByRole('button', { name: /confirmer/ })
-        ).not.toBeInTheDocument()
+        expect(reaffecter).toHaveBeenCalledWith(
+          'id-nils-tavernier',
+          'id-neil-armstrong',
+          ['id-beneficiaire-2'],
+          false
+        )
       })
+    })
+
+    describe('bloque la réaffectation des jeunes vers le conseiller initial', () => {
+      beforeEach(async () => {
+        // GIVEN
+        await userEvent.type(conseillerDestinataireInput, 'Nils')
+        await userEvent.click(
+          within(etape).getByRole('button', {
+            name: /conseiller destinataire/,
+          })
+        )
+        await userEvent.click(
+          within(etape).getByRole('radio', { name: /Nils Tavernier/ })
+        )
+        await userEvent.click(checkboxBeneficiaire)
+
+        // WHEN
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Valider la réaffectation' })
+        )
+      })
+
+      it('a11y', async () => {
+        const results = await axe(container)
+        expect(results).toHaveNoViolations()
+      })
+
+      it('contenu', () => {
+        // THEN
+        expect(
+          screen.getByText(
+            'Vous ne pouvez pas réaffecter des bénéficiaires à leur conseiller initial'
+          )
+        ).toBeInTheDocument()
+        expect(reaffecter).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('empêche la réaffectation si elle se fait vers un conseiller avec une structure milo différente', () => {
+      beforeEach(async () => {
+        // GIVEN
+        await userEvent.type(conseillerDestinataireInput, 'Ada')
+        await userEvent.click(
+          within(etape).getByRole('button', {
+            name: /conseiller destinataire/,
+          })
+        )
+        await userEvent.click(
+          within(etape).getByRole('radio', { name: /Ada Lovelace/ })
+        )
+        await userEvent.click(checkboxBeneficiaire)
+
+        // WHEN
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Valider la réaffectation' })
+        )
+      })
+
+      it('a11y', async () => {
+        const results = await axe(container)
+        expect(results).toHaveNoViolations()
+      })
+
+      it('affiche une modale', () => {
+        // THEN
+        expect(
+          screen.getByText(
+            'La réaffectation n’est pas autorisée lorsqu’un bénéficiaire n’appartient pas à la même Mission Locale du conseiller destinataire.'
+          )
+        ).toBeInTheDocument()
+        expect(reaffecter).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('quand on modifie la recherche du conseiller initial', () => {
+    beforeEach(async () => {
+      // GIVEN
+      const conseillerInitialInput = screen.getByRole('searchbox', {
+        name: /conseiller/,
+      })
+      await userEvent.type(conseillerInitialInput, 'Nils')
+      await userEvent.click(
+        screen.getByRole('button', { name: /conseiller initial/ })
+      )
+
+      // WHEN
+      await userEvent.type(conseillerInitialInput, 'whatever')
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('reset le reste du formulaire', () => {
+      // THEN
+      expect(screen.queryByRole('table')).not.toBeInTheDocument()
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+      expect(
+        screen.queryAllByRole('searchbox', { name: /conseiller/ })
+      ).toHaveLength(1)
+      expect(
+        screen.queryByRole('button', { name: /confirmer/ })
+      ).not.toBeInTheDocument()
     })
   })
 })

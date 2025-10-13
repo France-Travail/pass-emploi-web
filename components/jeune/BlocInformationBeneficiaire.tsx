@@ -2,7 +2,7 @@ import React from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
-import { estFTConnect, estMilo } from 'interfaces/structure'
+import { estFranceTravail, estMilo } from 'interfaces/structure'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toRelativeDateTime, toShortDate } from 'utils/date'
 
@@ -26,7 +26,7 @@ export default function BlocInformationBeneficiaire({
   const [conseiller] = useConseiller()
 
   const conseillerEstMilo = estMilo(conseiller.structure)
-  const aIdentifiantFT = estFTConnect(conseiller.structure)
+  const aIdentifiantFT = estFranceTravail(conseiller.structure)
   const { dateFinCEJ, email, lastActivity, urlDossier } = beneficiaire
 
   return (

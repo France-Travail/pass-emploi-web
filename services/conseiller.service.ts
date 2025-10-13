@@ -12,7 +12,6 @@ import {
   jsonToSimpleConseiller,
   SimpleConseillerJson,
 } from 'interfaces/json/conseiller'
-import { StructureReaffectation } from 'interfaces/structure'
 
 export async function getConseillerServerSide(
   user: Session.HydratedUser,
@@ -26,16 +25,11 @@ export async function getConseillerServerSide(
 }
 
 export async function getConseillers(
-  recherche: string,
-  structure?: StructureReaffectation
+  recherche: string
 ): Promise<SimpleConseiller[]> {
   const session = await getSession()
-  let filtreStructure = ''
-  if (structure) {
-    filtreStructure = `&structure=${structure}`
-  }
   const { content } = await apiGet<SimpleConseillerJson[]>(
-    `/conseillers?q=${recherche}${filtreStructure}`,
+    `/conseillers?q=${recherche}`,
     session!.accessToken
   )
   return content.map(jsonToSimpleConseiller)

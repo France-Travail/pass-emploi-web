@@ -1,13 +1,7 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import React, {
-  ForwardedRef,
-  forwardRef,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react'
 
 import FiltresDispositifs from 'components/action/FiltresDispositifs'
 import FiltresListes from 'components/action/FiltresListes'
@@ -64,11 +58,9 @@ function TableauBeneficiaires(
     type: 'nom' | 'heures' | 'activite'
     ordreCroissant: boolean
   }>({ type: 'nom', ordreCroissant: true })
-  const afficherFiltres =
-    estMilo(conseiller.structure) &&
-    beneficiaires.some(
-      (beneficiaire) => beneficiaire.dispositif !== beneficiaires[0].dispositif
-    )
+  const afficherFiltreDispositif = beneficiaires.some(
+    (beneficiaire) => beneficiaire.dispositif !== beneficiaires[0].dispositif
+  )
 
   const [beneficiairesFiltres, setBeneficiairesFiltres] = useState<
     BeneficiaireAvecInfosComplementaires[]
@@ -296,11 +288,15 @@ function TableauBeneficiaires(
             )}
 
           <div className='my-4 flex justify-end gap-6'>
-            {afficherFiltres && (
+            {afficherFiltreDispositif && (
               <FiltresDispositifs
                 ref={filtreDispositifRef}
                 defaultValue={filtreDispositif}
-                dispositifs={['CEJ', 'PACEA']}
+                dispositifs={Array.from(
+                  new Set(beneficiaires.map((b) => b.dispositif))
+                ).sort((a, b) =>
+                  a.localeCompare(b, 'fr', { sensitivity: 'base' })
+                )}
                 onFiltres={handleFiltreDispositif}
                 className='grow'
               />

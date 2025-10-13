@@ -17,7 +17,6 @@ export enum UserType {
 
 export enum UserRole {
   SUPERVISEUR = 'SUPERVISEUR',
-  SUPERVISEUR_RESPONSABLE = 'SUPERVISEUR_RESPONSABLE',
 }
 
 export type BaseConseiller = {
@@ -36,7 +35,6 @@ export type Conseiller = BaseConseiller & {
   aDesBeneficiairesARecuperer: boolean
   structure: Structure
   estSuperviseur: boolean
-  estSuperviseurResponsable: boolean
   agence?: { nom: string; id?: string }
   structureMilo?: MissionLocale
   dateSignatureCGU?: string
@@ -45,10 +43,6 @@ export type Conseiller = BaseConseiller & {
 
 export function estSuperviseur(conseiller: Conseiller): boolean {
   return conseiller.estSuperviseur
-}
-
-export function estSuperviseurResponsable(conseiller: Conseiller): boolean {
-  return conseiller.estSuperviseurResponsable
 }
 
 export function aEtablissement(conseiller: Conseiller): boolean {

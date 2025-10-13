@@ -16,6 +16,43 @@ export enum CategorieSituation {
 
 export type Portefeuille = BeneficiaireWithActivity[]
 
+export enum Dispositif {
+  CEJ = 'CEJ',
+  PACEA = 'PACEA',
+  BRSA = 'BRSA',
+  AIJ = 'AIJ',
+  CONSEIL_DEPT = 'CONSEIL_DEPT',
+  AVENIR_PRO = 'AVENIR_PRO',
+  ACCOMPAGNEMENT_INTENSIF = 'ACCOMPAGNEMENT_INTENSIF',
+  ACCOMPAGNEMENT_GLOBAL = 'ACCOMPAGNEMENT_GLOBAL',
+  EQUIP_EMPLOI_RECRUT = 'EQUIP_EMPLOI_RECRUT',
+}
+
+export function getLabelDispositif(dispositif: string): string {
+  switch (dispositif) {
+    case Dispositif.CEJ:
+      return 'CEJ'
+    case Dispositif.PACEA:
+      return 'PACEA'
+    case Dispositif.BRSA:
+      return 'RSA rénové'
+    case Dispositif.AIJ:
+      return 'AIJ'
+    case Dispositif.ACCOMPAGNEMENT_INTENSIF:
+      return 'REN-Intensif / FTT-FTX'
+    case Dispositif.ACCOMPAGNEMENT_GLOBAL:
+      return 'Accompagnement global'
+    case Dispositif.EQUIP_EMPLOI_RECRUT:
+      return 'Equip’emploi / Equip’recrut'
+    case Dispositif.AVENIR_PRO:
+      return 'Avenirpro'
+    case Dispositif.CONSEIL_DEPT:
+      return 'Conseil départemental'
+    default:
+      return dispositif
+  }
+}
+
 export type IdentiteBeneficiaire = {
   id: string
   prenom: string

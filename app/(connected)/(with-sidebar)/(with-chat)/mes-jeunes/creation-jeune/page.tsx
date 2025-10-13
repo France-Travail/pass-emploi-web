@@ -9,7 +9,7 @@ import {
 import { Liste } from 'interfaces/liste'
 import {
   estAvenirPro,
-  estFTConnect,
+  estFranceTravail,
   estMilo,
   labelStructure,
 } from 'interfaces/structure'
@@ -25,7 +25,9 @@ export default async function CreationBeneficiaire() {
 
   const header =
     'Créer un compte bénéficiaire' +
-    (estFTConnect(user.structure) ? ` ${labelStructure(user.structure)}` : '')
+    (estFranceTravail(user.structure)
+      ? ` ${labelStructure(user.structure)}`
+      : '')
 
   let listes: Liste[] | undefined = undefined
   if (estAvenirPro(user.structure)) {

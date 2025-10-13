@@ -50,7 +50,6 @@ describe('Authenticator', () => {
           expiresAtTimestamp: 1638434737000,
           idConseiller: '972d013d-3781-418a-9b8d-1e288f346b45',
           estSuperviseur: true,
-          estSuperviseurResponsable: false,
           estConseiller: true,
           structureConseiller: structureMilo,
         })
@@ -191,7 +190,6 @@ describe('Authenticator', () => {
             expiresAtTimestamp: expiresAtInSeconds * 1000,
             idConseiller: '2d29d1e1-52a5-4d2e-aa40-a2435c5e824a',
             estSuperviseur: true,
-            estSuperviseurResponsable: true,
             estConseiller: true,
             structureConseiller: 'POLE_EMPLOI_AIJ',
           })
@@ -220,7 +218,6 @@ describe('Authenticator', () => {
             expiresAtTimestamp: expiresAtInSeconds * 1000,
             idConseiller: '2d29d1e1-52a5-4d2e-aa40-a2435c5e824a',
             estSuperviseur: true,
-            estSuperviseurResponsable: true,
             estConseiller: true,
             structureConseiller: 'POLE_EMPLOI_AIJ',
           })

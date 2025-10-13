@@ -19,7 +19,7 @@ import {
 } from 'interfaces/beneficiaire'
 import { utiliseChat } from 'interfaces/conseiller'
 import { Liste } from 'interfaces/liste'
-import { estFTConnect, estMilo, labelStructure } from 'interfaces/structure'
+import { estFranceTravail, estMilo, labelStructure } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { countMessagesNotRead } from 'services/messages.service'
 import { useAlerte } from 'utils/alerteContext'
@@ -203,7 +203,7 @@ function PortefeuillePage({
             <h2 className='text-m-bold text-content-color text-center mb-8'>
               Vous n’avez pas encore de bénéficiaire rattaché à votre
               portefeuille
-              {estFTConnect(conseiller.structure)
+              {estFranceTravail(conseiller.structure)
                 ? ` ${labelStructure(conseiller.structure)}`
                 : ''}
               .
