@@ -12,7 +12,7 @@ const structureConseilDepartemental = 'CONSEIL_DEPT'
 
 const structuresCEJ = [structureMilo, structureFTCej] as const
 
-const structuresFTConnect = [
+const structuresFranceTravail = [
   structureFTCej,
   structureBrsa,
   structureAij,
@@ -26,7 +26,7 @@ const structuresFTConnect = [
 
 type StructureCEJ = (typeof structuresCEJ)[number]
 
-type StructureFTConnect = (typeof structuresFTConnect)[number]
+type StructureFTConnect = (typeof structuresFranceTravail)[number]
 
 export type Structure =
   | StructureFTConnect
@@ -37,7 +37,7 @@ export type Structure =
 
 export function estStructure(structure: string): structure is Structure {
   return (
-    estFTConnect(structure) ||
+    estFranceTravail(structure) ||
     estMilo(structure) ||
     estConseilDepartemental(structure)
   )
@@ -69,10 +69,10 @@ export function estPassEmploi(
   return !([...structuresCEJ] as string[]).includes(structure)
 }
 
-export function estFTConnect(
+export function estFranceTravail(
   structure: string
 ): structure is StructureFTConnect {
-  return ([...structuresFTConnect] as string[]).includes(structure)
+  return ([...structuresFranceTravail] as string[]).includes(structure)
 }
 
 export function labelStructure(structure: string): string {

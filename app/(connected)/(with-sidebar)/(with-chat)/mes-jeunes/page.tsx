@@ -11,7 +11,7 @@ import {
 import { Liste } from 'interfaces/liste'
 import {
   estAvenirPro,
-  estFTConnect,
+  estFranceTravail,
   estMilo,
   labelStructure,
 } from 'interfaces/structure'
@@ -81,7 +81,9 @@ export default async function Portefeuille({
 
   const header =
     'Portefeuille' +
-    (estFTConnect(user.structure) ? ` ${labelStructure(user.structure)}` : '')
+    (estFranceTravail(user.structure)
+      ? ` ${labelStructure(user.structure)}`
+      : '')
   return (
     <>
       <PageHeaderPortal header={header} />

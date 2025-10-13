@@ -12,6 +12,8 @@ import {
 import useMatomo from 'utils/analytics/useMatomo'
 import { toRelativeDateTime } from 'utils/date'
 
+import { estConseilDepartemental } from '../../interfaces/structure'
+
 import DispositifTag from './DispositifTag'
 
 interface TableauBeneficiairesPasMiloProps {
@@ -83,9 +85,11 @@ export default function TableauBeneficiairesPasMilo({
                   {getNomBeneficiaireComplet(beneficiaire)}
                 </div>
 
-                <div className='mt-1'>
-                  <DispositifTag dispositif={beneficiaire.dispositif} />
-                </div>
+                {!estConseilDepartemental(beneficiaire.dispositif) && (
+                  <div className='mt-1'>
+                    <DispositifTag dispositif={beneficiaire.dispositif} />
+                  </div>
+                )}
               </TD>
 
               <TD className='h-full p-2!'>

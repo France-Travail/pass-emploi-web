@@ -12,6 +12,8 @@ import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { Badge } from 'components/ui/Indicateurs/Badge'
 
+import { getLabelDispositif } from '../../interfaces/beneficiaire'
+
 type FiltresDispositifsProps = {
   dispositifs: string[]
   onFiltres: (dispositifSelectionne?: string) => void
@@ -43,7 +45,7 @@ function FiltresDispositifs(
           checked={dispositifSelectionne === dispositif}
           onChange={actionnerDispositif}
         />
-        {dispositif}
+        {getLabelDispositif(dispositif)}
       </label>
     )
   }

@@ -13,7 +13,7 @@ import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { Agence } from 'interfaces/referentiel'
 import {
-  estFTConnect,
+  estFranceTravail,
   estMilo,
   getUrlFormulaireSupport,
   labelStructure,
@@ -164,7 +164,7 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
       <section className='border border-solid rounded-base w-full p-4 border-grey-100 mb-8'>
         <h2 className='text-m-bold text-grey-800 mb-4'>Informations</h2>
 
-        {estFTConnect(conseiller.structure) && (
+        {estFranceTravail(conseiller.structure) && (
           <InformationMessage label='Changement d’agence ou de dispositif ?'>
             <p>
               Pour changer d’agence ou de dispositif, vous devez supprimer votre
@@ -203,7 +203,7 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
             </div>
           )}
 
-          {estFTConnect(conseiller.structure) && (
+          {estFranceTravail(conseiller.structure) && (
             <div>
               <dt className='mt-2 inline text-base-regular'>
                 Votre dispositif :
