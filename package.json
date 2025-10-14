@@ -13,7 +13,10 @@
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint",
     "test": "TZ=Europe/Paris jest --config jest.config.js --coverage",
-    "test:watch": "jest --config jest.config.js --watch"
+    "test:watch": "jest --config jest.config.js --watch",
+    "release:patch": "./release.sh patch",
+    "release:minor": "./release.sh minor",
+    "release:major": "./release.sh major"
   },
   "dependencies": {
     "@elastic/apm-rum": "5.17.0",

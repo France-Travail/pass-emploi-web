@@ -28,6 +28,21 @@ yarn dev
 
 Voilà! Ouvrez [http://localhost:3000](http://localhost:3000) sur votre navigateur.
 
+### METTRE EN PROD develop sur master
+
+Depuis `develop` :
+
+1. Se positionner sur la branche `develop` et pull
+2. Faire une nouvelle release `yarn release:<level: patch | minor | major>`
+3. `git push --tags`
+4. `git push origin develop`
+5. OPTIONNEL : Créer la PR depuis `develop` sur `master` (pour vérifier les changements)
+6. Se positionner sur `master` et pull
+7. `git merge develop` sur `master`
+8. `git push` sur `master`
+
+Mettre en PROD un **HOTFIX** : faire une nouvelle version (`yarn release`) et un `cherry-pick`
+
 ## Déploiement
 
 Nous utilisons actuellement Scalingo comme hébergeur sur l'application Web. Il existe deux environnements : Staging &
