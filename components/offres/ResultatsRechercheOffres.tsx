@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import EmptyState from 'components/EmptyState'
 import ImmersionCard from 'components/offres/ImmersionCard'
@@ -6,9 +6,7 @@ import OffreEmploiCard from 'components/offres/OffreEmploiCard'
 import ServiceCiviqueCard from 'components/offres/ServiceCiviqueCard'
 import { IllustrationName } from 'components/ui/IllustrationComponent'
 import Pagination from 'components/ui/Table/Pagination'
-import { utiliseChat } from 'interfaces/conseiller'
 import { BaseOffre, TypeOffre } from 'interfaces/offre'
-import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 type ResultatsRechercheOffreProps = {
   isSearching: boolean
@@ -27,9 +25,6 @@ export default function ResultatsRechercheOffre({
   nbPages,
   onChangerPage,
 }: ResultatsRechercheOffreProps) {
-  const [conseiller] = useConseiller()
-  const peutPartagerOffre = utiliseChat(conseiller)
-
   const ulRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
@@ -51,22 +46,13 @@ export default function ResultatsRechercheOffre({
               <li key={`${offre.type}-${offre.id}`} className='mb-4'>
                 {(offre.type === TypeOffre.EMPLOI ||
                   offre.type === TypeOffre.ALTERNANCE) && (
-                  <OffreEmploiCard
-                    offre={offre}
-                    withPartage={peutPartagerOffre}
-                  />
+                  <OffreEmploiCard offre={offre} withPartage={true} />
                 )}
                 {offre.type === TypeOffre.SERVICE_CIVIQUE && (
-                  <ServiceCiviqueCard
-                    offre={offre}
-                    withPartage={peutPartagerOffre}
-                  />
+                  <ServiceCiviqueCard offre={offre} withPartage={true} />
                 )}
                 {offre.type === TypeOffre.IMMERSION && (
-                  <ImmersionCard
-                    offre={offre}
-                    withPartage={peutPartagerOffre}
-                  />
+                  <ImmersionCard offre={offre} withPartage={true} />
                 )}
               </li>
             ))}

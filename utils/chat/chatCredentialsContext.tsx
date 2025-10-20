@@ -1,8 +1,14 @@
 'use client'
 
-import { utiliseChat } from 'interfaces/conseiller'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+
 import { ChatCredentials } from 'interfaces/message'
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { getChatCredentials, signIn } from 'services/messages.service'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
@@ -23,7 +29,7 @@ export function ChatCredentialsProvider({
   >(credentials)
 
   useEffect(() => {
-    if (utiliseChat(conseiller) && !chatCredentials) {
+    if (!chatCredentials) {
       getChatCredentials()
         .then((c) => signIn(c.token).then(() => c))
         .then(setChatCredentials)

@@ -2,13 +2,13 @@
 
 import { DateTime } from 'luxon'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import ActualitesModal from 'components/ActualitesModal'
 import NavLink from 'components/ui/Form/NavLink'
 import { IconName } from 'components/ui/IconComponent'
 import { Article } from 'interfaces/actualites'
-import { estSuperviseur, utiliseChat } from 'interfaces/conseiller'
+import { estSuperviseur } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { modifierDateVisionnageActus } from 'services/conseiller.service'
 import { useActualites } from 'utils/actualitesContext'
@@ -206,22 +206,20 @@ export default function NavLinks({
             />
           )}
 
-        {!conseillerEstMilo &&
-          utiliseChat(conseiller) &&
-          items.includes(NavItem.Messagerie) && (
-            <NavLink
-              iconName={
-                isCurrentRoute('/messagerie')
-                  ? IconName.ChatFill
-                  : IconName.ChatOutline
-              }
-              className='break-all'
-              label='Messagerie'
-              href='/messagerie'
-              isActive={isCurrentRoute('/messagerie')}
-              showLabelOnSmallScreen={showLabelsOnSmallScreen}
-            />
-          )}
+        {!conseillerEstMilo && items.includes(NavItem.Messagerie) && (
+          <NavLink
+            iconName={
+              isCurrentRoute('/messagerie')
+                ? IconName.ChatFill
+                : IconName.ChatOutline
+            }
+            className='break-all'
+            label='Messagerie'
+            href='/messagerie'
+            isActive={isCurrentRoute('/messagerie')}
+            showLabelOnSmallScreen={showLabelsOnSmallScreen}
+          />
+        )}
 
         {items.includes(NavItem.Raccourci) && (
           <NavLink

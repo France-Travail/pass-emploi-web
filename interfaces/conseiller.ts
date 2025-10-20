@@ -1,14 +1,8 @@
 import { DateTime } from 'luxon'
-import { Session } from 'next-auth'
 
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
 import { MissionLocale } from 'interfaces/referentiel'
-import {
-  estMilo,
-  estPassEmploi,
-  Structure,
-  structureFTCej,
-} from 'interfaces/structure'
+import { estMilo, estPassEmploi, Structure } from 'interfaces/structure'
 import { dateIsFuture } from 'utils/date'
 
 export enum UserType {
@@ -53,23 +47,6 @@ export function aEtablissement(conseiller: Conseiller): boolean {
 
 export function peutAccederAuxSessions(conseiller: Conseiller): boolean {
   return estMilo(conseiller.structure) && Boolean(conseiller.structureMilo)
-}
-
-export function utiliseChat({
-  id,
-  structure,
-}: Conseiller | Session.HydratedUser): boolean {
-  const cvmOverride =
-    structure === structureFTCej &&
-    process.env.NEXT_PUBLIC_ENABLE_CVM === 'true'
-  const estEarlyAdopterDeCvm = (
-    process.env.NEXT_PUBLIC_CVM_EARLY_ADOPTERS ?? ''
-  )
-    .split(',')
-    .includes(id)
-  const utiliseCvm = cvmOverride || estEarlyAdopterDeCvm
-
-  return !utiliseCvm
 }
 
 export function doitSignerLesCGU(conseiller: Conseiller): boolean {

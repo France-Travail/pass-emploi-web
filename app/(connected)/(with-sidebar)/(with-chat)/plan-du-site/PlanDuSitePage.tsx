@@ -197,14 +197,9 @@ function LiensFT({
               <Link href='/reaffectation'>Réaffectation</Link>
             </li>
           )}
-          {Boolean(
-            process.env.NEXT_PUBLIC_ENABLE_CVM !== 'true' &&
-              !process.env.NEXT_PUBLIC_CVM_EARLY_ADOPTERS
-          ) && (
-            <li>
-              <Link href='/messagerie'>Messagerie</Link>
-            </li>
-          )}
+          <li>
+            <Link href='/messagerie'>Messagerie</Link>
+          </li>
           <li>
             <Link href='/aide'>Aide et ressources</Link>
           </li>
