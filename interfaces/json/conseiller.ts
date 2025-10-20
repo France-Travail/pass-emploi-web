@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 
 import { ConseillerHistorique } from 'interfaces/beneficiaire'
@@ -47,6 +48,7 @@ export interface ConseillerJson {
   aDesBeneficiairesARecuperer: boolean
   dateSignatureCGU?: string
   dateVisionnageActus?: string
+  dateDeMigration?: string
 }
 
 export function jsonToSimpleConseiller(
@@ -73,6 +75,7 @@ export function jsonToConseiller(
     ...json,
     structure: structure as Structure,
     estSuperviseur,
+    dateDeMigration: toDateDeMigration(conseillerJson.dateDeMigration),
   }
 
   if (agence) {
@@ -88,4 +91,14 @@ export function jsonToConseiller(
   }
 
   return conseiller
+}
+
+function toDateDeMigration(date: string | undefined): DateTime | undefined {
+  if (!date) return undefined
+  try {
+    return DateTime.fromISO(date)
+  } catch (error) {
+    console.error(`Date de migration invalide : ${date}`, error)
+  }
+  return undefined
 }

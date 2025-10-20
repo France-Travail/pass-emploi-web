@@ -12,6 +12,7 @@ import PageActionsPortal from 'components/PageActionsPortal'
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import ButtonLink from 'components/ui/Button/ButtonLink'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
+import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import SpinningLoader from 'components/ui/SpinningLoader'
 import {
   BeneficiaireAvecCompteursActionsRdvs,
@@ -26,6 +27,8 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useChatCredentials } from 'utils/chat/chatCredentialsContext'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
+
+import { toMonthday } from '../../../../../utils/date'
 
 const TutorielAjoutBeneficiaireMilo = dynamic(
   () => import('components/mes-jeunes/TutorielAjoutBeneficiaireMilo')
@@ -74,6 +77,8 @@ function PortefeuillePage({
   if (alerte?.key === AlerteParam.envoiMessage)
     initialTracking += ' - Succès envoi message'
   const [trackingTitle, setTrackingTitle] = useState<string>(initialTracking)
+
+  const conseillerDoitMigrer = !!conseiller.dateDeMigration
 
   async function recupererBeneficiaires(): Promise<void> {
     setIsRecuperationBeneficiairesLoading(true)
@@ -177,6 +182,18 @@ function PortefeuillePage({
           Ajouter un bénéficiaire
         </ButtonLink>
       </PageActionsPortal>
+
+      {conseillerDoitMigrer && (
+        <InformationMessage label='Information importante' className='mb-6'>
+          <p>
+            La migration de l’application du CEJ vers Parcours Emploi aura lieu{' '}
+            {toMonthday(conseiller.dateDeMigration!)} pour la Gironde.
+            <br />
+            Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires
+            à votre portefeuille.
+          </p>
+        </InformationMessage>
+      )}
 
       {conseiller.aDesBeneficiairesARecuperer && (
         <div className='bg-primary-lighten rounded-base p-6 mb-6 text-center'>
