@@ -1,5 +1,4 @@
 import { DateTime, Duration } from 'luxon'
-import { DateTimeMaybeValid } from 'luxon/src/datetime'
 import { DateTimeFormatOptions } from 'luxon/src/misc'
 
 import { JourSemaine, Periode } from 'types/dates'
