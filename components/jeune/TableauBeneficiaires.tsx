@@ -77,10 +77,6 @@ function TableauBeneficiaires(
   ) {
     return (
       estMilo(conseiller.structure) &&
-      conseiller.agence?.id &&
-      (process.env.NEXT_PUBLIC_COMPTAGE_HEURES_EARLY_ADOPTERS ?? '')
-        .split(',')
-        .includes(conseiller.agence.id) &&
       beneficiaires.some((beneficiaire) => estCEJ(beneficiaire))
     )
   }

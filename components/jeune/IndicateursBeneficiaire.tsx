@@ -34,12 +34,7 @@ export default function IndicateursBeneficiaire({
   const withActionsEtRdvs = estMilo(conseiller.structure)
 
   const doitAfficherComptageHeures =
-    estCEJ(beneficiaire) &&
-    estMilo(conseiller.structure) &&
-    conseiller.agence?.id &&
-    (process.env.NEXT_PUBLIC_COMPTAGE_HEURES_EARLY_ADOPTERS ?? '')
-      .split(',')
-      .includes(conseiller.agence.id)
+    estCEJ(beneficiaire) && estMilo(conseiller.structure)
 
   const [comptageHeures, setComptageHeures] =
     useState<CompteurHeuresFicheBeneficiaire | null>(null)

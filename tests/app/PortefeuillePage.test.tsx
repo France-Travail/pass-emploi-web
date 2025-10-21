@@ -237,8 +237,6 @@ describe('PortefeuillePage client side', () => {
 
     beforeEach(async () => {
       //GIVEN
-      process.env.NEXT_PUBLIC_COMPTAGE_HEURES_EARLY_ADOPTERS =
-        'id-structure-meaux'
       jest.spyOn(DateTime, 'now').mockReturnValue(now)
       ;(getComptageHeuresPortefeuille as jest.Mock).mockResolvedValue({
         comptages: [

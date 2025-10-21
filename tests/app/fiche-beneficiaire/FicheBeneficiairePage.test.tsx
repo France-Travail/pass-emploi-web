@@ -183,9 +183,6 @@ describe('FicheBeneficiairePage client side', () => {
     })
 
     describe('compteur d’heures', () => {
-      process.env.NEXT_PUBLIC_COMPTAGE_HEURES_EARLY_ADOPTERS =
-        'id-structure-meaux'
-
       beforeEach(async () => {
         await renderFicheJeuneMilo()
       })

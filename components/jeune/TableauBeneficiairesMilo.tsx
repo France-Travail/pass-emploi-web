@@ -46,14 +46,7 @@ export default function TableauBeneficiairesMilo({
   function doitAfficherComptageHeures(
     beneficiaire: BeneficiaireAvecInfosComplementaires
   ) {
-    return (
-      estCEJ(beneficiaire) &&
-      estMilo(conseiller.structure) &&
-      conseiller.agence?.id &&
-      (process.env.NEXT_PUBLIC_COMPTAGE_HEURES_EARLY_ADOPTERS ?? '')
-        .split(',')
-        .includes(conseiller.agence.id)
-    )
+    return estCEJ(beneficiaire) && estMilo(conseiller.structure)
   }
 
   function getHeuresCalculeesParBeneficiaire(idBeneficiaire: string) {
