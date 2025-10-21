@@ -23,6 +23,7 @@ import { getComptageHeuresPortefeuille } from 'services/beneficiaires.service'
 import { recupererBeneficiaires } from 'services/conseiller.service'
 import { countMessagesNotRead, signIn } from 'services/messages.service'
 import renderWithContexts from 'tests/renderWithContexts'
+import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
 import { desListes } from '../../fixtures/listes'
@@ -654,6 +655,53 @@ describe('PortefeuillePage client side', () => {
 
       //THEN
       expect(screen.getAllByRole('row')).toHaveLength(jeunes.length + 1)
+    })
+  })
+
+  describe('quand le conseiller doit migrer vers Parcours Emploi', () => {
+    it('affiche un bandeau lui informant la date de migration', async () => {
+      // GIVEN
+      const conseiller = unConseiller({
+        dateDeMigration: DateTime.fromISO('2025-11-20'),
+      })
+
+      // WHEN
+      await renderWithContexts(
+        <ConseillerProvider conseiller={conseiller}>
+          <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />
+        </ConseillerProvider>
+      )
+
+      // THEN
+      expect(
+        screen.getByRole('status', { name: /Information importante/i })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(/La migration de l’application du CEJ/i)
+      ).toHaveTextContent(
+        /La migration de l’application du CEJ vers Parcours Emploi aura lieu jeudi 20 novembre pour la Gironde.Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires à votre portefeuille./i
+      )
+    })
+  })
+
+  describe('quand le conseiller ne doit pas migrer vers Parcours Emploi', () => {
+    it("n'affiche pas de bandeau d'information", async () => {
+      // GIVEN
+      const conseiller = unConseiller({
+        dateDeMigration: undefined,
+      })
+
+      // WHEN
+      await renderWithContexts(
+        <ConseillerProvider conseiller={conseiller}>
+          <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />
+        </ConseillerProvider>
+      )
+
+      // THEN
+      expect(
+        screen.queryByRole('status', { name: /Information importante/i })
+      ).not.toBeInTheDocument()
     })
   })
 })

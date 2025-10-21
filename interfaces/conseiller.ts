@@ -39,6 +39,7 @@ export type Conseiller = BaseConseiller & {
   structureMilo?: MissionLocale
   dateSignatureCGU?: string
   dateVisionnageActus?: string
+  dateDeMigration?: DateTime
 }
 
 export function estSuperviseur(conseiller: Conseiller): boolean {

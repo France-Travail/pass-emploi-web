@@ -1,5 +1,9 @@
+let apm
+if (!globalThis.window) {
+  apm = require('elastic-apm-node')
+}
+
 const pino = require('pino')
-const apm = require('elastic-apm-node')
 
 const logger = (defaultConfig) =>
   pino({
@@ -11,8 +15,9 @@ const logger = (defaultConfig) =>
       },
     },
     mixin: () => {
+      if (!apm) return {}
       const currentTraceIds = apm.currentTraceIds
-      return !Object.keys(currentTraceIds).length ? {} : { currentTraceIds }
+      return Object.keys(currentTraceIds).length ? { currentTraceIds } : {}
     },
   })
 

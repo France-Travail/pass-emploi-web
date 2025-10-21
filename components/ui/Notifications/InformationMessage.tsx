@@ -7,6 +7,7 @@ interface InformationMessageProps {
   iconName?: IconName
   children?: ReactNode
   onAcknowledge?: () => void
+  className?: string
 }
 
 export default function InformationMessage({
@@ -14,9 +15,14 @@ export default function InformationMessage({
   iconName,
   children,
   onAcknowledge,
+  className = '',
 }: InformationMessageProps) {
   return (
-    <div className='p-6 bg-primary-lighten rounded-base text-primary'>
+    <div
+      role='status'
+      aria-label={label}
+      className={`p-6 bg-primary-lighten rounded-base text-primary ${className}`}
+    >
       <div className='flex justify-between'>
         <div className='flex items-center'>
           <IconComponent

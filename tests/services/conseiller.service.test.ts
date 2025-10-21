@@ -43,6 +43,7 @@ describe('ConseillerApiService', () => {
           },
           dateSignatureCGU: uneDate,
           dateVisionnageActus: uneDate,
+          dateDeMigration: '2025-11-25',
         }),
       })
 
@@ -56,8 +57,59 @@ describe('ConseillerApiService', () => {
           agence: { nom: 'Milo Marseille', id: 'id-agence' },
           dateSignatureCGU: uneDate,
           dateVisionnageActus: uneDate,
+          dateDeMigration: DateTime.fromISO('2025-11-25'),
         })
       )
+    })
+    it("ne renseigne pas de date de migration si elle n'existe pas", async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({
+          dateDeMigration: undefined,
+        }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith('/conseillers/id-user', accessToken)
+      expect(actual.dateDeMigration).toBeUndefined()
+    })
+    it('ne renseigne pas de date de migration si elle est invalide', async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({
+          dateDeMigration: 'mauvaise-date',
+        }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith('/conseillers/id-user', accessToken)
+      expect(actual.dateDeMigration).toBeUndefined()
     })
   })
 
