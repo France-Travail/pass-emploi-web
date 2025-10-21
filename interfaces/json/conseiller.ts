@@ -4,6 +4,8 @@ import { Session } from 'next-auth'
 import { ConseillerHistorique } from 'interfaces/beneficiaire'
 import { Conseiller, SimpleConseiller } from 'interfaces/conseiller'
 import { Structure } from 'interfaces/structure'
+import { logger } from 'next-logger.config'
+const log = logger()
 
 export interface ConseillerHistoriqueJson {
   id: string
@@ -98,7 +100,7 @@ function toDateDeMigration(date: string | undefined): DateTime | undefined {
   try {
     return DateTime.fromISO(date)
   } catch (error) {
-    console.error(`Date de migration invalide : ${date}`, error)
+    log.error({ err: error, date }, 'Date de migration invalide')
   }
   return undefined
 }
