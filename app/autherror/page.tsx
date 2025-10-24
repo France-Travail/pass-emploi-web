@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import AuthErrorPage from 'app/autherror/AuthErrorPage'
+import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
+import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
 import {
   estStructure,
   getUrlFormulaireSupport,
@@ -23,6 +25,14 @@ export default async function AuthError({
 }) {
   const { reason, typeUtilisateur, structureUtilisateur, email } =
     (await searchParams) ?? {}
+
+  if (reason === 'MIGRATION_PARCOURS_EMPLOI') {
+    if (typeUtilisateur === 'CONSEILLER') {
+      return <MigrationConseillerPage />
+    } else if (typeUtilisateur === 'JEUNE') {
+      return <MigrationJeunePage />
+    }
+  }
 
   if (typeUtilisateur === 'CONSEILLER') {
     const { erreur, withTuto } = erreurConseiller(reason, structureUtilisateur)
@@ -89,7 +99,6 @@ function erreurConseiller(
   switch (reason) {
     case 'UTILISATEUR_INEXISTANT':
       redirect('/login/france-travail/dispositifs')
-      break
     case 'UTILISATEUR_DEJA_MILO':
       return {
         erreur:

@@ -16,6 +16,8 @@ import IllustrationQuestion from 'assets/images/illustration-question-mark.svg'
 import IllustrationSablier from 'assets/images/illustration-sablier.svg'
 import IllustrationSearch from 'assets/images/illustration-search.svg'
 import IllustrationSend from 'assets/images/illustration-send.svg'
+import IllustrationMigrationParcoursEmploiJeune from 'assets/images/migration-jeune-parcours-emploi.svg'
+import IllustrationMigrationParcoursEmploi from 'assets/images/migration-parcours-emploi.svg'
 
 export enum IllustrationName {
   ArrowForward = 'ArrowForward',
@@ -34,6 +36,8 @@ export enum IllustrationName {
   Sablier = 'Sablier',
   Search = 'Search',
   Send = 'Send',
+  MigrationParcoursEmploiConseiller = 'MigrationParcoursEmploiConseiller',
+  MigrationParcoursEmploiJeune = 'MigrationParcoursEmploiJeune',
 }
 
 const illustrationsByName: {
@@ -55,6 +59,10 @@ const illustrationsByName: {
   [IllustrationName.Sablier]: IllustrationSablier,
   [IllustrationName.Search]: IllustrationSearch,
   [IllustrationName.Send]: IllustrationSend,
+  [IllustrationName.MigrationParcoursEmploiJeune]:
+    IllustrationMigrationParcoursEmploiJeune,
+  [IllustrationName.MigrationParcoursEmploiConseiller]:
+    IllustrationMigrationParcoursEmploi,
 }
 
 type IllustrationsComponentProps = ComponentPropsWithoutRef<'svg'> & {
