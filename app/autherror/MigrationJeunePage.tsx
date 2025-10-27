@@ -7,9 +7,12 @@ import ButtonLink from '../../components/ui/Button/ButtonLink'
 import IllustrationComponent, {
   IllustrationName,
 } from '../../components/ui/IllustrationComponent'
-import { getParcoursEmploiStoreUrl } from '../../utils/deviceDetection'
+
+import { useParcoursEmploiUrl } from './useParcoursEmploiUrl'
 
 function MigrationJeunePage() {
+  const urlParcoursEmploi = useParcoursEmploiUrl()
+
   return (
     <>
       <header>
@@ -33,7 +36,7 @@ function MigrationJeunePage() {
             utiliser l’application Parcours Emploi.
           </div>
           <ButtonLink
-            href={getParcoursEmploiStoreUrl()}
+            href={urlParcoursEmploi}
             style={ButtonStyle.PRIMARY}
             className='mx-auto mt-10'
           >
