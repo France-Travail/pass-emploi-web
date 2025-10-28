@@ -26,9 +26,10 @@ function MigrationConseillerPage() {
             Information importante
           </h1>
           <div className='text-center text-base-bold text-primary'>
-            L’accès à l’application du CEJ n’est plus disponible.Pour échanger
-            avec vos bénéficiaires, rendez-vous dans CVM - messagerie
-            instantanée.
+            L’accès à l’application du CEJ n’est plus disponible.
+            <br />
+            Pour échanger avec vos bénéficiaires, rendez-vous dans CVM -
+            messagerie instantanée.
           </div>
           <div className='text-center text-base-bold text-primary mt-6'>
             Les demandeurs d’emploi doivent désormais utiliser Parcours Emploi

@@ -1,6 +1,7 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
+import Link from 'next/link'
 
 import { ButtonStyle } from '../../components/ui/Button/Button'
 import ButtonLink from '../../components/ui/Button/ButtonLink'
@@ -20,6 +21,7 @@ function MigrationJeunePage() {
       </header>
       <main
         role='main'
+        aria-labelledby='error_title'
         className='flex flex-col justify-center p-10 mt-32 w-screen'
       >
         <div className='shadow-m flex flex-col justify-center mx-auto p-8'>
@@ -28,13 +30,16 @@ function MigrationJeunePage() {
               name={IllustrationName.MigrationParcoursEmploiJeune}
             />
           </div>
-          <h1 className='text-m-bold text-primary text-center mt-6 mb-8'>
+          <h1
+            id='error_title'
+            className='text-m-bold text-primary text-center mt-6 mb-8'
+          >
             Vos outils évoluent
           </h1>
-          <div className='text text-base text-primary'>
+          <p className='text text-base text-primary'>
             L’application du CEJ n’est plus disponible. Vous devez désormais
             utiliser l’application Parcours Emploi.
-          </div>
+          </p>
           <ButtonLink
             href={urlParcoursEmploi}
             style={ButtonStyle.PRIMARY}
@@ -42,10 +47,16 @@ function MigrationJeunePage() {
           >
             Télécharger l&apos;application
           </ButtonLink>
-          <div className='text mt-12 text-xs text-primary'>
+          <p className='text mt-12 text-xs text-primary'>
             🔒 Vous pouvez demander la suppression de vos données personnelles
-            de l&apos;application du CEJ par ici
-          </div>
+            de l&apos;application du CEJ par
+            <Link
+              href={'Lien'}
+              className='text-s-regular text-content-color underline hover:text-primary'
+            >
+              {' ici'}
+            </Link>
+          </p>
         </div>
       </main>
     </>

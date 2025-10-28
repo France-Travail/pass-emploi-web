@@ -20,9 +20,9 @@ type AuthErrorSearchParams = Promise<
 
 export default async function AuthError({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: AuthErrorSearchParams
-}) {
+}>) {
   const { reason, typeUtilisateur, structureUtilisateur, email } =
     (await searchParams) ?? {}
 
@@ -67,27 +67,25 @@ function erreurBeneficiaire(
   structureUtilisateur?: string,
   email?: string
 ): string {
-  {
-    switch (reason) {
-      case 'UTILISATEUR_INEXISTANT':
-        return `Votre compte n'est pas enregistré sur l'application, veuillez contacter votre conseiller.${email && structureUtilisateur !== 'MILO' ? `\n(votre adresse e-mail associée : ${email})` : ''}`
-      case 'UTILISATEUR_DEJA_MILO':
-        return "Veuillez vous connecter en choisissant Mission Locale sur l'application du CEJ ou contacter votre conseiller pour recréer le compte."
-      case 'UTILISATEUR_DEJA_PE':
-        return "Veuillez vous connecter en choisissant France Travail sur l'application CEJ ou contacter votre conseiller pour recréer le compte."
-      case 'UTILISATEUR_DEJA_PE_BRSA':
-      case 'UTILISATEUR_DEJA_PE_AIJ':
-      case 'UTILISATEUR_DEJA_CONSEIL_DEPT':
-      case 'UTILISATEUR_DEJA_AVENIR_PRO':
-      case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF':
-      case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL':
-      case 'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT':
-        return "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
-      case 'Callback':
-        return erreurIdp(structureUtilisateur)
-      default: {
-        return `Une erreur est survenue, veuillez fermer cette page et retenter de vous connecter.\n\nSi le problème persiste, veuillez supprimer le cache de votre navigateur ou contacter votre conseiller.`
-      }
+  switch (reason) {
+    case 'UTILISATEUR_INEXISTANT':
+      return `Votre compte n'est pas enregistré sur l'application, veuillez contacter votre conseiller.${email && structureUtilisateur !== 'MILO' ? `\n(votre adresse e-mail associée : ${email})` : ''}`
+    case 'UTILISATEUR_DEJA_MILO':
+      return "Veuillez vous connecter en choisissant Mission Locale sur l'application du CEJ ou contacter votre conseiller pour recréer le compte."
+    case 'UTILISATEUR_DEJA_PE':
+      return "Veuillez vous connecter en choisissant France Travail sur l'application CEJ ou contacter votre conseiller pour recréer le compte."
+    case 'UTILISATEUR_DEJA_PE_BRSA':
+    case 'UTILISATEUR_DEJA_PE_AIJ':
+    case 'UTILISATEUR_DEJA_CONSEIL_DEPT':
+    case 'UTILISATEUR_DEJA_AVENIR_PRO':
+    case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF':
+    case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL':
+    case 'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT':
+      return "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
+    case 'Callback':
+      return erreurIdp(structureUtilisateur)
+    default: {
+      return `Une erreur est survenue, veuillez fermer cette page et retenter de vous connecter.\n\nSi le problème persiste, veuillez supprimer le cache de votre navigateur ou contacter votre conseiller.`
     }
   }
 }
