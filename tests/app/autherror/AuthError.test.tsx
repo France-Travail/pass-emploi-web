@@ -30,7 +30,7 @@ describe('AuthErrorPage', () => {
       ).toBeInTheDocument()
       expect(
         within(mainContent).getByRole('link', {
-          name: "Télécharger l'application",
+          name: 'ici',
         })
       ).toBeInTheDocument()
     })
