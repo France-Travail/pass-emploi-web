@@ -21,7 +21,7 @@ function MigrationJeunePage({
   nom = 'NOM',
   prenom = 'PRENOM',
   email = 'email@exemple.com',
-}: MigrationJeunePageProps) {
+}: Readonly<MigrationJeunePageProps>) {
   const urlParcoursEmploi = useParcoursEmploiUrl()
 
   return (
