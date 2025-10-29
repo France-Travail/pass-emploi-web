@@ -14,6 +14,7 @@ function MigrationConseillerPage() {
       </header>
       <main
         role='main'
+        aria-labelledby='error_title'
         className='flex flex-col justify-center p-10 mt-32 w-screen'
       >
         <div className='shadow-m flex flex-col justify-center w-5/10 mx-auto p-8'>
@@ -22,7 +23,10 @@ function MigrationConseillerPage() {
               name={IllustrationName.MigrationParcoursEmploiConseiller}
             />
           </div>
-          <h1 className='text-m-bold text-primary text-center mt-6 mb-8'>
+          <h1
+            id='error_title'
+            className='text-m-bold text-primary text-center mt-6 mb-8'
+          >
             Information importante
           </h1>
           <div className='text-center text-base-bold text-primary'>
