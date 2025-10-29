@@ -15,6 +15,8 @@ type AuthErrorSearchParams = Promise<
     typeUtilisateur: string
     structureUtilisateur: string
     email?: string
+    prenom?: string
+    nom?: string
   }>
 >
 
@@ -23,14 +25,14 @@ export default async function AuthError({
 }: Readonly<{
   searchParams?: AuthErrorSearchParams
 }>) {
-  const { reason, typeUtilisateur, structureUtilisateur, email } =
+  const { reason, typeUtilisateur, structureUtilisateur, email, prenom, nom } =
     (await searchParams) ?? {}
 
   if (reason === 'MIGRATION_PARCOURS_EMPLOI') {
     if (typeUtilisateur === 'CONSEILLER') {
       return <MigrationConseillerPage />
     } else if (typeUtilisateur === 'JEUNE') {
-      return <MigrationJeunePage />
+      return <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
     }
   }
 
