@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import AuthErrorPage from 'app/autherror/AuthErrorPage'
+import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
+import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
 import {
   estStructure,
   getUrlFormulaireSupport,
@@ -13,16 +15,26 @@ type AuthErrorSearchParams = Promise<
     typeUtilisateur: string
     structureUtilisateur: string
     email?: string
+    prenom?: string
+    nom?: string
   }>
 >
 
 export default async function AuthError({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: AuthErrorSearchParams
-}) {
-  const { reason, typeUtilisateur, structureUtilisateur, email } =
+}>) {
+  const { reason, typeUtilisateur, structureUtilisateur, email, prenom, nom } =
     (await searchParams) ?? {}
+
+  if (reason === 'MIGRATION_PARCOURS_EMPLOI') {
+    if (typeUtilisateur === 'CONSEILLER') {
+      return <MigrationConseillerPage />
+    } else if (typeUtilisateur === 'JEUNE') {
+      return <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
+    }
+  }
 
   if (typeUtilisateur === 'CONSEILLER') {
     const { erreur, withTuto } = erreurConseiller(reason, structureUtilisateur)
@@ -57,27 +69,25 @@ function erreurBeneficiaire(
   structureUtilisateur?: string,
   email?: string
 ): string {
-  {
-    switch (reason) {
-      case 'UTILISATEUR_INEXISTANT':
-        return `Votre compte n'est pas enregistré sur l'application, veuillez contacter votre conseiller.${email && structureUtilisateur !== 'MILO' ? `\n(votre adresse e-mail associée : ${email})` : ''}`
-      case 'UTILISATEUR_DEJA_MILO':
-        return "Veuillez vous connecter en choisissant Mission Locale sur l'application du CEJ ou contacter votre conseiller pour recréer le compte."
-      case 'UTILISATEUR_DEJA_PE':
-        return "Veuillez vous connecter en choisissant France Travail sur l'application CEJ ou contacter votre conseiller pour recréer le compte."
-      case 'UTILISATEUR_DEJA_PE_BRSA':
-      case 'UTILISATEUR_DEJA_PE_AIJ':
-      case 'UTILISATEUR_DEJA_CONSEIL_DEPT':
-      case 'UTILISATEUR_DEJA_AVENIR_PRO':
-      case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF':
-      case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL':
-      case 'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT':
-        return "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
-      case 'Callback':
-        return erreurIdp(structureUtilisateur)
-      default: {
-        return `Une erreur est survenue, veuillez fermer cette page et retenter de vous connecter.\n\nSi le problème persiste, veuillez supprimer le cache de votre navigateur ou contacter votre conseiller.`
-      }
+  switch (reason) {
+    case 'UTILISATEUR_INEXISTANT':
+      return `Votre compte n'est pas enregistré sur l'application, veuillez contacter votre conseiller.${email && structureUtilisateur !== 'MILO' ? `\n(votre adresse e-mail associée : ${email})` : ''}`
+    case 'UTILISATEUR_DEJA_MILO':
+      return "Veuillez vous connecter en choisissant Mission Locale sur l'application du CEJ ou contacter votre conseiller pour recréer le compte."
+    case 'UTILISATEUR_DEJA_PE':
+      return "Veuillez vous connecter en choisissant France Travail sur l'application CEJ ou contacter votre conseiller pour recréer le compte."
+    case 'UTILISATEUR_DEJA_PE_BRSA':
+    case 'UTILISATEUR_DEJA_PE_AIJ':
+    case 'UTILISATEUR_DEJA_CONSEIL_DEPT':
+    case 'UTILISATEUR_DEJA_AVENIR_PRO':
+    case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF':
+    case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL':
+    case 'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT':
+      return "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
+    case 'Callback':
+      return erreurIdp(structureUtilisateur)
+    default: {
+      return `Une erreur est survenue, veuillez fermer cette page et retenter de vous connecter.\n\nSi le problème persiste, veuillez supprimer le cache de votre navigateur ou contacter votre conseiller.`
     }
   }
 }
@@ -89,7 +99,6 @@ function erreurConseiller(
   switch (reason) {
     case 'UTILISATEUR_INEXISTANT':
       redirect('/login/france-travail/dispositifs')
-      break
     case 'UTILISATEUR_DEJA_MILO':
       return {
         erreur:
