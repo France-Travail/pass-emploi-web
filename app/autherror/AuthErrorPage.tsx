@@ -1,7 +1,6 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
-import React from 'react'
 
 import { ButtonStyle } from 'components/ui/Button/Button'
 import ButtonLink from 'components/ui/Button/ButtonLink'
