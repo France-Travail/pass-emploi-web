@@ -9,7 +9,7 @@ import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import { Structure } from 'interfaces/structure'
 import { trackEvent } from 'utils/analytics/matomo'
 
-import ErrorPageLayout from './ErrorPageLayout'
+import ErrorPageLayout from '../../components/layouts/ErrorPageLayout'
 
 type AuthErrorPageProps = {
   erreur: string

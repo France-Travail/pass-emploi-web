@@ -3,13 +3,13 @@
 import { withTransaction } from '@elastic/apm-rum-react'
 import Link from 'next/link'
 
+import ErrorPageLayout from '../../components/layouts/ErrorPageLayout'
 import { ButtonStyle } from '../../components/ui/Button/Button'
 import ButtonLink from '../../components/ui/Button/ButtonLink'
 import IllustrationComponent, {
   IllustrationName,
 } from '../../components/ui/IllustrationComponent'
 
-import ErrorPageLayout from './ErrorPageLayout'
 import { useParcoursEmploiUrl } from './useParcoursEmploiUrl'
 
 type MigrationJeunePageProps = {
@@ -24,23 +24,25 @@ function MigrationJeunePage({
   email = 'email@exemple.com',
 }: Readonly<MigrationJeunePageProps>) {
   const urlParcoursEmploi = useParcoursEmploiUrl()
+  const titleId = 'error-title-jeune'
+  const titleText = 'Vos outils évoluent'
 
   return (
-    <ErrorPageLayout title='Vos outils évoluent'>
+    <ErrorPageLayout title={titleText} ariaLabelledBy={titleId}>
       <div className='hidden md:flex justify-center'>
         <IllustrationComponent
           name={IllustrationName.MigrationParcoursEmploiJeune}
         />
       </div>
       <h1
-        id='error_title'
+        id={titleId}
         className='text-m-bold text-primary text-center mt-6 mb-8'
       >
-        Vos outils évoluent
+        {titleText}
       </h1>
       <p className='text text-base text-primary'>
-        L&#39;application du CEJ n&#39;est plus disponible. Vous devez désormais
-        utiliser l&#39;application Parcours Emploi.
+        L&apos;application du CEJ n&apos;est plus disponible. Vous devez
+        désormais utiliser l&apos;application Parcours Emploi.
       </p>
       <ButtonLink
         href={urlParcoursEmploi}

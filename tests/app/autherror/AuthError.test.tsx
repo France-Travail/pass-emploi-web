@@ -23,7 +23,7 @@ describe('AuthErrorPage', () => {
       expect(mainContent).toBeInTheDocument()
       expect(
         within(mainContent).getByText(
-          'L’application du CEJ n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
+          "L'application du CEJ n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
         )
       ).toBeInTheDocument()
       expect(
@@ -32,7 +32,7 @@ describe('AuthErrorPage', () => {
         })
       ).toBeInTheDocument()
       const lienMail = within(mainContent).getByRole('link', {
-        name: 'ici',
+        name: 'Envoyer un email pour demander la suppression de vos données',
       })
       expect(lienMail).toBeInTheDocument()
       expect(lienMail).toHaveAttribute(
@@ -59,7 +59,7 @@ describe('AuthErrorPage', () => {
       expect(mainContent).toBeInTheDocument()
       expect(
         within(mainContent).getByText(
-          'Les demandeurs d’emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous.'
+          "Les demandeurs d'emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous."
         )
       ).toBeInTheDocument()
     })
