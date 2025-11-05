@@ -32,10 +32,10 @@ function MigrationJeunePage({
       <main
         role='main'
         aria-labelledby='error_title'
-        className='flex flex-col justify-center p-10 mt-32 w-screen'
+        className='flex flex-col justify-center min-h-screen w-full py-10 px-4 sm:px-10'
       >
-        <div className='shadow-m flex flex-col justify-center mx-auto p-8'>
-          <div className='flex justify-center'>
+        <div className='shadow-m flex flex-col justify-center w-full max-w-[800px] mx-auto p-4 sm:p-8 box-border'>
+          <div className='hidden md:flex justify-center'>
             <IllustrationComponent
               name={IllustrationName.MigrationParcoursEmploiJeune}
             />

@@ -9,14 +9,6 @@ import IllustrationComponent, {
 function MigrationConseillerPage() {
   return (
     <>
-      <style>{`html {overflow-y: auto;}
-      body 
-                  {
-                    position: static; 
-                    height: auto;
-                    overflow-y: auto;
-                   } 
-               `}</style>
       <header>
         <title>Information importante</title>
       </header>
