@@ -29,7 +29,7 @@ function MigrationJeunePage({
 
   return (
     <ErrorPageLayout title={titleText} ariaLabelledBy={titleId}>
-      <div className='hidden md:flex justify-center'>
+      <div className='hidden layout-xs:flex justify-center'>
         <IllustrationComponent
           name={IllustrationName.MigrationParcoursEmploiJeune}
         />
