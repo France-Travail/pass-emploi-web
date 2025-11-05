@@ -3,7 +3,7 @@
 import { withTransaction } from '@elastic/apm-rum-react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import IllustrationCurvyArrow from 'assets/images/illustration-curvy-arrow.svg'
 import RechercheBeneficiaire from 'components/jeune/RechercheBeneficiaire'
@@ -18,7 +18,6 @@ import {
   BeneficiaireAvecCompteursActionsRdvs,
   BeneficiaireAvecInfosComplementaires,
 } from 'interfaces/beneficiaire'
-import { utiliseChat } from 'interfaces/conseiller'
 import { Liste } from 'interfaces/liste'
 import { estFranceTravail, estMilo, labelStructure } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -132,7 +131,7 @@ function PortefeuillePage({
     )
 
     let promiseMessagesNotRead: Promise<{ [idJeune: string]: number }>
-    if (!chatCredentials || !utiliseChat(conseiller)) {
+    if (!chatCredentials) {
       promiseMessagesNotRead = Promise.resolve(mapSansMessage)
     } else {
       promiseMessagesNotRead = countMessagesNotRead(
