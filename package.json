@@ -34,7 +34,7 @@
     "luxon": "3.6.1",
     "matomo-tracker": "2.2.4",
     "next": "15.4.7",
-    "next-auth": "4.24.11",
+    "next-auth": "4.24.12",
     "next-logger": "5.0.1",
     "next-themes": "0.4.6",
     "nextjs-toploader": "3.8.16",
