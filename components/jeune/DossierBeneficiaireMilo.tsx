@@ -186,8 +186,11 @@ function DossierBeneficiaireMilo(
       </form>
 
       {dispositif === 'CEJ' && (
-        <div className='mt-6'>
-          <div className='flex items-center justify-between'>
+        <div className='mt-6 border border-primary-lighten rounded-base p-4'>
+          <h2 className='text-m-bold text-grey-800 mb-4'>
+            Compteurs des heures
+          </h2>
+          <div className='flex items-center gap-8'>
             <p className='text-base-bold'>
               Afficher le compteur d’heures au bénéficiaire
             </p>
