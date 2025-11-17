@@ -119,6 +119,64 @@ describe('<DossierMilo', () => {
       expect(payload.dispositif).toBe('CEJ')
       expect(payload.peutVoirLeCompteurDesHeures).toBe(true)
     })
+
+    it('par défault le toggle est à désactivé, et la payload contient peutVoirLeCompteurDesHeures à false', async () => {
+      // WHEN
+      const cejRadio = screen.getByRole('radio', { name: /CEJ/ })
+      await userEvent.click(cejRadio)
+      const toggle = screen.getByRole('switch')
+
+      // THEN - le toggle est activé
+      await waitFor(() => expect(toggle).not.toBeChecked())
+      await userEvent.click(toggle)
+
+      // THEN - la pop-in s'affiche
+      expect(
+        screen.getByText('Information sur le comptage des heures')
+      ).toBeInTheDocument()
+
+      // WHEN - confirmation dans la pop-in
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Activer le compteur d’heures' })
+      )
+      await waitFor(() => expect(toggle).toBeChecked())
+
+      // THEN - le toggle est désactivé
+      await userEvent.click(toggle)
+      await waitFor(() => expect(toggle).not.toBeChecked())
+
+      // WHEN - création du compte
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // THEN - la payload contient bien le flag à true
+      await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
+      const [payload] = onCreateCompte.mock.calls[0]
+      expect(payload.dispositif).toBe('CEJ')
+      expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
+    })
+
+    it('On active et désactive le toggle, donc la payload contient peutVoirLeCompteurDesHeures à false', async () => {
+      // WHEN
+      const cejRadio = screen.getByRole('radio', { name: /CEJ/ })
+      await userEvent.click(cejRadio)
+      const toggle = screen.getByRole('switch')
+
+      // THEN - le toggle est bien désactivé
+      await waitFor(() => expect(toggle).not.toBeChecked())
+
+      // WHEN - création du compte
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // THEN - la payload contient bien le flag à true
+      await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
+      const [payload] = onCreateCompte.mock.calls[0]
+      expect(payload.dispositif).toBe('CEJ')
+      expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
+    })
   })
 
   describe("quand l'e-mail du bénéficiaire n'est pas renseigné", () => {

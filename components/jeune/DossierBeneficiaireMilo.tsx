@@ -198,8 +198,8 @@ function DossierBeneficiaireMilo(
               id='afficher-compteur-heures'
               checked={peutVoirLeCompteurDesHeures}
               onChange={(e) => {
-                const next = e.target.checked
-                if (next) setAfficherModalActivationCompteur(true)
+                const switchActif = e.target.checked
+                if (switchActif) setAfficherModalActivationCompteur(true)
                 else setPeutVoirLeCompteurDesHeures(false)
               }}
             />
