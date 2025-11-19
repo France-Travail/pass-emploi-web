@@ -289,6 +289,7 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
             uncheckedLabel='Désactivé'
             checked={conseiller.notificationsSonores}
             onChange={toggleNotificationsSonores}
+            ariaLabel='Recevoir des notifications sonores pour la réception de nouveaux messages'
           />
         </div>
       </section>

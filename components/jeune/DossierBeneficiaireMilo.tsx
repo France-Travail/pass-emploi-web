@@ -199,6 +199,7 @@ function DossierBeneficiaireMilo(
             <Switch
               id='afficher-compteur-heures'
               checked={peutVoirLeCompteurDesHeures}
+              ariaLabel='Afficher le compteur à votre bénéficiaire'
               onChange={(e) => {
                 const switchActif = e.target.checked
                 if (switchActif) setAfficherModalActivationCompteur(true)
