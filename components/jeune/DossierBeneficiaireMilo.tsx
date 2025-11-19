@@ -7,9 +7,11 @@ import React, {
   useState,
 } from 'react'
 
+import ConfirmationActivationCompteurModal from 'components/ConfirmationActivationCompteurModal'
 import CreationBeneficiaireErreurModal from 'components/CreationBeneficiaireErreurModal'
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import InputError from 'components/ui/Form/InputError'
+import { Switch } from 'components/ui/Form/Switch'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { DossierMilo } from 'interfaces/beneficiaire'
@@ -47,6 +49,10 @@ function DossierBeneficiaireMilo(
   const [dispositif, setDispositif] = useState<'CEJ' | 'PACEA'>()
   const [erreurDispositif, setErreurDispositif] = useState<string>()
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
+  const [peutVoirLeCompteurDesHeures, setPeutVoirLeCompteurDesHeures] =
+    useState<boolean>(false)
+  const [afficherModalActivationCompteur, setAfficherModalActivationCompteur] =
+    useState<boolean>(false)
 
   const retourButtonRef = useRef<HTMLButtonElement>(null)
   useImperativeHandle(ref, () => ({
@@ -63,6 +69,10 @@ function DossierBeneficiaireMilo(
   function choisirDispositif(dispositifChoisi: 'CEJ' | 'PACEA') {
     setErreurDispositif(undefined)
     setDispositif(dispositifChoisi)
+    if (dispositifChoisi !== 'CEJ') {
+      setPeutVoirLeCompteurDesHeures(false)
+      setAfficherModalActivationCompteur(false)
+    }
   }
 
   async function addBeneficiaire(options?: { surcharge: boolean }) {
@@ -78,6 +88,8 @@ function DossierBeneficiaireMilo(
         prenom: dossier.prenom,
         dispositif,
         email: dossier.email ?? undefined,
+        peutVoirLeCompteurDesHeures:
+          dispositif === 'CEJ' ? peutVoirLeCompteurDesHeures : undefined,
       }
 
       setCreationEnCours(true)
@@ -173,6 +185,28 @@ function DossierBeneficiaireMilo(
         </fieldset>
       </form>
 
+      {dispositif === 'CEJ' && (
+        <div className='mt-6 border border-primary-lighten rounded-base p-4'>
+          <h2 className='text-m-bold text-grey-800 mb-4'>
+            Compteurs des heures
+          </h2>
+          <div className='flex items-center gap-8'>
+            <p className='text-base-bold'>
+              Afficher le compteur d’heures au bénéficiaire
+            </p>
+            <Switch
+              id='afficher-compteur-heures'
+              checked={peutVoirLeCompteurDesHeures}
+              onChange={(e) => {
+                const switchActif = e.target.checked
+                if (switchActif) setAfficherModalActivationCompteur(true)
+                else setPeutVoirLeCompteurDesHeures(false)
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {!dossier.email && (
         <>
           <p className='text-base-bold text-warning mb-2'>
@@ -261,6 +295,16 @@ function DossierBeneficiaireMilo(
           )}
         </div>
       </div>
+
+      {afficherModalActivationCompteur && (
+        <ConfirmationActivationCompteurModal
+          onClose={() => setAfficherModalActivationCompteur(false)}
+          onConfirmation={() => {
+            setPeutVoirLeCompteurDesHeures(true)
+            setAfficherModalActivationCompteur(false)
+          }}
+        />
+      )}
 
       {beneficiaireExisteDejaMilo && (
         <CreationBeneficiaireErreurModal
