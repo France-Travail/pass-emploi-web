@@ -12,6 +12,7 @@ type SwitchProps = {
   disabled?: boolean
   isLoading?: boolean
   labelVariant?: 'text' | 'badge'
+  ariaLabel?: string
 }
 
 export function Switch({
@@ -23,6 +24,7 @@ export function Switch({
   uncheckedLabel = 'Non',
   onChange,
   labelVariant = 'text',
+  ariaLabel,
 }: SwitchProps) {
   return (
     <label className='relative cursor-pointer flex items-center'>
@@ -52,6 +54,7 @@ export function Switch({
         disabled={disabled}
         className={styles.checkbox}
         onChange={onChange}
+        aria-label={ariaLabel || `${checked ? checkedLabel : uncheckedLabel}`}
       />
 
       <span
