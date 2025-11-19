@@ -11,6 +11,7 @@ type SwitchProps = {
   uncheckedLabel?: string
   disabled?: boolean
   isLoading?: boolean
+  labelVariant?: 'text' | 'badge'
 }
 
 export function Switch({
@@ -21,6 +22,7 @@ export function Switch({
   checkedLabel = 'Oui',
   uncheckedLabel = 'Non',
   onChange,
+  labelVariant = 'text',
 }: SwitchProps) {
   return (
     <label className='relative cursor-pointer flex items-center'>
@@ -58,14 +60,28 @@ export function Switch({
         }
       />
 
-      {checked && (
-        <span aria-hidden={true} className='ml-3'>
-          {checkedLabel}
-        </span>
-      )}
-      {!checked && (
-        <span aria-hidden={true} className='ml-3'>
-          {uncheckedLabel}
+      {labelVariant === 'text' &&
+        (checked ? (
+          <span aria-hidden={true} className='ml-3'>
+            {checkedLabel}
+          </span>
+        ) : (
+          <span aria-hidden={true} className='ml-3'>
+            {uncheckedLabel}
+          </span>
+        ))}
+
+      {labelVariant === 'badge' && (
+        <span
+          aria-hidden={true}
+          className={
+            'ml-3 inline-flex items-center px-2 py-0.5 rounded-full border text-xs-regular ' +
+            (checked
+              ? 'text-green-600 bg-green-100 border-none text-base-bold'
+              : 'text-grey-700 bg-grey-100 border-none text-base-bold')
+          }
+        >
+          {checked ? checkedLabel : uncheckedLabel}
         </span>
       )}
     </label>

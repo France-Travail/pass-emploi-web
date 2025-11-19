@@ -58,10 +58,19 @@ async function handleHttpError(
     }
   }
 
-  const json: any = await response.json()
-  const message = json?.message || response.statusText
-  const error = new ApiError(response.status, message)
-  console.error(`fetchJson error at ${path}`, error)
+  let error: ApiError
+  try {
+    const json: any = await response.json()
+    const message = json?.message || response.statusText
+    error = new ApiError(response.status, message)
+    console.error(`fetchJson error at ${path}`, error)
+  } catch (e) {
+    error = new ApiError(500, response.toString())
+    console.error(
+      `error parsing json at ${path} for response : ${response.toString()} ${response.statusText} ${response.body?.toString()}`,
+      e
+    )
+  }
   captureError(error)
   throw error
 }

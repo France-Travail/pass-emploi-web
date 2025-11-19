@@ -101,6 +101,13 @@ export async function getJeuneDetails(
   }
 }
 
+export async function getJeuneDetailsClientSide(
+  idJeune: string
+): Promise<DetailBeneficiaire | undefined> {
+  const session = await getSession()
+  return getJeuneDetails(idJeune, session!.accessToken)
+}
+
 export async function getConseillersDuJeuneServerSide(
   idJeune: string,
   accessToken: string
