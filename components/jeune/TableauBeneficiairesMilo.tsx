@@ -288,6 +288,7 @@ export default function TableauBeneficiairesMilo({
                           uncheckedLabel='Inactif'
                           labelVariant='badge'
                           ariaLabel={`Compteur d'heures pour ${getNomBeneficiaireComplet(beneficiaire)}`}
+                          size='small'
                         />
                       </div>
                     </div>

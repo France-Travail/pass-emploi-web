@@ -13,6 +13,7 @@ type SwitchProps = {
   isLoading?: boolean
   labelVariant?: 'text' | 'badge'
   ariaLabel?: string
+  size?: 'default' | 'small'
 }
 
 export function Switch({
@@ -25,6 +26,7 @@ export function Switch({
   onChange,
   labelVariant = 'text',
   ariaLabel,
+  size = 'default',
 }: SwitchProps) {
   return (
     <label className='relative cursor-pointer flex items-center'>
@@ -59,7 +61,9 @@ export function Switch({
 
       <span
         className={
-          styles.toggle + (isLoading ? ' invisible after:invisible' : '')
+          styles.toggle +
+          (isLoading ? ' invisible after:invisible' : '') +
+          (size === 'small' ? ` ${styles.toggleSmall}` : '')
         }
       />
 
