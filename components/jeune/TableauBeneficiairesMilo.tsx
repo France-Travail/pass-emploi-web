@@ -51,7 +51,7 @@ export default function TableauBeneficiairesMilo({
   const actionsColumn = 'Actions créées'
   const rdvColumn = 'RDV et ateliers'
   const derniereActiviteColumn = 'Dernière activité'
-  const compategeHeureToggle = 'Compteur'
+  const comptageHeureToggle = 'Compteur'
 
   function doitAfficherComptageHeures(
     beneficiaire: BeneficiaireAvecInfosComplementaires
@@ -70,9 +70,35 @@ export default function TableauBeneficiairesMilo({
     setBeneficiairesAffiches(beneficiaires.slice(10 * (page - 1), 10 * page))
   }, [beneficiaires, page])
 
-  // Charger la visibilité du compteur pour les bénéficiaires affichés (CEJ + MILO)
+  async function loadVisibilitePourBeneficiaire(
+    id: string,
+    cancelled: { current: boolean }
+  ) {
+    if (cancelled.current) return
+    setLoadingById((prev) => ({ ...prev, [id]: true }))
+
+    try {
+      const { getJeuneDetailsClientSide } = await import(
+        'services/beneficiaires.service'
+      )
+      const details = await getJeuneDetailsClientSide(id)
+
+      if (cancelled.current) return
+      const flag = Boolean(details?.peutVoirLeComptageDesHeures)
+      setVisibilitesCompteur((prev) => ({ ...prev, [id]: flag }))
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      if (cancelled.current) return
+      setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
+    } finally {
+      if (cancelled.current) return
+      setLoadingById((prev) => ({ ...prev, [id]: false }))
+    }
+  }
+
   useEffect(() => {
-    let cancelled = false
+    const cancelled = { current: false }
+
     async function loadVisibilites() {
       const idsToFetch = beneficiairesAffiches
         .filter((b) => doitAfficherComptageHeures(b))
@@ -81,34 +107,14 @@ export default function TableauBeneficiairesMilo({
 
       if (!idsToFetch.length) return
 
-      const { getJeuneDetailsClientSide } = await import(
-        'services/beneficiaires.service'
-      )
-
       await Promise.all(
-        idsToFetch.map(async (id) => {
-          if (cancelled) return
-          setLoadingById((prev) => ({ ...prev, [id]: true }))
-          try {
-            const details = await getJeuneDetailsClientSide(id)
-            if (cancelled) return
-            const flag = Boolean(details?.peutVoirLeComptageDesHeures)
-            setVisibilitesCompteur((prev) => ({ ...prev, [id]: flag }))
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (e) {
-            if (cancelled) return
-            setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
-          } finally {
-            if (cancelled) return
-            setLoadingById((prev) => ({ ...prev, [id]: false }))
-          }
-        })
+        idsToFetch.map((id) => loadVisibilitePourBeneficiaire(id, cancelled))
       )
     }
 
     loadVisibilites()
     return () => {
-      cancelled = true
+      cancelled.current = true
     }
   }, [beneficiairesAffiches, visibilitesCompteur])
 
@@ -164,7 +170,7 @@ export default function TableauBeneficiairesMilo({
         <TR isHeader={true}>
           <TH>Bénéficiaire et situation</TH>
           <TH>{comptageHeuresColumn}</TH>
-          <TH>{compategeHeureToggle}</TH>
+          <TH>{comptageHeureToggle}</TH>
           <TH>{actionsColumn}</TH>
           <TH>{rdvColumn}</TH>
           <TH>{derniereActiviteColumn}</TH>
@@ -172,7 +178,7 @@ export default function TableauBeneficiairesMilo({
         </TR>
       </thead>
 
-      <tbody className='grid grid-cols-7 layout-m:grid-cols-7 gap-y-2'>
+      <tbody className='grid grid grid-cols-[repeat(6,auto)] layout-m:grid-cols-[repeat(7,auto)] gap-y-2'>
         {beneficiairesAffiches.map(
           (beneficiaire: BeneficiaireAvecInfosComplementaires) => (
             <TR
@@ -181,7 +187,7 @@ export default function TableauBeneficiairesMilo({
             >
               <TD
                 isBold
-                className='h-full p-2! rounded-tl-base! rounded-bl-none! layout-m:rounded-l-base! overflow-hidden'
+                className='h-full p-2! rounded-tl-base! rounded-bl-none! layout-m:rounded-l-base!'
               >
                 <div className='break-words'>
                   {beneficiaire.structureMilo?.id ===
@@ -226,14 +232,13 @@ export default function TableauBeneficiairesMilo({
                   )}
                   {getNomBeneficiaireComplet(beneficiaire)}
                 </div>
-                <div className='mt-2 flex gap-2 flex-wrap [&>span]:whitespace-normal [&>span]:!inline-flex [&>span]:!max-w-[calc(100%-0.5rem)] [&>span]:break-words'>
-                  {' '}
+                <div className='mt-2 flex gap-2'>
                   <DispositifTag dispositif={beneficiaire.dispositif} />
                   <SituationTag situation={beneficiaire.situationCourante} />
                 </div>
               </TD>
 
-              <TD className='relative h-full p-4! flex flex-col items-center justify-center after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 layout-m:after:content-[""]'>
+              <TD className='p-4 text-base-regular first:rounded-l-base last:rounded-r-base relative h-full p-4! after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 layout-m:after:content-[""]'>
                 {doitAfficherComptageHeures(beneficiaire) &&
                   comptagesHeures && (
                     <ProgressComptageHeure
@@ -259,11 +264,11 @@ export default function TableauBeneficiairesMilo({
                   )}
               </TD>
 
-              <TD className='relative h-full p-4! flex items-center justify-center z-20 after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 after:border-l-2 layout-m:after:content-[""] after:border-grey-500'>
+              <TD className='p-4 text-base-regular first:rounded-l-base last:rounded-r-base relative h-full p-2! flex after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 after:border-l-2 layout-m:after:content-[""] after:border-grey-500'>
                 {doitAfficherComptageHeures(beneficiaire) && (
                   <div>
                     <div className='items-center justify-between gap-4'>
-                      <p className='text-s-regular text-grey-800 mb-6'>
+                      <p className='text-s-regular text-grey-800 mb-2'>
                         Compteur
                       </p>
                       <div className='flex items-center gap-3'>
@@ -290,7 +295,7 @@ export default function TableauBeneficiairesMilo({
                 )}
               </TD>
 
-              <TD className='h-full p-2! flex flex-col items-center justify-center'>
+              <TD className='h-full p-2!'>
                 <div
                   className='text-s-regular text-grey-800 mb-2'
                   aria-hidden={true}
@@ -302,7 +307,7 @@ export default function TableauBeneficiairesMilo({
                 </span>
               </TD>
 
-              <TD className='h-full p-2! flex flex-col items-center justify-center'>
+              <TD className='h-full p-2!'>
                 <div
                   className='text-s-regular text-grey-800 mb-2'
                   aria-hidden={true}
