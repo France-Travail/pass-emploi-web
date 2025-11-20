@@ -182,21 +182,6 @@ describe('<DossierMilo', () => {
   describe('comportement du toggle PACEA', () => {
     let onCreateCompte: jest.Mock
 
-    beforeAll(() => {
-      // Crée un conteneur pour les modales utilisé par ModalContainer
-      if (!document.getElementById(MODAL_ROOT_ID)) {
-        const modalRoot = document.createElement('div')
-        modalRoot.setAttribute('id', MODAL_ROOT_ID)
-        document.body.appendChild(modalRoot)
-      }
-    })
-
-    afterAll(() => {
-      const modalRoot = document.getElementById(MODAL_ROOT_ID)
-      if (modalRoot && modalRoot.parentNode)
-        modalRoot.parentNode.removeChild(modalRoot)
-    })
-
     beforeEach(async () => {
       // GIVEN
       const dossier = unDossierMilo()
@@ -216,7 +201,7 @@ describe('<DossierMilo', () => {
       )
     })
 
-    it("Lorsqu'on clic sur sur le dispositif PACEA on doit set peutVoirLeCompteurDesHeures à false ", async () => {
+    it("Lorsqu'on crée un bénéficiaire MILO avec dispositif PACEA, peutVoirLeCompteurDesHeures doit être à false", async () => {
       // WHEN
       const paceaRadio = screen.getByRole('radio', { name: /PACEA/ })
       await userEvent.click(paceaRadio)

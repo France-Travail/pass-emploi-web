@@ -14,8 +14,11 @@ import InputError from 'components/ui/Form/InputError'
 import { Switch } from 'components/ui/Form/Switch'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
-import { DossierMilo } from 'interfaces/beneficiaire'
-import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
+import { Dispositif, DossierMilo } from 'interfaces/beneficiaire'
+import {
+  BeneficiaireMiloFormData,
+  DispositifMilo,
+} from 'interfaces/json/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
@@ -46,7 +49,7 @@ function DossierBeneficiaireMilo(
 ) {
   const [portefeuille] = usePortefeuille()
 
-  const [dispositif, setDispositif] = useState<'CEJ' | 'PACEA'>()
+  const [dispositif, setDispositif] = useState<DispositifMilo>()
   const [erreurDispositif, setErreurDispositif] = useState<string>()
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
   const [peutVoirLeCompteurDesHeures, setPeutVoirLeCompteurDesHeures] =
@@ -66,10 +69,12 @@ function DossierBeneficiaireMilo(
   )
   const aDesBeneficiaires = portefeuille.length > 0
 
-  function choisirDispositif(dispositifChoisi: 'CEJ' | 'PACEA') {
+  function choisirDispositif(
+    dispositifChoisi: Dispositif.CEJ | Dispositif.PACEA
+  ) {
     setErreurDispositif(undefined)
     setDispositif(dispositifChoisi)
-    if (dispositifChoisi !== 'CEJ') {
+    if (dispositifChoisi !== Dispositif.CEJ) {
       setPeutVoirLeCompteurDesHeures(false)
       setAfficherModalActivationCompteur(false)
     }
@@ -82,14 +87,13 @@ function DossierBeneficiaireMilo(
     }
 
     if (!creationEnCours) {
-      const newBeneficiaire = {
+      const newBeneficiaire: BeneficiaireMiloFormData = {
         idDossier: dossier.id,
         nom: dossier.nom,
         prenom: dossier.prenom,
-        dispositif,
-        email: dossier.email ?? undefined,
-        peutVoirLeCompteurDesHeures:
-          dispositif === 'CEJ' ? peutVoirLeCompteurDesHeures : false,
+        dispositif: dispositif,
+        email: dossier.email!,
+        peutVoirLeCompteurDesHeures: peutVoirLeCompteurDesHeures,
       }
 
       setCreationEnCours(true)
@@ -167,7 +171,7 @@ function DossierBeneficiaireMilo(
               name='dispositif'
               id='dispositif-cej'
               className='mr-2'
-              onClick={() => choisirDispositif('CEJ')}
+              onClick={() => choisirDispositif(Dispositif.CEJ)}
             />
             Contrat d’Engagement Jeune (CEJ)
           </label>
@@ -177,7 +181,7 @@ function DossierBeneficiaireMilo(
               name='dispositif'
               id='dispositif-pacea'
               className='mr-2'
-              onClick={() => choisirDispositif('PACEA')}
+              onClick={() => choisirDispositif(Dispositif.PACEA)}
             />
             Parcours contractualisé d’accompagnement vers l’emploi et
             l’autonomie (PACEA)
@@ -185,7 +189,7 @@ function DossierBeneficiaireMilo(
         </fieldset>
       </form>
 
-      {dispositif === 'CEJ' && (
+      {dispositif === Dispositif.CEJ && (
         <div className='mt-6 border border-primary-lighten rounded-base p-4'>
           <h2 className='text-m-bold text-grey-800 mb-4'>
             Compteurs des heures
