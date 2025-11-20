@@ -287,5 +287,5 @@ export interface BeneficiaireMiloFormData {
   prenom: string
   dispositif: 'CEJ' | 'PACEA'
   email?: string
-  peutVoirLeCompteurDesHeures?: boolean
+  peutVoirLeCompteurDesHeures: boolean
 }

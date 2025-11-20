@@ -89,7 +89,7 @@ function DossierBeneficiaireMilo(
         dispositif,
         email: dossier.email ?? undefined,
         peutVoirLeCompteurDesHeures:
-          dispositif === 'CEJ' ? peutVoirLeCompteurDesHeures : undefined,
+          dispositif === 'CEJ' ? peutVoirLeCompteurDesHeures : false,
       }
 
       setCreationEnCours(true)
