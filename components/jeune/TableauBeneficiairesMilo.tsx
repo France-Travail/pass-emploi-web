@@ -189,7 +189,7 @@ export default function TableauBeneficiairesMilo({
                 isBold
                 className='h-full p-2! rounded-tl-base! rounded-bl-none! layout-m:rounded-l-base!'
               >
-                <div className='break-words'>
+                <div>
                   {beneficiaire.structureMilo?.id ===
                     conseiller.structureMilo?.id &&
                     beneficiaire.isReaffectationTemporaire && (
@@ -264,7 +264,7 @@ export default function TableauBeneficiairesMilo({
                   )}
               </TD>
 
-              <TD className='p-4 text-base-regular first:rounded-l-base last:rounded-r-base relative h-full p-2! flex after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 after:border-l-2 layout-m:after:content-[""] after:border-grey-500'>
+              <TD className='z-20 p-4 text-base-regular first:rounded-l-base last:rounded-r-base relative h-full p-2! flex after:content-none after:absolute after:right-0 after:top-4 after:bottom-4 after:border-l-2 layout-m:after:content-[""] after:border-grey-500'>
                 {doitAfficherComptageHeures(beneficiaire) && (
                   <div>
                     <div className='items-center justify-between gap-4'>
