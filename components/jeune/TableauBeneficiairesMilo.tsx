@@ -20,6 +20,7 @@ import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toRelativeDateTime } from 'utils/date'
 
+import { captureError } from '../../utils/monitoring/elastic'
 import { Switch } from '../ui/Form/Switch'
 
 interface TableauBeneficiairesMiloProps {
@@ -53,6 +54,22 @@ export default function TableauBeneficiairesMilo({
   const derniereActiviteColumn = 'Dernière activité'
   const comptageHeureToggle = 'Compteur'
 
+  function demarrerChargement(id: string) {
+    setLoadingById((prev) => ({ ...prev, [id]: true }))
+  }
+
+  function arreterChargement(id: string) {
+    setLoadingById((prev) => ({ ...prev, [id]: false }))
+  }
+
+  function activerCompteur(id: string) {
+    setVisibilitesCompteur((prev) => ({ ...prev, [id]: true }))
+  }
+
+  function desactiverCompteur(id: string) {
+    setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
+  }
+
   function doitAfficherComptageHeures(
     beneficiaire: BeneficiaireAvecInfosComplementaires
   ) {
@@ -70,12 +87,12 @@ export default function TableauBeneficiairesMilo({
     setBeneficiairesAffiches(beneficiaires.slice(10 * (page - 1), 10 * page))
   }, [beneficiaires, page])
 
-  async function loadVisibilitePourBeneficiaire(
+  async function activeLeBoutonDeCompteurPourUnBeneficiaire(
     id: string,
-    visible: { actuellement: boolean }
+    annule: { current: boolean }
   ) {
-    if (visible.actuellement) return
-    setLoadingById((prev) => ({ ...prev, [id]: true }))
+    if (annule.current) return
+    demarrerChargement(id)
 
     try {
       const { getJeuneDetailsClientSide } = await import(
@@ -83,67 +100,71 @@ export default function TableauBeneficiairesMilo({
       )
       const details = await getJeuneDetailsClientSide(id)
 
-      if (visible.actuellement) return
-      const peutVoirLeCompatageDesHeures = Boolean(
-        details?.peutVoirLeComptageDesHeures
-      )
-      setVisibilitesCompteur((prev) => ({
-        ...prev,
-        [id]: peutVoirLeCompatageDesHeures,
-      }))
+      if (annule.current) return
+      const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
+      if (compteurActif) {
+        activerCompteur(id)
+      } else {
+        desactiverCompteur(id)
+      }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      if (visible.actuellement) return
-      setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
+      if (annule.current) return
+      desactiverCompteur(id)
     } finally {
-      if (visible.actuellement) return
-      setLoadingById((prev) => ({ ...prev, [id]: false }))
+      if (annule.current) return
+      arreterChargement(id)
     }
   }
 
   useEffect(() => {
-    const visible = { actuellement: false }
+    const annule = { current: false }
 
-    async function loadVisibilites() {
-      const idsToFetch = beneficiairesAffiches
+    async function activeLeBoutonDeCompteurDHeure() {
+      const idsAVerifier = beneficiairesAffiches
         .filter((b) => doitAfficherComptageHeures(b))
         .map((b) => b.id)
         .filter((id) => visibilitesCompteur[id] === undefined)
 
-      if (!idsToFetch.length) return
+      if (!idsAVerifier.length) return
 
       await Promise.all(
-        idsToFetch.map((id) => loadVisibilitePourBeneficiaire(id, visible))
+        idsAVerifier.map((id) =>
+          activeLeBoutonDeCompteurPourUnBeneficiaire(id, annule)
+        )
       )
     }
 
-    loadVisibilites()
+    activeLeBoutonDeCompteurDHeure()
     return () => {
-      visible.actuellement = true
+      annule.current = true
     }
   }, [beneficiairesAffiches, visibilitesCompteur])
 
   useMatomo('Mes jeunes', total > 0)
 
-  async function handleSwitchChange(id: string, next: boolean) {
+  async function procedeAuChangementDeVisibilitePourLeComptageHeures(
+    id: string,
+    next: boolean
+  ) {
     if (next) {
       setIdBeneficiaireModalActivation(id)
       return
     }
 
-    setLoadingById((prev) => ({ ...prev, [id]: true }))
-    const previous = visibilitesCompteur[id] ?? false
-    setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
+    demarrerChargement(id)
+    const etaitActif = visibilitesCompteur[id] ?? false
+    desactiverCompteur(id)
     try {
       const { changerVisibiliteComptageHeures } = await import(
         'services/beneficiaires.service'
       )
       await changerVisibiliteComptageHeures(id, false)
     } catch (e) {
-      setVisibilitesCompteur((prev) => ({ ...prev, [id]: previous }))
-      console.error(e)
+      if (etaitActif) activerCompteur(id)
+      captureError(e as Error)
     } finally {
-      setLoadingById((prev) => ({ ...prev, [id]: false }))
+      arreterChargement(id)
     }
   }
 
@@ -152,20 +173,19 @@ export default function TableauBeneficiairesMilo({
     const id = idBeneficiaireModalActivation
     setIdBeneficiaireModalActivation(null)
 
-    setLoadingById((prev) => ({ ...prev, [id]: true }))
-    const previous = visibilitesCompteur[id] ?? false
-    setVisibilitesCompteur((prev) => ({ ...prev, [id]: true }))
+    demarrerChargement(id)
+    const etaitActif = visibilitesCompteur[id] ?? false
+    activerCompteur(id)
     try {
       const { changerVisibiliteComptageHeures } = await import(
         'services/beneficiaires.service'
       )
       await changerVisibiliteComptageHeures(id, true)
     } catch (e) {
-      // rollback si erreur
-      setVisibilitesCompteur((prev) => ({ ...prev, [id]: previous }))
-      console.error(e)
+      if (!etaitActif) desactiverCompteur(id)
+      captureError(e as Error)
     } finally {
-      setLoadingById((prev) => ({ ...prev, [id]: false }))
+      arreterChargement(id)
     }
   }
 
@@ -283,7 +303,7 @@ export default function TableauBeneficiairesMilo({
                             visibilitesCompteur[beneficiaire.id] ?? false
                           }
                           onChange={(e) =>
-                            handleSwitchChange(
+                            procedeAuChangementDeVisibilitePourLeComptageHeures(
                               beneficiaire.id,
                               e.target.checked
                             )
