@@ -163,6 +163,7 @@ describe('CreationBeneficiaireMiloPage client side', () => {
           nom: 'GIRAC',
           prenom: 'Kenji',
           dispositif: 'PACEA',
+          peutVoirLeCompteurDesHeures: false,
         },
         { surcharge: false }
       )
@@ -251,6 +252,7 @@ describe('CreationBeneficiaireMiloPage client side', () => {
               nom: 'GIRAC',
               prenom: 'Kenji',
               dispositif: 'PACEA',
+              peutVoirLeCompteurDesHeures: false,
             },
             { surcharge: true }
           )

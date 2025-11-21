@@ -179,6 +179,46 @@ describe('<DossierMilo', () => {
     })
   })
 
+  describe('comportement du toggle PACEA', () => {
+    let onCreateCompte: jest.Mock
+
+    beforeEach(async () => {
+      // GIVEN
+      const dossier = unDossierMilo()
+      onCreateCompte = jest.fn().mockResolvedValue(undefined)
+
+      // WHEN
+      await renderWithContexts(
+        <DossierBeneficiaireMilo
+          dossier={dossier}
+          beneficiaireExisteDejaMilo={false}
+          erreurMessageCreationCompte=''
+          onCreateCompte={onCreateCompte}
+          onAnnulationCreerCompte={jest.fn()}
+          onRefresh={jest.fn()}
+          onRetour={jest.fn()}
+        />
+      )
+    })
+
+    it("Lorsqu'on crée un bénéficiaire MILO avec dispositif PACEA, peutVoirLeCompteurDesHeures doit être à false", async () => {
+      // WHEN
+      const paceaRadio = screen.getByRole('radio', { name: /PACEA/ })
+      await userEvent.click(paceaRadio)
+
+      // WHEN - création du compte
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // THEN - la payload contient bien le flag à true
+      await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
+      const [payload] = onCreateCompte.mock.calls[0]
+      expect(payload.dispositif).toBe('PACEA')
+      expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
+    })
+  })
+
   describe("quand l'e-mail du bénéficiaire n'est pas renseigné", () => {
     beforeEach(async () => {
       //GIVEN

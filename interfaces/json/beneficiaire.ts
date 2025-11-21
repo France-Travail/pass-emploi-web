@@ -4,6 +4,7 @@ import {
   CategorieSituation,
   Demarche,
   DetailBeneficiaire,
+  Dispositif,
   IdentiteBeneficiaire,
   IndicateursSemaine,
   MetadonneesFavoris,
@@ -15,6 +16,8 @@ export enum StatutDemarche {
   REALISEE = 'REALISEE',
   ANNULEE = 'ANNULEE',
 }
+
+export type DispositifMilo = Dispositif.CEJ | Dispositif.PACEA
 
 interface Situation {
   etat: string
@@ -285,7 +288,7 @@ export interface BeneficiaireMiloFormData {
   idDossier: string
   nom: string
   prenom: string
-  dispositif: 'CEJ' | 'PACEA'
-  email?: string
-  peutVoirLeCompteurDesHeures?: boolean
+  dispositif: DispositifMilo
+  email: string
+  peutVoirLeCompteurDesHeures: boolean
 }
