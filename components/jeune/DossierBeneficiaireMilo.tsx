@@ -69,9 +69,7 @@ function DossierBeneficiaireMilo(
   )
   const aDesBeneficiaires = portefeuille.length > 0
 
-  function choisirDispositif(
-    dispositifChoisi: Dispositif.CEJ | Dispositif.PACEA
-  ) {
+  function choisirDispositif(dispositifChoisi: DispositifMilo) {
     setErreurDispositif(undefined)
     setDispositif(dispositifChoisi)
     if (dispositifChoisi !== Dispositif.CEJ) {
