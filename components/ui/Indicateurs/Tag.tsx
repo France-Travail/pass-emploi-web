@@ -10,6 +10,7 @@ interface TagProps {
   iconName?: IconName
   iconLabel?: string
   isSmallTag?: boolean
+  isBold?: boolean
 }
 
 interface TagCategorieProps {
@@ -23,7 +24,14 @@ interface TagTypeProps {
   isSmallTag?: boolean
 }
 
-function Tag({ label, className, iconName, iconLabel, isSmallTag }: TagProps) {
+function Tag({
+  label,
+  className,
+  iconName,
+  iconLabel,
+  isSmallTag,
+  isBold,
+}: TagProps) {
   function TagIcon() {
     const iconStyle = 'h-5 w-5 mr-1 fill-current'
     if (iconLabel) {
@@ -56,7 +64,7 @@ function Tag({ label, className, iconName, iconLabel, isSmallTag }: TagProps) {
 
   return (
     <span
-      className={`flex items-center w-fit text-s-medium px-3 ${className} whitespace-nowrap ${isSmallTag ? 'px-2! py-1! text-xs! font-bold! [&>svg]:w-4! [&>svg]:h-4!' : ''}`}
+      className={`flex items-center w-fit text-s-medium px-3 ${className} whitespace-nowrap ${isBold ? 'text-base-bold' : ''} ${isSmallTag ? 'px-2! py-1! text-xs! font-bold! [&>svg]:w-4! [&>svg]:h-4!' : ''}`}
     >
       {iconName && <TagIcon />}
       {label}

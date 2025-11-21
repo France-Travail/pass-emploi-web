@@ -72,9 +72,9 @@ export default function TableauBeneficiairesMilo({
 
   async function loadVisibilitePourBeneficiaire(
     id: string,
-    cancelled: { current: boolean }
+    visible: { actuellement: boolean }
   ) {
-    if (cancelled.current) return
+    if (visible.actuellement) return
     setLoadingById((prev) => ({ ...prev, [id]: true }))
 
     try {
@@ -83,21 +83,26 @@ export default function TableauBeneficiairesMilo({
       )
       const details = await getJeuneDetailsClientSide(id)
 
-      if (cancelled.current) return
-      const flag = Boolean(details?.peutVoirLeComptageDesHeures)
-      setVisibilitesCompteur((prev) => ({ ...prev, [id]: flag }))
+      if (visible.actuellement) return
+      const peutVoirLeCompatageDesHeures = Boolean(
+        details?.peutVoirLeComptageDesHeures
+      )
+      setVisibilitesCompteur((prev) => ({
+        ...prev,
+        [id]: peutVoirLeCompatageDesHeures,
+      }))
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      if (cancelled.current) return
+      if (visible.actuellement) return
       setVisibilitesCompteur((prev) => ({ ...prev, [id]: false }))
     } finally {
-      if (cancelled.current) return
+      if (visible.actuellement) return
       setLoadingById((prev) => ({ ...prev, [id]: false }))
     }
   }
 
   useEffect(() => {
-    const cancelled = { current: false }
+    const visible = { actuellement: false }
 
     async function loadVisibilites() {
       const idsToFetch = beneficiairesAffiches
@@ -108,13 +113,13 @@ export default function TableauBeneficiairesMilo({
       if (!idsToFetch.length) return
 
       await Promise.all(
-        idsToFetch.map((id) => loadVisibilitePourBeneficiaire(id, cancelled))
+        idsToFetch.map((id) => loadVisibilitePourBeneficiaire(id, visible))
       )
     }
 
     loadVisibilites()
     return () => {
-      cancelled.current = true
+      visible.actuellement = true
     }
   }, [beneficiairesAffiches, visibilitesCompteur])
 

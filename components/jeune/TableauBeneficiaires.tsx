@@ -283,7 +283,7 @@ function TableauBeneficiaires(
               </span>
             )}
 
-          <div className='my-4 flex justify-end gap-6'>
+          <div className='my-4 flex justify-end gap-2'>
             {afficherFiltreDispositif && (
               <FiltresDispositifs
                 ref={filtreDispositifRef}

@@ -3,6 +3,8 @@ import { ChangeEvent } from 'react'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import styles from 'styles/components/Switch.module.css'
 
+import { TagMetier } from '../Indicateurs/Tag'
+
 type SwitchProps = {
   id: string
   checked: boolean
@@ -79,16 +81,16 @@ export function Switch({
         ))}
 
       {labelVariant === 'badge' && (
-        <span
-          aria-hidden={true}
-          className={
-            'ml-3 inline-flex items-center px-2 py-0.5 rounded-full border text-xs-regular ' +
-            (checked
-              ? 'text-green-600 bg-green-100 border-none text-base-bold'
-              : 'text-grey-700 bg-grey-100 border-none text-base-bold')
-          }
-        >
-          {checked ? checkedLabel : uncheckedLabel}
+        <span aria-hidden={true} className='ml-3'>
+          <TagMetier
+            isBold={true}
+            label={checked ? checkedLabel : uncheckedLabel}
+            className={
+              checked
+                ? 'text-green-600 bg-green-100'
+                : 'text-grey-700 bg-grey-100'
+            }
+          />
         </span>
       )}
     </label>
