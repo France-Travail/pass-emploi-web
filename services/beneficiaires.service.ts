@@ -42,6 +42,7 @@ import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { Periode } from 'types/dates'
 import { MetadonneesPagination } from 'types/pagination'
 import { ApiError } from 'utils/httpClient'
+import { captureError } from '../utils/monitoring/elastic'
 
 export async function getIdentitesBeneficiairesServerSide(
   idsBeneficiaires: string[],
@@ -97,6 +98,7 @@ export async function getJeuneDetails(
     if (e instanceof ApiError && e.statusCode === 404) {
       return undefined
     }
+    captureError(e as Error)
     throw e
   }
 }

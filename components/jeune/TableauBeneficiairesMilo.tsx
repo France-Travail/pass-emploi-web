@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import ConfirmationActivationCompteurModal from 'components/ConfirmationActivationCompteurModal'
@@ -94,27 +95,22 @@ export default function TableauBeneficiairesMilo({
     if (annule.current) return
     demarrerChargement(id)
 
-    try {
-      const { getJeuneDetailsClientSide } = await import(
-        'services/beneficiaires.service'
-      )
-      const details = await getJeuneDetailsClientSide(id)
+    const { getJeuneDetailsClientSide } = await import(
+      'services/beneficiaires.service'
+    )
+    const details = await getJeuneDetailsClientSide(id)
+    if (!details) return notFound()
 
-      if (annule.current) return
-      const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
-      if (compteurActif) {
-        activerCompteur(id)
-      } else {
-        desactiverCompteur(id)
-      }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      if (annule.current) return
+    if (annule.current) return
+    const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
+    if (compteurActif) {
+      activerCompteur(id)
+    } else {
       desactiverCompteur(id)
-    } finally {
-      if (annule.current) return
-      arreterChargement(id)
     }
+    if (annule.current) return
+    arreterChargement(id)
+    return
   }
 
   useEffect(() => {
