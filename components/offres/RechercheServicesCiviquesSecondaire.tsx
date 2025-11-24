@@ -78,7 +78,6 @@ export default function RechercheServicesCiviquesSecondaire({
             id='des-que-possible'
             checked={!query.dateDebut}
             onChange={() => toggleDateDebut()}
-            ariaLabel='Dès que possible'
           />
         </div>
         <div className='flex items-center'>
@@ -90,7 +89,6 @@ export default function RechercheServicesCiviquesSecondaire({
             checked={Boolean(query.dateDebut)}
             onChange={() => {}}
             disabled
-            ariaLabel='À partir de'
           />
         </div>
 

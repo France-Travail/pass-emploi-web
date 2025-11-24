@@ -518,7 +518,6 @@ function DetailsSessionPage({
               disabled={
                 configurationSession.autoinscription || estClose(session)
               }
-              ariaLabel='Rendre visible la session'
             />
 
             <Label htmlFor='autoinscription-session'>
@@ -531,7 +530,6 @@ function DetailsSessionPage({
               onChange={handleChangerAutoinscriptionSession}
               isLoading={loadingChangerConfiguration}
               disabled={estClose(session)}
-              ariaLabel='Les bénéficiaires peuvent s’inscrire en autonomie'
             />
           </div>
         </Etape>

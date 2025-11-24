@@ -127,7 +127,6 @@ export default function RechercheOffresEmploiSecondaire({
             id='debutants-acceptes'
             checked={Boolean(query.debutantAccepte)}
             onChange={updateExperience}
-            ariaLabel='Afficher uniquement les offres débutant accepté'
           />
         </div>
       </fieldset>

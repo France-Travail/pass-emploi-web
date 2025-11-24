@@ -293,9 +293,12 @@ export default function TableauBeneficiairesMilo({
                 {doitAfficherComptageHeures(beneficiaire) && (
                   <div>
                     <div className='items-center justify-between gap-4'>
-                      <p className='text-s-regular text-grey-800 mb-2'>
+                      <label
+                        htmlFor={`afficher-compteur-heures-${beneficiaire.id}`}
+                        className='text-s-regular text-grey-800 mb-2'
+                      >
                         Compteur
-                      </p>
+                      </label>
                       <div className='flex items-center gap-3'>
                         <Switch
                           id={`afficher-compteur-heures-${beneficiaire.id}`}
@@ -312,8 +315,8 @@ export default function TableauBeneficiairesMilo({
                           checkedLabel='Actif'
                           uncheckedLabel='Inactif'
                           labelVariant='badge'
-                          ariaLabel={`Compteur d'heures pour ${getNomBeneficiaireComplet(beneficiaire)}`}
                           size='small'
+                          ariaLabel={`Compteur d'heures pour ${beneficiaire.nom} ${beneficiaire.prenom}`}
                         />
                       </div>
                     </div>

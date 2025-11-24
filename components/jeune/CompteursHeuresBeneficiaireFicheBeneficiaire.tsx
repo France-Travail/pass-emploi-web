@@ -82,7 +82,6 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
             </Label>
             <Switch
               id='afficher-compteur-heures'
-              ariaLabel='Afficher le compteur à votre bénéficiaire'
               checked={peutVoirLeComptageDesHeures}
               onChange={handleSwitchActivationToggle}
               isLoading={loadingChangerVisibilite}
