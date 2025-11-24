@@ -193,9 +193,9 @@ function DossierBeneficiaireMilo(
             Compteurs des heures
           </h2>
           <div className='flex items-center gap-8'>
-            <p className='text-base-bold'>
-              Afficher le compteur d’heures au bénéficiaire
-            </p>
+            <label htmlFor={'afficher-compteur-heures'}>
+              Afficher le compteur à votre bénéficiaire
+            </label>
             <Switch
               id='afficher-compteur-heures'
               checked={peutVoirLeCompteurDesHeures}
