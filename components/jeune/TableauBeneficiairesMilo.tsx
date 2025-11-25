@@ -88,11 +88,11 @@ export default function TableauBeneficiairesMilo({
     setBeneficiairesAffiches(beneficiaires.slice(10 * (page - 1), 10 * page))
   }, [beneficiaires, page])
 
-  async function activeLeBoutonDeCompteurPourUnBeneficiaire(
+  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(
     id: string,
-    annule: { current: boolean }
+    etatDuCompteur: { actuel: boolean }
   ) {
-    if (annule.current) return
+    if (etatDuCompteur.actuel) return
     demarrerChargement(id)
 
     const { getJeuneDetailsClientSide } = await import(
@@ -101,22 +101,22 @@ export default function TableauBeneficiairesMilo({
     const details = await getJeuneDetailsClientSide(id)
     if (!details) return notFound()
 
-    if (annule.current) return
+    if (etatDuCompteur.actuel) return
     const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
     if (compteurActif) {
       activerCompteur(id)
     } else {
       desactiverCompteur(id)
     }
-    if (annule.current) return
+    if (etatDuCompteur.actuel) return
     arreterChargement(id)
     return
   }
 
   useEffect(() => {
-    const annule = { current: false }
+    const etatDuCompteur = { actuel: false }
 
-    async function activeLeBoutonDeCompteurDHeure() {
+    async function chargerEtatCompteurBeneficiaire() {
       const idsAVerifier = beneficiairesAffiches
         .filter((b) => doitAfficherComptageHeures(b))
         .map((b) => b.id)
@@ -126,14 +126,14 @@ export default function TableauBeneficiairesMilo({
 
       await Promise.all(
         idsAVerifier.map((id) =>
-          activeLeBoutonDeCompteurPourUnBeneficiaire(id, annule)
+          chargerLeBoutonDeCompteurPourUnBeneficiaire(id, etatDuCompteur)
         )
       )
     }
 
-    activeLeBoutonDeCompteurDHeure()
+    chargerEtatCompteurBeneficiaire()
     return () => {
-      annule.current = true
+      etatDuCompteur.actuel = true
     }
   }, [beneficiairesAffiches, visibilitesCompteur])
 
@@ -141,9 +141,9 @@ export default function TableauBeneficiairesMilo({
 
   async function procedeAuChangementDeVisibilitePourLeComptageHeures(
     id: string,
-    next: boolean
+    valider: boolean
   ) {
-    if (next) {
+    if (valider) {
       setIdBeneficiaireModalActivation(id)
       return
     }
@@ -199,7 +199,7 @@ export default function TableauBeneficiairesMilo({
         </TR>
       </thead>
 
-      <tbody className='grid grid grid-cols-[repeat(6,auto)] layout-m:grid-cols-[repeat(7,auto)] gap-y-2'>
+      <tbody className='grid grid-cols-[repeat(6,auto)] layout-m:grid-cols-[repeat(7,auto)] gap-y-2'>
         {beneficiairesAffiches.map(
           (beneficiaire: BeneficiaireAvecInfosComplementaires) => (
             <TR

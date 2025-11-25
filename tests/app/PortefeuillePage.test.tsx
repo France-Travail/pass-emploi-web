@@ -10,6 +10,7 @@ import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeu
 import {
   desBeneficiairesAvecActionsNonTerminees,
   unBeneficiaireAvecActionsNonTerminees,
+  unDetailBeneficiaire,
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
@@ -31,6 +32,7 @@ import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
 import { desListes } from '../../fixtures/listes'
+import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
 
 jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
@@ -53,6 +55,12 @@ describe('PortefeuillePage client side', () => {
           {} as { [id: string]: number }
         )
       )
+    )
+    const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
+      peutVoirLeComptageDesHeures: false,
+    })
+    ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+      detailBeneficaire
     )
   })
 
@@ -485,9 +493,6 @@ describe('PortefeuillePage client side', () => {
           { idBeneficiaire: 'id-beneficiaire-3', nbHeuresDeclarees: 12 },
         ],
         dateDerniereMiseAJour: now.minus({ hour: 1, minute: 5 }).toISO(),
-      })
-      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue({
-        peutVoirLeComptageDesHeures: false,
       })
       ;(changerVisibiliteComptageHeures as jest.Mock).mockResolvedValue(
         undefined
