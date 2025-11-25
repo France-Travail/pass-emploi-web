@@ -110,7 +110,6 @@ export default function TableauBeneficiairesMilo({
     }
     if (etatDuCompteur.actuel) return
     arreterChargement(id)
-    return
   }
 
   useEffect(() => {

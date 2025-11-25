@@ -31,7 +31,7 @@ function Tag({
   iconLabel,
   isSmallTag,
   isBold,
-}: TagProps) {
+}: Readonly<TagProps>) {
   function TagIcon() {
     const iconStyle = 'h-5 w-5 mr-1 fill-current'
     if (iconLabel) {
