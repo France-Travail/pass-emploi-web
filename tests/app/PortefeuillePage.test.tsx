@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
+import { notFound } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -38,6 +39,12 @@ jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
 jest.mock('services/conseiller.service')
 jest.mock('components/PageActionsPortal')
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  usePathname: jest.fn(),
+  useSearchParams: jest.fn(),
+  notFound: jest.fn(),
+}))
 
 describe('PortefeuillePage client side', () => {
   let container: HTMLElement
@@ -607,6 +614,31 @@ describe('PortefeuillePage client side', () => {
           name: 'Information sur le comptage des heures',
         })
       ).not.toBeInTheDocument()
+    })
+
+    it('appelle notFound quand getJeuneDetailsClientSide retourne undefined', async () => {
+      // Given
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(undefined)
+      ;(useRouter as jest.Mock).mockReturnValue({
+        refresh: jest.fn(),
+      })
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      // Then
+      await waitFor(() => {
+        expect(notFound).toHaveBeenCalled()
+      })
     })
   })
 
