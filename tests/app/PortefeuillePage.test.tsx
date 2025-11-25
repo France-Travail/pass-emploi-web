@@ -556,22 +556,23 @@ describe('PortefeuillePage client side', () => {
         name: "Compteur d'heures pour Jirac Kenji",
       })
 
+      expect(toggle).not.toBeChecked()
+
       // When
       await act(async () => {
         await userEvent.click(toggle)
       })
 
-      await waitFor(() => {
-        expect(
-          screen.getByText('Information sur le comptage des heures')
-        ).toBeInTheDocument()
-      })
+      expect(
+        screen.getByText(
+          'Le compteur s’incrémente automatiquement à partir des événements, rendez-vous et actions.'
+        )
+      ).toBeInTheDocument()
 
-      const confirmButton = screen.getByRole('button', {
-        name: 'Activer le compteur d’heures',
-      })
-
-      await userEvent.click(confirmButton)
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Activer le compteur d’heures' })
+      )
+      await waitFor(() => expect(toggle).toBeChecked())
 
       // Then
       await waitFor(() => {
@@ -579,6 +580,10 @@ describe('PortefeuillePage client side', () => {
           'id-beneficiaire-1',
           true
         )
+      })
+
+      await waitFor(() => {
+        expect(toggle).toBeChecked()
       })
     })
 
