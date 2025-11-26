@@ -95,8 +95,6 @@ export default function TableauBeneficiairesMilo({
   }, [beneficiaires, page])
 
   useEffect(() => {
-    const etatDuCompteur = { actuel: false }
-
     async function chargerEtatCompteurBeneficiaire() {
       const idsAVerifier = beneficiairesAffiches
         .filter((b) => doitAfficherComptageHeures(b))
@@ -107,22 +105,15 @@ export default function TableauBeneficiairesMilo({
 
       await Promise.all(
         idsAVerifier.map((id) =>
-          chargerLeBoutonDeCompteurPourUnBeneficiaire(id, etatDuCompteur)
+          chargerLeBoutonDeCompteurPourUnBeneficiaire(id)
         )
       )
     }
 
     chargerEtatCompteurBeneficiaire()
-    return () => {
-      etatDuCompteur.actuel = true
-    }
   }, [beneficiairesAffiches, visibilitesCompteur])
 
-  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(
-    id: string,
-    etatDuCompteur: { actuel: boolean }
-  ) {
-    if (etatDuCompteur.actuel) return
+  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
     demarrerChargement(id)
 
     const { getJeuneDetailsClientSide } = await import(
@@ -131,14 +122,12 @@ export default function TableauBeneficiairesMilo({
     const details = await getJeuneDetailsClientSide(id)
     if (!details) return notFound()
 
-    if (etatDuCompteur.actuel) return
     const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
     if (compteurActif) {
       activerCompteur(id)
     } else {
       desactiverCompteur(id)
     }
-    if (etatDuCompteur.actuel) return
     arreterChargement(id)
   }
 
