@@ -504,17 +504,6 @@ describe('PortefeuillePage client side', () => {
       ;(changerVisibiliteComptageHeures as jest.Mock).mockResolvedValue(
         undefined
       )
-
-      await renderWithContexts(
-        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
-        {
-          customConseiller: {
-            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
-            structure: structureMilo,
-            structureMilo: { nom: 'Agence', id: 'id-agence' },
-          },
-        }
-      )
     })
 
     afterEach(() => {
@@ -526,6 +515,16 @@ describe('PortefeuillePage client side', () => {
 
     it("ouvre la modal de confirmation lors de l'activation du compteur", async () => {
       // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
       const toggle = screen.getByRole('switch', {
         name: "Compteur d'heures pour Jirac Kenji",
       })
@@ -552,6 +551,16 @@ describe('PortefeuillePage client side', () => {
 
     it('active le compteur après confirmation dans la modal', async () => {
       // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
       const toggle = screen.getByRole('switch', {
         name: "Compteur d'heures pour Jirac Kenji",
       })
@@ -589,6 +598,17 @@ describe('PortefeuillePage client side', () => {
 
     it("annule l'activation du compteur", async () => {
       // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
       const toggle = screen.getByRole('switch', {
         name: "Compteur d'heures pour Jirac Kenji",
       })
@@ -643,6 +663,37 @@ describe('PortefeuillePage client side', () => {
       // Then
       await waitFor(() => {
         expect(notFound).toHaveBeenCalled()
+      })
+    })
+
+    it("le compteur d'heure du beneficaire est actif quand getJeuneDetailsClientSide renvoie true ", async () => {
+      // Given
+      const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
+        peutVoirLeComptageDesHeures: true,
+      })
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+        detailBeneficaire
+      )
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      // Then
+      await waitFor(() => {
+        expect(toggle).toBeChecked()
       })
     })
   })
