@@ -42,6 +42,7 @@ import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { Periode } from 'types/dates'
 import { MetadonneesPagination } from 'types/pagination'
 import { ApiError } from 'utils/httpClient'
+
 import { captureError } from '../utils/monitoring/elastic'
 
 export async function getIdentitesBeneficiairesServerSide(
