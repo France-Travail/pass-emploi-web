@@ -31,6 +31,7 @@ interface TableauBeneficiairesMiloProps {
   total: number
 }
 
+const NOMBRE_BENEFICIAIRES_PAR_PAGE = 10
 export default function TableauBeneficiairesMilo({
   beneficiaires,
   comptagesHeures,
@@ -85,32 +86,13 @@ export default function TableauBeneficiairesMilo({
   }
 
   useEffect(() => {
-    setBeneficiairesAffiches(beneficiaires.slice(10 * (page - 1), 10 * page))
-  }, [beneficiaires, page])
-
-  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(
-    id: string,
-    etatDuCompteur: { actuel: boolean }
-  ) {
-    if (etatDuCompteur.actuel) return
-    demarrerChargement(id)
-
-    const { getJeuneDetailsClientSide } = await import(
-      'services/beneficiaires.service'
+    setBeneficiairesAffiches(
+      beneficiaires.slice(
+        NOMBRE_BENEFICIAIRES_PAR_PAGE * (page - 1),
+        NOMBRE_BENEFICIAIRES_PAR_PAGE * page
+      )
     )
-    const details = await getJeuneDetailsClientSide(id)
-    if (!details) return notFound()
-
-    if (etatDuCompteur.actuel) return
-    const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
-    if (compteurActif) {
-      activerCompteur(id)
-    } else {
-      desactiverCompteur(id)
-    }
-    if (etatDuCompteur.actuel) return
-    arreterChargement(id)
-  }
+  }, [beneficiaires, page])
 
   useEffect(() => {
     const etatDuCompteur = { actuel: false }
@@ -135,6 +117,30 @@ export default function TableauBeneficiairesMilo({
       etatDuCompteur.actuel = true
     }
   }, [beneficiairesAffiches, visibilitesCompteur])
+
+  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(
+    id: string,
+    etatDuCompteur: { actuel: boolean }
+  ) {
+    if (etatDuCompteur.actuel) return
+    demarrerChargement(id)
+
+    const { getJeuneDetailsClientSide } = await import(
+      'services/beneficiaires.service'
+    )
+    const details = await getJeuneDetailsClientSide(id)
+    if (!details) return notFound()
+
+    if (etatDuCompteur.actuel) return
+    const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
+    if (compteurActif) {
+      activerCompteur(id)
+    } else {
+      desactiverCompteur(id)
+    }
+    if (etatDuCompteur.actuel) return
+    arreterChargement(id)
+  }
 
   useMatomo('Mes jeunes', total > 0)
 
