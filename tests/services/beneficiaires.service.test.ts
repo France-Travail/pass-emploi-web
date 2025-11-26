@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { getSession } from 'next-auth/react'
 
 import { apiDelete, apiGet, apiPatch, apiPost } from 'clients/api.client'
 import {
@@ -41,6 +42,7 @@ import {
   getIdJeuneMilo,
   getIndicateursBeneficiaire,
   getJeuneDetails,
+  getJeuneDetailsClientSide,
   getJeunesDuConseillerParId,
   getMetadonneesFavorisJeune,
   getMotifsSuppression,
@@ -55,6 +57,7 @@ import { Periode } from 'types/dates'
 import { ApiError } from 'utils/httpClient'
 
 jest.mock('clients/api.client')
+jest.mock('next-auth/react')
 
 describe('JeunesApiService', () => {
   describe('.getJeunesDuConseillerClientSide', () => {
@@ -114,6 +117,58 @@ describe('JeunesApiService', () => {
         accessToken
       )
       expect(actual).toEqual(desItemsBeneficiaires())
+    })
+  })
+
+  describe('.getJeuneDetailsClientSide', () => {
+    it('renvoie les details du jeune avec sa session', async () => {
+      // Given
+      ;(getSession as jest.Mock).mockResolvedValue({
+        user: { id: 'id-conseiller-1' },
+        accessToken: 'accessToken',
+      })
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unDetailBeneficiaireJson({
+          urlDossier: 'url-dossier',
+          dateFinCEJ: '2020-10-10',
+        }),
+      })
+
+      // When
+      const actual = await getJeuneDetailsClientSide('id-beneficiaire-1')
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/jeunes/id-beneficiaire-1',
+        'accessToken'
+      )
+      expect(actual).toEqual(
+        unDetailBeneficiaire({
+          urlDossier: 'url-dossier',
+          dateFinCEJ: '2020-10-10',
+        })
+      )
+    })
+
+    it("renvoie undefined si le jeune n'existe pas", async () => {
+      // Given
+      ;(getSession as jest.Mock).mockResolvedValue({
+        user: { id: 'id-conseiller-1' },
+        accessToken: 'accessToken',
+      })
+      ;(apiGet as jest.Mock).mockRejectedValue(
+        new ApiError(404, 'Jeune non trouvé')
+      )
+
+      // When
+      const actual = await getJeuneDetailsClientSide('id-beneficiaire-1')
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/jeunes/id-beneficiaire-1',
+        'accessToken'
+      )
+      expect(actual).toEqual(undefined)
     })
   })
 

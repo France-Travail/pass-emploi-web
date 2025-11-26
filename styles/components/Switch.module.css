@@ -46,3 +46,17 @@
   filter: grayscale(40%);
   cursor: not-allowed;
 }
+
+.toggleSmall {
+  width: 2.25rem;
+  height: 1.5rem;
+}
+
+.toggleSmall::after {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.checkbox:checked + .toggleSmall::after {
+  left: 0.75rem;
+}

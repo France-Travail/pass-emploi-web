@@ -43,6 +43,8 @@ import { Periode } from 'types/dates'
 import { MetadonneesPagination } from 'types/pagination'
 import { ApiError } from 'utils/httpClient'
 
+import { captureError } from '../utils/monitoring/elastic'
+
 export async function getIdentitesBeneficiairesServerSide(
   idsBeneficiaires: string[],
   idConseiller: string,
@@ -97,8 +99,16 @@ export async function getJeuneDetails(
     if (e instanceof ApiError && e.statusCode === 404) {
       return undefined
     }
+    captureError(e as Error)
     throw e
   }
+}
+
+export async function getJeuneDetailsClientSide(
+  idJeune: string
+): Promise<DetailBeneficiaire | undefined> {
+  const session = await getSession()
+  return getJeuneDetails(idJeune, session!.accessToken)
 }
 
 export async function getConseillersDuJeuneServerSide(

@@ -3,9 +3,14 @@ import userEvent from '@testing-library/user-event'
 import React from 'react'
 
 import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
-import { desBeneficiairesAvecActionsNonTerminees } from 'fixtures/beneficiaire'
+import {
+  desBeneficiairesAvecActionsNonTerminees,
+  unDetailBeneficiaire,
+} from 'fixtures/beneficiaire'
 import { countMessagesNotRead, signIn } from 'services/messages.service'
 import renderWithContexts from 'tests/renderWithContexts'
+import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
+import { getJeuneDetailsClientSide } from '../../services/beneficiaires.service'
 
 jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
@@ -17,6 +22,12 @@ describe('Recherche', () => {
 
     ;(signIn as jest.Mock).mockResolvedValue(undefined)
     ;(countMessagesNotRead as jest.Mock).mockResolvedValue({})
+    const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
+      peutVoirLeComptageDesHeures: false,
+    })
+    ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+      detailBeneficaire
+    )
 
     await renderWithContexts(
       <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />

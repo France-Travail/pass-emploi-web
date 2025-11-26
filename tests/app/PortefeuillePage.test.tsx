@@ -1,8 +1,9 @@
-import { act, screen, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
+import { notFound } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -10,6 +11,7 @@ import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeu
 import {
   desBeneficiairesAvecActionsNonTerminees,
   unBeneficiaireAvecActionsNonTerminees,
+  unDetailBeneficiaire,
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
@@ -20,6 +22,10 @@ import {
 } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { getComptageHeuresPortefeuille } from 'services/beneficiaires.service'
+import {
+  changerVisibiliteComptageHeures,
+  getJeuneDetailsClientSide,
+} from 'services/beneficiaires.service'
 import { recupererBeneficiaires } from 'services/conseiller.service'
 import { countMessagesNotRead, signIn } from 'services/messages.service'
 import renderWithContexts from 'tests/renderWithContexts'
@@ -27,11 +33,18 @@ import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
 import { desListes } from '../../fixtures/listes'
+import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
 
 jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
 jest.mock('services/conseiller.service')
 jest.mock('components/PageActionsPortal')
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  usePathname: jest.fn(),
+  useSearchParams: jest.fn(),
+  notFound: jest.fn(),
+}))
 
 describe('PortefeuillePage client side', () => {
   let container: HTMLElement
@@ -49,6 +62,12 @@ describe('PortefeuillePage client side', () => {
           {} as { [id: string]: number }
         )
       )
+    )
+    const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
+      peutVoirLeComptageDesHeures: false,
+    })
+    ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+      detailBeneficaire
     )
   })
 
@@ -426,6 +445,256 @@ describe('PortefeuillePage client side', () => {
         'title',
         'Trier par heures ordre alphabétique'
       )
+    })
+
+    describe("Toggle compteur d'heures", () => {
+      it('affiche le toggle pour les bénéficiaires CEJ', () => {
+        // Then
+        expect(
+          screen.getByRole('switch', {
+            name: /Compteur d'heures pour Jirac Kenji/i,
+          })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('switch', {
+            name: /Compteur d'heures pour Sanfamiye Nadia/i,
+          })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('switch', {
+            name: /Compteur d'heures pour D'Aböville-Muñoz François Maria/i,
+          })
+        ).toBeInTheDocument()
+      })
+
+      it("n'affiche pas le toggle pour les bénéficiaires non CEJ (PACEA)", () => {
+        // Given
+        const row = screen.getByRole('cell', {
+          name: /Ce bénéficiaire est rattaché à une Mission Locale différente de la vôtre. Jirac Aline/,
+        }).parentElement!
+
+        // Then
+        expect(() =>
+          within(row).getByRole('switch', {
+            name: /Compteur d'heures/i,
+          })
+        ).toThrow()
+      })
+    })
+  })
+
+  describe("quand le conseiller est MILO - Toggle compteur d'heures - interactions", () => {
+    const now = DateTime.fromISO('2025-06-18T13:23:13.600+00:00')
+
+    beforeEach(async () => {
+      //GIVEN
+      const modalRoot = document.createElement('div')
+      modalRoot.setAttribute('id', 'modal-root')
+      document.body.appendChild(modalRoot)
+
+      jest.spyOn(DateTime, 'now').mockReturnValue(now)
+      ;(getComptageHeuresPortefeuille as jest.Mock).mockResolvedValue({
+        comptages: [
+          { idBeneficiaire: 'id-beneficiaire-1', nbHeuresDeclarees: 15 },
+          { idBeneficiaire: 'id-beneficiaire-2', nbHeuresDeclarees: 1 },
+          { idBeneficiaire: 'id-beneficiaire-3', nbHeuresDeclarees: 12 },
+        ],
+        dateDerniereMiseAJour: now.minus({ hour: 1, minute: 5 }).toISO(),
+      })
+      ;(changerVisibiliteComptageHeures as jest.Mock).mockResolvedValue(
+        undefined
+      )
+    })
+
+    afterEach(() => {
+      const modalRoot = document.getElementById('modal-root')
+      if (modalRoot) {
+        document.body.removeChild(modalRoot)
+      }
+    })
+
+    it("ouvre la modal de confirmation lors de l'activation du compteur", async () => {
+      // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      // When
+      await act(async () => {
+        await userEvent.click(toggle)
+      })
+
+      // Then
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', {
+            name: 'Information sur le comptage des heures',
+          })
+        ).toBeInTheDocument()
+      })
+      expect(
+        screen.getByText(
+          'Le compteur s’incrémente automatiquement à partir des événements, rendez-vous et actions.'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('active le compteur après confirmation dans la modal', async () => {
+      // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      expect(toggle).not.toBeChecked()
+
+      // When
+      await act(async () => {
+        await userEvent.click(toggle)
+      })
+
+      expect(
+        screen.getByText(
+          'Le compteur s’incrémente automatiquement à partir des événements, rendez-vous et actions.'
+        )
+      ).toBeInTheDocument()
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Activer le compteur d’heures' })
+      )
+      await waitFor(() => expect(toggle).toBeChecked())
+
+      // Then
+      await waitFor(() => {
+        expect(changerVisibiliteComptageHeures).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          true
+        )
+      })
+
+      await waitFor(() => {
+        expect(toggle).toBeChecked()
+      })
+    })
+
+    it("annule l'activation du compteur", async () => {
+      // Given
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      // When
+      await act(async () => {
+        await userEvent.click(toggle)
+      })
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Information sur le comptage des heures')
+        ).toBeInTheDocument()
+      })
+
+      const cancelButton = screen.getByRole('button', {
+        name: 'Annuler',
+      })
+
+      await userEvent.click(cancelButton)
+
+      // Then
+      await waitFor(() => {
+        expect(changerVisibiliteComptageHeures).not.toHaveBeenCalled()
+      })
+      expect(
+        screen.queryByRole('heading', {
+          name: 'Information sur le comptage des heures',
+        })
+      ).not.toBeInTheDocument()
+    })
+
+    it('appelle notFound quand getJeuneDetailsClientSide retourne undefined', async () => {
+      // Given
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(undefined)
+      ;(useRouter as jest.Mock).mockReturnValue({
+        refresh: jest.fn(),
+      })
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      // Then
+      await waitFor(() => {
+        expect(notFound).toHaveBeenCalled()
+      })
+    })
+
+    it("le compteur d'heure du beneficaire est actif quand getJeuneDetailsClientSide renvoie true ", async () => {
+      // Given
+      const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
+        peutVoirLeComptageDesHeures: true,
+      })
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+        detailBeneficaire
+      )
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      // Then
+      await waitFor(() => {
+        expect(toggle).toBeChecked()
+      })
     })
   })
 

@@ -77,7 +77,7 @@ function FiltresDispositifs(
         className='flex items-center text-s-regular w-full h-full gap-2'
         type='button'
       >
-        Dispositif
+        Filtrer par Dispositif
         <IconComponent
           name={IconName.Filter}
           aria-hidden={true}
