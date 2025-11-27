@@ -87,6 +87,7 @@ export default function DetailsBeneficiaire({
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)
+      window.location.reload()
     } finally {
       modalDispositifRef.current!.closeModal()
     }
