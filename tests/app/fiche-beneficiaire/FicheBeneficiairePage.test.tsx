@@ -325,6 +325,53 @@ describe('FicheBeneficiairePage client side', () => {
         ).toThrow()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
       })
+
+      it('change le dispositif de CEJ vers PACEA et le compteur de heure est desactiver', async () => {
+        await renderWithContexts(
+          <FicheBeneficiairePage
+            estMilo={true}
+            beneficiaire={unDetailBeneficiaire({
+              dispositif: 'CEJ',
+              peutVoirLeComptageDesHeures: true,
+            })}
+            historiqueConseillers={[]}
+            rdvs={[]}
+            categoriesActions={desCategories()}
+            ongletInitial='actions'
+          />
+        )
+
+        expect(
+          screen.getByRole('switch', {
+            name: /Afficher le compteur à votre bénéficiaire/,
+          })
+        ).toBeInTheDocument()
+
+        // When
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Je confirme que le passage en PACEA de ce bénéficiaire est lié à une erreur lors de la création du compte (obligatoire)',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'PACEA'
+        )
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+
+        expect(
+          screen.getByRole('switch', {
+            name: /Afficher le compteur à votre bénéficiaire/,
+          })
+        ).not.toBeInTheDocument()
+      })
     })
 
     describe('quand le compte du bénéficiaire n’est pas activé', () => {

@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
 
 import BlocInformationBeneficiaire from 'components/jeune/BlocInformationBeneficiaire'
@@ -64,6 +65,7 @@ export default function DetailsBeneficiaire({
   const aujourdHui = DateTime.now()
   const debutSemaine = aujourdHui.startOf('week')
   const finSemaine = aujourdHui.endOf('week')
+  const router = useRouter()
 
   async function updateIdentifiantPartenaire(
     nouvelleValeur: string
@@ -87,7 +89,7 @@ export default function DetailsBeneficiaire({
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)
-      window.location.reload()
+      router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
     }

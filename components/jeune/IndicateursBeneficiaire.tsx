@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement } from 'react'
 
 import { CompteursHeuresBeneficiaireFicheBeneficiaire } from 'components/jeune/CompteursHeuresBeneficiaireFicheBeneficiaire'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import {
-  CompteurHeuresFicheBeneficiaire,
   Demarche,
   DetailBeneficiaire,
   estCEJ,
@@ -12,7 +11,6 @@ import {
 } from 'interfaces/beneficiaire'
 import { StatutDemarche } from 'interfaces/json/beneficiaire'
 import { estMilo } from 'interfaces/structure'
-import { getComptageHeuresFicheBeneficiaire } from 'services/beneficiaires.service'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toLongMonthDate, toShortDate } from 'utils/date'
 
@@ -35,9 +33,6 @@ export default function IndicateursBeneficiaire({
 
   const doitAfficherComptageHeures =
     estCEJ(beneficiaire) && estMilo(conseiller.structure)
-
-  const [comptageHeures, setComptageHeures] =
-    useState<CompteurHeuresFicheBeneficiaire | null>(null)
 
   const { demarchesCreees, demarchesTerminees, demarchesEnRetard } = (
     demarches ?? []
@@ -72,26 +67,6 @@ export default function IndicateursBeneficiaire({
     { demarchesCreees: [], demarchesTerminees: [], demarchesEnRetard: [] }
   )
 
-  async function chargerComptageHeures(
-    idBeneficiaire: string,
-    debut: DateTime,
-    fin: DateTime
-  ): Promise<CompteurHeuresFicheBeneficiaire | null> {
-    return await getComptageHeuresFicheBeneficiaire(idBeneficiaire, {
-      debut,
-      fin,
-      label: `du ${toLongMonthDate(debut)} au ${toLongMonthDate(fin)}`,
-    })
-  }
-
-  useEffect(() => {
-    chargerComptageHeures(
-      beneficiaire.id,
-      debutDeLaSemaine,
-      finDeLaSemaine
-    ).then(setComptageHeures)
-  }, [])
-
   return (
     <div className='grow shrink px-6'>
       <h2
@@ -110,8 +85,9 @@ export default function IndicateursBeneficiaire({
 
       {doitAfficherComptageHeures && (
         <CompteursHeuresBeneficiaireFicheBeneficiaire
-          comptageHeures={comptageHeures}
           beneficiaire={beneficiaire}
+          debutDeLaSemaine={debutDeLaSemaine}
+          finDeLaSemaine={finDeLaSemaine}
         />
       )}
 
