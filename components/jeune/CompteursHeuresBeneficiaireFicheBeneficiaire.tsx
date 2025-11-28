@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import { DateTime } from 'luxon'
+import React, { useEffect, useState } from 'react'
 
 import Label from 'components/ui/Form/Label'
 import { Switch } from 'components/ui/Form/Switch'
@@ -7,22 +8,27 @@ import {
   CompteurHeuresFicheBeneficiaire,
   DetailBeneficiaire,
 } from 'interfaces/beneficiaire'
-import { toFrenchDateTime } from 'utils/date'
+import { toFrenchDateTime, toLongMonthDate } from 'utils/date'
 
+import { getComptageHeuresFicheBeneficiaire } from '../../services/beneficiaires.service'
 import ConfirmationActivationCompteurModal from '../ConfirmationActivationCompteurModal'
 
 export function CompteursHeuresBeneficiaireFicheBeneficiaire({
-  comptageHeures,
   beneficiaire,
+  debutDeLaSemaine,
+  finDeLaSemaine,
 }: {
-  comptageHeures?: CompteurHeuresFicheBeneficiaire | null
   beneficiaire: DetailBeneficiaire
+  debutDeLaSemaine: DateTime
+  finDeLaSemaine: DateTime
 }) {
   const [loadingChangerVisibilite, setLoadingChangerVisibilite] =
     useState<boolean>(false)
   const [peutVoirLeComptageDesHeures, setPeutVoirLeComptageDesHeures] =
     useState<boolean>(beneficiaire.peutVoirLeComptageDesHeures ?? false)
   const [showModalActivation, setShowModalActivation] = useState<boolean>(false)
+  const [comptageHeures, setComptageHeures] =
+    useState<CompteurHeuresFicheBeneficiaire | null>(null)
 
   async function handleChangerVisibilite() {
     setLoadingChangerVisibilite(true)
@@ -51,6 +57,26 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
     await handleChangerVisibilite()
     setShowModalActivation(false)
   }
+
+  async function chargerComptageHeures(
+    idBeneficiaire: string,
+    debut: DateTime,
+    fin: DateTime
+  ): Promise<CompteurHeuresFicheBeneficiaire | null> {
+    return await getComptageHeuresFicheBeneficiaire(idBeneficiaire, {
+      debut,
+      fin,
+      label: `du ${toLongMonthDate(debut)} au ${toLongMonthDate(fin)}`,
+    })
+  }
+
+  useEffect(() => {
+    chargerComptageHeures(
+      beneficiaire.id,
+      debutDeLaSemaine,
+      finDeLaSemaine
+    ).then(setComptageHeures)
+  }, [])
 
   return (
     <>

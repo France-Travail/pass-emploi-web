@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/navigation'
 import React, { useRef, useState } from 'react'
 
 import BlocInformationBeneficiaire from 'components/jeune/BlocInformationBeneficiaire'
@@ -64,6 +65,13 @@ export default function DetailsBeneficiaire({
   const aujourdHui = DateTime.now()
   const debutSemaine = aujourdHui.startOf('week')
   const finSemaine = aujourdHui.endOf('week')
+  const router = useRouter()
+
+  const nouveauBeneficiaire = {
+    ...beneficiaire,
+    dispositif: dispositifActuel,
+    idPartenaire: identifiantPartenaire,
+  }
 
   async function updateIdentifiantPartenaire(
     nouvelleValeur: string
@@ -75,6 +83,7 @@ export default function DetailsBeneficiaire({
       await modifierIdentifiantPartenaire(id, nouvelleValeur)
       setIdentifiantPartenaire(nouvelleValeur)
       setAlerte(AlerteParam.modificationIdentifiantPartenaire)
+      router.refresh()
     } finally {
       modalIdentifiantPartenaireRef.current!.closeModal()
     }
@@ -87,6 +96,7 @@ export default function DetailsBeneficiaire({
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)
+      router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
     }
@@ -118,14 +128,14 @@ export default function DetailsBeneficiaire({
 
         <div className='rounded-b-[inherit] border border-t-0 border-grey-500 py-4 flex flex-wrap gap-4'>
           <IndicateursBeneficiaire
-            beneficiaire={beneficiaire}
+            beneficiaire={nouveauBeneficiaire}
             debutDeLaSemaine={debutSemaine}
             finDeLaSemaine={finSemaine}
             indicateursSemaine={indicateursSemaine}
             demarches={demarches?.data}
           />
           <BlocInformationBeneficiaire
-            beneficiaire={beneficiaire}
+            beneficiaire={nouveauBeneficiaire}
             identifiantPartenaire={{
               value: identifiantPartenaire,
               onClick: () => setShowIdentifiantPartenaireModal(true),

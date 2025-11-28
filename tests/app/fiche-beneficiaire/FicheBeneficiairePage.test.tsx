@@ -259,8 +259,15 @@ describe('FicheBeneficiairePage client side', () => {
     })
 
     describe('changement de dispositif', () => {
+      let mockRefresh: jest.Mock
+
       beforeEach(async () => {
         // Given
+        mockRefresh = jest.fn()
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: mockRefresh,
+        })
         ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
         await renderFicheJeuneMilo()
 
@@ -320,10 +327,69 @@ describe('FicheBeneficiairePage client side', () => {
           'id-beneficiaire-1',
           'PACEA'
         )
+        expect(mockRefresh).toHaveBeenCalled()
         expect(() =>
           screen.getByText(/Confirmation du changement de dispositif/)
         ).toThrow()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+      })
+    })
+
+    describe('rechargement du dispositif', () => {
+      it('change le dispositif de CEJ vers PACEA et voir que le compteur de heure est desactivé', async () => {
+        // Given
+        const mockRefreshLocal = jest.fn()
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: mockRefreshLocal,
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+
+        await renderFicheJeuneMilo({
+          peuVoirLeComptageDesHeures: true,
+          dispositif: 'CEJ',
+          lastActivity: '2023-04-12T05:42:07.756Z',
+        })
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
+
+        const switchElement = await screen.findByRole('switch', {
+          name: /Afficher le compteur à votre bénéficiaire/,
+        })
+        expect(switchElement).toBeChecked()
+
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Je confirme que le passage en PACEA de ce bénéficiaire est lié à une erreur lors de la création du compte (obligatoire)',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'PACEA'
+        )
+        expect(mockRefreshLocal).toHaveBeenCalled()
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+
+        await waitFor(() =>
+          expect(
+            screen.queryByRole('switch', {
+              name: /Afficher le compteur à votre bénéficiaire/,
+            })
+          ).not.toBeInTheDocument()
+        )
       })
     })
 
@@ -580,14 +646,22 @@ async function renderFicheJeuneMilo({
   lastActivity,
   structureDifferente,
   situation,
+  peuVoirLeComptageDesHeures,
+  dispositif,
 }: {
   lastActivity?: string
   structureDifferente?: boolean
   situation?: CategorieSituation
+  peuVoirLeComptageDesHeures?: boolean
+  dispositif?: string
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
     lastActivity,
     situationCourante: situation ?? CategorieSituation.SANS_SITUATION,
+    ...(peuVoirLeComptageDesHeures !== undefined && {
+      peutVoirLeComptageDesHeures: peuVoirLeComptageDesHeures,
+    }),
+    ...(dispositif !== undefined && { dispositif }),
   })
 
   const { container } = await renderWithContexts(
