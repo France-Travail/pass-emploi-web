@@ -42,6 +42,8 @@ jest.mock('services/favoris.service')
 jest.mock('components/ModalContainer')
 
 describe('FicheBeneficiairePage client side', () => {
+  const mockRefreshLocal = jest.fn()
+
   beforeEach(async () => {
     ;(getIndicateursBeneficiaire as jest.Mock).mockResolvedValue(
       desIndicateursSemaine()
@@ -185,6 +187,10 @@ describe('FicheBeneficiairePage client side', () => {
     describe('compteur d’heures', () => {
       beforeEach(async () => {
         await renderFicheJeuneMilo()
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: mockRefreshLocal,
+        })
       })
 
       it('affiche le nombre d’heures déclarées et validées', async () => {
@@ -229,6 +235,7 @@ describe('FicheBeneficiairePage client side', () => {
           )
         )
         expect(switchComptageHeures).toBeChecked()
+        expect(mockRefreshLocal).toHaveBeenCalled()
       })
 
       it("annule l'activation si on ferme le modal", async () => {
