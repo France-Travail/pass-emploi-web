@@ -43,7 +43,7 @@ export default function DetailsBeneficiaire({
   indicateursSemaine,
   onSupprimerBeneficiaire,
   className,
-}: DetailsBeneficiaireProps) {
+}: Readonly<DetailsBeneficiaireProps>) {
   const { id, idPartenaire, dispositif, situationCourante } = beneficiaire
   const [conseiller] = useConseiller()
   const [_, setAlerte] = useAlerte()

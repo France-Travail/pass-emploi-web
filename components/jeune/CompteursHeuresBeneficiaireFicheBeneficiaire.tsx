@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import Label from 'components/ui/Form/Label'
@@ -17,11 +18,13 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
   beneficiaire,
   debutDeLaSemaine,
   finDeLaSemaine,
-}: {
+}: Readonly<{
   beneficiaire: DetailBeneficiaire
   debutDeLaSemaine: DateTime
   finDeLaSemaine: DateTime
-}) {
+}>) {
+  const router = useRouter()
+
   const [loadingChangerVisibilite, setLoadingChangerVisibilite] =
     useState<boolean>(false)
   const [peutVoirLeComptageDesHeures, setPeutVoirLeComptageDesHeures] =
@@ -29,6 +32,20 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
   const [showModalActivation, setShowModalActivation] = useState<boolean>(false)
   const [comptageHeures, setComptageHeures] =
     useState<CompteurHeuresFicheBeneficiaire | null>(null)
+
+  useEffect(() => {
+    setPeutVoirLeComptageDesHeures(
+      beneficiaire.peutVoirLeComptageDesHeures ?? false
+    )
+  }, [beneficiaire.peutVoirLeComptageDesHeures])
+
+  useEffect(() => {
+    chargerComptageHeures(
+      beneficiaire.id,
+      debutDeLaSemaine,
+      finDeLaSemaine
+    ).then(setComptageHeures)
+  }, [])
 
   async function handleChangerVisibilite() {
     setLoadingChangerVisibilite(true)
@@ -43,6 +60,7 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
 
     setPeutVoirLeComptageDesHeures(!peutVoirLeComptageDesHeures)
     setLoadingChangerVisibilite(false)
+    router.refresh()
   }
 
   function handleSwitchActivationToggle() {
@@ -69,14 +87,6 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
       label: `du ${toLongMonthDate(debut)} au ${toLongMonthDate(fin)}`,
     })
   }
-
-  useEffect(() => {
-    chargerComptageHeures(
-      beneficiaire.id,
-      debutDeLaSemaine,
-      finDeLaSemaine
-    ).then(setComptageHeures)
-  }, [])
 
   return (
     <>
