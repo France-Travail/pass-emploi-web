@@ -341,20 +341,21 @@ describe('FicheBeneficiairePage client side', () => {
         const mockRefreshLocal = jest.fn()
         ;(useRouter as jest.Mock).mockReturnValue({
           replace: jest.fn(),
-          refresh: jest.fn(),
+          refresh: mockRefreshLocal,
         })
         ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
 
         await renderFicheJeuneMilo({
           peuVoirLeComptageDesHeures: true,
           dispositif: 'CEJ',
+          lastActivity: '2023-04-12T05:42:07.756Z',
         })
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
-        expect(
-          screen.getByRole('switch', {
-            name: /Afficher le compteur à votre bénéficiaire/,
-          })
-        ).toBeChecked()
+
+        const switchElement = await screen.findByRole('switch', {
+          name: /Afficher le compteur à votre bénéficiaire/,
+        })
+        expect(switchElement).toBeChecked()
 
         await userEvent.click(
           screen.getByRole('button', {
@@ -384,7 +385,7 @@ describe('FicheBeneficiairePage client side', () => {
 
         await waitFor(() =>
           expect(
-            screen.getByRole('switch', {
+            screen.queryByRole('switch', {
               name: /Afficher le compteur à votre bénéficiaire/,
             })
           ).not.toBeInTheDocument()
@@ -655,10 +656,12 @@ async function renderFicheJeuneMilo({
   dispositif?: string
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
-    lastActivity: lastActivity,
+    lastActivity,
     situationCourante: situation ?? CategorieSituation.SANS_SITUATION,
-    peutVoirLeComptageDesHeures: peuVoirLeComptageDesHeures,
-    dispositif: dispositif,
+    ...(peuVoirLeComptageDesHeures !== undefined && {
+      peutVoirLeComptageDesHeures: peuVoirLeComptageDesHeures,
+    }),
+    ...(dispositif !== undefined && { dispositif }),
   })
 
   const { container } = await renderWithContexts(

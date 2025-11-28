@@ -67,6 +67,12 @@ export default function DetailsBeneficiaire({
   const finSemaine = aujourdHui.endOf('week')
   const router = useRouter()
 
+  const nouveauBeneficiaire = {
+    ...beneficiaire,
+    dispositif: dispositifActuel,
+    idPartenaire: identifiantPartenaire,
+  }
+
   async function updateIdentifiantPartenaire(
     nouvelleValeur: string
   ): Promise<void> {
@@ -77,6 +83,7 @@ export default function DetailsBeneficiaire({
       await modifierIdentifiantPartenaire(id, nouvelleValeur)
       setIdentifiantPartenaire(nouvelleValeur)
       setAlerte(AlerteParam.modificationIdentifiantPartenaire)
+      router.refresh()
     } finally {
       modalIdentifiantPartenaireRef.current!.closeModal()
     }
@@ -121,14 +128,14 @@ export default function DetailsBeneficiaire({
 
         <div className='rounded-b-[inherit] border border-t-0 border-grey-500 py-4 flex flex-wrap gap-4'>
           <IndicateursBeneficiaire
-            beneficiaire={beneficiaire}
+            beneficiaire={nouveauBeneficiaire}
             debutDeLaSemaine={debutSemaine}
             finDeLaSemaine={finSemaine}
             indicateursSemaine={indicateursSemaine}
             demarches={demarches?.data}
           />
           <BlocInformationBeneficiaire
-            beneficiaire={beneficiaire}
+            beneficiaire={nouveauBeneficiaire}
             identifiantPartenaire={{
               value: identifiantPartenaire,
               onClick: () => setShowIdentifiantPartenaireModal(true),
