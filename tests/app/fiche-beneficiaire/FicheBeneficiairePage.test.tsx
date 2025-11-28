@@ -259,8 +259,15 @@ describe('FicheBeneficiairePage client side', () => {
     })
 
     describe('changement de dispositif', () => {
+      let mockRefresh: jest.Mock
+
       beforeEach(async () => {
         // Given
+        mockRefresh = jest.fn()
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: mockRefresh,
+        })
         ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
         await renderFicheJeuneMilo()
 
@@ -320,32 +327,40 @@ describe('FicheBeneficiairePage client side', () => {
           'id-beneficiaire-1',
           'PACEA'
         )
+        expect(mockRefresh).toHaveBeenCalled()
         expect(() =>
           screen.getByText(/Confirmation du changement de dispositif/)
         ).toThrow()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
       })
+    })
 
-      it('change le dispositif de CEJ vers PACEA et le compteur de heure est desactiver', async () => {
-        await renderWithContexts(
-          <FicheBeneficiairePage
-            estMilo={true}
-            beneficiaire={unDetailBeneficiaire({
-              dispositif: 'CEJ',
-              peutVoirLeComptageDesHeures: true,
-            })}
-            historiqueConseillers={[]}
-            rdvs={[]}
-            categoriesActions={desCategories()}
-            ongletInitial='actions'
-          />
-        )
+    describe('rechargement du dispositif', () => {
+      it('change le dispositif de CEJ vers PACEA et voir que le compteur de heure est desactivé', async () => {
+        // Given
+        const mockRefreshLocal = jest.fn()
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
 
+        await renderFicheJeuneMilo({
+          peuVoirLeComptageDesHeures: true,
+          dispositif: 'CEJ',
+        })
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
         expect(
           screen.getByRole('switch', {
             name: /Afficher le compteur à votre bénéficiaire/,
           })
-        ).toBeInTheDocument()
+        ).toBeChecked()
+
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
 
         // When
         await userEvent.click(
@@ -364,13 +379,16 @@ describe('FicheBeneficiairePage client side', () => {
           'id-beneficiaire-1',
           'PACEA'
         )
+        expect(mockRefreshLocal).toHaveBeenCalled()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
 
-        expect(
-          screen.getByRole('switch', {
-            name: /Afficher le compteur à votre bénéficiaire/,
-          })
-        ).not.toBeInTheDocument()
+        await waitFor(() =>
+          expect(
+            screen.getByRole('switch', {
+              name: /Afficher le compteur à votre bénéficiaire/,
+            })
+          ).not.toBeInTheDocument()
+        )
       })
     })
 
@@ -627,14 +645,20 @@ async function renderFicheJeuneMilo({
   lastActivity,
   structureDifferente,
   situation,
+  peuVoirLeComptageDesHeures,
+  dispositif,
 }: {
   lastActivity?: string
   structureDifferente?: boolean
   situation?: CategorieSituation
+  peuVoirLeComptageDesHeures?: boolean
+  dispositif?: string
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
-    lastActivity,
+    lastActivity: lastActivity,
     situationCourante: situation ?? CategorieSituation.SANS_SITUATION,
+    peutVoirLeComptageDesHeures: peuVoirLeComptageDesHeures,
+    dispositif: dispositif,
   })
 
   const { container } = await renderWithContexts(
