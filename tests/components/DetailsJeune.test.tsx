@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import DetailsBeneficiaire from 'components/jeune/DetailsBeneficiaire'
 import { unDetailBeneficiaire } from 'fixtures/beneficiaire'
@@ -17,6 +17,10 @@ describe('<DetailsJeune>', () => {
   beforeEach(() => {
     ;(usePathname as jest.Mock).mockReturnValue('/mes-jeunes')
     ;(modifierIdentifiantPartenaire as jest.Mock).mockResolvedValue(undefined)
+    ;(useRouter as jest.Mock).mockReturnValue({
+      replace: jest.fn(),
+      refresh: jest.fn(),
+    })
   })
 
   it("devrait afficher les informations de la fiche d'une jeune", async () => {
