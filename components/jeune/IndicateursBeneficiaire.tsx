@@ -27,7 +27,7 @@ export default function IndicateursBeneficiaire({
   finDeLaSemaine,
   indicateursSemaine,
   demarches,
-}: IndicateursBeneficiaireProps) {
+}: Readonly<IndicateursBeneficiaireProps>) {
   const [conseiller] = useConseiller()
   const withActionsEtRdvs = estMilo(conseiller.structure)
 

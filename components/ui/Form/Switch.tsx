@@ -83,7 +83,6 @@ export function Switch({
       {labelVariant === 'badge' && (
         <span aria-hidden={true} className='ml-3'>
           <TagMetier
-            isBold={true}
             label={checked ? checkedLabel : uncheckedLabel}
             className={
               checked
