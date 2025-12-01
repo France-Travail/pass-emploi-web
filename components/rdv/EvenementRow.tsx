@@ -5,7 +5,7 @@ import React from 'react'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import {
   TagModalite,
-  TagPresence,
+  TagEvenement,
   TagType,
 } from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
@@ -21,7 +21,10 @@ interface EvenementRowProps {
   idConseiller: string
 }
 
-export function EvenementRow({ evenement, idConseiller }: EvenementRowProps) {
+export function EvenementRow({
+  evenement,
+  idConseiller,
+}: Readonly<EvenementRowProps>) {
   const pathPrefix = usePathname()?.startsWith('/etablissement')
     ? '/etablissement/beneficiaires'
     : '/mes-jeunes'
@@ -78,7 +81,10 @@ export function EvenementRow({ evenement, idConseiller }: EvenementRowProps) {
       </TD>
 
       <TD>
-        <TagPresence estPresent={evenement.futPresent} />
+        <TagEvenement
+          evtAnnule={evenement.annule}
+          beneficiairePresent={evenement.futPresent}
+        />
       </TD>
 
       <TDLink

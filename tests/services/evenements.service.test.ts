@@ -9,6 +9,7 @@ import {
   unEvenementJeuneJson,
   unEvenementJson,
   unEvenementListItem,
+  unRdvMiloListItem,
 } from 'fixtures/evenement'
 import { AnimationCollective, StatutEvenement } from 'interfaces/evenement'
 import {
@@ -212,7 +213,7 @@ describe('EvenementsApiService', () => {
         `/conseillers/${idConseiller}/jeunes/${idJeune}/rendezvous?dateDebut=${dateDebutUrlEncoded}&dateFin=${dateFinUrlEncoded}`,
         accessToken
       )
-      const expected = unEvenementListItem({
+      const expected = unRdvMiloListItem({
         date: expectedDate,
       })
       delete expected.labelBeneficiaires

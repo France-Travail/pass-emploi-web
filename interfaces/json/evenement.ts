@@ -8,6 +8,7 @@ import {
   AnimationCollective,
   Evenement,
   EvenementListItem,
+  RdvMiloListItem,
   StatutEvenement,
   TypeEvenement,
 } from 'interfaces/evenement'
@@ -45,6 +46,7 @@ export type EvenementJson = {
 
 export type EvenementJeuneJson = Omit<EvenementJson, 'statut' | 'jeunes'> & {
   futPresent?: boolean
+  annule: boolean
 }
 
 export type AnimationCollectiveJson = EvenementJson & {
@@ -94,13 +96,34 @@ export function jsonToEvenement(json: EvenementJson): Evenement {
   return filtrerUndefinedNullEtChaineVide<Evenement>(evenement) as Evenement
 }
 
-export function jsonToListItem(
-  json: EvenementJson | EvenementJeuneJson
+export function evenementJsonToListItem(
+  json: EvenementJson
 ): EvenementListItem {
-  const beneficiaires =
-    typeof json === 'object' && 'jeunes' in json ? json.jeunes : undefined
-
   const evenement: EvenementListItem = {
+    ...jsonToListItem(json),
+    ...parseBeneficiaires(json.jeunes),
+  }
+  return filtrerUndefinedNullEtChaineVide<EvenementListItem>(
+    evenement
+  ) as EvenementListItem
+}
+
+export function evenementJeuneJsonToListItem(
+  json: EvenementJeuneJson
+): RdvMiloListItem {
+  const evenement: RdvMiloListItem = {
+    ...jsonToListItem(json),
+    annule: json.annule,
+  }
+  return filtrerUndefinedNullEtChaineVide<RdvMiloListItem>(
+    evenement
+  ) as RdvMiloListItem
+}
+
+function jsonToListItem(
+  json: EvenementJson | EvenementJeuneJson
+): Omit<EvenementListItem, 'beneficiaires'> {
+  return {
     id: json.id,
     type: json.type.label,
     date: json.date,
@@ -111,13 +134,8 @@ export function jsonToListItem(
     nombreMaxParticipants: json.nombreMaxParticipants,
     modality: json.modality,
     futPresent: json.futPresent,
-    ...parseBeneficiaires(beneficiaires),
   }
-  return filtrerUndefinedNullEtChaineVide<EvenementListItem>(
-    evenement
-  ) as EvenementListItem
 }
-
 function parseBeneficiaires(
   beneficiaires:
     | Array<IdentiteBeneficiaire & { futPresent?: boolean }>

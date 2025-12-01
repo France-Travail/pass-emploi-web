@@ -25,7 +25,7 @@ export default function OngletRdvsBeneficiaire({
   isLoading,
   rdvsAAfficher,
   erreurRecuperationSessions,
-}: OngletRdvsBeneficiaireProps) {
+}: Readonly<OngletRdvsBeneficiaireProps>) {
   const [conseiller] = useConseiller()
   const lectureSeule = !estConseillerReferent(conseiller, beneficiaire)
 
@@ -37,41 +37,35 @@ export default function OngletRdvsBeneficiaire({
         <FailureAlert label='Impossible de récupérer les sessions' />
       )}
 
-      {!isLoading &&
-        rdvsAAfficher &&
-        rdvsAAfficher.length === 0 &&
-        !lectureSeule && (
-          <div className='flex flex-col justify-center items-center'>
-            <EmptyState
-              shouldFocus={shouldFocus}
-              illustrationName={IllustrationName.Checklist}
-              titre={`Aucun rendez-vous ou atelier pour ${beneficiaire.prenom} ${beneficiaire.nom}`}
-              lien={{
-                href: `/mes-jeunes/edition-rdv?idJeune=${beneficiaire.id}`,
-                label: 'Créer un rendez-vous',
-                iconName: IconName.Add,
-              }}
-            />
-          </div>
-        )}
-
-      {!isLoading &&
-        rdvsAAfficher &&
-        rdvsAAfficher.length === 0 &&
-        lectureSeule && (
-          <div className='flex flex-col justify-center items-center'>
-            <EmptyState
-              shouldFocus={shouldFocus}
-              illustrationName={IllustrationName.Checklist}
-              titre={`Aucun rendez-vous ou atelier pour ${beneficiaire.prenom} ${beneficiaire.nom}`}
-              lien={{
-                href: `/mes-jeunes/edition-rdv?idJeune=${beneficiaire.id}`,
-                label: 'Créer un rendez-vous',
-                iconName: IconName.Add,
-              }}
-            />
-          </div>
-        )}
+      {!isLoading && rdvsAAfficher?.length === 0 && !lectureSeule && (
+        <div className='flex flex-col justify-center items-center'>
+          <EmptyState
+            shouldFocus={shouldFocus}
+            illustrationName={IllustrationName.Checklist}
+            titre={`Aucun rendez-vous ou atelier pour ${beneficiaire.prenom} ${beneficiaire.nom}`}
+            lien={{
+              href: `/mes-jeunes/edition-rdv?idJeune=${beneficiaire.id}`,
+              label: 'Créer un rendez-vous',
+              iconName: IconName.Add,
+            }}
+          />
+        </div>
+      )}
+      {/*Dafuq ?*/}
+      {!isLoading && rdvsAAfficher?.length === 0 && lectureSeule && (
+        <div className='flex flex-col justify-center items-center'>
+          <EmptyState
+            shouldFocus={shouldFocus}
+            illustrationName={IllustrationName.Checklist}
+            titre={`Aucun rendez-vous ou atelier pour ${beneficiaire.prenom} ${beneficiaire.nom}`}
+            lien={{
+              href: `/mes-jeunes/edition-rdv?idJeune=${beneficiaire.id}`,
+              label: 'Créer un rendez-vous',
+              iconName: IconName.Add,
+            }}
+          />
+        </div>
+      )}
 
       {!isLoading && rdvsAAfficher && rdvsAAfficher.length > 0 && (
         <TableauRdvsBeneficiaire

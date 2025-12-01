@@ -7,6 +7,7 @@ import {
   Evenement,
   EvenementListItem,
   StatutEvenement,
+  RdvMiloListItem,
 } from 'interfaces/evenement'
 import { EvenementJeuneJson, EvenementJson } from 'interfaces/json/evenement'
 import { TypeEvenementReferentiel } from 'interfaces/referentiel'
@@ -147,6 +148,16 @@ export function unEvenementListItem(
     },
     source: 'PASS_EMPLOI',
     titre: 'Prise de nouvelles par téléphone',
+  }
+  return { ...defaults, ...overrides }
+}
+
+export function unRdvMiloListItem(
+  overrides: Partial<RdvMiloListItem> = {}
+): RdvMiloListItem {
+  const defaults: RdvMiloListItem = {
+    ...unEvenementListItem(overrides),
+    annule: false,
   }
   return { ...defaults, ...overrides }
 }
@@ -303,26 +314,6 @@ export function unEvenementJson(
   return { ...defaults, ...overrides }
 }
 
-export function uneListeDEvenementJson() {
-  return [
-    unEvenementJson(),
-    unEvenementJson({
-      jeunes: [
-        {
-          id: 'id-beneficiaire-1',
-          prenom: 'Kenji',
-          nom: 'Jirac',
-        },
-        {
-          id: 'id-beneficiaire-2',
-          prenom: 'Nadia',
-          nom: 'Sanfamiye',
-        },
-      ],
-    }),
-  ]
-}
-
 export function unEvenementJeuneJson(
   overrides: Partial<EvenementJeuneJson> = {}
 ): EvenementJeuneJson {
@@ -347,6 +338,7 @@ export function unEvenementJeuneJson(
       },
     ],
     source: 'PASS_EMPLOI',
+    annule: false,
   }
 
   return { ...defaults, ...overrides }

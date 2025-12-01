@@ -9,15 +9,17 @@ import {
   RdvEtAnimationCollectivePilotage,
   Evenement,
   EvenementListItem,
+  RdvMiloListItem,
 } from 'interfaces/evenement'
 import {
   AnimationCollectiveJson,
   EvenementFormData,
   EvenementJeuneJson,
+  evenementJeuneJsonToListItem,
   EvenementJson,
+  evenementJsonToListItem,
   jsonToAnimationCollective,
   jsonToEvenement,
-  jsonToListItem,
 } from 'interfaces/json/evenement'
 import { TypeEvenementReferentiel } from 'interfaces/referentiel'
 import { Periode } from 'types/dates'
@@ -39,14 +41,14 @@ export async function getRendezVousConseiller(
     `/v2/conseillers/${idConseiller}/rendezvous?dateDebut=${dateDebutUrlEncoded}&dateFin=${dateFinUrlEncoded}`,
     session!.accessToken
   )
-  return rdvsJson.map(jsonToListItem)
+  return rdvsJson.map(evenementJsonToListItem)
 }
 
 export async function getRendezVousJeune(
   idConseiller: string,
   idJeune: string,
   periode: Periode
-): Promise<EvenementListItem[]> {
+): Promise<RdvMiloListItem[]> {
   const session = await getSession()
   const dateDebutUrlEncoded = encodeURIComponent(periode.debut.toISO())
   const dateFinUrlEncoded = encodeURIComponent(periode.fin.toISO())
@@ -55,7 +57,7 @@ export async function getRendezVousJeune(
     session!.accessToken
   )
 
-  return rdvsJson.map(jsonToListItem)
+  return rdvsJson.map(evenementJeuneJsonToListItem)
 }
 
 export async function getRendezVousEtablissement(

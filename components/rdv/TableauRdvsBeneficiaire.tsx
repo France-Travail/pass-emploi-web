@@ -17,7 +17,7 @@ export default function TableauRdvsBeneficiaire({
   idConseiller,
   beneficiaire,
   shouldFocus,
-}: TableauRdvsBeneficiaireProps) {
+}: Readonly<TableauRdvsBeneficiaireProps>) {
   const isFirstRender = useRef<boolean>(true)
   const listeRdvsRef = useRef<HTMLTableElement>(null)
 
