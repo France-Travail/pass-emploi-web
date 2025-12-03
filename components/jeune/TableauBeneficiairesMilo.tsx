@@ -123,7 +123,7 @@ export default function TableauBeneficiairesMilo({
     }
 
     chargerEtatCompteurBeneficiaire()
-  }, [beneficiairesAffiches, visibilitesCompteur])
+  }, [beneficiairesAffiches, comptagesHeures, visibilitesCompteur])
 
   async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
     demarrerChargement(id)

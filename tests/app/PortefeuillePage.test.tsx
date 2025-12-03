@@ -11,7 +11,10 @@ import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeu
 import {
   desBeneficiairesAvecActionsNonTerminees,
   unBeneficiaireAvecActionsNonTerminees,
+  unBeneficiaireWithActivity,
   unDetailBeneficiaire,
+  uneBaseBeneficiaire,
+  unItemBeneficiaire,
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
@@ -33,7 +36,10 @@ import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
 import { desListes } from '../../fixtures/listes'
-import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
+import {
+  BeneficiaireAvecCompteursActionsRdvs,
+  DetailBeneficiaire,
+} from '../../interfaces/beneficiaire'
 
 jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
@@ -540,12 +546,11 @@ describe('PortefeuillePage client side', () => {
 
     it("le compteur d'heure du beneficaire est actif quand getJeuneDetailsClientSide renvoie true ", async () => {
       // Given
-      const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
-        prenom: 'Brice',
+      const detailBeneficiaire: DetailBeneficiaire = unDetailBeneficiaire({
         peutVoirLeComptageDesHeures: true,
       })
       ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
-        detailBeneficaire
+        detailBeneficiaire
       )
 
       // When
@@ -696,6 +701,40 @@ describe('PortefeuillePage client side', () => {
           name: 'Information sur le comptage des heures',
         })
       ).not.toBeInTheDocument()
+    })
+
+    // ajouter test expect sur progressbar quand l'accessibilité le pourra pour catch la barre non présente et présente
+    it("n'affiche pas les ressources lié au comptage d'heure d'un bénéficiaire si il n'a pas de données", async () => {
+      const jeunes: BeneficiaireAvecCompteursActionsRdvs[] = [
+        unBeneficiaireAvecActionsNonTerminees(),
+        unBeneficiaireAvecActionsNonTerminees({
+          nom: 'Gérard',
+          prenom: 'Bruno',
+          id: 'id-beneficiaire-4',
+        }),
+      ]
+
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      const toggleBruno = screen.queryByRole('switch', {
+        name: "Compteur d'heures pour Gérard Bruno",
+      })
+
+      const toggleKenji = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      expect(toggleKenji).toBeInTheDocument()
+      expect(toggleBruno).not.toBeInTheDocument()
     })
   })
 
