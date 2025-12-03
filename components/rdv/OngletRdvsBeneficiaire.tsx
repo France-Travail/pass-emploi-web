@@ -51,18 +51,13 @@ export default function OngletRdvsBeneficiaire({
           />
         </div>
       )}
-      {/*Dafuq ?*/}
+
       {!isLoading && rdvsAAfficher?.length === 0 && lectureSeule && (
         <div className='flex flex-col justify-center items-center'>
           <EmptyState
             shouldFocus={shouldFocus}
             illustrationName={IllustrationName.Checklist}
             titre={`Aucun rendez-vous ou atelier pour ${beneficiaire.prenom} ${beneficiaire.nom}`}
-            lien={{
-              href: `/mes-jeunes/edition-rdv?idJeune=${beneficiaire.id}`,
-              label: 'Créer un rendez-vous',
-              iconName: IconName.Add,
-            }}
           />
         </div>
       )}
