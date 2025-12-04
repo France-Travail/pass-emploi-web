@@ -8,7 +8,7 @@ import {
   AnimationCollective,
   Evenement,
   EvenementListItem,
-  RdvMiloListItem,
+  EvenementMiloListItem,
   StatutEvenement,
   TypeEvenement,
 } from 'interfaces/evenement'
@@ -110,14 +110,14 @@ export function evenementJsonToListItem(
 
 export function evenementJeuneJsonToListItem(
   json: EvenementJeuneJson
-): RdvMiloListItem {
-  const evenement: RdvMiloListItem = {
+): EvenementMiloListItem {
+  const evenement: EvenementMiloListItem = {
     ...jsonToListItem(json),
     annule: json.annule,
   }
-  return filtrerUndefinedNullEtChaineVide<RdvMiloListItem>(
+  return filtrerUndefinedNullEtChaineVide<EvenementMiloListItem>(
     evenement
-  ) as RdvMiloListItem
+  ) as EvenementMiloListItem
 }
 
 function jsonToListItem(

@@ -57,7 +57,7 @@ export type EvenementListItem = {
   isSession?: boolean
   nombreMaxParticipants?: number
 }
-export type RdvMiloListItem = EvenementListItem & {
+export type EvenementMiloListItem = EvenementListItem & {
   annule: boolean
 }
 

@@ -11,10 +11,10 @@ import Tab from 'components/ui/Navigation/Tab'
 import TabList from 'components/ui/Navigation/TabList'
 import { SelecteurPeriode } from 'components/ui/SelecteurPeriode'
 import { Action } from 'interfaces/action'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementMiloListItem } from 'interfaces/evenement'
 import { Offre } from 'interfaces/favoris'
 import { getActionsBeneficiaire } from 'services/actions.service'
-import { chargerRdvsEtSessions } from 'services/evenements.service'
+import { chargerRdvsEtSessionsMilo } from 'services/evenements.service'
 import { getOffres } from 'services/favoris.service'
 import { Periode } from 'types/dates'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
@@ -59,7 +59,7 @@ export default function OngletsBeneficiaireMilo({
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [offres, setOffres] = useState<Offre[]>([])
   const [actions, setActions] = useState<Action[]>([])
-  const [rdvs, setRdvs] = useState<EvenementListItem[]>([])
+  const [rdvs, setRdvs] = useState<EvenementMiloListItem[]>([])
   const [erreurRecuperationSessions, setErreurRecuperationSessions] =
     useState<boolean>(false)
 
@@ -117,7 +117,7 @@ export default function OngletsBeneficiaireMilo({
           })
         break
       case 'rdvs':
-        chargerRdvsEtSessions(
+        chargerRdvsEtSessionsMilo(
           conseiller,
           beneficiaire,
           semaine,

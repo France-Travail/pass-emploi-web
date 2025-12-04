@@ -6,15 +6,20 @@ import React from 'react'
 
 import TableauRdvsBeneficiaire from 'components/rdv/TableauRdvsBeneficiaire'
 import { uneBaseBeneficiaire } from 'fixtures/beneficiaire'
-import { desEvenementsListItems } from 'fixtures/evenement'
+import {
+  desEvenementsMiloListItems,
+  unEvenementMiloListItem,
+} from 'fixtures/evenement'
 import { toFrenchDuration, toFrenchTime, toLongMonthDate } from 'utils/date'
 
 describe('<TableauRdvsBeneficiaire>', () => {
-  const listeRdv = desEvenementsListItems()
+  const listeRdv = desEvenementsMiloListItems()
 
   beforeEach(async () => {
     ;(usePathname as jest.Mock).mockReturnValue('/mes-jeunes')
+  })
 
+  it('affiche les informations des rendez-vous', async () => {
     // When
     await act(async () => {
       render(
@@ -26,9 +31,7 @@ describe('<TableauRdvsBeneficiaire>', () => {
         />
       )
     })
-  })
 
-  it('affiche les informations des rendez-vous', () => {
     // Then
     const rdv1 = listeRdv[0]
     const date1 = DateTime.fromISO(rdv1.date)
@@ -52,7 +55,50 @@ describe('<TableauRdvsBeneficiaire>', () => {
     expect(screen.getByRole('cell', { name: horaires2 })).toBeInTheDocument()
   })
 
-  it('permet la modification des rendez-vous', () => {
+  it('affiche un badge annulé si le rendez-vous est annulé', async () => {
+    // Given / When
+    await act(async () => {
+      render(
+        <TableauRdvsBeneficiaire
+          rdvs={[
+            unEvenementMiloListItem({
+              date: '2025-12-01T10:07:00.000Z',
+              duree: 45,
+              titre: 'Entretien qui sera annulé',
+              annule: true,
+              createur: {
+                id: 'id-conseiller-1',
+              },
+            }),
+          ]}
+          idConseiller='id-conseiller-1'
+          beneficiaire={uneBaseBeneficiaire()}
+          shouldFocus={false}
+        />
+      )
+    })
+
+    // Then
+    expect(
+      screen.getByRole('cell', {
+        name: 'Consulter l’événement du 1 décembre 2025 11:07 - 45 min Entretien qui sera annulé Autre par téléphone Créé par Vous Annulé',
+      })
+    ).toBeInTheDocument()
+  })
+
+  it('permet la modification des rendez-vous', async () => {
+    // When
+    await act(async () => {
+      render(
+        <TableauRdvsBeneficiaire
+          rdvs={listeRdv}
+          idConseiller='id-conseiller-1'
+          beneficiaire={uneBaseBeneficiaire()}
+          shouldFocus={false}
+        />
+      )
+    })
+
     const link1 = screen.getByRole('link', {
       name: 'Consulter l’événement du 21 octobre 2021 12:00 - 2h05 Prise de nouvelles par téléphone Autre par téléphone Créé par Vous Inscrit',
     })
@@ -69,7 +115,19 @@ describe('<TableauRdvsBeneficiaire>', () => {
     )
   })
 
-  it('affiche si l’utilisateur est le créateur du rendez-vous', () => {
+  it('affiche si l’utilisateur est le créateur du rendez-vous', async () => {
+    // When
+    await act(async () => {
+      render(
+        <TableauRdvsBeneficiaire
+          rdvs={listeRdv}
+          idConseiller='id-conseiller-1'
+          beneficiaire={uneBaseBeneficiaire()}
+          shouldFocus={false}
+        />
+      )
+    })
+
     const rdvsRows = screen.getAllByRole('row', {
       name: /Consulter l’événement du/,
     })

@@ -3,11 +3,11 @@ import { DateTime } from 'luxon'
 import { uneBaseBeneficiaire } from 'fixtures/beneficiaire'
 import {
   AnimationCollective,
-  RdvEtAnimationCollectivePilotage,
   Evenement,
   EvenementListItem,
+  EvenementMiloListItem,
+  RdvEtAnimationCollectivePilotage,
   StatutEvenement,
-  RdvMiloListItem,
 } from 'interfaces/evenement'
 import { EvenementJeuneJson, EvenementJson } from 'interfaces/json/evenement'
 import { TypeEvenementReferentiel } from 'interfaces/referentiel'
@@ -131,6 +131,10 @@ export function desEvenementsListItems(): EvenementListItem[] {
   ]
 }
 
+export function desEvenementsMiloListItems(): EvenementMiloListItem[] {
+  return desEvenementsListItems().map((item) => ({ ...item, annule: false }))
+}
+
 export function unEvenementListItem(
   overrides: Partial<EvenementListItem> = {}
 ): EvenementListItem {
@@ -152,10 +156,10 @@ export function unEvenementListItem(
   return { ...defaults, ...overrides }
 }
 
-export function unRdvMiloListItem(
-  overrides: Partial<RdvMiloListItem> = {}
-): RdvMiloListItem {
-  const defaults: RdvMiloListItem = {
+export function unEvenementMiloListItem(
+  overrides: Partial<EvenementMiloListItem> = {}
+): EvenementMiloListItem {
+  const defaults: EvenementMiloListItem = {
     ...unEvenementListItem(overrides),
     annule: false,
   }

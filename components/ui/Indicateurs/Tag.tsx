@@ -173,9 +173,9 @@ export function TagModalite({
 }
 
 export function TagEvenement({
-  evtAnnule,
   beneficiairePresent,
-}: Readonly<{ evtAnnule: boolean; beneficiairePresent?: boolean }>) {
+  evtAnnule,
+}: Readonly<{ beneficiairePresent?: boolean; evtAnnule?: boolean }>) {
   const { style, label } = (() => {
     if (evtAnnule)
       return {

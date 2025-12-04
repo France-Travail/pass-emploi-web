@@ -4,20 +4,20 @@ import React from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import {
-  TagModalite,
   TagEvenement,
+  TagModalite,
   TagType,
 } from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
 import TR from 'components/ui/Table/TR'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementMiloListItem } from 'interfaces/evenement'
 import { toFrenchDuration, toFrenchTime, toLongMonthDate } from 'utils/date'
 
 import { CreateurEvenementLabel } from './CreateurEvenementLabel'
 
 interface EvenementRowProps {
-  evenement: EvenementListItem
+  evenement: EvenementMiloListItem
   idConseiller: string
 }
 

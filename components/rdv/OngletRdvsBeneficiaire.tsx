@@ -8,14 +8,14 @@ import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import SpinningLoader from 'components/ui/SpinningLoader'
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
 import { estConseillerReferent } from 'interfaces/conseiller'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementMiloListItem } from 'interfaces/evenement'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 interface OngletRdvsBeneficiaireProps {
   beneficiaire: DetailBeneficiaire
   shouldFocus: boolean
   isLoading: boolean
-  rdvsAAfficher?: EvenementListItem[]
+  rdvsAAfficher?: EvenementMiloListItem[]
   erreurRecuperationSessions: boolean
 }
 

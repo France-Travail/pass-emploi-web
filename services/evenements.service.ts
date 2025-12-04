@@ -9,7 +9,7 @@ import {
   RdvEtAnimationCollectivePilotage,
   Evenement,
   EvenementListItem,
-  RdvMiloListItem,
+  EvenementMiloListItem,
 } from 'interfaces/evenement'
 import {
   AnimationCollectiveJson,
@@ -48,7 +48,7 @@ export async function getRendezVousJeune(
   idConseiller: string,
   idJeune: string,
   periode: Periode
-): Promise<RdvMiloListItem[]> {
+): Promise<EvenementMiloListItem[]> {
   const session = await getSession()
   const dateDebutUrlEncoded = encodeURIComponent(periode.debut.toISO())
   const dateFinUrlEncoded = encodeURIComponent(periode.fin.toISO())
@@ -209,15 +209,15 @@ async function getRdvsEtAnimationsCollectivesAClore(
   }
 }
 
-export async function chargerRdvsEtSessions(
+export async function chargerRdvsEtSessionsMilo(
   conseiller: Conseiller,
   beneficiaire: DetailBeneficiaire,
   semaine: Periode,
   setErreurRecuperationSessions: (erreur: boolean) => void
-): Promise<EvenementListItem[]> {
+): Promise<EvenementMiloListItem[]> {
   const rdvs = await getRendezVousJeune(conseiller.id, beneficiaire.id, semaine)
 
-  let sessionsMilo: EvenementListItem[] = []
+  let sessionsMilo: EvenementMiloListItem[] = []
   if (
     peutAccederAuxSessions(conseiller) &&
     conseiller.structureMilo!.id === beneficiaire.structureMilo?.id
@@ -234,8 +234,8 @@ export async function chargerRdvsEtSessions(
 }
 
 function trieParDateRdvsEtSessions(
-  rdvs: EvenementListItem[],
-  sessionsMilo: EvenementListItem[]
+  rdvs: EvenementMiloListItem[],
+  sessionsMilo: EvenementMiloListItem[]
 ) {
   return [...rdvs]
     .concat(sessionsMilo)
