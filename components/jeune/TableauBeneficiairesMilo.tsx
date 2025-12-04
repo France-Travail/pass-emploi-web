@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import ConfirmationActivationCompteurModal from 'components/ConfirmationActivationCompteurModal'
 import DispositifTag from 'components/jeune/DispositifTag'
@@ -40,9 +40,8 @@ export default function TableauBeneficiairesMilo({
 }: TableauBeneficiairesMiloProps) {
   const [conseiller] = useConseiller()
 
-  const [beneficiairesAffiches, setBeneficiairesAffiches] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >([])
+  const estStructureMilo = estMilo(conseiller.structure)
+
   const [visibilitesCompteur, setVisibilitesCompteur] = useState<
     Record<string, boolean>
   >({})
@@ -77,33 +76,29 @@ export default function TableauBeneficiairesMilo({
   ) {
     return (
       estCEJ(beneficiaire) &&
-      estMilo(conseiller.structure) &&
-      estCompteurActif(beneficiaire.id)
-    )
-  }
-
-  function estCompteurActif(idBeneficiaire: string) {
-    return Boolean(
-      comptagesHeures?.comptages?.find(
-        (compteur) => compteur.idBeneficiaire === idBeneficiaire
-      )
+      estStructureMilo &&
+      mapCompteursHeures.has(beneficiaire.id)
     )
   }
 
   function getHeuresCalculeesParBeneficiaire(idBeneficiaire: string) {
-    const compteurHeures = comptagesHeures?.comptages?.find(
-      (compteur) => compteur.idBeneficiaire === idBeneficiaire
-    )
-    return compteurHeures?.nbHeuresDeclarees ?? 0
+    return mapCompteursHeures.get(idBeneficiaire) ?? 0
   }
 
-  useEffect(() => {
-    setBeneficiairesAffiches(
-      beneficiaires.slice(
-        NOMBRE_BENEFICIAIRES_PAR_PAGE * (page - 1),
-        NOMBRE_BENEFICIAIRES_PAR_PAGE * page
+  const mapCompteursHeures = useMemo(() => {
+    const map = new Map<string, number>()
+    if (comptagesHeures?.comptages) {
+      comptagesHeures.comptages.forEach((c) =>
+        map.set(c.idBeneficiaire, c.nbHeuresDeclarees)
       )
-    )
+    }
+    return map
+  }, [comptagesHeures])
+
+  const beneficiairesAffiches = useMemo(() => {
+    const start = NOMBRE_BENEFICIAIRES_PAR_PAGE * (page - 1)
+    const end = NOMBRE_BENEFICIAIRES_PAR_PAGE * page
+    return beneficiaires.slice(start, end)
   }, [beneficiaires, page])
 
   useEffect(() => {
@@ -123,7 +118,7 @@ export default function TableauBeneficiairesMilo({
     }
 
     chargerEtatCompteurBeneficiaire()
-  }, [beneficiairesAffiches, comptagesHeures, visibilitesCompteur])
+  }, [beneficiairesAffiches, mapCompteursHeures, visibilitesCompteur]) // peut etre retirer visibilitesCompteur
 
   async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
     demarrerChargement(id)
