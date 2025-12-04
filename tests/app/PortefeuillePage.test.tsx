@@ -11,7 +11,10 @@ import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeu
 import {
   desBeneficiairesAvecActionsNonTerminees,
   unBeneficiaireAvecActionsNonTerminees,
+  unBeneficiaireWithActivity,
   unDetailBeneficiaire,
+  uneBaseBeneficiaire,
+  unItemBeneficiaire,
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
@@ -33,7 +36,10 @@ import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
 import { desListes } from '../../fixtures/listes'
-import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
+import {
+  BeneficiaireAvecCompteursActionsRdvs,
+  DetailBeneficiaire,
+} from '../../interfaces/beneficiaire'
 
 jest.mock('services/messages.service')
 jest.mock('services/beneficiaires.service')
@@ -513,6 +519,62 @@ describe('PortefeuillePage client side', () => {
       }
     })
 
+    it('appelle notFound quand getJeuneDetailsClientSide retourne undefined', async () => {
+      // Given
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(undefined)
+      ;(useRouter as jest.Mock).mockReturnValue({
+        refresh: jest.fn(),
+      })
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      // Then
+      await waitFor(() => {
+        expect(notFound).toHaveBeenCalled()
+      })
+    })
+
+    it("le compteur d'heure du beneficaire est actif quand getJeuneDetailsClientSide renvoie true ", async () => {
+      // Given
+      const detailBeneficiaire: DetailBeneficiaire = unDetailBeneficiaire({
+        peutVoirLeComptageDesHeures: true,
+      })
+      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
+        detailBeneficiaire
+      )
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
+        {
+          customConseiller: {
+            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
+            structure: structureMilo,
+            structureMilo: { nom: 'Agence', id: 'id-agence' },
+          },
+        }
+      )
+
+      const toggle = screen.getByRole('switch', {
+        name: "Compteur d'heures pour Jirac Kenji",
+      })
+
+      // Then
+      await waitFor(() => {
+        expect(toggle).toBeChecked()
+      })
+    })
+
     it("ouvre la modal de confirmation lors de l'activation du compteur", async () => {
       // Given
       await renderWithContexts(
@@ -641,14 +703,17 @@ describe('PortefeuillePage client side', () => {
       ).not.toBeInTheDocument()
     })
 
-    it('appelle notFound quand getJeuneDetailsClientSide retourne undefined', async () => {
-      // Given
-      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(undefined)
-      ;(useRouter as jest.Mock).mockReturnValue({
-        refresh: jest.fn(),
-      })
+    // ajouter test expect sur progressbar quand l'accessibilité le pourra pour catch la barre non présente et présente
+    it("n'affiche pas les ressources lié au comptage d'heure d'un bénéficiaire si il n'a pas de données", async () => {
+      const jeunes: BeneficiaireAvecCompteursActionsRdvs[] = [
+        unBeneficiaireAvecActionsNonTerminees(),
+        unBeneficiaireAvecActionsNonTerminees({
+          nom: 'Gérard',
+          prenom: 'Bruno',
+          id: 'id-beneficiaire-4',
+        }),
+      ]
 
-      // When
       await renderWithContexts(
         <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
         {
@@ -660,41 +725,16 @@ describe('PortefeuillePage client side', () => {
         }
       )
 
-      // Then
-      await waitFor(() => {
-        expect(notFound).toHaveBeenCalled()
+      const toggleBruno = screen.queryByRole('switch', {
+        name: "Compteur d'heures pour Gérard Bruno",
       })
-    })
 
-    it("le compteur d'heure du beneficaire est actif quand getJeuneDetailsClientSide renvoie true ", async () => {
-      // Given
-      const detailBeneficaire: DetailBeneficiaire = unDetailBeneficiaire({
-        peutVoirLeComptageDesHeures: true,
-      })
-      ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(
-        detailBeneficaire
-      )
-
-      // When
-      await renderWithContexts(
-        <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />,
-        {
-          customConseiller: {
-            agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
-            structure: structureMilo,
-            structureMilo: { nom: 'Agence', id: 'id-agence' },
-          },
-        }
-      )
-
-      const toggle = screen.getByRole('switch', {
+      const toggleKenji = screen.getByRole('switch', {
         name: "Compteur d'heures pour Jirac Kenji",
       })
 
-      // Then
-      await waitFor(() => {
-        expect(toggle).toBeChecked()
-      })
+      expect(toggleKenji).toBeInTheDocument()
+      expect(toggleBruno).not.toBeInTheDocument()
     })
   })
 
