@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+    open-pull-requests-limit: 10
+    target-branch: "develop"
+    labels:
+      - "dependabot"
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:30"
+    target-branch: "develop"
+    labels:
+      - "dependabot"
+    groups:
+      actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
