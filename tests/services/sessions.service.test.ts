@@ -5,6 +5,7 @@ import { unDetailSession, unDetailSessionJson } from 'fixtures/session'
 import {
   AnimationCollective,
   EvenementListItem,
+  EvenementMiloListItem,
   StatutEvenement,
 } from 'interfaces/evenement'
 import {
@@ -394,7 +395,7 @@ describe('SessionsApiService', () => {
         accessToken
       )
 
-      const sessionsMiloJeune: EvenementListItem[] = [
+      const sessionsMiloJeune: EvenementMiloListItem[] = [
         {
           id: '1',
           type: 'Atelier i-milo',
@@ -403,6 +404,7 @@ describe('SessionsApiService', () => {
           isSession: true,
           titre: 'Une-session',
           futPresent: undefined,
+          annule: false,
         },
         {
           id: '2',
@@ -412,6 +414,7 @@ describe('SessionsApiService', () => {
           isSession: true,
           titre: 'Une-session-2',
           futPresent: true,
+          annule: false,
         },
         {
           id: '3',
@@ -421,6 +424,7 @@ describe('SessionsApiService', () => {
           isSession: true,
           titre: 'Une-session-3',
           futPresent: false,
+          annule: false,
         },
       ]
       expect(actual).toEqual(sessionsMiloJeune)
