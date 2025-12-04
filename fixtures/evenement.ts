@@ -3,9 +3,10 @@ import { DateTime } from 'luxon'
 import { uneBaseBeneficiaire } from 'fixtures/beneficiaire'
 import {
   AnimationCollective,
-  RdvEtAnimationCollectivePilotage,
   Evenement,
   EvenementListItem,
+  EvenementMiloListItem,
+  RdvEtAnimationCollectivePilotage,
   StatutEvenement,
 } from 'interfaces/evenement'
 import { EvenementJeuneJson, EvenementJson } from 'interfaces/json/evenement'
@@ -130,6 +131,10 @@ export function desEvenementsListItems(): EvenementListItem[] {
   ]
 }
 
+export function desEvenementsMiloListItems(): EvenementMiloListItem[] {
+  return desEvenementsListItems().map((item) => ({ ...item, annule: false }))
+}
+
 export function unEvenementListItem(
   overrides: Partial<EvenementListItem> = {}
 ): EvenementListItem {
@@ -147,6 +152,16 @@ export function unEvenementListItem(
     },
     source: 'PASS_EMPLOI',
     titre: 'Prise de nouvelles par téléphone',
+  }
+  return { ...defaults, ...overrides }
+}
+
+export function unEvenementMiloListItem(
+  overrides: Partial<EvenementMiloListItem> = {}
+): EvenementMiloListItem {
+  const defaults: EvenementMiloListItem = {
+    ...unEvenementListItem(overrides),
+    annule: false,
   }
   return { ...defaults, ...overrides }
 }
@@ -303,26 +318,6 @@ export function unEvenementJson(
   return { ...defaults, ...overrides }
 }
 
-export function uneListeDEvenementJson() {
-  return [
-    unEvenementJson(),
-    unEvenementJson({
-      jeunes: [
-        {
-          id: 'id-beneficiaire-1',
-          prenom: 'Kenji',
-          nom: 'Jirac',
-        },
-        {
-          id: 'id-beneficiaire-2',
-          prenom: 'Nadia',
-          nom: 'Sanfamiye',
-        },
-      ],
-    }),
-  ]
-}
-
 export function unEvenementJeuneJson(
   overrides: Partial<EvenementJeuneJson> = {}
 ): EvenementJeuneJson {
@@ -347,6 +342,7 @@ export function unEvenementJeuneJson(
       },
     ],
     source: 'PASS_EMPLOI',
+    annule: false,
   }
 
   return { ...defaults, ...overrides }

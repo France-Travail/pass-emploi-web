@@ -4,24 +4,27 @@ import React from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import {
+  TagEvenement,
   TagModalite,
-  TagPresence,
   TagType,
 } from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
 import TR from 'components/ui/Table/TR'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementMiloListItem } from 'interfaces/evenement'
 import { toFrenchDuration, toFrenchTime, toLongMonthDate } from 'utils/date'
 
 import { CreateurEvenementLabel } from './CreateurEvenementLabel'
 
 interface EvenementRowProps {
-  evenement: EvenementListItem
+  evenement: EvenementMiloListItem
   idConseiller: string
 }
 
-export function EvenementRow({ evenement, idConseiller }: EvenementRowProps) {
+export function EvenementRow({
+  evenement,
+  idConseiller,
+}: Readonly<EvenementRowProps>) {
   const pathPrefix = usePathname()?.startsWith('/etablissement')
     ? '/etablissement/beneficiaires'
     : '/mes-jeunes'
@@ -78,7 +81,10 @@ export function EvenementRow({ evenement, idConseiller }: EvenementRowProps) {
       </TD>
 
       <TD>
-        <TagPresence estPresent={evenement.futPresent} />
+        <TagEvenement
+          evtAnnule={evenement.annule}
+          beneficiairePresent={evenement.futPresent}
+        />
       </TD>
 
       <TDLink

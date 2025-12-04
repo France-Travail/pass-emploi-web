@@ -70,15 +70,15 @@ function Tag({
   )
 }
 
-export function TagMetier({ className, ...props }: TagProps) {
+export function TagMetier({ className, ...props }: Readonly<TagProps>) {
   return <Tag className={'rounded-base ' + className} {...props} />
 }
 
-export function TagStatut({ className, ...props }: TagProps) {
+export function TagStatut({ className, ...props }: Readonly<TagProps>) {
   return <Tag className={'rounded-large ' + className} {...props} />
 }
 
-export function TagDate({ label }: Pick<TagProps, 'label'>) {
+export function TagDate({ label }: Readonly<Pick<TagProps, 'label'>>) {
   return (
     <Tag className='bg-grey-100 text-grey-800 rounded-large' label={label} />
   )
@@ -89,7 +89,7 @@ export function TagType({
   type,
   source,
   isSmallTag = false,
-}: TagTypeProps): ReactElement {
+}: Readonly<TagTypeProps>): ReactElement {
   let tagProps: {
     style: string
     iconName?: IconName
@@ -125,7 +125,7 @@ export function TagType({
   )
 }
 
-export function TagCategorie({ categorie }: TagCategorieProps) {
+export function TagCategorie({ categorie }: Readonly<TagCategorieProps>) {
   if (categorie)
     return (
       <Tag
@@ -143,7 +143,7 @@ export function TagCategorie({ categorie }: TagCategorieProps) {
   )
 }
 
-export function TagFavori({ aPostule }: { aPostule: boolean }) {
+export function TagFavori({ aPostule }: Readonly<{ aPostule: boolean }>) {
   if (aPostule) {
     return (
       <TagMetier
@@ -161,7 +161,9 @@ export function TagFavori({ aPostule }: { aPostule: boolean }) {
   )
 }
 
-export function TagModalite({ modality }: EvenementListItem): ReactElement {
+export function TagModalite({
+  modality,
+}: Readonly<EvenementListItem>): ReactElement {
   return (
     <TagStatut
       label={modality!}
@@ -170,9 +172,17 @@ export function TagModalite({ modality }: EvenementListItem): ReactElement {
   )
 }
 
-export function TagPresence({ estPresent }: { estPresent?: boolean }) {
+export function TagEvenement({
+  beneficiairePresent,
+  evtAnnule,
+}: Readonly<{ beneficiairePresent?: boolean; evtAnnule?: boolean }>) {
   const { style, label } = (() => {
-    switch (estPresent) {
+    if (evtAnnule)
+      return {
+        style: 'text-warning bg-warning-lighten',
+        label: 'Annulé',
+      }
+    switch (beneficiairePresent) {
       case true:
         return {
           style: 'text-success bg-success-lighten',

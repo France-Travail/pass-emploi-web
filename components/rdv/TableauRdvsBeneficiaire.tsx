@@ -3,11 +3,11 @@ import React, { useEffect, useRef } from 'react'
 import { EvenementRow } from 'components/rdv/EvenementRow'
 import Table from 'components/ui/Table/Table'
 import { IdentiteBeneficiaire } from 'interfaces/beneficiaire'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementMiloListItem } from 'interfaces/evenement'
 
 type TableauRdvsBeneficiaireProps = {
   idConseiller: string
-  rdvs: EvenementListItem[]
+  rdvs: EvenementMiloListItem[]
   beneficiaire: IdentiteBeneficiaire
   shouldFocus: boolean
 }
@@ -17,7 +17,7 @@ export default function TableauRdvsBeneficiaire({
   idConseiller,
   beneficiaire,
   shouldFocus,
-}: TableauRdvsBeneficiaireProps) {
+}: Readonly<TableauRdvsBeneficiaireProps>) {
   const isFirstRender = useRef<boolean>(true)
   const listeRdvsRef = useRef<HTMLTableElement>(null)
 

@@ -18,7 +18,7 @@ import { Structure } from 'interfaces/structure'
 import { getActionsBeneficiaire } from 'services/actions.service'
 import { getIndicateursBeneficiaire } from 'services/beneficiaires.service'
 import {
-  chargerRdvsEtSessions,
+  chargerRdvsEtSessionsMilo,
   getRendezVousJeune,
 } from 'services/evenements.service'
 import { getOffres } from 'services/favoris.service'
@@ -53,7 +53,7 @@ describe('Rendez-vous de la fiche jeune', () => {
     ;(getSessionsMiloBeneficiaire as jest.Mock).mockResolvedValue(sessions)
     ;(getActionsBeneficiaire as jest.Mock).mockResolvedValue(uneListeDActions())
     ;(getOffres as jest.Mock).mockResolvedValue(uneListeDOffres())
-    ;(chargerRdvsEtSessions as jest.Mock).mockResolvedValue([
+    ;(chargerRdvsEtSessionsMilo as jest.Mock).mockResolvedValue([
       ...rdvs,
       ...sessions,
     ])

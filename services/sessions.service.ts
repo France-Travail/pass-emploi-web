@@ -2,7 +2,11 @@ import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 
 import { apiGet, apiPatch, apiPost } from 'clients/api.client'
-import { AnimationCollective, EvenementListItem } from 'interfaces/evenement'
+import {
+  AnimationCollective,
+  EvenementListItem,
+  EvenementMiloListItem,
+} from 'interfaces/evenement'
 import { sessionMiloJsonToEvenementListItem } from 'interfaces/json/evenement'
 import {
   DetailsSessionJson,
@@ -145,7 +149,7 @@ export async function cloreSession(
 export async function getSessionsMiloBeneficiaire(
   idJeune: string,
   periode: Periode
-): Promise<EvenementListItem[]> {
+): Promise<EvenementMiloListItem[]> {
   const session = await getSession()
   const dateDebutUrlEncoded = encodeURIComponent(periode.debut.toISO())
   const dateFinUrlEncoded = encodeURIComponent(periode.fin.toISO())
@@ -206,7 +210,7 @@ async function modifierInformationsSession(
 
 function sessionMiloBeneficiaireJsonToEvenementListItem(
   json: SessionMiloBeneficiaireJson
-): EvenementListItem {
+): EvenementMiloListItem {
   const dateDebut = DateTime.fromISO(json.dateHeureDebut)
 
   const futPresent = (() => {
@@ -232,6 +236,7 @@ function sessionMiloBeneficiaireJsonToEvenementListItem(
     titre: json.nomSession,
     isSession: true,
     futPresent: futPresent,
+    annule: false,
   }
 }
 
