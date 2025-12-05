@@ -42,6 +42,7 @@ export type EvenementJson = {
   source?: string
   futPresent?: boolean
   nombreMaxParticipants?: number
+  annule: boolean
 }
 
 export type EvenementJeuneJson = Omit<EvenementJson, 'statut' | 'jeunes'> & {
@@ -98,14 +99,14 @@ export function jsonToEvenement(json: EvenementJson): Evenement {
 
 export function evenementJsonToListItem(
   json: EvenementJson
-): EvenementListItem {
-  const evenement: EvenementListItem = {
+): EvenementMiloListItem {
+  const evenement: EvenementMiloListItem = {
     ...jsonToListItem(json),
     ...parseBeneficiaires(json.jeunes),
   }
-  return filtrerUndefinedNullEtChaineVide<EvenementListItem>(
+  return filtrerUndefinedNullEtChaineVide<EvenementMiloListItem>(
     evenement
-  ) as EvenementListItem
+  ) as EvenementMiloListItem
 }
 
 export function evenementJeuneJsonToListItem(
@@ -113,7 +114,6 @@ export function evenementJeuneJsonToListItem(
 ): EvenementMiloListItem {
   const evenement: EvenementMiloListItem = {
     ...jsonToListItem(json),
-    annule: json.annule,
   }
   return filtrerUndefinedNullEtChaineVide<EvenementMiloListItem>(
     evenement
@@ -122,7 +122,7 @@ export function evenementJeuneJsonToListItem(
 
 function jsonToListItem(
   json: EvenementJson | EvenementJeuneJson
-): Omit<EvenementListItem, 'beneficiaires'> {
+): Omit<EvenementMiloListItem, 'beneficiaires'> {
   return {
     id: json.id,
     type: json.type.label,
@@ -134,6 +134,7 @@ function jsonToListItem(
     nombreMaxParticipants: json.nombreMaxParticipants,
     modality: json.modality,
     futPresent: json.futPresent,
+    annule: json.annule,
   }
 }
 function parseBeneficiaires(

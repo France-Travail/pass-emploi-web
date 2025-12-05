@@ -6,10 +6,9 @@ import { DetailBeneficiaire } from 'interfaces/beneficiaire'
 import { Conseiller, peutAccederAuxSessions } from 'interfaces/conseiller'
 import {
   AnimationCollective,
-  RdvEtAnimationCollectivePilotage,
   Evenement,
-  EvenementListItem,
   EvenementMiloListItem,
+  RdvEtAnimationCollectivePilotage,
 } from 'interfaces/evenement'
 import {
   AnimationCollectiveJson,
@@ -33,7 +32,7 @@ export async function getRendezVousConseiller(
   idConseiller: string,
   dateDebut: DateTime,
   dateFin: DateTime
-): Promise<EvenementListItem[]> {
+): Promise<EvenementMiloListItem[]> {
   const session = await getSession()
   const dateDebutUrlEncoded = encodeURIComponent(dateDebut.toISO())
   const dateFinUrlEncoded = encodeURIComponent(dateFin.toISO())

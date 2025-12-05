@@ -13,7 +13,11 @@ import IconComponent, { IconName } from 'components/ui/IconComponent'
 import Tab from 'components/ui/Navigation/Tab'
 import TabList from 'components/ui/Navigation/TabList'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
-import { AnimationCollective, EvenementListItem } from 'interfaces/evenement'
+import {
+  AnimationCollective,
+  EvenementListItem,
+  EvenementMiloListItem,
+} from 'interfaces/evenement'
 import { MissionLocale } from 'interfaces/referentiel'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { getMissionsLocalesClientSide } from 'services/referentiel.service'
@@ -96,7 +100,7 @@ function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
     idConseiller: string,
     dateDebut: DateTime,
     dateFin: DateTime
-  ): Promise<EvenementListItem[]> {
+  ): Promise<EvenementMiloListItem[]> {
     const { getRendezVousConseiller } = await import(
       'services/evenements.service'
     )

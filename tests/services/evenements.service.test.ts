@@ -168,13 +168,13 @@ describe('EvenementsApiService', () => {
         'accessToken'
       )
       expect(actual).toEqual([
-        unEvenementListItem({
+        unEvenementMiloListItem({
           beneficiaires: [
             { id: 'id-beneficiaire-1', nom: 'Jirac', prenom: 'Kenji' },
           ],
           nombreMaxParticipants: 10,
         }),
-        unEvenementListItem({
+        unEvenementMiloListItem({
           labelBeneficiaires: 'Bénéficiaires multiples',
           beneficiaires: [
             { id: 'id-beneficiaire-1', nom: 'Jirac', prenom: 'Kenji' },

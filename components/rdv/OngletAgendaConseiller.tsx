@@ -8,7 +8,7 @@ import { IllustrationName } from 'components/ui/IllustrationComponent'
 import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import { SelecteurPeriode } from 'components/ui/SelecteurPeriode'
 import { Conseiller, peutAccederAuxSessions } from 'interfaces/conseiller'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementListItem, EvenementMiloListItem } from 'interfaces/evenement'
 import { Periode } from 'types/dates'
 import { compareDates } from 'utils/date'
 
@@ -18,7 +18,7 @@ type OngletAgendaConseillerProps = {
     idConseiller: string,
     dateDebut: DateTime,
     dateFin: DateTime
-  ) => Promise<EvenementListItem[]>
+  ) => Promise<EvenementMiloListItem[]>
   recupererSessionsBeneficiaires: (
     idConseiller: string,
     dateDebut: DateTime,
@@ -36,10 +36,11 @@ export default function OngletAgendaConseiller({
   trackNavigation,
   debutPeriode,
   changerPeriode,
-}: OngletAgendaConseillerProps) {
+}: Readonly<OngletAgendaConseillerProps>) {
   const tableRef = useRef<HTMLTableElement>(null)
 
-  const [evenements, setEvenements] = useState<EvenementListItem[]>()
+  const [evenements, setEvenements] =
+    useState<(EvenementListItem | EvenementMiloListItem)[]>()
   const [shouldFocus, setShouldFocus] = useState<boolean>(false)
 
   const [periode, setPeriode] = useState<Periode>()
@@ -66,11 +67,11 @@ export default function OngletAgendaConseiller({
   async function chargerEvenements(
     dateDebut: DateTime,
     dateFin: DateTime
-  ): Promise<EvenementListItem[]> {
+  ): Promise<(EvenementListItem | EvenementMiloListItem)[]> {
     setFailed(undefined)
     let erreurs
 
-    let rdvs: EvenementListItem[] = []
+    let rdvs: EvenementMiloListItem[] = []
     try {
       rdvs = await recupererRdvs(conseiller.id, dateDebut, dateFin)
     } catch {
@@ -151,11 +152,11 @@ function ErreursRecuperation({
   failed,
   shouldFocus,
   onRetry,
-}: {
+}: Readonly<{
   failed: string | undefined
   shouldFocus: boolean
   onRetry: () => Promise<void>
-}) {
+}>) {
   const labelContactSupport =
     'Si le problème persiste, contactez notre support.'
 
