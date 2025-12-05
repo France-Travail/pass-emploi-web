@@ -313,6 +313,7 @@ export function unEvenementJson(
     ],
     source: 'PASS_EMPLOI',
     statut: 'A_VENIR',
+    annule: false,
   }
 
   return { ...defaults, ...overrides }

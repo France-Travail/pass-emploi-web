@@ -2,10 +2,10 @@ import React, { ForwardedRef, forwardRef } from 'react'
 
 import { AgendaRow } from 'components/rdv/AgendaRow'
 import Table from 'components/ui/Table/Table'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementListItem, EvenementMiloListItem } from 'interfaces/evenement'
 
 type TableauEvenementsConseillerProps = {
-  evenements: EvenementListItem[]
+  evenements: (EvenementListItem | EvenementMiloListItem)[]
   labelPeriode: string
 }
 

@@ -3,17 +3,25 @@ import { usePathname } from 'next/navigation'
 import React, { ReactElement } from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
-import { TagModalite, TagType } from 'components/ui/Indicateurs/Tag'
+import {
+  TagEvenement,
+  TagModalite,
+  TagType,
+} from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
 import TR from 'components/ui/Table/TR'
-import { EvenementListItem } from 'interfaces/evenement'
+import { EvenementListItem, EvenementMiloListItem } from 'interfaces/evenement'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toFrenchDuration, toFrenchTime, toLongMonthDate } from 'utils/date'
 
 import { CreateurEvenementLabel } from './CreateurEvenementLabel'
 
-export function AgendaRow({ evenement }: { evenement: EvenementListItem }) {
+export function AgendaRow({
+  evenement,
+}: Readonly<{
+  evenement: EvenementListItem | EvenementMiloListItem
+}>) {
   const pathPrefix = usePathname()?.startsWith('/etablissement')
     ? '/etablissement/beneficiaires'
     : '/mes-jeunes'
@@ -70,7 +78,14 @@ export function AgendaRow({ evenement }: { evenement: EvenementListItem }) {
       </TD>
 
       <TD className='row-start-2 p-0! pb-2! layout-base:row-start-1 layout-base:col-start-4 layout-base:flex layout-base:items-center layout-base:justify-center layout-base:p-2!'>
-        <Inscrits evenement={evenement} />
+        {'annule' in evenement ? (
+          <TagEvenement
+            evtAnnule={evenement.annule}
+            beneficiairePresent={evenement.futPresent}
+          />
+        ) : (
+          <Inscrits evenement={evenement} />
+        )}
       </TD>
 
       <TDLink
@@ -84,9 +99,9 @@ export function AgendaRow({ evenement }: { evenement: EvenementListItem }) {
 
 function Inscrits({
   evenement,
-}: {
+}: Readonly<{
   evenement: EvenementListItem
-}): ReactElement {
+}>): ReactElement {
   const nombreParticipants = evenement.beneficiaires!.length
   const maxParticipants = evenement.nombreMaxParticipants
 

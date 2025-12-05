@@ -3,7 +3,10 @@ import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import TableauEvenementsConseiller from 'components/rdv/TableauEvenementsConseiller'
-import { desEvenementsListItems } from 'fixtures/evenement'
+import {
+  desEvenementsListItems,
+  unEvenementMiloListItem,
+} from 'fixtures/evenement'
 import renderWithContexts from 'tests/renderWithContexts'
 
 describe('<TableauRdvsConseiller>', () => {
@@ -12,7 +15,17 @@ describe('<TableauRdvsConseiller>', () => {
   })
 
   describe('Quand il y a des rendez-vous', () => {
-    const listeRdv = desEvenementsListItems()
+    const listeRdv = [
+      ...desEvenementsListItems(),
+      unEvenementMiloListItem({
+        id: 'id-evenement-3',
+        date: '2021-10-28T13:00:00.000Z',
+        labelBeneficiaires: 'Élisa DE ALMEIDA',
+        modality: 'Visio',
+        type: 'Entretien individuel',
+        annule: true,
+      }),
+    ]
     beforeEach(async () => {
       // When
       await renderWithContexts(
@@ -42,6 +55,16 @@ describe('<TableauRdvsConseiller>', () => {
       expect(
         screen.getByRole('cell', {
           name: '25 octobre 2021 14 heure 0 durée 25 minutes',
+        })
+      ).toBeInTheDocument()
+
+      const rdv3 = listeRdv[2]
+      expect(screen.getByText(`${rdv3.labelBeneficiaires}`)).toBeInTheDocument()
+      expect(screen.getByText(rdv3.type)).toBeInTheDocument()
+      expect(screen.getByText(rdv3.modality!)).toBeInTheDocument()
+      expect(
+        screen.getByRole('cell', {
+          name: 'Consulter l’événement du 28 octobre 2021 15:00 - 2h05 Élisa DE ALMEIDA Entretien individuel Visio créé par Vous Annulé',
         })
       ).toBeInTheDocument()
     })
