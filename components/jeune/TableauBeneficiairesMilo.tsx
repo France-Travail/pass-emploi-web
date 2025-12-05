@@ -301,6 +301,11 @@ export default function TableauBeneficiairesMilo({
                       >
                         Compteur
                       </label>
+                      <span className='sr-only'>
+                        {visibilitesCompteur[beneficiaire.id]
+                          ? 'Actif'
+                          : 'Inactif'}
+                      </span>
                       <div className='flex items-center gap-3'>
                         <Switch
                           id={`afficher-compteur-heures-${beneficiaire.id}`}
