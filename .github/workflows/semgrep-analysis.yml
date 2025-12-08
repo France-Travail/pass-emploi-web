@@ -18,15 +18,19 @@ jobs:
     name: Scan
     runs-on: ubuntu-latest
     if: (github.actor != 'dependabot[bot]')
+
     container:
-      image: returntocorp/semgrep:1.145.0
+      image: semgrep/semgrep
 
     steps:
       - name: Checkout code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
+      - name: print infos
+        run: semgrep --version && semgrep --help
+
       - name: Run Semgrep and generate SARIF report
-        run: semgrep ci --sarif > semgrep.sarif && ls -la && cat semgrep.sarif
+        run: semgrep ci --sarif > semgrep.sarif && cat semgrep.sarif
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
