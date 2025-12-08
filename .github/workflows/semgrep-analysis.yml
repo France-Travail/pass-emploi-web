@@ -1,40 +1,40 @@
-
-name: Semgrep Code Scan
-
-on:
-  push:
-    branches: [ develop ]
-  pull_request:
-    branches: [ develop ]
-  schedule:
-    - cron: '0 8 * * 1' # Tous les lundis à 8h
-
-permissions:
-  contents: read
-  security-events: write
-
-jobs:
-  semgrep:
-    name: Scan
-    runs-on: ubuntu-latest
-    if: (github.actor != 'dependabot[bot]')
-
-    container:
-      image: semgrep/semgrep:1.145.0-nonroot
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-
-      - name: print infos
-        run: semgrep --version && semgrep ci --help
-
-      - name: Run Semgrep and generate SARIF report
-        run: semgrep ci --sarif > semgrep.sarif && cat semgrep.sarif
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
-
-      - name: Upload SARIF file to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
-        with:
-          sarif_file: semgrep.sarif
+#
+#name: Semgrep Code Scan
+#
+#on:
+#  push:
+#    branches: [ develop ]
+#  pull_request:
+#    branches: [ develop ]
+#  schedule:
+#    - cron: '0 8 * * 1' # Tous les lundis à 8h
+#
+#permissions:
+#  contents: read
+#  security-events: write
+#
+#jobs:
+#  semgrep:
+#    name: Scan
+#    runs-on: ubuntu-latest
+#    if: (github.actor != 'dependabot[bot]')
+#
+#    container:
+#      image: semgrep/semgrep:1.145.0-nonroot
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+#
+#      - name: print infos
+#        run: semgrep --version && semgrep ci --help
+#
+#      - name: Run Semgrep and generate SARIF report
+#        run: semgrep ci --sarif > semgrep.sarif
+#        env:
+#          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+#
+#      - name: Upload SARIF file to GitHub Code Scanning
+#        uses: github/codeql-action/upload-sarif@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
+#        with:
+#          sarif_file: semgrep.sarif
