@@ -1,0 +1,32 @@
+
+name: Security Alert to Mattermost
+on:
+  dependabot_alert:
+    types: [created, dismissed, resolved]
+
+jobs:
+  notify_high_severity:
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event.action == 'created'
+# github.event.alert.security_vulnerability.severity == 'high' ||
+# github.event.alert.security_vulnerability.severity == 'critical'
+
+    steps:
+      - name: Send Mattermost Alert for High/Critical Vulnerability
+        uses: lhotari/mattermost-notify@1e43d938221b7642199b441235312a02488a1fa6 # v2.1.0
+        with:
+          webhookUrl: ${{ secrets.MATTERMOST_MONITORING_PROD_WEBHOOK_URL }}
+
+          text: |
+            🚨 **ALERTE SÉCURITÉ CRITIQUE / HAUTE** 🚨
+            
+            **Dépôt :** ${{ github.repository }}
+            **Dépendance :** ${{ github.event.alert.security_vulnerability.package.ecosystem }}/${{ github.event.alert.security_vulnerability.package.name }}
+            **Gravité :** ${{ github.event.alert.security_vulnerability.severity }}
+            **Description :** ${{ github.event.alert.security_vulnerability.advisory.summary }}
+            
+            **Action Recommandée :** Une Pull Request de Dependabot devrait être ouverte (ou a été ouverte) pour corriger cette faille. Veuillez la vérifier et la fusionner rapidement.
+            
+            [Voir l'Alerte sur GitHub](${{ github.event.alert.html_url }})
