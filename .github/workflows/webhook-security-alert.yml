@@ -1,7 +1,7 @@
 
 name: Security Alert to Mattermost
 on:
-  dependabot_alert:
+  repository_vulnerability_alert:
     types: [created, dismissed, resolved]
 
 jobs:
