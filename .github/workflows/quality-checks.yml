@@ -27,7 +27,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
       - name: Run ESLint
         run: yarn lint
@@ -54,7 +54,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
       - name: Run tests
         run: yarn test --coverage --maxWorkers=2
