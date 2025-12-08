@@ -7,10 +7,10 @@ import {
 
 describe('HttpClient', () => {
   describe('fetchJson', () => {
-    let reqInfo: RequestInfo
+    let reqInfo: string
     let reqInit: RequestInit
     let responseHeaders: Headers
-    let actual: any
+    let actual: { content: any; headers: Headers }
     beforeEach(async () => {
       // Given
       reqInfo = '/api/path/whatever'
@@ -154,7 +154,7 @@ describe('HttpClient', () => {
   describe('fetchNoContent', () => {
     let reqInfo: RequestInfo
     let reqInit: RequestInit
-    let actual: any
+    let actual: void
     beforeEach(async () => {
       // Given
       reqInfo = '/api/path/whatever'

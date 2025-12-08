@@ -74,7 +74,6 @@ describe('<ConversationBeneficiaire />', () => {
         beneficiaireChat={beneficiaireChat}
         conseillers={conseillersBeneficiaires}
         onBack={jest.fn()}
-        shouldFocusOnFirstRender={false}
       />
     )
     rerender = renderResult.rerender
@@ -154,7 +153,6 @@ describe('<ConversationBeneficiaire />', () => {
         beneficiaireChat={newBeneficiaireChat}
         conseillers={conseillersBeneficiaires}
         onBack={jest.fn()}
-        shouldFocusOnFirstRender={false}
       />
     )
     // Then

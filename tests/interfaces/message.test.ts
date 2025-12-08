@@ -7,21 +7,21 @@ describe('getPreviousIndices', () => {
   const idATrouver = 'idATrouver'
 
   it('renvoie undefined pour les contenus vides', async () => {
-    expect(getPreviousItemId(idATrouver, { length: 0, days: [] })).toEqual(
-      undefined
-    )
+    expect(
+      getPreviousItemId(idATrouver, { countMessagesFetched: 0, days: [] })
+    ).toEqual(undefined)
   })
 
   it('renvoie undefined si l’élément n’existe pas', async () => {
     expect(
       getPreviousItemId(idATrouver, {
-        length: 1,
+        countMessagesFetched: 1,
         days: [{ date, messages: [{ id: 'id2' }] }],
       })
     ).toEqual(undefined)
     expect(
       getPreviousItemId(idATrouver, {
-        length: 3,
+        countMessagesFetched: 3,
         days: [
           { date, messages: [{ id: 'id2' }, { id: 'id3' }] },
           { date, messages: [] },
@@ -34,7 +34,7 @@ describe('getPreviousIndices', () => {
   it('renvoie l’élément précédent du même jour', async () => {
     expect(
       getPreviousItemId(idATrouver, {
-        length: 3,
+        countMessagesFetched: 3,
         days: [
           {
             date,
@@ -48,7 +48,7 @@ describe('getPreviousIndices', () => {
   it('renvoie le dernier élément du jour précédent', async () => {
     expect(
       getPreviousItemId(idATrouver, {
-        length: 4,
+        countMessagesFetched: 4,
         days: [
           { date, messages: [{ id: 'id2' }] },
           {
@@ -63,7 +63,7 @@ describe('getPreviousIndices', () => {
   it('renvoie le dernier élément du 1er jour précédent avec des éléments', async () => {
     expect(
       getPreviousItemId(idATrouver, {
-        length: 4,
+        countMessagesFetched: 4,
         days: [
           { date, messages: [{ id: 'id2' }] },
           { date, messages: [] },
@@ -80,7 +80,7 @@ describe('getPreviousIndices', () => {
   it('renvoie undefined si pas d’élément précédent', async () => {
     expect(
       getPreviousItemId(idATrouver, {
-        length: 3,
+        countMessagesFetched: 3,
         days: [
           { date, messages: [] },
           { date, messages: [] },

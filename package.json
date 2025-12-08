@@ -13,6 +13,7 @@
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
+    "compile:check": "tsc --noEmit",
     "format": "prettier . --check",
     "format:fix": "prettier . --write",
     "test": "TZ=Europe/Paris jest --config jest.config.js --coverage",
