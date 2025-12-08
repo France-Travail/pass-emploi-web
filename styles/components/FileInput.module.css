@@ -1,12 +1,12 @@
 .input:focus + label {
-    outline: 5px auto Highlight;
-    outline: 5px auto -webkit-focus-ring-color;
+  outline: 5px auto Highlight;
+  outline: 5px auto -webkit-focus-ring-color;
 }
 
 .input[disabled] + label {
-    background-color: var(--color-primary);
-    opacity: 50%;
-    cursor: not-allowed;
-    border: 1px solid transparent;
-    color: var(--color-white);
+  background-color: var(--color-primary);
+  opacity: 50%;
+  cursor: not-allowed;
+  border: 1px solid transparent;
+  color: var(--color-white);
 }

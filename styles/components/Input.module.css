@@ -40,7 +40,7 @@
   background-color: var(--color-primary);
   cursor: pointer;
 }
-.range::-moz-range-progress{
+.range::-moz-range-progress {
   background-color: var(--color-primary);
   border-radius: 50px 0 0 50px;
   height: 8px;
@@ -64,4 +64,3 @@
   background-color: var(--color-primary);
   cursor: pointer;
 }
-

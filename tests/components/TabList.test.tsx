@@ -137,7 +137,9 @@ describe('Tab & TabList', () => {
 
       // Next when last
       await userEvent.keyboard('{ArrowRight}')
-      expect(screen.getByRole('tab', { name: 'a11y tab 1 12 éléments' })).toHaveFocus()
+      expect(
+        screen.getByRole('tab', { name: 'a11y tab 1 12 éléments' })
+      ).toHaveFocus()
       expect(onSelectTab).toHaveBeenCalledTimes(3)
       expect(onSelectTab).toHaveBeenCalledWith('controlled-1')
 

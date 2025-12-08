@@ -5,24 +5,23 @@
 }
 
 @variant min-layout-xs {
-    .chatRoom {
-        width: 100vw;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        background-color: var(--color-primary-lighten);
-    }
+  .chatRoom {
+    width: 100vw;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-primary-lighten);
+  }
 }
 
 @variant layout-s {
-    .chatRoom {
-        width: 20vw;
-    }
+  .chatRoom {
+    width: 20vw;
+  }
 }
 
 @variant layout-l {
-    .chatRoom {
-        width: 24vw;
-    }
+  .chatRoom {
+    width: 24vw;
+  }
 }
-

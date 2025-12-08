@@ -33,7 +33,7 @@ jobs:
         run: yarn lint
 
       - name: Check code formatting
-        run: yarn prettier --check .
+        run: yarn format
 
       - name: Run TypeScript compiler
         run: yarn tsc --noEmit

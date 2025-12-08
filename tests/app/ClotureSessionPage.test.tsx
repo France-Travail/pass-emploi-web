@@ -155,20 +155,24 @@ describe('Cloture Session', () => {
 
     it('clôt la session', async () => {
       // Then
-      expect(cloreSession).toHaveBeenCalledWith('id-conseiller-1', 'session-1', [
-        {
-          idJeune: 'id-beneficiaire-1',
-          nom: 'Beau',
-          prenom: 'Harry',
-          statut: 'PRESENT',
-        },
-        {
-          idJeune: 'id-beneficiaire-2',
-          nom: 'BE',
-          prenom: 'Linda',
-          statut: 'PRESENT',
-        },
-      ])
+      expect(cloreSession).toHaveBeenCalledWith(
+        'id-conseiller-1',
+        'session-1',
+        [
+          {
+            idJeune: 'id-beneficiaire-1',
+            nom: 'Beau',
+            prenom: 'Harry',
+            statut: 'PRESENT',
+          },
+          {
+            idJeune: 'id-beneficiaire-2',
+            nom: 'BE',
+            prenom: 'Linda',
+            statut: 'PRESENT',
+          },
+        ]
+      )
     })
 
     it('affiche un message de succès', async () => {
