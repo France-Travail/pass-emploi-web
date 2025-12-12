@@ -29,7 +29,7 @@
     "emoji-dictionary": "^1.0.12",
     "firebase": "11.8.1",
     "html-react-parser": "5.2.5",
-    "jsonwebtoken": "9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "lodash.isequal": "4.5.0",
     "luxon": "3.6.1",
     "matomo-tracker": "2.2.4",
@@ -49,7 +49,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.28.0",
     "@svgr/webpack": "^8.1.0",
-    "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -82,6 +82,16 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.8.3"
+  },
+  "resolutions": {
+    "glob": "^10.5.0",
+    "test-exclude": "^7.0.0"
+  },
+  "comments": {
+    "resolutions": {
+      "glob": "CVE-2025-64756 - À retirer quand glob (transitif) >= 10.5.0",
+      "test-exclude": "Pour compatibilité glob 10.5.0 - À retirer quand glob (transitif) >= 10.5.0"
+    }
   },
   "browser": {
     "elastic-apm-node": false
