@@ -84,11 +84,13 @@
     "typescript": "^5.8.3"
   },
   "resolutions": {
-    "glob": "^10.5.0"
+    "glob": "^10.5.0",
+    "test-exclude": "^7.0.0"
   },
   "comments": {
     "resolutions": {
-      "glob": "CVE-2025-64756 - À retirer quand glob (transitif) >= 10.5.0"
+      "glob": "CVE-2025-64756 - À retirer quand glob (transitif) >= 10.5.0",
+      "test-exclude": "Pour compatibilité glob 10.5.0 - À retirer quand glob (transitif) >= 10.5.0"
     }
   },
   "browser": {
