@@ -105,7 +105,7 @@ describe('Agenda - Onglet conseiller', () => {
 
       // When
       ;({ container } = await renderWithContexts(
-        <AgendaPage onglet='CONSEILLER' periodeIndexInitial={0} />,
+        <AgendaPage onglet='CONSEILLER' />,
         {
           customConseiller: conseiller,
         }
