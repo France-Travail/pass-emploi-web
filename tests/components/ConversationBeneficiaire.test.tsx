@@ -74,7 +74,6 @@ describe('<ConversationBeneficiaire />', () => {
         beneficiaireChat={beneficiaireChat}
         conseillers={conseillersBeneficiaires}
         onBack={jest.fn()}
-        shouldFocusOnFirstRender={false}
       />
     )
     rerender = renderResult.rerender
@@ -154,7 +153,6 @@ describe('<ConversationBeneficiaire />', () => {
         beneficiaireChat={newBeneficiaireChat}
         conseillers={conseillersBeneficiaires}
         onBack={jest.fn()}
-        shouldFocusOnFirstRender={false}
       />
     )
     // Then
@@ -421,7 +419,11 @@ describe('<ConversationBeneficiaire />', () => {
         screen.getByLabelText('Supprimer la pièce jointe imageupload.png')
       ).toBeInTheDocument()
       expect(fileInput).toHaveAttribute('disabled', '')
-      expect(uploadFichier).toHaveBeenCalledWith(['id-beneficiaire-1'], [], file)
+      expect(uploadFichier).toHaveBeenCalledWith(
+        ['id-beneficiaire-1'],
+        [],
+        file
+      )
     })
 
     it('on peut supprimer la pièce jointe ', async () => {

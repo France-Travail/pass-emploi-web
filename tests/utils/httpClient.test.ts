@@ -7,7 +7,7 @@ import {
 
 describe('HttpClient', () => {
   describe('fetchJson', () => {
-    let reqInfo: RequestInfo
+    let reqInfo: string
     let reqInit: RequestInit
     let responseHeaders: Headers
     let actual: any
@@ -152,7 +152,7 @@ describe('HttpClient', () => {
   })
 
   describe('fetchNoContent', () => {
-    let reqInfo: RequestInfo
+    let reqInfo: string
     let reqInit: RequestInit
     let actual: any
     beforeEach(async () => {
