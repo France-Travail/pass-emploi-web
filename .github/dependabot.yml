@@ -18,45 +18,25 @@ updates:
       - dependencies
       - npm
     groups:
-      # Production dependencies - patch and minor (auto-merge)
+      # Production dependencies - patch and minor (auto-merge côté CI)
       prod-minor-patch:
         applies-to: version-updates
         dependency-type: production
         update-types:
           - patch
           - minor
-      # Development dependencies - patch and minor (auto-merge)
+      # Development dependencies - patch and minor (auto-merge côté CI)
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
         update-types:
           - patch
           - minor
-
-  # NPM Major updates - separate PRs for manual review
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: monthly
-      day: monday
-      time: '08:00'
-      timezone: Europe/Paris
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: 'chore(deps):'
-    labels:
-      - dependencies
-      - npm
-      - major
-      - manual-review
-    reviewers:
-      - France-Travail/pass-emploi-web
-    # Only major updates - no grouping, one PR per package
-    ignore:
-      - dependency-name: '*'
+      # Majors : groupés séparément, sans auto-merge
+      majors:
+        applies-to: version-updates
         update-types:
-          - version-update:semver-patch
-          - version-update:semver-minor
+          - major
 
   # ===========================================
   # GitHub Actions
@@ -74,33 +54,14 @@ updates:
       - dependencies
       - github-actions
     groups:
-      # GitHub Actions - patch and minor (auto-merge)
+      # GitHub Actions - patch and minor (auto-merge côté CI)
       actions-minor-patch:
         applies-to: version-updates
         update-types:
           - patch
           - minor
-
-  # GitHub Actions Major updates - separate PRs for manual review
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: monthly
-      day: monday
-      time: '08:00'
-      timezone: Europe/Paris
-    commit-message:
-      prefix: 'ci(deps):'
-    labels:
-      - dependencies
-      - github-actions
-      - major
-      - manual-review
-    reviewers:
-      - France-Travail/pass-emploi-web
-    # Only major updates
-    ignore:
-      - dependency-name: '*'
+      # GitHub Actions - majors, à revoir manuellement
+      actions-majors:
+        applies-to: version-updates
         update-types:
-          - version-update:semver-patch
-          - version-update:semver-minor
+          - major
