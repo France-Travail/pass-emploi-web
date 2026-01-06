@@ -187,9 +187,8 @@ function ReaffectationPage() {
     setRecuperationBeneficiairesEnCours(true)
 
     try {
-      const { getJeunesDuConseillerParId } = await import(
-        'services/beneficiaires.service'
-      )
+      const { getJeunesDuConseillerParId } =
+        await import('services/beneficiaires.service')
       const beneficiairesDuConseiller = await getJeunesDuConseillerParId(
         conseiller.id
       )

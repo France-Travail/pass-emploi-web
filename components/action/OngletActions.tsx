@@ -53,9 +53,8 @@ export default function OngletActions({
     document.querySelector('header')?.scrollIntoView()
 
     setQualificationEnErreur(false)
-    const { qualifierActions: _qualifierActions } = await import(
-      'services/actions.service'
-    )
+    const { qualifierActions: _qualifierActions } =
+      await import('services/actions.service')
 
     let actionsPayload = [...actionsSelectionnees]
     if (!qualificationSNP) {

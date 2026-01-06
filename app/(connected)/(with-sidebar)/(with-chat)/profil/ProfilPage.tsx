@@ -63,9 +63,8 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
       notificationsSonores: !conseiller.notificationsSonores,
     }
 
-    const { modifierNotificationsSonores } = await import(
-      'services/conseiller.service'
-    )
+    const { modifierNotificationsSonores } =
+      await import('services/conseiller.service')
     await modifierNotificationsSonores(
       conseiller.id,
       conseillerMisAJour.notificationsSonores
@@ -88,9 +87,8 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
     e.stopPropagation()
     setShowModaleSuppressionCompte(true)
     if (conseiller) {
-      const { getBeneficiairesDuConseillerClientSide } = await import(
-        'services/beneficiaires.service'
-      )
+      const { getBeneficiairesDuConseillerClientSide } =
+        await import('services/beneficiaires.service')
       const beneficiaires = await getBeneficiairesDuConseillerClientSide()
       setPortefeuilleAvecBeneficiaires(beneficiaires.length > 0)
     }
@@ -98,9 +96,8 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
 
   async function supprimerCompteConseiller(): Promise<void> {
     try {
-      const { supprimerConseiller } = await import(
-        'services/conseiller.service'
-      )
+      const { supprimerConseiller } =
+        await import('services/conseiller.service')
       await supprimerConseiller(conseiller.id)
       setShowModaleSuppressionCompte(false)
       setTimeout(async () => setShowModaleConfirmationSuppression(true), 10)

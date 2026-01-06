@@ -39,9 +39,8 @@ export default async function Qualification({
   const { user, accessToken } = await getMandatorySessionServerSide()
   if (!estMilo(user.structure)) notFound()
 
-  const { getAction, getSituationsNonProfessionnelles } = await import(
-    'services/actions.service'
-  )
+  const { getAction, getSituationsNonProfessionnelles } =
+    await import('services/actions.service')
   const { idAction } = await params
   const [action, categories] = await Promise.all([
     getAction(idAction, accessToken),

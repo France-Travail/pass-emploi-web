@@ -159,9 +159,8 @@ export function Conversation({
 
     if (uploadedFileInfo) formNouveauMessage.infoPieceJointe = uploadedFileInfo
 
-    const { sendNouveauMessage: _sendNouveauMessage } = await import(
-      'services/messages.service'
-    )
+    const { sendNouveauMessage: _sendNouveauMessage } =
+      await import('services/messages.service')
     _sendNouveauMessage(formNouveauMessage)
 
     setUploadedFileInfo(undefined)
@@ -186,9 +185,8 @@ export function Conversation({
     try {
       setIsFileUploading(true)
 
-      const { uploadFichier: _uploadFichier } = await import(
-        'services/fichiers.service'
-      )
+      const { uploadFichier: _uploadFichier } =
+        await import('services/fichiers.service')
       const infoFichier = await _uploadFichier(
         [beneficiaireChat.id],
         [],
@@ -270,9 +268,8 @@ export function Conversation({
 
   async function toggleFlag() {
     const flagged = !isFlaggedByConseiller
-    const { toggleFlag: _toggleFlag } = await import(
-      'services/messages.service'
-    )
+    const { toggleFlag: _toggleFlag } =
+      await import('services/messages.service')
     await _toggleFlag(beneficiaireChat.chatId, flagged)
     trackEvent({
       structure: conseiller.structure,

@@ -120,9 +120,8 @@ function PilotagePage({
     actions: ActionPilotage[]
     metadonnees: MetadonneesPagination
   }> {
-    const { getActionsAQualifierClientSide } = await import(
-      'services/actions.service'
-    )
+    const { getActionsAQualifierClientSide } =
+      await import('services/actions.service')
 
     return getActionsAQualifierClientSide(conseiller.id, options)
   }

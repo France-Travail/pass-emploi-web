@@ -35,9 +35,8 @@ function CreationBeneficiaireFranceTravailPage({
     setCreationEnCours(true)
 
     try {
-      const { createCompteJeuneFranceTravail } = await import(
-        'services/beneficiaires.service'
-      )
+      const { createCompteJeuneFranceTravail } =
+        await import('services/beneficiaires.service')
       const beneficiaireCree = await createCompteJeuneFranceTravail({
         firstName: nouveauBeneficiaire.prenom,
         lastName: nouveauBeneficiaire.nom,
@@ -49,9 +48,8 @@ function CreationBeneficiaireFranceTravailPage({
           throw new Error("Aucune liste de diffusion n'est sélectionnée.")
         }
 
-        const { ajouterBeneficiaireAListe } = await import(
-          'services/listes.service'
-        )
+        const { ajouterBeneficiaireAListe } =
+          await import('services/listes.service')
         await ajouterBeneficiaireAListe(
           nouveauBeneficiaire.idListe,
           beneficiaireCree.id,

@@ -123,9 +123,8 @@ export default function TableauBeneficiairesMilo({
   async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
     demarrerChargement(id)
 
-    const { getJeuneDetailsClientSide } = await import(
-      'services/beneficiaires.service'
-    )
+    const { getJeuneDetailsClientSide } =
+      await import('services/beneficiaires.service')
     const details = await getJeuneDetailsClientSide(id)
     if (!details) return notFound()
 
@@ -153,9 +152,8 @@ export default function TableauBeneficiairesMilo({
     const etaitActif = visibilitesCompteur[id] ?? false
     desactiverCompteur(id)
     try {
-      const { changerVisibiliteComptageHeures } = await import(
-        'services/beneficiaires.service'
-      )
+      const { changerVisibiliteComptageHeures } =
+        await import('services/beneficiaires.service')
       await changerVisibiliteComptageHeures(id, false)
     } catch (e) {
       if (etaitActif) activerCompteur(id)
@@ -174,9 +172,8 @@ export default function TableauBeneficiairesMilo({
     const etaitActif = visibilitesCompteur[id] ?? false
     activerCompteur(id)
     try {
-      const { changerVisibiliteComptageHeures } = await import(
-        'services/beneficiaires.service'
-      )
+      const { changerVisibiliteComptageHeures } =
+        await import('services/beneficiaires.service')
       await changerVisibiliteComptageHeures(id, true)
     } catch (e) {
       if (!etaitActif) desactiverCompteur(id)

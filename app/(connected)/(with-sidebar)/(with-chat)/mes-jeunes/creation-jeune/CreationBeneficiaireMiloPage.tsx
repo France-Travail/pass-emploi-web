@@ -52,9 +52,8 @@ function CreationBeneficiaireMiloPage() {
     setCompteBeneficiaireExisteDeja(false)
 
     try {
-      const { createCompteJeuneMilo } = await import(
-        'services/conseiller.service'
-      )
+      const { createCompteJeuneMilo } =
+        await import('services/conseiller.service')
       const beneficiaireCree = await createCompteJeuneMilo(
         beneficiaireData,
         options

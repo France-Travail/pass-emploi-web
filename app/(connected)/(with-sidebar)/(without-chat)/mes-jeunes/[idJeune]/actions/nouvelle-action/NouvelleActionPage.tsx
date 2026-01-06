@@ -44,9 +44,8 @@ function NouvelleActionPage({
   async function creerAction(action: ActionFormData) {
     setConfirmBeforeLeaving(false)
 
-    const { creerAction: _creerAction } = await import(
-      'services/actions.service'
-    )
+    const { creerAction: _creerAction } =
+      await import('services/actions.service')
     await _creerAction(action, idBeneficiaire)
 
     setTrackingTitle('Actions jeune – Succès création action')

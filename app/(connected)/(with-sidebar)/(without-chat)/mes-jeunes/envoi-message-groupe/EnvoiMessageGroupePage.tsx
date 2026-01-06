@@ -118,9 +118,9 @@ function EnvoiMessageGroupePage({ listes, returnTo }: EnvoiMessageGroupeProps) {
   function formHasChanges(): boolean {
     return Boolean(
       selectedJeunesIds.length ||
-        selectedListesIds.length ||
-        message ||
-        pieceJointe
+      selectedListesIds.length ||
+      message ||
+      pieceJointe
     )
   }
 
@@ -185,9 +185,8 @@ function EnvoiMessageGroupePage({ listes, returnTo }: EnvoiMessageGroupeProps) {
       }
       if (fileInfo) formNouveauMessage.infoPieceJointe = fileInfo
 
-      const { sendNouveauMessageGroupe } = await import(
-        'services/messages.service'
-      )
+      const { sendNouveauMessageGroupe } =
+        await import('services/messages.service')
       await sendNouveauMessageGroupe(formNouveauMessage)
 
       setAlerte(AlerteParam.envoiMessage)

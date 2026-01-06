@@ -57,7 +57,7 @@ export default function IndicateursBeneficiaire({
         dateFin < DateTime.now().startOf('day') &&
         Boolean(
           demarche.statut !== StatutDemarche.REALISEE &&
-            demarche.statut !== StatutDemarche.ANNULEE
+          demarche.statut !== StatutDemarche.ANNULEE
         )
       )
         acc.demarchesEnRetard.push(demarche)

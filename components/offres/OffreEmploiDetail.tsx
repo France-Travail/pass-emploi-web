@@ -26,17 +26,17 @@ export default function OffreEmploiDetail({
   const hasDetail = Boolean(offre.description || offre.urlPostulation)
   const hasProfil = Boolean(
     offre.experience ||
-      offre.competences.length ||
-      offre.competencesProfessionnelles.length ||
-      offre.formations.length ||
-      offre.langues.length ||
-      offre.permis.length
+    offre.competences.length ||
+    offre.competencesProfessionnelles.length ||
+    offre.formations.length ||
+    offre.langues.length ||
+    offre.permis.length
   )
   const hasEntreprise = Boolean(
     offre.infoEntreprise?.lien ||
-      offre.infoEntreprise?.adaptee ||
-      offre.infoEntreprise?.accessibleTH ||
-      offre.infoEntreprise?.detail
+    offre.infoEntreprise?.adaptee ||
+    offre.infoEntreprise?.accessibleTH ||
+    offre.infoEntreprise?.detail
   )
 
   const sectionTitleStyle =

@@ -82,9 +82,8 @@ function PortefeuillePage({
   async function recupererBeneficiaires(): Promise<void> {
     setIsRecuperationBeneficiairesLoading(true)
     try {
-      const { recupererBeneficiaires: _recupererBeneficiaires } = await import(
-        'services/conseiller.service'
-      )
+      const { recupererBeneficiaires: _recupererBeneficiaires } =
+        await import('services/conseiller.service')
       await _recupererBeneficiaires()
       setAlerte(AlerteParam.recuperationBeneficiaires)
       setConseiller({ ...conseiller, aDesBeneficiairesARecuperer: false })

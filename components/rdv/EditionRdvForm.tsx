@@ -225,16 +225,16 @@ export function EditionRdvForm({
     if (!evenement) {
       return Boolean(
         idsJeunes.value.length ||
-          codeTypeRendezVous.value ||
-          modalite ||
-          date.value ||
-          heureDeDebut.value ||
-          heureDeFin.value ||
-          titre.value ||
-          adresse ||
-          organisme ||
-          description.value ||
-          nombreMaxParticipants.value
+        codeTypeRendezVous.value ||
+        modalite ||
+        date.value ||
+        heureDeDebut.value ||
+        heureDeFin.value ||
+        titre.value ||
+        adresse ||
+        organisme ||
+        description.value ||
+        nombreMaxParticipants.value
       )
     }
 
@@ -242,16 +242,16 @@ export function EditionRdvForm({
     const currentIds = [...idsJeunes.value].sort(compareParId)
     return Boolean(
       previousIds.toString() !== currentIds.toString() ||
-        modalite !== evenement.modality ||
-        date.value !== dateRdv ||
-        heureDeDebut.value !== heureDebut ||
-        heureDeFin.value !== heureFin ||
-        adresse !== evenement.adresse ||
-        organisme !== evenement.organisme ||
-        titre.value !== evenement.titre ||
-        description.value !== evenement.commentaire ||
-        isConseillerPresent !== evenement.presenceConseiller ||
-        nombreMaxParticipants.value !== evenement.nombreMaxParticipants
+      modalite !== evenement.modality ||
+      date.value !== dateRdv ||
+      heureDeDebut.value !== heureDebut ||
+      heureDeFin.value !== heureFin ||
+      adresse !== evenement.adresse ||
+      organisme !== evenement.organisme ||
+      titre.value !== evenement.titre ||
+      description.value !== evenement.commentaire ||
+      isConseillerPresent !== evenement.presenceConseiller ||
+      nombreMaxParticipants.value !== evenement.nombreMaxParticipants
     )
   }
 
@@ -424,7 +424,7 @@ export function EditionRdvForm({
     } else if (
       Boolean(
         codeTypeRendezVous.value === TYPE_EVENEMENT.Autre &&
-          !precisionType.value
+        !precisionType.value
       )
     ) {
       setPrecisionType({
@@ -475,8 +475,8 @@ export function EditionRdvForm({
   function validateNombreMaxParticipants() {
     const nombreMaxParticipantsIsValid = Boolean(
       !evenementTypeAC ||
-        !showNombreMaxParticipants ||
-        nombreMaxParticipants.value
+      !showNombreMaxParticipants ||
+      nombreMaxParticipants.value
     )
     if (!nombreMaxParticipantsIsValid) {
       setNombreMaxParticipants({

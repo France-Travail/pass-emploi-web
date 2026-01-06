@@ -40,7 +40,7 @@ export default function PartageRechercheButton({
   function laRechercheOffreEmploiEstPartageable(): boolean {
     return Boolean(
       suggestionOffreEmploi.motsCles &&
-        (suggestionOffreEmploi.commune || suggestionOffreEmploi.departement)
+      (suggestionOffreEmploi.commune || suggestionOffreEmploi.departement)
     )
   }
 

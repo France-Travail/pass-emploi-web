@@ -64,9 +64,8 @@ export default function DeleteBeneficiaireModal({
 
   async function supprimerJeuneInactif(): Promise<void> {
     try {
-      const { supprimerJeuneInactif: _supprimerJeuneInactif } = await import(
-        'services/beneficiaires.service'
-      )
+      const { supprimerJeuneInactif: _supprimerJeuneInactif } =
+        await import('services/beneficiaires.service')
       await _supprimerJeuneInactif(beneficiaire.id)
 
       setShowModaleSuccesDeleteBeneficiaire(true)

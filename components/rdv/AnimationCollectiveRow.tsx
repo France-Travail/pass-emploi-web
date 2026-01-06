@@ -39,9 +39,8 @@ export function AnimationCollectiveRow({
   }
 
   async function configurerSession(nouvelEtat: EtatVisibilite) {
-    const { configurerSession: _configurerSession } = await import(
-      'services/sessions.service'
-    )
+    const { configurerSession: _configurerSession } =
+      await import('services/sessions.service')
 
     switch (nouvelEtat) {
       case 'auto-inscription':

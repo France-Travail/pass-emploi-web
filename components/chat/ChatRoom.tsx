@@ -117,9 +117,8 @@ function ChatRoom(
         idMessageImportant: messageImportantPreRempli?.id,
       }
 
-      const { sendNouveauMessageImportant } = await import(
-        'services/messages.service'
-      )
+      const { sendNouveauMessageImportant } =
+        await import('services/messages.service')
       const nouveauMessageImportant = await sendNouveauMessageImportant(
         formNouveauMessageImportant
       )
@@ -138,9 +137,8 @@ function ChatRoom(
     try {
       setMessageImportantIsLoading(true)
 
-      const { desactiverMessageImportant } = await import(
-        'services/messages.service'
-      )
+      const { desactiverMessageImportant } =
+        await import('services/messages.service')
       await desactiverMessageImportant(messageImportantPreRempli.id)
       setMessageImportantPreRempli(undefined)
 
@@ -153,9 +151,8 @@ function ChatRoom(
   }
 
   async function toggleFlag(idChat: string, flagged: boolean): Promise<void> {
-    const { toggleFlag: _toggleFlag } = await import(
-      'services/messages.service'
-    )
+    const { toggleFlag: _toggleFlag } =
+      await import('services/messages.service')
     _toggleFlag(idChat, flagged)
     trackEvent({
       structure: conseiller.structure,
@@ -200,8 +197,8 @@ function ChatRoom(
     setAfficherNotificationMessageImportant(
       Boolean(
         messageImportantPreRempli?.dateFin &&
-          DateTime.fromISO(messageImportantPreRempli.dateFin).startOf('day') >=
-            DateTime.now().startOf('day')
+        DateTime.fromISO(messageImportantPreRempli.dateFin).startOf('day') >=
+          DateTime.now().startOf('day')
       )
     )
   }, [messageImportantPreRempli])
