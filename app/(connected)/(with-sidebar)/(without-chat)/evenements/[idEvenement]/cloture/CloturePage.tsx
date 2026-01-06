@@ -70,9 +70,8 @@ function CloturePage({ returnTo, evenement }: ClotureProps) {
   async function cloreEvenement(event: FormEvent) {
     event.preventDefault()
 
-    const { cloreEvenement: _cloreEvenement } = await import(
-      'services/evenements.service'
-    )
+    const { cloreEvenement: _cloreEvenement } =
+      await import('services/evenements.service')
 
     await _cloreEvenement(evenement.id, idsSelectionnes)
 

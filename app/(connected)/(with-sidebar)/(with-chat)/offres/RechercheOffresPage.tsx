@@ -179,9 +179,8 @@ function RechercheOffresPage() {
     metadonnees: MetadonneesPagination
   }> {
     if (queryOffresEmploi.idOffre) {
-      const { getOffreEmploiClientSide } = await import(
-        'services/offres-emploi.service'
-      )
+      const { getOffreEmploiClientSide } =
+        await import('services/offres-emploi.service')
       const offre = await getOffreEmploiClientSide(queryOffresEmploi.idOffre)
 
       return {
@@ -193,9 +192,8 @@ function RechercheOffresPage() {
       }
     }
 
-    const { searchOffresEmploi } = await import(
-      'services/offres-emploi.service'
-    )
+    const { searchOffresEmploi } =
+      await import('services/offres-emploi.service')
     return searchOffresEmploi(getQueryOffreEmploi(), page)
   }
 
@@ -204,9 +202,8 @@ function RechercheOffresPage() {
     metadonnees: MetadonneesPagination
   }> {
     if (queryOffresEmploi.idOffre) {
-      const { getOffreEmploiClientSide } = await import(
-        'services/offres-emploi.service'
-      )
+      const { getOffreEmploiClientSide } =
+        await import('services/offres-emploi.service')
       const offre = await getOffreEmploiClientSide(queryOffresEmploi.idOffre)
 
       return {
@@ -226,9 +223,8 @@ function RechercheOffresPage() {
     offres: BaseServiceCivique[]
     metadonnees: MetadonneesPagination
   }> {
-    const { searchServicesCiviques } = await import(
-      'services/services-civiques.service'
-    )
+    const { searchServicesCiviques } =
+      await import('services/services-civiques.service')
     return searchServicesCiviques(getQueryServiceCivique(), page)
   }
 
@@ -241,16 +237,14 @@ function RechercheOffresPage() {
   }
 
   async function fetchMetiers(query: string) {
-    const { getMetiers: _getMetiers } = await import(
-      'services/referentiel.service'
-    )
+    const { getMetiers: _getMetiers } =
+      await import('services/referentiel.service')
     return _getMetiers(query)
   }
 
   async function fetchCommunes(query: string) {
-    const { getCommunes: _getCommunes } = await import(
-      'services/referentiel.service'
-    )
+    const { getCommunes: _getCommunes } =
+      await import('services/referentiel.service')
     return _getCommunes(query)
   }
 

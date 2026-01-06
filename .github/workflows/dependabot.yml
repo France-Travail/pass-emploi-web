@@ -4,28 +4,86 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
   schedule:
-    - cron: '0 */6 * * *' # Toutes les 6 heures
-  workflow_dispatch: # Déclenchement manuel
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
-  auto-merge:
-    name: Auto-merge patch/minor updates
+  dependabot-metadata:
+    name: Fetch Dependabot metadata
     runs-on: ubuntu-latest
     # 49699333 = Dependabot bot user ID
     if: github.event_name == 'pull_request_target' && github.event.pull_request.user.id == 49699333
+
+    outputs:
+      update-type: ${{ steps.metadata.outputs.update-type }}
+      should-run: ${{ steps.should_run.outputs.result }}
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide if job should run
+        id: should_run
+        run: |
+          update_type="${{ steps.metadata.outputs.update-type }}"
+          echo "update_type=$update_type"
+
+          if [ "$update_type" = "version-update:semver-patch" ] || [ "$update_type" = "version-update:semver-minor" ]; then
+            echo "result=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  auto-merge:
+    name: Auto-merge patch/minor updates
+    runs-on: ubuntu-latest
+    needs: dependabot-metadata
+    # On ne lance ce job que si:
+    # - le job metadata a tourné
+    # - et should-run == 'true'
+    if: >
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.user.id == 49699333 &&
+      needs.dependabot-metadata.outputs.should-run == 'true'
+
     permissions:
       contents: write
       pull-requests: write
 
     steps:
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
+      - name: Checkout PR
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f
+        with:
+          node-version: '22.14.0'
+
+      - name: Install dependencies
+        run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
+
+      - name: Run lint --fix
+        run: yarn lint --fix
+
+      - name: Commit lint fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet || git commit -m "style: apply lint fixes"
+          git push
 
       - name: Enable auto-merge for patch/minor
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
           gh pr merge --auto --squash "$PR_URL"
           gh pr edit "$PR_URL" --add-label "auto-merge"

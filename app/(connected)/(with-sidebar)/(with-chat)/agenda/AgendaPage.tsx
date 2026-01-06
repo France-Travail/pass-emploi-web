@@ -101,9 +101,8 @@ function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
     dateDebut: DateTime,
     dateFin: DateTime
   ): Promise<EvenementMiloListItem[]> {
-    const { getRendezVousConseiller } = await import(
-      'services/evenements.service'
-    )
+    const { getRendezVousConseiller } =
+      await import('services/evenements.service')
     return getRendezVousConseiller(idConseiller, dateDebut, dateFin)
   }
 
@@ -112,9 +111,8 @@ function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
     dateDebut: DateTime,
     dateFin: DateTime
   ): Promise<EvenementListItem[]> {
-    const { getSessionsBeneficiaires } = await import(
-      'services/sessions.service'
-    )
+    const { getSessionsBeneficiaires } =
+      await import('services/sessions.service')
     return getSessionsBeneficiaires(idConseiller, dateDebut, dateFin)
   }
 
@@ -122,9 +120,8 @@ function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
     dateDebut: DateTime,
     dateFin: DateTime
   ): Promise<AnimationCollective[]> {
-    const { getRendezVousEtablissement } = await import(
-      'services/evenements.service'
-    )
+    const { getRendezVousEtablissement } =
+      await import('services/evenements.service')
     return getRendezVousEtablissement(
       conseiller.agence!.id!,
       dateDebut,
@@ -138,9 +135,8 @@ function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
   ): Promise<AnimationCollective[]> {
     if (!peutAccederAuxSessions(conseiller)) return []
 
-    const { getSessionsMissionLocaleClientSide } = await import(
-      'services/sessions.service'
-    )
+    const { getSessionsMissionLocaleClientSide } =
+      await import('services/sessions.service')
     return getSessionsMissionLocaleClientSide(conseiller.id, dateDebut, dateFin)
   }
 

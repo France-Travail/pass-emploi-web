@@ -102,6 +102,6 @@ export default function LayoutLoginClient({
 function getIsFromEmail(searchParams: ReadonlyURLSearchParams): boolean {
   return Boolean(
     searchParams.get('source') ||
-      searchParams.get('redirectUrl')?.includes('notif-mail')
+    searchParams.get('redirectUrl')?.includes('notif-mail')
   )
 }

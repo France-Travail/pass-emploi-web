@@ -189,9 +189,8 @@ function EditionRdvPage({
     setShowDeleteRdvModal(false)
 
     try {
-      const { supprimerEvenement: _supprimerEvenement } = await import(
-        'services/evenements.service'
-      )
+      const { supprimerEvenement: _supprimerEvenement } =
+        await import('services/evenements.service')
       await _supprimerEvenement(evenement!.id)
       const alertType = evenementTypeAC
         ? AlerteParam.suppressionAnimationCollective

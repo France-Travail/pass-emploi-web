@@ -22,10 +22,10 @@ export default function ServiceCiviqueDetail({
 
   const hasInfo = Boolean(
     offre.organisation ||
-      offre.codeDepartement ||
-      offre.ville ||
-      offre.dateDeDebut ||
-      offre.dateDeFin
+    offre.codeDepartement ||
+    offre.ville ||
+    offre.dateDeDebut ||
+    offre.dateDeFin
   )
   const hasAdresse = Boolean(
     offre.adresseMission || offre.codePostal || offre.ville
@@ -35,9 +35,9 @@ export default function ServiceCiviqueDetail({
   )
   const hasOrganisation = Boolean(
     offre.organisation ||
-      offre.urlOrganisation ||
-      offre.adresseOrganisation ||
-      offre.descriptionOrganisation
+    offre.urlOrganisation ||
+    offre.adresseOrganisation ||
+    offre.descriptionOrganisation
   )
 
   const sectionTitleStyle =

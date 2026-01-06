@@ -76,9 +76,8 @@ export default function DetailsBeneficiaire({
   async function updateIdentifiantPartenaire(
     nouvelleValeur: string
   ): Promise<void> {
-    const { modifierIdentifiantPartenaire } = await import(
-      'services/beneficiaires.service'
-    )
+    const { modifierIdentifiantPartenaire } =
+      await import('services/beneficiaires.service')
     try {
       await modifierIdentifiantPartenaire(id, nouvelleValeur)
       setIdentifiantPartenaire(nouvelleValeur)
@@ -90,9 +89,8 @@ export default function DetailsBeneficiaire({
   }
 
   async function changerDispositif(nouveauDispositif: string): Promise<void> {
-    const { modifierDispositif } = await import(
-      'services/beneficiaires.service'
-    )
+    const { modifierDispositif } =
+      await import('services/beneficiaires.service')
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)

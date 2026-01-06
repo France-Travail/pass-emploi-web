@@ -50,9 +50,8 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
   async function handleChangerVisibilite() {
     setLoadingChangerVisibilite(true)
 
-    const { changerVisibiliteComptageHeures } = await import(
-      'services/beneficiaires.service'
-    )
+    const { changerVisibiliteComptageHeures } =
+      await import('services/beneficiaires.service')
     await changerVisibiliteComptageHeures(
       beneficiaire.id,
       !peutVoirLeComptageDesHeures

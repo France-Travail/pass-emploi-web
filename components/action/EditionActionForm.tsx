@@ -123,9 +123,9 @@ export function EditionActionForm({
 
     return Boolean(
       categorieEstValide &&
-        titreEstValide &&
-        dateActionEstValide &&
-        dateRealisationEstValide
+      titreEstValide &&
+      dateActionEstValide &&
+      dateRealisationEstValide
     )
   }
 

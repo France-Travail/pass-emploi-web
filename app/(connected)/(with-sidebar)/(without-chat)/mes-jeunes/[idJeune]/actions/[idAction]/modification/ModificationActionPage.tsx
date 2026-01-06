@@ -50,9 +50,8 @@ function ModificationPage({
   const suppressionModalRef = useRef<ModalHandles>(null)
 
   async function modifierAction(payload: ActionFormData): Promise<void> {
-    const { modifierAction: _modifierAction } = await import(
-      'services/actions.service'
-    )
+    const { modifierAction: _modifierAction } =
+      await import('services/actions.service')
     await _modifierAction(action.id, payload)
 
     setTrackingTitle('Actions jeune – Modification succès')

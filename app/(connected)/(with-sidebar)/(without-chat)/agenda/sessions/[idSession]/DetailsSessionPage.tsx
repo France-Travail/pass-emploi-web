@@ -287,9 +287,8 @@ function DetailsSessionPage({
     e.preventDefault()
     setErreurInscriptions(false)
 
-    const { changerInscriptionsSession } = await import(
-      'services/sessions.service'
-    )
+    const { changerInscriptionsSession } =
+      await import('services/sessions.service')
 
     const inscriptions = beneficiairesSelectionnes.value.map(
       (beneficiaire) => ({

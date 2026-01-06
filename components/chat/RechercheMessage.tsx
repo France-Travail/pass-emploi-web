@@ -151,9 +151,8 @@ const RechercheMessageForm = forwardRef(
         return
       }
 
-      const { rechercherMessagesConversation } = await import(
-        'services/messages.service'
-      )
+      const { rechercherMessagesConversation } =
+        await import('services/messages.service')
 
       setRechercheEnCours(true)
       try {
