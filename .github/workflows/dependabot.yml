@@ -1,0 +1,72 @@
+name: Dependabot
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '0 */6 * * *' # Toutes les 6 heures
+  workflow_dispatch: # Déclenchement manuel
+
+jobs:
+  auto-merge:
+    name: Auto-merge patch/minor updates
+    runs-on: ubuntu-latest
+    # 49699333 = Dependabot bot user ID
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.user.id == 49699333
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge for patch/minor
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
+        run: |
+          gh pr merge --auto --squash "$PR_URL"
+          gh pr edit "$PR_URL" --add-label "auto-merge"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-rebase:
+    name: Rebase stale Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Find and rebase stale PRs
+        run: |
+          echo "🔍 Recherche des PRs Dependabot stale..."
+
+          stale_prs=$(gh pr list \
+            --repo "${{ github.repository }}" \
+            --author app/dependabot \
+            --state open \
+            --json number,autoMergeRequest,mergeStateStatus \
+            --jq '.[] | select(.autoMergeRequest != null and .mergeStateStatus == "BEHIND") | .number')
+
+          if [ -z "$stale_prs" ]; then
+            echo "✅ Aucune PR stale trouvée"
+            exit 0
+          fi
+
+          echo "📋 PRs à rebaser: $(echo "$stale_prs" | wc -l)"
+
+          echo "$stale_prs" | while read pr; do
+            if [ -n "$pr" ]; then
+              echo "♻️  Rebase PR #$pr"
+              gh pr comment "$pr" --repo "${{ github.repository }}" --body "@dependabot rebase"
+            fi
+          done
+
+          echo "🎉 Terminé"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

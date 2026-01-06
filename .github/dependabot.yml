@@ -1,32 +1,106 @@
 version: 2
 
 updates:
-  # Dependencies (npm/yarn)
+  # ===========================================
+  # NPM Dependencies
+  # ===========================================
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 10
+      time: '08:00'
+      timezone: Europe/Paris
+    open-pull-requests-limit: 15
     commit-message:
-      prefix: chore(deps)
+      prefix: 'chore(deps):'
     labels:
       - dependencies
+      - npm
     groups:
-      # Group minor and patch updates to reduce PR noise
-      minor-and-patch:
+      # Production dependencies - patch and minor (auto-merge)
+      prod-minor-patch:
+        applies-to: version-updates
+        dependency-type: production
         update-types:
-          - minor
           - patch
+          - minor
+      # Development dependencies - patch and minor (auto-merge)
+      dev-minor-patch:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
 
+  # NPM Major updates - separate PRs for manual review
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Paris
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps):'
+    labels:
+      - dependencies
+      - npm
+      - major
+      - manual-review
+    reviewers:
+      - France-Travail/pass-emploi-web
+    # Only major updates - no grouping, one PR per package
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-patch
+          - version-update:semver-minor
+
+  # ===========================================
   # GitHub Actions
+  # ===========================================
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
+      time: '08:00'
+      timezone: Europe/Paris
     commit-message:
-      prefix: ci(deps)
+      prefix: 'ci(deps):'
     labels:
       - dependencies
       - github-actions
+    groups:
+      # GitHub Actions - patch and minor (auto-merge)
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+
+  # GitHub Actions Major updates - separate PRs for manual review
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '08:00'
+      timezone: Europe/Paris
+    commit-message:
+      prefix: 'ci(deps):'
+    labels:
+      - dependencies
+      - github-actions
+      - major
+      - manual-review
+    reviewers:
+      - France-Travail/pass-emploi-web
+    # Only major updates
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-patch
+          - version-update:semver-minor
