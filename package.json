@@ -12,6 +12,7 @@
     "build-source-map": "NODE_ENV=production next build && source-map-explorer .next/static/**/*.js",
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "test": "TZ=Europe/Paris jest --config jest.config.js --coverage",
     "test:watch": "jest --config jest.config.js --watch",
     "release:patch": "./release.sh patch",
