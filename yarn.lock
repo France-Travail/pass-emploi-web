@@ -3084,12 +3084,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/bundle-analyzer@npm:^15.5.9":
-  version: 15.5.9
-  resolution: "@next/bundle-analyzer@npm:15.5.9"
+"@next/bundle-analyzer@npm:^16.1.1":
+  version: 16.1.1
+  resolution: "@next/bundle-analyzer@npm:16.1.1"
   dependencies:
     webpack-bundle-analyzer: "npm:4.10.1"
-  checksum: 10c0/74a6e3766d5fed3141505210d40cf6220a52346e1ce47385ac6c78f27bfb66fd61cb8fb0141a9e69f841afad2c34caba06bd507310bc1723b2bca9cddbe1a81c
+  checksum: 10c0/40aae0b073db2edb5d1215752fe7c1d7b98ba72ab544eadafcab0fca6efa0da944763736c5b47180b2d77a1a761ad58d138deadacadf185ee0500316708f59c8
   languageName: node
   linkType: hard
 
@@ -10136,7 +10136,7 @@ __metadata:
     "@elastic/apm-rum-react": "npm:2.0.6"
     "@eslint/eslintrc": "npm:^3.3.3"
     "@eslint/js": "npm:^9.39.2"
-    "@next/bundle-analyzer": "npm:^15.5.9"
+    "@next/bundle-analyzer": "npm:^16.1.1"
     "@svgr/webpack": "npm:^8.1.0"
     "@tailwindcss/postcss": "npm:^4.1.18"
     "@testing-library/dom": "npm:^10.4.1"
