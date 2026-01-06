@@ -1,11 +1,14 @@
-# Contexte Technique - Pass Emploi Web
+# Pass Emploi Web - Contexte Technique
+
+> Application web pour les conseillers
+> Voir le contexte global Pass Emploi dans `pass-emploi-api/CLAUDE.md` (section "Contexte Global")
+
+---
 
 ## Projet
 
-**Nom :** Pass Emploi Web (anciennement CEJ - Contrat d'Engagement Jeune)
-**Rôle :** Espace conseiller pour accompagner les bénéficiaires du CEJ
+**Rôle :** Espace conseiller pour accompagner les bénéficiaires
 **Repo :** pass-emploi-web
-**Version actuelle :** 6.6.3
 
 ---
 
@@ -13,17 +16,18 @@
 
 ### Framework & Runtime
 
-| Technologie | Version | Notes |
-|------------|---------|-------|
-| **Next.js** | 15.5.8 | App Router (pas Pages Router) |
-| **React** | 19.2.3 | Mode strict activé |
-| **TypeScript** | 5.8.3 | Config stricte |
-| **Node.js** | 22.14.0 | Défini dans engines + .nvmrc |
+| Technologie         | Version    | Notes                             |
+|---------------------|------------|-----------------------------------|
+| **Next.js**         | 15.5.8     | App Router (pas Pages Router)     |
+| **React**           | 19.2.3     | Mode strict activé                |
+| **TypeScript**      | 5.8.3      | Config stricte                    |
+| **Node.js**         | 22.14.0    | Défini dans engines + .nvmrc      |
 | **Package Manager** | Yarn 4.5.1 | Pas npm, toujours utiliser `yarn` |
 
 ### Bibliothèques Principales
 
 **Authentification & Sécurité :**
+
 - `next-auth@4.24.13` : Gestion auth (sessions, tokens)
 - `jsonwebtoken@9.0.3` : Manipulation JWT
 - `crypto-js@4.2.0` : Chiffrement (chat)
@@ -31,20 +35,24 @@
 - `dotvault@0.0.9` : Chiffrement variables d'env
 
 **UI & Styling :**
+
 - `tailwindcss@4.1.8` : Framework CSS
 - Fonts Marianne : DSFR (Design System de l'État Français)
 - `@svgr/webpack@8.1.0` : Import SVG as React components
 
 **Data & Temps :**
+
 - `luxon@3.6.1` : Manipulation dates (pas Moment.js ni date-fns)
 - `firebase@11.8.1` : Messagerie temps réel uniquement
 
 **Monitoring & Analytics :**
+
 - `elastic-apm-node@4.13.0` : APM backend
 - `@elastic/apm-rum@5.17.0` : APM frontend
 - `matomo-tracker@2.2.4` : Analytics (pas Google Analytics)
 
 **Utilitaires :**
+
 - `html-react-parser@5.2.5` : Parse HTML en React
 - `lodash.isequal@4.5.0` : Comparaison profonde
 - `next-themes@0.4.6` : Gestion thèmes
@@ -124,19 +132,25 @@
 ### Patterns & Conventions
 
 **Architecture en couches :**
+
 1. **Routes** (`app/`) → appellent les services
 2. **Services** (`services/`) → logique métier, appellent les clients
 3. **Clients** (`clients/`) → communication HTTP/Firebase
 4. **Interfaces** → transformation JSON ↔ Modèle métier
 
 **Transformation des données :**
+
 ```typescript
 // Pattern systématique dans interfaces/json/
-export function jsonToAction(json: ActionJson): Action { ... }
-export function actionToJson(action: Action): ActionJson { ... }
+export function jsonToAction(json: ActionJson): Action { ...
+}
+
+export function actionToJson(action: Action): ActionJson { ...
+}
 ```
 
 **Server-side data fetching :**
+
 ```typescript
 // Pattern dans services/
 export async function getConseillerServerSide(
@@ -148,10 +162,12 @@ export async function getConseillerServerSide(
 ```
 
 **Context providers :**
+
 - Centralisés dans `utils/AppContextProviders.tsx`
 - Contextes : actualites, alerte, portefeuille, mobileViewport
 
 **Custom hooks :**
+
 - `useDebounce` : Debouncing valeurs
 - `useSessionStorage` : Persist state dans sessionStorage
 - `useConfirmBeforeLeaving` : Confirm navigation
@@ -164,12 +180,18 @@ export async function getConseillerServerSide(
 
 ```json
 {
-  "semi": false,              // Pas de point-virgule
-  "trailingComma": "es5",     // Trailing comma ES5
-  "singleQuote": true,        // Guillemets simples
-  "jsxSingleQuote": true,     // Guillemets simples en JSX
-  "tabWidth": 2,              // 2 espaces
-  "useTabs": false            // Pas de tabs
+  "semi": false,
+  // Pas de point-virgule
+  "trailingComma": "es5",
+  // Trailing comma ES5
+  "singleQuote": true,
+  // Guillemets simples
+  "jsxSingleQuote": true,
+  // Guillemets simples en JSX
+  "tabWidth": 2,
+  // 2 espaces
+  "useTabs": false
+  // Pas de tabs
 }
 ```
 
@@ -205,8 +227,8 @@ export async function getConseillerServerSide(
 - **Provider :** Custom provider (France Travail)
 - **Sessions :** JWT stockées côté serveur
 - **Routes :**
-  - `/api/auth/[...nextauth]` : Endpoints next-auth
-  - `/api/auth/federated-logout` : Logout fédéré
+    - `/api/auth/[...nextauth]` : Endpoints next-auth
+    - `/api/auth/federated-logout` : Logout fédéré
 - **Helper :** `getMandatorySessionServerSide()` pour récupérer session en SSR
 
 ### dotvault (Secrets)
@@ -257,18 +279,18 @@ yarn dev
 
 ### Scripts Disponibles
 
-| Commande | Description |
-|----------|-------------|
-| `yarn dev` | Serveur de dev sur http://localhost:3000 (avec pino-pretty pour les logs) |
-| `yarn watch` | Alias de `dev` |
-| `yarn build` | Build production (Next.js + server.ts) |
-| `yarn start` | Démarre le serveur prod (après build) |
-| `yarn lint` | ESLint |
-| `yarn test` | Jest avec coverage |
-| `yarn test:watch` | Jest en mode watch |
-| `yarn release:patch` | Release patch (x.x.X) |
-| `yarn release:minor` | Release minor (x.X.0) |
-| `yarn release:major` | Release major (X.0.0) |
+| Commande             | Description                                                               |
+|----------------------|---------------------------------------------------------------------------|
+| `yarn dev`           | Serveur de dev sur http://localhost:3000 (avec pino-pretty pour les logs) |
+| `yarn watch`         | Alias de `dev`                                                            |
+| `yarn build`         | Build production (Next.js + server.ts)                                    |
+| `yarn start`         | Démarre le serveur prod (après build)                                     |
+| `yarn lint`          | ESLint                                                                    |
+| `yarn test`          | Jest avec coverage                                                        |
+| `yarn test:watch`    | Jest en mode watch                                                        |
+| `yarn release:patch` | Release patch (x.x.X)                                                     |
+| `yarn release:minor` | Release minor (x.X.0)                                                     |
+| `yarn release:major` | Release major (X.0.0)                                                     |
 
 ### Testing
 
@@ -297,12 +319,14 @@ import next from 'next'
 ### Scalingo
 
 **Environnements :**
+
 - **Staging :** `pa-front-staging` (branche `develop`)
 - **Production :** `pa-front-prod` (branche `master`)
 
 **Déploiement automatique :** Push sur `develop` ou `master` déclenche un deploy.
 
 **Review Apps :** Activées sur staging uniquement
+
 - Nommage : `pa-front-staging-pr[numéro]`
 - Création : Automatique à l'ouverture d'une PR sur `develop`
 - Destruction : Automatique au merge
@@ -335,6 +359,7 @@ git push
 ### Variables d'Environnement
 
 **Principales vars (voir `.env.local.template`) :**
+
 - `NEXT_PUBLIC_API_ENDPOINT` : URL API backend
 - `NEXT_PUBLIC_MATOMO_*` : Config Matomo
 - `NEXTAUTH_*` : Config next-auth
@@ -373,6 +398,7 @@ git push
 ⚠️ **Utilise App Router (pas Pages Router)**
 
 **Routes groupées :** `(nom-groupe)` n'apparaît pas dans l'URL
+
 ```
 app/(connected)/mes-jeunes/page.tsx  →  /mes-jeunes
 ```
@@ -384,6 +410,7 @@ app/(connected)/mes-jeunes/page.tsx  →  /mes-jeunes
 ### Webpack Custom
 
 **SVG Loader :**
+
 ```typescript
 // next.config.ts
 config.module.rules.push({
@@ -393,9 +420,13 @@ config.module.rules.push({
 ```
 
 Usage :
+
 ```tsx
 import MonIcone from 'assets/icone.svg'
-<MonIcone title="Description" />
+
+<
+MonIcone
+title = "Description" / >
 ```
 
 ### Firebase
@@ -409,6 +440,7 @@ import MonIcone from 'assets/icone.svg'
 ### Images
 
 **Next Image :** Domaines autorisés définis dans `LOGO_AUTHORIZED_URL` (env var)
+
 ```typescript
 // next.config.ts
 images: {
@@ -419,6 +451,7 @@ images: {
 ### Fonts
 
 **Marianne (DSFR) :** Chargée en local font dans `app/layout.tsx`
+
 - Regular (400)
 - Medium (500)
 - Bold (700)
@@ -432,10 +465,12 @@ images: {
 **Workflow :** `.github/workflows/github-actions.yml`
 
 **Déclenchement :**
+
 - Push sur `develop` ou `master`
 - Ouverture/sync PR (sauf draft)
 
 **Jobs :**
+
 1. **Install :** `yarn`
 2. **Lint :** `yarn lint`
 3. **Test :** `yarn test` (avec coverage)
@@ -473,6 +508,7 @@ Génère un rapport visuel des bundles (gzip sizes).
 ### Migrations
 
 **Next.js 15 :** Le projet utilise Next.js 15 (sortie fin 2024)
+
 - React 19 compatible
 - App Router stable
 - Turbopack disponible (pas activé)
@@ -481,13 +517,6 @@ Génère un rapport visuel des bundles (gzip sizes).
 
 ---
 
-## Glossaire Métier
+## Glossaire
 
-- **CEJ :** Contrat d'Engagement Jeune
-- **Bénéficiaire / Jeune :** Utilisateur accompagné par un conseiller
-- **Conseiller :** Utilisateur de cette application
-- **Action :** Tâche assignée à un bénéficiaire
-- **MILO :** Mission Locale (structure d'accompagnement)
-- **France Travail :** Nouveau nom de Pôle Emploi
-- **SNP :** Situation Non Professionnelle
-- **Portefeuille :** Ensemble des bénéficiaires d'un conseiller
+Voir le glossaire complet dans `pass-emploi-api/CLAUDE.md` (section "Contexte Global").
