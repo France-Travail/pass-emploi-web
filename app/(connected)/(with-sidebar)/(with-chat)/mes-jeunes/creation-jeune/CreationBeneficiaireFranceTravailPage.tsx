@@ -15,6 +15,8 @@ import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
+import FailureAlert from '../../../../../../components/ui/Notifications/FailureAlert'
+
 function CreationBeneficiaireFranceTravailPage({
   listes,
 }: {
@@ -61,6 +63,7 @@ function CreationBeneficiaireFranceTravailPage({
           ...beneficiaireCree,
           creationDate: DateTime.now().toISO(),
           estAArchiver: false,
+          email: nouveauBeneficiaire.email,
         })
       )
       setAlerte(AlerteParam.creationBeneficiaire, beneficiaireCree.id)
@@ -74,19 +77,51 @@ function CreationBeneficiaireFranceTravailPage({
     }
   }
 
+  function emailBeneficiaireExistant(email: string): boolean {
+    setCreationEnCours(true)
+    setCreationError(undefined)
+
+    const emailNormalise = email.trim().toLowerCase()
+
+    const emailExistant = portefeuille.find((beneficiairePortefeuille) => {
+      const emailPortefeuilleNormalise = beneficiairePortefeuille.email
+        ?.trim()
+        .toLowerCase()
+      return emailPortefeuilleNormalise === emailNormalise
+    })
+    if (emailExistant) {
+      setCreationError(
+        `Le compte associé à cette adresse e-mail ${email} est déjà présent dans votre portefeuille`
+      )
+    }
+
+    setCreationEnCours(false)
+    return emailExistant !== undefined
+  }
+
   useMatomo(
     creationError ? 'Création jeune PE en erreur' : 'Création jeune PE',
     portefeuille.length > 0
   )
 
   return (
-    <FormulaireBeneficiaireFranceTravail
-      aAccesMap={!estConseilDepartemental(conseiller.structure)}
-      listes={listes}
-      creerBeneficiaireFranceTravail={creerBeneficiaireFranceTravail}
-      creationError={creationError}
-      creationEnCours={creationEnCours}
-    />
+    <>
+      {creationError && (
+        <FailureAlert
+          label={creationError}
+          onAcknowledge={() => setCreationError(undefined)}
+        />
+      )}
+
+      <FormulaireBeneficiaireFranceTravail
+        aAccesMap={!estConseilDepartemental(conseiller.structure)}
+        listes={listes}
+        creerBeneficiaireFranceTravail={creerBeneficiaireFranceTravail}
+        emailBeneficiaireExistant={emailBeneficiaireExistant}
+        creationError={creationError}
+        creationEnCours={creationEnCours}
+      />
+    </>
   )
 }
 

@@ -1,4 +1,11 @@
-import React, { FormEvent, useEffect, useRef, useState } from 'react'
+import React, {
+  FormEvent,
+  ForwardedRef,
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import Checkbox from 'components/offres/Checkbox'
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
@@ -23,6 +30,7 @@ type FormulaireBeneficiaireFranceTravailProps = {
   creerBeneficiaireFranceTravail: (
     nouveauBeneficiaire: BeneficiaireFranceTravailFormData
   ) => void
+  emailBeneficiaireExistant: (mail: string) => boolean
   creationEnCours: boolean
   creationError?: string
   listes?: Liste[]
@@ -32,11 +40,14 @@ function FormulaireBeneficiaireFranceTravail({
   aAccesMap,
   listes,
   creerBeneficiaireFranceTravail,
+  emailBeneficiaireExistant,
   creationError,
   creationEnCours,
-}: FormulaireBeneficiaireFranceTravailProps) {
+}: Readonly<FormulaireBeneficiaireFranceTravailProps>) {
   const formErrorsRef = useRef<HTMLDivElement>(null)
+  const etapeRef = useRef<HTMLDivElement>(null)
 
+  const [etape, setEtape] = useState<1 | 2>(1)
   const [conseiller] = useConseiller()
   const estConseillerAvenirPro = estAvenirPro(conseiller.structure)
 
@@ -60,32 +71,19 @@ function FormulaireBeneficiaireFranceTravail({
 
   const [error, setError] = useState<string | undefined>(creationError)
 
-  const validate = () => {
+  const validerIdentite = () => {
     let isValid = true
-    if (!Boolean(prenom.value)) {
+    if (!prenom.value) {
       setPrenom({
         value: prenom.value,
         error: 'Veuillez renseigner le prénom du bénéficiaire',
       })
       isValid = false
     }
-    if (!Boolean(nom.value)) {
+    if (!nom.value) {
       setNom({
         value: nom.value,
         error: 'Veuillez renseigner le nom du bénéficiaire',
-      })
-      isValid = false
-    }
-    if (!Boolean(email.value)) {
-      setEmail({
-        value: email.value,
-        error: "Veuillez renseigner l'e-mail du bénéficiaire",
-      })
-      isValid = false
-    } else if (!isEmailValid(email.value)) {
-      setEmail({
-        value: email.value,
-        error: 'L’e-mail renseigné n’est pas au bon format',
       })
       isValid = false
     }
@@ -111,9 +109,29 @@ function FormulaireBeneficiaireFranceTravail({
     return isValid
   }
 
+  const validerMail = () => {
+    let isValid = true
+
+    if (!email.value) {
+      setEmail({
+        value: email.value,
+        error: "Veuillez renseigner l'e-mail du bénéficiaire",
+      })
+      isValid = false
+    } else if (!isEmailValid(email.value)) {
+      setEmail({
+        value: email.value,
+        error: 'L’e-mail renseigné n’est pas au bon format',
+      })
+      isValid = false
+    }
+
+    return isValid
+  }
+
   function handleBeneficiaireSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const isValid = validate()
+    const isValid = validerIdentite()
 
     if (!isValid) {
       formErrorsRef.current!.focus()
@@ -129,6 +147,23 @@ function FormulaireBeneficiaireFranceTravail({
       }
 
       creerBeneficiaireFranceTravail(newBeneficiaire)
+    }
+  }
+
+  function handleVerifierMailBeneficiaire(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const isValid = validerMail()
+
+    if (!isValid) {
+      formErrorsRef.current!.focus()
+      return
+    }
+
+    if (isValid && !creationEnCours) {
+      const emailExistant: boolean = emailBeneficiaireExistant(email.value)
+      if (!emailExistant) {
+        setEtape(2)
+      }
     }
   }
 
@@ -206,152 +241,190 @@ function FormulaireBeneficiaireFranceTravail({
 
   return (
     <>
-      <p className='text-m-bold mt-6 mb-4'>
-        Saisissez les coordonnées du bénéficiaire pour lequel vous voulez créer
-        un compte
-      </p>
-
       <RecapitulatifErreursFormulaire
         erreurs={getErreurs()}
         ref={formErrorsRef}
       />
 
-      <form onSubmit={handleBeneficiaireSubmit} noValidate={true}>
-        <div className='text-s-bold mb-8'>
-          Les champs marqués d&apos;une * sont obligatoires.
-        </div>
+      <CreationEtape etape={etape} ref={etapeRef} />
 
-        <Label htmlFor='jeune-prenom' inputRequired={true}>
-          Prénom
-        </Label>
-        {prenom.error && (
-          <InputError id='jeune-prenom--error'>{prenom.error}</InputError>
-        )}
-        <div className='w-8/12'>
-          <Input
-            type='text'
-            id='jeune-prenom'
-            defaultValue={prenom.value}
-            onChange={handleNomChanges}
-            invalid={Boolean(prenom.error)}
-          />
-        </div>
+      {etape === 1 && (
+        <>
+          <p className='text-m-bold mt-6 mb-4'>
+            Renseignez l&#39;adresse mail du bénéficiaire
+          </p>
 
-        <Label htmlFor='jeune-nom' inputRequired={true}>
-          Nom
-        </Label>
-        {nom.error && (
-          <InputError id='jeune-nom--error'>{nom.error}</InputError>
-        )}
-        <div className='w-8/12'>
-          <Input
-            type='text'
-            id='jeune-nom'
-            defaultValue={nom.value}
-            onChange={handlePrenomChanges}
-            invalid={Boolean(nom.error)}
-          />
-        </div>
-
-        <Label htmlFor='jeune-email' inputRequired={true}>
-          {{ main: 'E-mail', helpText: '(ex : monemail@exemple.com)' }}
-        </Label>
-        <p className='text-base-regular mb-3'>
-          <>
-            {aAccesMap
-              ? 'Attention à bien renseigner l’e-mail qui se trouve sous le dossier MAP du bénéficiaire.'
-              : 'Attention à bien renseigner l’adresse e-mail que votre bénéficiaire utilise pour se connecter à son espace France Travail.'}
-          </>
-        </p>
-        {email.error && (
-          <InputError id='jeune-email--error'>{email.error}</InputError>
-        )}
-        <div className='w-8/12'>
-          <Input
-            type='email'
-            id='jeune-email'
-            defaultValue={email.value}
-            onChange={handleEmailChanges}
-            invalid={Boolean(email.error)}
-          />
-        </div>
-
-        {estConseillerAvenirPro && (
-          <>
-            <Label htmlFor='select-id-liste' inputRequired={true}>
-              Sélectionnez la liste du bénéficiaire
+          <form onSubmit={handleVerifierMailBeneficiaire} noValidate={true}>
+            <Label htmlFor='jeune-email' inputRequired={true}>
+              {{ main: 'E-mail', helpText: '(Obligatoire)' }}
             </Label>
-            {idListeSelectionnee.error && (
-              <InputError id='select-id--error'>
-                {idListeSelectionnee.error}
-              </InputError>
+            <p className='text-base-regular mb-3'>
+              {aAccesMap
+                ? "Utilisez l'adresse e-mail indiquée dans le dossier MAP du bénéficiaire."
+                : "Utilisez l'adresse e-mail utilisée par votre bénéficiaire pour se connecter à son espace France Travail."}
+            </p>
+            {email.error && (
+              <InputError id='jeune-email--error'>{email.error}</InputError>
             )}
             <div className='w-8/12'>
-              <Select
-                id='select-id-liste'
-                required={true}
-                onChange={(selectedValue) => {
-                  setIdListeSelectionnee({ value: selectedValue })
-                }}
-                invalid={Boolean(idListeSelectionnee.error)}
-                onBlur={handleIdListeSelectionneeChanges}
-              >
-                {listes!.map(({ id, titre }) => (
-                  <option key={id} value={id}>
-                    {titre}
-                  </option>
-                ))}{' '}
-              </Select>
+              <Input
+                type='email'
+                id='jeune-email'
+                defaultValue={email.value}
+                onChange={handleEmailChanges}
+                invalid={Boolean(email.error)}
+              />
             </div>
 
-            <ButtonLink
-              href='/mes-jeunes/listes/edition-liste'
-              style={ButtonStyle.SECONDARY}
-              className='w-fit mb-8'
+            <Button
+              id='submit'
+              type='submit'
+              isLoading={creationEnCours}
+              describedBy={error && 'submit--error'}
             >
-              <IconComponent
-                name={IconName.Add}
-                focusable={false}
-                aria-hidden={true}
-                className='mr-2 w-4 h-4'
-              />
-              Créer une liste
-            </ButtonLink>
+              Continuer
+            </Button>
+          </form>
+        </>
+      )}
 
-            <div className='mb-8'>
-              {aBeneficiairePlusDeQuinzeAns.error && (
-                <InputError id='age-beneficiaire--error' className='mt-2'>
-                  {aBeneficiairePlusDeQuinzeAns.error}
-                </InputError>
-              )}
-              <Checkbox
-                id='age-beneficiaire'
-                label='Je certifie que le jeune renseigné est âgé de 15 ans ou plus à la date de création du compte.'
-                checked={aBeneficiairePlusDeQuinzeAns.value}
-                value='beneficiairePlusDeQuinzeAns'
-                onChange={handleAgeMinimumBeneficiaireChanges}
+      {etape === 2 && (
+        <>
+          <p className='text-m-bold mt-6 mb-4'>
+            Renseignez l&#39;identité du bénéficiaire
+          </p>
+
+          <form onSubmit={handleBeneficiaireSubmit} noValidate={true}>
+            <div className='text-s-bold mb-8'>
+              Les champs sont obligatoires.
+            </div>
+
+            <Label htmlFor='jeune-prenom' inputRequired={true}>
+              Prénom
+            </Label>
+            {prenom.error && (
+              <InputError id='jeune-prenom--error'>{prenom.error}</InputError>
+            )}
+            <div className='w-8/12'>
+              <Input
+                type='text'
+                id='jeune-prenom'
+                defaultValue={prenom.value}
+                onChange={handleNomChanges}
+                invalid={Boolean(prenom.error)}
               />
             </div>
-          </>
-        )}
 
-        {error && (
-          <InputError id='submit--error' ref={(e) => e?.focus()}>
-            {error}
-          </InputError>
-        )}
+            <Label htmlFor='jeune-nom' inputRequired={true}>
+              Nom
+            </Label>
+            {nom.error && (
+              <InputError id='jeune-nom--error'>{nom.error}</InputError>
+            )}
+            <div className='w-8/12'>
+              <Input
+                type='text'
+                id='jeune-nom'
+                defaultValue={nom.value}
+                onChange={handlePrenomChanges}
+                invalid={Boolean(nom.error)}
+              />
+            </div>
 
-        <Button
-          id='submit'
-          type='submit'
-          isLoading={creationEnCours}
-          describedBy={error && 'submit--error'}
-        >
-          Créer le compte
-        </Button>
-      </form>
+            {estConseillerAvenirPro && (
+              <>
+                <Label htmlFor='select-id-liste' inputRequired={true}>
+                  Sélectionnez la liste du bénéficiaire
+                </Label>
+                {idListeSelectionnee.error && (
+                  <InputError id='select-id--error'>
+                    {idListeSelectionnee.error}
+                  </InputError>
+                )}
+                <div className='w-8/12'>
+                  <Select
+                    id='select-id-liste'
+                    required={true}
+                    onChange={(selectedValue) => {
+                      setIdListeSelectionnee({ value: selectedValue })
+                    }}
+                    invalid={Boolean(idListeSelectionnee.error)}
+                    onBlur={handleIdListeSelectionneeChanges}
+                  >
+                    {listes!.map(({ id, titre }) => (
+                      <option key={id} value={id}>
+                        {titre}
+                      </option>
+                    ))}{' '}
+                  </Select>
+                </div>
+
+                <ButtonLink
+                  href='/mes-jeunes/listes/edition-liste'
+                  style={ButtonStyle.SECONDARY}
+                  className='w-fit mb-8'
+                >
+                  <IconComponent
+                    name={IconName.Add}
+                    focusable={false}
+                    aria-hidden={true}
+                    className='mr-2 w-4 h-4'
+                  />
+                  Créer une liste
+                </ButtonLink>
+
+                <div className='mb-8'>
+                  {aBeneficiairePlusDeQuinzeAns.error && (
+                    <InputError id='age-beneficiaire--error' className='mt-2'>
+                      {aBeneficiairePlusDeQuinzeAns.error}
+                    </InputError>
+                  )}
+                  <Checkbox
+                    id='age-beneficiaire'
+                    label='Je certifie que le jeune renseigné est âgé de 15 ans ou plus à la date de création du compte.'
+                    checked={aBeneficiairePlusDeQuinzeAns.value}
+                    value='beneficiairePlusDeQuinzeAns'
+                    onChange={handleAgeMinimumBeneficiaireChanges}
+                  />
+                </div>
+              </>
+            )}
+
+            {error && (
+              <InputError id='submit--error' ref={(e) => e?.focus()}>
+                {error}
+              </InputError>
+            )}
+
+            <Button
+              id='submit'
+              type='submit'
+              isLoading={creationEnCours}
+              describedBy={error && 'submit--error'}
+            >
+              Créer le compte bénéficiaire
+            </Button>
+          </form>
+        </>
+      )}
     </>
   )
 }
+
+const CreationEtape = forwardRef(
+  ({ etape }: { etape: 1 | 2 }, ref: ForwardedRef<HTMLDivElement>) => {
+    return (
+      <p
+        className='bg-primary-lighten rounded-base w-auto inline-block p-2 text-base-medium text-primary'
+        ref={ref}
+        tabIndex={-1}
+      >
+        <span className='sr-only'>Création de compte : étape </span>
+        {etape} sur 2
+      </p>
+    )
+  }
+)
+CreationEtape.displayName = 'CreationEtape'
 
 export default FormulaireBeneficiaireFranceTravail
