@@ -61,9 +61,7 @@ jobs:
       - name: Enable auto-merge for patch/minor
         # On s'assure que la PR vient bien du repo (pas d'un fork)
         if: github.event.pull_request.head.repo.full_name == github.repository
-        run: |
-          gh pr merge --auto --squash "$PR_URL"
-          gh pr edit "$PR_URL" --add-label "auto-merge"
+        run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

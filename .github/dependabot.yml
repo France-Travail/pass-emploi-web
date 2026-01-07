@@ -7,16 +7,12 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: '08:00'
+      interval: daily
+      time: '07:00'
       timezone: Europe/Paris
     open-pull-requests-limit: 15
     commit-message:
       prefix: 'chore(deps):'
-    labels:
-      - dependencies
-      - npm
     groups:
       # Production dependencies - patch and minor (auto-merge côté CI)
       prod-minor-patch:
@@ -32,11 +28,7 @@ updates:
         update-types:
           - patch
           - minor
-      # Majors : groupés séparément, sans auto-merge
-      majors:
-        applies-to: version-updates
-        update-types:
-          - major
+      # Majors : pas de groupe, chaque dépendance a sa propre PR
 
   # ===========================================
   # GitHub Actions
@@ -44,15 +36,11 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-      time: '08:00'
+      interval: daily
+      time: '07:00'
       timezone: Europe/Paris
     commit-message:
       prefix: 'ci(deps):'
-    labels:
-      - dependencies
-      - github-actions
     groups:
       # GitHub Actions - patch and minor (auto-merge côté CI)
       actions-minor-patch:
@@ -60,8 +48,4 @@ updates:
         update-types:
           - patch
           - minor
-      # GitHub Actions - majors, à revoir manuellement
-      actions-majors:
-        applies-to: version-updates
-        update-types:
-          - major
+      # Majors : pas de groupe, chaque action a sa propre PR
