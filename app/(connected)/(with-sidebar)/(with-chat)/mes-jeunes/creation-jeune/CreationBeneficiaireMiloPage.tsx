@@ -3,7 +3,7 @@
 import { withTransaction } from '@elastic/apm-rum-react'
 import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
-import React, { ForwardedRef, forwardRef, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import DossierBeneficiaireMilo from 'components/jeune/DossierBeneficiaireMilo'
 import FormulaireRechercheDossier from 'components/jeune/FormulaireRechercheDossier'
@@ -14,6 +14,8 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { ApiError } from 'utils/httpClient'
 import { usePortefeuille } from 'utils/portefeuilleContext'
+
+import CreationDeuxEtapes from '../../../../../../components/ui/Form/CreationDeuxEtapes'
 
 function CreationBeneficiaireMiloPage() {
   const router = useRouter()
@@ -96,7 +98,7 @@ function CreationBeneficiaireMiloPage() {
 
   return (
     <>
-      <CreationEtape etape={!dossier ? 1 : 2} ref={etapeRef} />
+      <CreationDeuxEtapes etape={!dossier ? 1 : 2} ref={etapeRef} />
 
       {!dossier && (
         <div className='mt-4'>
@@ -128,22 +130,6 @@ function CreationBeneficiaireMiloPage() {
     </>
   )
 }
-
-const CreationEtape = forwardRef(
-  ({ etape }: { etape: 1 | 2 }, ref: ForwardedRef<HTMLDivElement>) => {
-    return (
-      <p
-        className='bg-primary-lighten rounded-base w-auto inline-block p-2 text-base-medium text-primary'
-        ref={ref}
-        tabIndex={-1}
-      >
-        <span className='sr-only'>Création de compte : étape </span>
-        {etape} sur 2
-      </p>
-    )
-  }
-)
-CreationEtape.displayName = 'CreationEtape'
 
 export default withTransaction(
   CreationBeneficiaireMiloPage.name,
