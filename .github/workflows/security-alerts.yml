@@ -41,7 +41,7 @@ jobs:
           # Sauvegarder les alertes
           echo "$alerts" > /tmp/alerts.json
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.DEPENDABOT_ALERTS_READER }}
 
       - name: Send Mattermost alert
         if: steps.fetch-alerts.outputs.has_alerts == 'true'
