@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import React, { ReactElement, useState } from 'react'
 
 import FormulaireBeneficiaireFranceTravail from 'components/jeune/FormulaireBeneficiaireFranceTravail'
+import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import { BeneficiaireFranceTravailFormData } from 'interfaces/json/beneficiaire'
 import { Liste } from 'interfaces/liste'
 import { estAvenirPro, estConseilDepartemental } from 'interfaces/structure'
@@ -14,8 +15,6 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
-
-import FailureAlert from '../../../../../../components/ui/Notifications/FailureAlert'
 
 function CreationBeneficiaireFranceTravailPage({
   listes,
@@ -78,7 +77,6 @@ function CreationBeneficiaireFranceTravailPage({
   }
 
   function emailBeneficiaireExistant(email: string): boolean {
-    setCreationEnCours(true)
     setCreationError(undefined)
 
     const emailNormalise = email.trim().toLowerCase()
@@ -95,7 +93,6 @@ function CreationBeneficiaireFranceTravailPage({
       )
     }
 
-    setCreationEnCours(false)
     return emailExistant !== undefined
   }
 
@@ -118,7 +115,6 @@ function CreationBeneficiaireFranceTravailPage({
         listes={listes}
         creerBeneficiaireFranceTravail={creerBeneficiaireFranceTravail}
         emailBeneficiaireExistant={emailBeneficiaireExistant}
-        creationError={creationError}
         creationEnCours={creationEnCours}
       />
     </>

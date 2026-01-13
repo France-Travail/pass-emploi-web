@@ -14,5 +14,5 @@ const CreationDeuxEtapes = forwardRef(
     )
   }
 )
-CreationDeuxEtapes.displayName = 'CreationEtape'
+CreationDeuxEtapes.displayName = 'CreationDeuxEtapes'
 export default CreationDeuxEtapes

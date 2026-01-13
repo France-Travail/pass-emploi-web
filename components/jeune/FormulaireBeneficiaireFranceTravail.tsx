@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useRef, useState } from 'react'
+import React, { FormEvent, useRef, useState } from 'react'
 
 import Checkbox from 'components/offres/Checkbox'
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
@@ -27,7 +27,6 @@ type FormulaireBeneficiaireFranceTravailProps = {
   ) => void
   emailBeneficiaireExistant: (mail: string) => boolean
   creationEnCours: boolean
-  creationError?: string
   listes?: Liste[]
 }
 
@@ -36,7 +35,6 @@ function FormulaireBeneficiaireFranceTravail({
   listes,
   creerBeneficiaireFranceTravail,
   emailBeneficiaireExistant,
-  creationError,
   creationEnCours,
 }: Readonly<FormulaireBeneficiaireFranceTravailProps>) {
   const formErrorsRef = useRef<HTMLDivElement>(null)
@@ -63,8 +61,6 @@ function FormulaireBeneficiaireFranceTravail({
 
   const [aBeneficiairePlusDeQuinzeAns, setABeneficiairePlusDeQuinzeAns] =
     useState<ValueWithError<boolean>>({ value: false })
-
-  const [error, setError] = useState<string | undefined>(creationError)
 
   const validerIdentite = () => {
     let isValid = true
@@ -129,7 +125,7 @@ function FormulaireBeneficiaireFranceTravail({
     const isValid = validerIdentite()
 
     if (!isValid) {
-      formErrorsRef.current!.focus()
+      formErrorsRef.current?.focus()
       return
     }
 
@@ -146,7 +142,7 @@ function FormulaireBeneficiaireFranceTravail({
   }
   function handleRetourEtape1() {
     setEtape(1)
-    etapeRef.current!.focus()
+    etapeRef.current?.focus()
   }
 
   function handleVerifierMailBeneficiaire(e: FormEvent<HTMLFormElement>) {
@@ -154,7 +150,7 @@ function FormulaireBeneficiaireFranceTravail({
     const isValid = validerMail()
 
     if (!isValid) {
-      formErrorsRef.current!.focus()
+      formErrorsRef.current?.focus()
       return
     }
 
@@ -162,24 +158,21 @@ function FormulaireBeneficiaireFranceTravail({
       const emailExistant: boolean = emailBeneficiaireExistant(email.value)
       if (!emailExistant) {
         setEtape(2)
-        etapeRef.current!.focus()
+        etapeRef.current?.focus()
       }
     }
   }
 
-  function handleNomChanges(value: string) {
+  function handlePrenomChanges(value: string) {
     setPrenom({ value, error: '' })
-    setError('')
   }
 
-  function handlePrenomChanges(value: string) {
+  function handleNomChanges(value: string) {
     setNom({ value, error: '' })
-    setError('')
   }
 
   function handleEmailChanges(value: string) {
     setEmail({ value, error: '' })
-    setError('')
   }
 
   function handleIdListeSelectionneeChanges() {
@@ -189,7 +182,6 @@ function FormulaireBeneficiaireFranceTravail({
         error: 'Veuillez sélectionner une liste',
       })
     }
-    setError('')
   }
 
   function handleAgeMinimumBeneficiaireChanges() {
@@ -197,7 +189,6 @@ function FormulaireBeneficiaireFranceTravail({
       value: !aBeneficiairePlusDeQuinzeAns.value,
       error: '',
     })
-    setError('')
   }
 
   function getErreurs(): LigneErreur[] {
@@ -230,14 +221,10 @@ function FormulaireBeneficiaireFranceTravail({
       erreurs.push({
         ancre: '#age-beneficiaire',
         label: 'La case Validation de l’âge du bénéficiaire n’est pas cochée.',
-        titreChamp: 'Heure De Fin',
+        titreChamp: "Certification de l'âge supérieur à 15 ans du bénéficiaire",
       })
     return erreurs
   }
-
-  useEffect(() => {
-    setError(creationError)
-  }, [creationError])
 
   return (
     <>
@@ -276,12 +263,7 @@ function FormulaireBeneficiaireFranceTravail({
               />
             </div>
 
-            <Button
-              id='submit'
-              type='submit'
-              isLoading={creationEnCours}
-              describedBy={error && 'submit--error'}
-            >
+            <Button id='submit' type='submit' isLoading={creationEnCours}>
               Continuer
             </Button>
           </form>
@@ -310,7 +292,7 @@ function FormulaireBeneficiaireFranceTravail({
                 type='text'
                 id='jeune-prenom'
                 defaultValue={prenom.value}
-                onChange={handleNomChanges}
+                onChange={handlePrenomChanges}
                 invalid={Boolean(prenom.error)}
               />
             </div>
@@ -326,7 +308,7 @@ function FormulaireBeneficiaireFranceTravail({
                 type='text'
                 id='jeune-nom'
                 defaultValue={nom.value}
-                onChange={handlePrenomChanges}
+                onChange={handleNomChanges}
                 invalid={Boolean(nom.error)}
               />
             </div>
@@ -390,11 +372,6 @@ function FormulaireBeneficiaireFranceTravail({
               </>
             )}
 
-            {error && (
-              <InputError id='submit--error' ref={(e) => e?.focus()}>
-                {error}
-              </InputError>
-            )}
             <div className='flex items-center gap-4'>
               <Button style={ButtonStyle.TERTIARY} onClick={handleRetourEtape1}>
                 <IconComponent
@@ -402,17 +379,12 @@ function FormulaireBeneficiaireFranceTravail({
                   className='mr-2.5 w-3 h-3'
                   role='img'
                   focusable={false}
-                  aria-label="Retour Création d'un compte bénéficiaire étape 1"
+                  aria-label="Retour à l'étape 1 : saisie de l'adresse email"
                 />
                 Retour
               </Button>
 
-              <Button
-                id='submit'
-                type='submit'
-                isLoading={creationEnCours}
-                describedBy={error && 'submit--error'}
-              >
+              <Button id='submit' type='submit' isLoading={creationEnCours}>
                 Créer le compte bénéficiaire
               </Button>
             </div>
