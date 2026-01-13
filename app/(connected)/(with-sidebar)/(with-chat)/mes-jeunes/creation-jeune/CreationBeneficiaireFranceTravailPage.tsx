@@ -16,6 +16,13 @@ import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
+import AlertLink from '../../../../../../components/ui/Notifications/AlertLink'
+
+interface EmailEtId {
+  email: string
+  id: string
+}
+
 function CreationBeneficiaireFranceTravailPage({
   listes,
 }: {
@@ -27,6 +34,9 @@ function CreationBeneficiaireFranceTravailPage({
   const [portefeuille, setPortefeuille] = usePortefeuille()
 
   const [creationError, setCreationError] = useState<string>()
+  const [emailExistantError, setEmailExistantError] = useState<
+    EmailEtId | undefined
+  >()
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
 
   async function creerBeneficiaireFranceTravail(
@@ -88,9 +98,9 @@ function CreationBeneficiaireFranceTravailPage({
       return emailPortefeuilleNormalise === emailNormalise
     })
     if (emailExistant) {
-      setCreationError(
-        `Le compte associé à cette adresse e-mail ${email} est déjà présent dans votre portefeuille`
-      )
+      setEmailExistantError({ email, id: emailExistant.id })
+    } else {
+      setEmailExistantError(undefined)
     }
 
     return emailExistant !== undefined
@@ -108,6 +118,19 @@ function CreationBeneficiaireFranceTravailPage({
           label={creationError}
           onAcknowledge={() => setCreationError(undefined)}
         />
+      )}
+
+      {emailExistantError && (
+        <FailureAlert
+          label={`Le compte associé à cette adresse e-mail ${emailExistantError.email} est déjà présent dans votre portefeuille`}
+          onAcknowledge={() => setEmailExistantError(undefined)}
+        >
+          <AlertLink
+            href={`/mes-jeunes/${emailExistantError.id}`}
+            label='Voir la fiche du bénéficiaire'
+            type='warning'
+          />
+        </FailureAlert>
       )}
 
       <FormulaireBeneficiaireFranceTravail

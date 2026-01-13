@@ -18,7 +18,7 @@ import { estAvenirPro } from 'interfaces/structure'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { isEmailValid } from 'utils/helpers'
 
-import CreationDeuxEtapes from '../ui/Form/CreationDeuxEtapes'
+import LabelDeuxEtapes from '../ui/Form/LabelDeuxEtapes'
 
 type FormulaireBeneficiaireFranceTravailProps = {
   aAccesMap: boolean
@@ -233,7 +233,7 @@ function FormulaireBeneficiaireFranceTravail({
         ref={formErrorsRef}
       />
 
-      <CreationDeuxEtapes etape={etape} ref={etapeRef} />
+      <LabelDeuxEtapes etape={etape} ref={etapeRef} />
 
       {etape === 1 && (
         <>

@@ -15,7 +15,7 @@ import useMatomo from 'utils/analytics/useMatomo'
 import { ApiError } from 'utils/httpClient'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
-import CreationDeuxEtapes from '../../../../../../components/ui/Form/CreationDeuxEtapes'
+import LabelDeuxEtapes from '../../../../../../components/ui/Form/LabelDeuxEtapes'
 
 function CreationBeneficiaireMiloPage() {
   const router = useRouter()
@@ -98,7 +98,7 @@ function CreationBeneficiaireMiloPage() {
 
   return (
     <>
-      <CreationDeuxEtapes etape={dossier ? 2 : 1} ref={etapeRef} />
+      <LabelDeuxEtapes etape={dossier ? 2 : 1} ref={etapeRef} />
 
       {!dossier && (
         <div className='mt-4'>

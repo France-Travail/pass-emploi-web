@@ -1,6 +1,6 @@
 import { ForwardedRef, forwardRef } from 'react'
 
-const CreationDeuxEtapes = forwardRef(
+const LabelDeuxEtapes = forwardRef(
   ({ etape }: { etape: 1 | 2 }, ref: ForwardedRef<HTMLDivElement>) => {
     return (
       <p
@@ -14,5 +14,5 @@ const CreationDeuxEtapes = forwardRef(
     )
   }
 )
-CreationDeuxEtapes.displayName = 'CreationDeuxEtapes'
-export default CreationDeuxEtapes
+LabelDeuxEtapes.displayName = 'LabelDeuxEtapes'
+export default LabelDeuxEtapes

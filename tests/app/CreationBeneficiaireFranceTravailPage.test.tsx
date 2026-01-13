@@ -45,6 +45,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       email: 'maria.daboville-munoz-francois@example.com',
     }),
   ].map(extractBeneficiaireWithActivity)
+  const emailExistant = portefeuille[0].email
 
   let push: () => void
   let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
@@ -112,16 +113,17 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       })
 
       describe('quand on continue avec un mail déjà existant dans le portefeuille', () => {
-        it("demande le remplissage de l'email", async () => {
+        beforeEach(async () => {
           // Given
           const inputEmail = screen.getByLabelText(emailLabel)
           await userEvent.clear(inputEmail)
-          const emailExistant = portefeuille[0].email
           await userEvent.type(inputEmail, emailExistant!)
 
           // When
           await userEvent.click(boutonContinuer)
+        })
 
+        it("demande le remplissage de l'email", async () => {
           // Then
           expect(
             screen.getByText(
@@ -129,6 +131,24 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
             )
           ).toBeInTheDocument()
           expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
+        })
+
+        it("masque l'erreur quand on corrige l'email et qu'on continue", async () => {
+          // When
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, 'nouvel.email@example.com')
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          expect(
+            screen.queryByText(
+              `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`
+            )
+          ).not.toBeInTheDocument()
+          expect(
+            screen.getByText("Renseignez l'identité du bénéficiaire")
+          ).toBeInTheDocument()
         })
       })
     })
