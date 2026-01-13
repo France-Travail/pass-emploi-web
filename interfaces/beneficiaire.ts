@@ -78,7 +78,7 @@ export type BeneficiaireFromListe = BaseBeneficiaire & {
   conseillerPrecedent?: {
     nom: string
     prenom: string
-    email?: string
+    email?: string //@todo: rendre obligatoire ? (au moins pour le portefeuille pour les créations de comptes)
   }
 }
 

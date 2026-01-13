@@ -98,7 +98,7 @@ function CreationBeneficiaireMiloPage() {
 
   return (
     <>
-      <CreationDeuxEtapes etape={!dossier ? 1 : 2} ref={etapeRef} />
+      <CreationDeuxEtapes etape={dossier ? 2 : 1} ref={etapeRef} />
 
       {!dossier && (
         <div className='mt-4'>

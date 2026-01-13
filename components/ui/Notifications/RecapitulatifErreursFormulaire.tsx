@@ -16,7 +16,6 @@ function RecapitulatifErreursFormulaire(
   { erreurs }: ErreursFormulaireProps,
   ref: ForwardedRef<HTMLDivElement>
 ) {
-  console.log(erreurs)
   return (
     <div
       ref={ref}

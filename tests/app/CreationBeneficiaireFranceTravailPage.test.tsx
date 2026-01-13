@@ -270,6 +270,22 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           })
         })
       })
+
+      describe("quand on revient à l'étape précédente", () => {
+        it("devrait revenir sur l'étape de renseignement du mail", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: "Retour à l'étape 1 : saisie de l'adresse email Retour",
+            })
+          )
+
+          // Then
+          expect(
+            screen.getByText("Renseignez l'adresse mail du bénéficiaire")
+          ).toBeInTheDocument()
+        })
+      })
     })
   })
 
