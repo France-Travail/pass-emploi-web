@@ -19,11 +19,11 @@ export function AlerteProvider({
   children,
   alerteForTests,
   setterForTests,
-}: {
+}: Readonly<{
   children: ReactNode
   alerteForTests?: Alerte
   setterForTests?: (key: AlerteParam | undefined, target?: string) => void
-}) {
+}>) {
   const [alerte, setAlerte] = useState<Alerte | undefined>(alerteForTests)
   const defaultSetter = (key: AlerteParam | undefined, target?: string) =>
     setAlerte(key && { key, target })

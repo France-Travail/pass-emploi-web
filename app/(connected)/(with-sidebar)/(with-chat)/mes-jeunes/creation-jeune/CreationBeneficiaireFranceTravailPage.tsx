@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import React, { ReactElement, useState } from 'react'
 
 import FormulaireBeneficiaireFranceTravail from 'components/jeune/FormulaireBeneficiaireFranceTravail'
+import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import { BeneficiaireFranceTravailFormData } from 'interfaces/json/beneficiaire'
 import { Liste } from 'interfaces/liste'
 import { estAvenirPro, estConseilDepartemental } from 'interfaces/structure'
@@ -14,6 +15,13 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
+
+import AlertLink from '../../../../../../components/ui/Notifications/AlertLink'
+
+interface EmailEtId {
+  email: string
+  id: string
+}
 
 function CreationBeneficiaireFranceTravailPage({
   listes,
@@ -26,6 +34,9 @@ function CreationBeneficiaireFranceTravailPage({
   const [portefeuille, setPortefeuille] = usePortefeuille()
 
   const [creationError, setCreationError] = useState<string>()
+  const [emailExistantError, setEmailExistantError] = useState<
+    EmailEtId | undefined
+  >()
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
 
   async function creerBeneficiaireFranceTravail(
@@ -61,6 +72,7 @@ function CreationBeneficiaireFranceTravailPage({
           ...beneficiaireCree,
           creationDate: DateTime.now().toISO(),
           estAArchiver: false,
+          email: nouveauBeneficiaire.email,
         })
       )
       setAlerte(AlerteParam.creationBeneficiaire, beneficiaireCree.id)
@@ -74,19 +86,61 @@ function CreationBeneficiaireFranceTravailPage({
     }
   }
 
+  function emailBeneficiaireExistant(email: string): boolean {
+    setCreationError(undefined)
+
+    const emailNormalise = email.trim().toLowerCase()
+
+    const emailExistant = portefeuille.find((beneficiairePortefeuille) => {
+      const emailPortefeuilleNormalise = beneficiairePortefeuille.email
+        ?.trim()
+        .toLowerCase()
+      return emailPortefeuilleNormalise === emailNormalise
+    })
+    if (emailExistant) {
+      setEmailExistantError({ email, id: emailExistant.id })
+    } else {
+      setEmailExistantError(undefined)
+    }
+
+    return emailExistant !== undefined
+  }
+
   useMatomo(
     creationError ? 'Création jeune PE en erreur' : 'Création jeune PE',
     portefeuille.length > 0
   )
 
   return (
-    <FormulaireBeneficiaireFranceTravail
-      aAccesMap={!estConseilDepartemental(conseiller.structure)}
-      listes={listes}
-      creerBeneficiaireFranceTravail={creerBeneficiaireFranceTravail}
-      creationError={creationError}
-      creationEnCours={creationEnCours}
-    />
+    <>
+      {creationError && (
+        <FailureAlert
+          label={creationError}
+          onAcknowledge={() => setCreationError(undefined)}
+        />
+      )}
+
+      {emailExistantError && (
+        <FailureAlert
+          label={`Le compte associé à cette adresse e-mail ${emailExistantError.email} est déjà présent dans votre portefeuille`}
+          onAcknowledge={() => setEmailExistantError(undefined)}
+        >
+          <AlertLink
+            href={`/mes-jeunes/${emailExistantError.id}`}
+            label='Voir la fiche du bénéficiaire'
+            type='warning'
+          />
+        </FailureAlert>
+      )}
+
+      <FormulaireBeneficiaireFranceTravail
+        aAccesMap={!estConseilDepartemental(conseiller.structure)}
+        listes={listes}
+        creerBeneficiaireFranceTravail={creerBeneficiaireFranceTravail}
+        emailBeneficiaireExistant={emailBeneficiaireExistant}
+        creationEnCours={creationEnCours}
+      />
+    </>
   )
 }
 

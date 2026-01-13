@@ -14,7 +14,7 @@ interface AlerteDisplayerProps {
 
 export default function AlerteDisplayer({
   hideOnLargeScreen = false,
-}: AlerteDisplayerProps) {
+}: Readonly<AlerteDisplayerProps>) {
   const [conseiller] = useConseiller()
   const alertes = getAlertesForStructure(conseiller.structure)
 
