@@ -16,7 +16,7 @@ export default function FailureAlert({
   shouldFocus,
   className,
   children,
-}: FailureMessageProps) {
+}: Readonly<FailureMessageProps>) {
   return (
     <div
       role='alert'

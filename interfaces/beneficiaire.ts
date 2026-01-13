@@ -64,6 +64,7 @@ export type BeneficiaireWithActivity = IdentiteBeneficiaire & {
   estAArchiver: boolean
   lastActivity?: string
   dateFinCEJ?: string
+  email?: string
 }
 
 type BaseBeneficiaire = BeneficiaireWithActivity & {
@@ -77,7 +78,7 @@ export type BeneficiaireFromListe = BaseBeneficiaire & {
   conseillerPrecedent?: {
     nom: string
     prenom: string
-    email?: string
+    email?: string //@todo: rendre obligatoire ? (au moins pour le portefeuille pour les créations de comptes)
   }
 }
 
@@ -285,5 +286,6 @@ export function extractBeneficiaireWithActivity(
     lastActivity: beneficiaire.lastActivity,
     dateFinCEJ: beneficiaire.dateFinCEJ,
     estAArchiver: beneficiaire.estAArchiver,
+    email: beneficiaire.email,
   }
 }
