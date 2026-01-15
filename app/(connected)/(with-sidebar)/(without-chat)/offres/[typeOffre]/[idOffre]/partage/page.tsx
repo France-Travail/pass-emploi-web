@@ -55,7 +55,8 @@ async function fetchOffre(
   params: PartageOffreParams,
   accessToken?: string
 ): Promise<DetailOffre> {
-  const token = accessToken ?? (await getMandatorySessionServerSide()).accessToken
+  const token =
+    accessToken ?? (await getMandatorySessionServerSide()).accessToken
   const { typeOffre, idOffre } = await params
 
   let offre: DetailOffre | undefined
