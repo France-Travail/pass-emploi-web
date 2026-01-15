@@ -28,7 +28,11 @@ function MigrationJeunePage({
   const titleText = 'Vos outils évoluent'
 
   return (
-    <ErrorPageLayout title={titleText} ariaLabelledBy={titleId}>
+    <ErrorPageLayout
+      title={titleText}
+      ariaLabelledBy={titleId}
+      colorBackground='bg-primary-lighten'
+    >
       <div className='hidden layout-xs:flex justify-center'>
         <IllustrationComponent
           name={IllustrationName.MigrationParcoursEmploiJeune}
