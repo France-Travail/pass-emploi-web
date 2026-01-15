@@ -131,7 +131,9 @@ describe('PartageOffrePage client side', () => {
         //Then
         expect(partagerOffre).not.toHaveBeenCalled()
         expect(
-          screen.getByText(/Le champ ”Destinataires” est vide./)
+          screen.getByText(
+            /Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire./
+          )
         ).toBeInTheDocument()
       })
     })

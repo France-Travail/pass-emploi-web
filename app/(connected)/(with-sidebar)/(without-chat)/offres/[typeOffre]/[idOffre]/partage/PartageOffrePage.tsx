@@ -18,6 +18,7 @@ import Textarea from 'components/ui/Form/Textarea'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ValueWithError } from 'components/ValueWithError'
 import { getNomBeneficiaireComplet } from 'interfaces/beneficiaire'
+import { Liste } from 'interfaces/liste'
 import { DetailOffre, TypeOffre } from 'interfaces/offre'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
@@ -27,10 +28,15 @@ import { usePortefeuille } from 'utils/portefeuilleContext'
 
 type PartageOffrePageProps = {
   offre: DetailOffre
+  listes?: Liste[]
   returnTo: string
 }
 
-function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
+function PartageOffrePage({
+  offre,
+  listes = [],
+  returnTo,
+}: PartageOffrePageProps) {
   const chatCredentials = useChatCredentials()
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
@@ -39,16 +45,21 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
   const [idsDestinataires, setIdsDestinataires] = useState<
     ValueWithError<string[]>
   >({ value: [] })
+  const [idsListesSelectionnees, setIdsListesSelectionnees] = useState<
+    string[]
+  >([])
   const [message, setMessage] = useState<string | undefined>()
   const [isPartageEnCours, setIsPartageEnCours] = useState<boolean>(false)
 
   function formIsValid(): boolean {
-    const idsDestinatairesEstValide = Boolean(idsDestinataires.value.length > 0)
+    const idsDestinatairesEstValide = Boolean(
+      idsDestinataires.value.length > 0 || idsListesSelectionnees.length > 0
+    )
     if (!idsDestinatairesEstValide)
       setIdsDestinataires({
         ...idsDestinataires,
         error:
-          'Le champ ”Destinataires” est vide. Sélectionnez au moins un destinataire.',
+          'Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire.',
       })
     return idsDestinatairesEstValide
   }
@@ -62,14 +73,34 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
 
   function updateIdsDestinataires(selectedIds: {
     beneficiaires?: string[]
-    listes?: string[]
+    listeListes?: string[]
   }) {
-    setIdsDestinataires({
-      value: selectedIds.beneficiaires!,
-      error: !selectedIds.beneficiaires!.length
-        ? 'Le champ ”Destinataires” est vide. Sélectionnez au moins un destinataire.'
-        : undefined,
-    })
+    const { beneficiaires, listeListes } = selectedIds
+    const hasBeneficiaires = beneficiaires && beneficiaires.length > 0
+    const hasListes = listeListes && listeListes.length > 0
+
+    if (beneficiaires !== undefined) {
+      setIdsDestinataires({
+        value: beneficiaires,
+        error:
+          !hasBeneficiaires && !idsListesSelectionnees.length && !hasListes
+            ? 'Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire.'
+            : undefined,
+      })
+    }
+
+    if (listeListes !== undefined) {
+      setIdsListesSelectionnees(listeListes)
+      if (hasListes || hasBeneficiaires || idsDestinataires.value.length > 0) {
+        setIdsDestinataires((prev) => ({ ...prev, error: undefined }))
+      }
+    }
+  }
+
+  function getIdsBeneficiairesDesListes(): string[] {
+    return listes
+      .filter((liste) => idsListesSelectionnees.includes(liste.id))
+      .flatMap((liste) => liste.beneficiaires.map((b) => b.id))
   }
 
   async function partager(e: FormEvent<HTMLFormElement>) {
@@ -79,12 +110,16 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
     setIsPartageEnCours(true)
 
     const messageDefault = getDefaultMessage(offre.type)
+    const idsBeneficiairesListes = getIdsBeneficiairesDesListes()
+    const tousLesDestinataires = Array.from(
+      new Set([...idsDestinataires.value, ...idsBeneficiairesListes])
+    )
 
     try {
       const { partagerOffre } = await import('services/messages.service')
       await partagerOffre({
         offre,
-        idsDestinataires: idsDestinataires.value,
+        idsDestinataires: tousLesDestinataires,
         cleChiffrement: chatCredentials!.cleChiffrement,
         message: message || messageDefault,
       })
@@ -118,6 +153,7 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
           <BeneficiairesMultiselectAutocomplete
             id={'select-beneficiaires'}
             beneficiaires={buildOptionsJeunes()}
+            listes={listes}
             typeSelection='Bénéficiaires'
             onUpdate={updateIdsDestinataires}
             error={idsDestinataires.error}

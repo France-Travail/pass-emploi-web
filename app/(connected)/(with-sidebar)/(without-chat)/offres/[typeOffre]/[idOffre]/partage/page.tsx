@@ -9,6 +9,7 @@ import {
 } from 'components/PageNavigationPortals'
 import { DetailOffre } from 'interfaces/offre'
 import { getImmersionServerSide } from 'services/immersions.service'
+import { getListesServerSide } from 'services/listes.service'
 import { getOffreEmploiServerSide } from 'services/offres-emploi.service'
 import { getServiceCiviqueServerSide } from 'services/services-civiques.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -30,7 +31,11 @@ export default async function PartageOffre({
 }: {
   params: PartageOffreParams
 }) {
-  const offre = await fetchOffre(params)
+  const { user, accessToken } = await getMandatorySessionServerSide()
+  const [offre, listes] = await Promise.all([
+    fetchOffre(params, accessToken),
+    getListesServerSide(user.id, accessToken),
+  ])
 
   const referer = (await headers()).get('referer')
   const redirectTo =
@@ -41,26 +46,29 @@ export default async function PartageOffre({
       <PageRetourPortal lien={redirectTo} />
       <PageHeaderPortal header='Partager une offre' />
 
-      <PartageOffrePage offre={offre} returnTo={redirectTo} />
+      <PartageOffrePage offre={offre} listes={listes} returnTo={redirectTo} />
     </>
   )
 }
 
-async function fetchOffre(params: PartageOffreParams): Promise<DetailOffre> {
-  const { accessToken } = await getMandatorySessionServerSide()
+async function fetchOffre(
+  params: PartageOffreParams,
+  accessToken?: string
+): Promise<DetailOffre> {
+  const token = accessToken ?? (await getMandatorySessionServerSide()).accessToken
   const { typeOffre, idOffre } = await params
 
   let offre: DetailOffre | undefined
   switch (typeOffre) {
     case 'emploi':
     case 'alternance':
-      offre = await getOffreEmploiServerSide(idOffre, accessToken)
+      offre = await getOffreEmploiServerSide(idOffre, token)
       break
     case 'service-civique':
-      offre = await getServiceCiviqueServerSide(idOffre, accessToken)
+      offre = await getServiceCiviqueServerSide(idOffre, token)
       break
     case 'immersion':
-      offre = await getImmersionServerSide(idOffre, accessToken)
+      offre = await getImmersionServerSide(idOffre, token)
       break
     default:
       notFound()
