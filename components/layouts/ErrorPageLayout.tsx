@@ -4,14 +4,14 @@ type ErrorPageLayoutProps = {
   title: string
   children: ReactNode
   ariaLabelledBy?: string
-  className?: string
+  colorBackground?: string
 }
 
 export default function ErrorPageLayout({
   title,
   children,
   ariaLabelledBy,
-  className,
+  colorBackground,
 }: Readonly<ErrorPageLayoutProps>) {
   return (
     <>
@@ -21,7 +21,7 @@ export default function ErrorPageLayout({
       <main
         role='main'
         aria-labelledby={ariaLabelledBy}
-        className={`flex flex-col justify-center min-h-screen w-full py-10 px-4 sm:px-10 ${className ?? ''}`}
+        className={`flex flex-col justify-center min-h-screen w-full py-10 px-4 sm:px-10 ${colorBackground ?? ''}`}
       >
         <div className='shadow-m flex flex-col justify-center w-full max-w-[800px] mx-auto p-4 sm:p-8 box-border bg-white rounded-xl'>
           {children}

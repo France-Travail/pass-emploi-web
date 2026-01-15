@@ -31,7 +31,7 @@ function MigrationJeunePage({
     <ErrorPageLayout
       title={titleText}
       ariaLabelledBy={titleId}
-      className='bg-[#EEF1F8]'
+      colorBackground='bg-primary-lighten'
     >
       <div className='hidden layout-xs:flex justify-center'>
         <IllustrationComponent
