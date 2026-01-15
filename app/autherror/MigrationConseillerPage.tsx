@@ -12,7 +12,11 @@ function MigrationConseillerPage() {
   const titleText = 'Information importante'
 
   return (
-    <ErrorPageLayout title={titleText} ariaLabelledBy={titleId}>
+    <ErrorPageLayout
+      title={titleText}
+      ariaLabelledBy={titleId}
+      colorBackground='bg-primary-lighten'
+    >
       <div className='hidden layout-xs:flex justify-center'>
         <IllustrationComponent
           name={IllustrationName.MigrationParcoursEmploiConseiller}
