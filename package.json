@@ -28,7 +28,7 @@
     "dotvault": "^0.0.9",
     "elastic-apm-node": "4.15.0",
     "emoji-dictionary": "^1.0.12",
-    "firebase": "12.7.0",
+    "firebase": "12.8.0",
     "html-react-parser": "5.2.11",
     "jsonwebtoken": "^9.0.3",
     "lodash.isequal": "4.5.0",
