@@ -25,7 +25,7 @@ type FormulaireBeneficiaireFranceTravailProps = {
   creerBeneficiaireFranceTravail: (
     nouveauBeneficiaire: BeneficiaireFranceTravailFormData
   ) => void
-  emailBeneficiaireExistant: (mail: string) => boolean
+  emailBeneficiaireExistant: (mail: string) => Promise<boolean>
   creationEnCours: boolean
   listes?: Liste[]
 }
@@ -154,7 +154,7 @@ function FormulaireBeneficiaireFranceTravail({
     etapeRef.current?.focus()
   }
 
-  function handleVerifierMailBeneficiaire(e: FormEvent<HTMLFormElement>) {
+  async function handleVerifierMailBeneficiaire(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const isValid = validerMail()
 
@@ -164,7 +164,9 @@ function FormulaireBeneficiaireFranceTravail({
     }
 
     if (isValid && !creationEnCours) {
-      const emailExistant: boolean = emailBeneficiaireExistant(email.value)
+      const emailExistant: boolean = await emailBeneficiaireExistant(
+        email.value
+      )
       if (!emailExistant) {
         setEtape(2)
         etapeRef.current?.focus()
