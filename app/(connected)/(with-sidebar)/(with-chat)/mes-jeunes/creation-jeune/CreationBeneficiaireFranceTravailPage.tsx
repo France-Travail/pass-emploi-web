@@ -18,9 +18,10 @@ import { usePortefeuille } from 'utils/portefeuilleContext'
 
 import AlertLink from '../../../../../../components/ui/Notifications/AlertLink'
 
-interface EmailEtId {
+interface EmailExistantError {
   email: string
-  id: string
+  id: string | undefined
+  type: 'PORTEFEUILLE_CONSEILLER' | 'AUTRE_CONSEILLER'
 }
 
 function CreationBeneficiaireFranceTravailPage({
@@ -35,7 +36,7 @@ function CreationBeneficiaireFranceTravailPage({
 
   const [creationError, setCreationError] = useState<string>()
   const [emailExistantError, setEmailExistantError] = useState<
-    EmailEtId | undefined
+    EmailExistantError | undefined
   >()
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
 
@@ -86,24 +87,51 @@ function CreationBeneficiaireFranceTravailPage({
     }
   }
 
-  function emailBeneficiaireExistant(email: string): boolean {
+  async function emailBeneficiaireExistant(email: string): Promise<boolean> {
     setCreationError(undefined)
+    setEmailExistantError(undefined)
 
     const emailNormalise = email.trim().toLowerCase()
 
-    const emailExistant = portefeuille.find((beneficiairePortefeuille) => {
+    // Vérifier dans le portefeuille local du conseiller
+    const beneficiaire = portefeuille.find((beneficiairePortefeuille) => {
       const emailPortefeuilleNormalise = beneficiairePortefeuille.email
         ?.trim()
         .toLowerCase()
       return emailPortefeuilleNormalise === emailNormalise
     })
-    if (emailExistant) {
-      setEmailExistantError({ email, id: emailExistant.id })
-    } else {
-      setEmailExistantError(undefined)
+
+    if (beneficiaire) {
+      setEmailExistantError({
+        email,
+        id: beneficiaire.id,
+        type: 'PORTEFEUILLE_CONSEILLER',
+      })
+      return true
     }
 
-    return emailExistant !== undefined
+    try {
+      const { verifierEmailExistantBeneficiaireFranceTravail } =
+        await import('services/beneficiaires.service')
+      const emailExistant =
+        await verifierEmailExistantBeneficiaireFranceTravail(email)
+
+      if (emailExistant) {
+        setEmailExistantError({
+          email,
+          id: undefined,
+          type: 'AUTRE_CONSEILLER',
+        })
+        return true
+      }
+
+      return false
+    } catch (error) {
+      setCreationError(
+        (error as Error).message || "Une erreur inconnue s'est produite"
+      )
+      return true
+    }
   }
 
   useMatomo(
@@ -120,7 +148,7 @@ function CreationBeneficiaireFranceTravailPage({
         />
       )}
 
-      {emailExistantError && (
+      {emailExistantError?.type === 'PORTEFEUILLE_CONSEILLER' && (
         <FailureAlert
           label={`Le compte associé à cette adresse e-mail ${emailExistantError.email} est déjà présent dans votre portefeuille`}
           onAcknowledge={() => setEmailExistantError(undefined)}
@@ -130,6 +158,16 @@ function CreationBeneficiaireFranceTravailPage({
             label='Voir la fiche du bénéficiaire'
             type='warning'
           />
+        </FailureAlert>
+      )}
+
+      {emailExistantError?.type === 'AUTRE_CONSEILLER' && (
+        <FailureAlert
+          label='Compte déjà rattaché à un autre conseiller'
+          onAcknowledge={() => setEmailExistantError(undefined)}
+        >
+          Le compte associé à cette adresse e-mail {emailExistantError.email}{' '}
+          est déjà présent dans le portefeuille d&apos;un autre conseiller
         </FailureAlert>
       )}
 

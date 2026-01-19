@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
@@ -74,6 +74,11 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       boutonContinuer = screen.getByRole('button', {
         name: 'Continuer',
       })
+
+      // Attendre que les mises à jour asynchrones se stabilisent
+      await waitFor(() => {
+        expect(container).toBeInTheDocument()
+      })
     })
 
     describe('quand le formulaire est à la première étape (vérification du mail)', () => {
@@ -105,8 +110,12 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           await userEvent.click(boutonContinuer)
 
           // Then
+          const alert = screen.getByRole('alert', {
+            name: 'Le formulaire contient 1 erreur(s).',
+          })
+          expect(alert).toBeInTheDocument()
           expect(
-            screen.getByText("Veuillez renseigner l'e-mail du bénéficiaire")
+            within(alert).getByText('Le champ Email est vide.')
           ).toBeInTheDocument()
           expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
         })
@@ -123,12 +132,16 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           await userEvent.click(boutonContinuer)
         })
 
-        it("demande le remplissage de l'email", async () => {
+        it("affiche un message d'erreur", async () => {
           // Then
+          const alert = screen.getByRole('alert', {
+            name: `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`,
+          })
+          expect(alert).toBeInTheDocument()
           expect(
-            screen.getByText(
-              `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`
-            )
+            within(alert).getByRole('link', {
+              name: 'Voir la fiche du bénéficiaire',
+            })
           ).toBeInTheDocument()
           expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
         })
@@ -142,13 +155,79 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
 
           // Then
           expect(
-            screen.queryByText(
-              `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`
-            )
+            screen.queryByRole('alert', {
+              name: `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`,
+            })
           ).not.toBeInTheDocument()
           expect(
             screen.getByText("Renseignez l'identité du bénéficiaire")
           ).toBeInTheDocument()
+        })
+      })
+
+      describe("quand on continue avec un mail déjà existant dans le portefeuille d'un autre conseiller FT", () => {
+        it("affiche un message d'erreur", async () => {
+          // Given
+          const emailAutreConseiller = 'autre.conseiller@example.com'
+          const { verifierEmailExistantBeneficiaireFranceTravail } =
+            await import('services/beneficiaires.service')
+          ;(
+            verifierEmailExistantBeneficiaireFranceTravail as jest.Mock
+          ).mockResolvedValueOnce(true)
+
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailAutreConseiller)
+
+          // When
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          await waitFor(() => {
+            expect(
+              screen.queryByText(`Renseignez l'identité du bénéficiaire`)
+            ).not.toBeInTheDocument()
+          })
+          const alert = screen.getByRole('alert', {
+            name: 'Compte déjà rattaché à un autre conseiller',
+          })
+          expect(alert).toBeInTheDocument()
+          expect(
+            within(alert).getByText(
+              `Le compte associé à cette adresse e-mail ${emailAutreConseiller} est déjà présent dans le portefeuille d'un autre conseiller`
+            )
+          ).toBeInTheDocument()
+        })
+      })
+
+      describe("quand la vérification de l'email échoue", () => {
+        it("affiche un message d'erreur", async () => {
+          // Given
+          const emailAVerifier = 'test@example.com'
+          const messageErreur = 'Erreur de connexion au serveur'
+          const { verifierEmailExistantBeneficiaireFranceTravail } =
+            await import('services/beneficiaires.service')
+          ;(
+            verifierEmailExistantBeneficiaireFranceTravail as jest.Mock
+          ).mockRejectedValueOnce(new Error(messageErreur))
+
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailAVerifier)
+
+          // When
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          await waitFor(() => {
+            expect(
+              screen.queryByText(`Renseignez l'identité du bénéficiaire`)
+            ).not.toBeInTheDocument()
+          })
+          const alert = screen.getByRole('alert', {
+            name: messageErreur,
+          })
+          expect(alert).toBeInTheDocument()
         })
       })
     })
@@ -182,47 +261,26 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       })
 
       describe('quand on soumet le formulaire avec un champ incorrect', () => {
-        beforeEach(async () => {
-          // Given
-          const inputFirstname = screen.getByLabelText('* Prénom')
-          await userEvent.type(inputFirstname, 'Ginette')
-          const inputName = screen.getByLabelText('* Nom')
-          await userEvent.type(inputName, 'Claude')
-        })
-
         it('a11y', async () => {
           const results = await axe(container)
           expect(results).toHaveNoViolations()
         })
 
         it('demande le remplissage du prénom', async () => {
-          // Given
-          const inputFirstname = screen.getByLabelText('* Prénom')
-          await userEvent.clear(inputFirstname)
-
           // When
           await userEvent.click(submitButton)
 
           // Then
+          const alert = screen.getByRole('alert', {
+            name: 'Le formulaire contient 2 erreur(s).',
+          })
+          expect(alert).toBeInTheDocument()
           expect(
-            screen.getByText('Veuillez renseigner le prénom du bénéficiaire')
+            within(alert).getByText('Le champ Prénom est vide.')
           ).toBeInTheDocument()
-          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
-        })
-
-        it('demande le remplissage du nom', async () => {
-          // Given
-          const inputName = screen.getByLabelText('* Nom')
-          await userEvent.clear(inputName)
-
-          // When
-          await userEvent.click(submitButton)
-
-          // Then
           expect(
-            screen.getByText('Veuillez renseigner le nom du bénéficiaire')
+            within(alert).getByText('Le champ Nom est vide.')
           ).toBeInTheDocument()
-          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
         })
       })
 
@@ -286,7 +344,9 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           // Then
           expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
           await waitFor(() => {
-            expect(screen.getByText("un message d'erreur")).toBeInTheDocument()
+            expect(
+              screen.getByRole('alert', { name: "un message d'erreur" })
+            ).toBeInTheDocument()
           })
         })
       })
@@ -341,7 +401,13 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           name: 'Créer le compte bénéficiaire',
         })
       })
+
+      // Attendre que les mises à jour asynchrones se stabilisent
+      await waitFor(() => {
+        expect(container).toBeInTheDocument()
+      })
     })
+
     it('a11y', async () => {
       const results = await axe(container)
       expect(results).toHaveNoViolations()
@@ -446,22 +512,6 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           'id-beneficiaire-4'
         )
         expect(push).toHaveBeenCalledWith('/mes-jeunes')
-      })
-
-      it("devrait afficher un message d'erreur en cas de création de compte en échec", async () => {
-        // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockRejectedValue({
-          message: "un message d'erreur",
-        })
-
-        // When
-        await userEvent.click(submitButton)
-
-        // Then
-        expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
-        await waitFor(() => {
-          expect(screen.getByText("un message d'erreur")).toBeInTheDocument()
-        })
       })
     })
   })
