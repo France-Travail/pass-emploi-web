@@ -25,11 +25,11 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useChatCredentials } from 'utils/chat/chatCredentialsContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
-
+;``
 type PartageOffrePageProps = {
-  offre: DetailOffre
-  listes?: Liste[]
-  returnTo: string
+  readonly offre: DetailOffre
+  readonly listes?: Liste[]
+  readonly returnTo: string
 }
 
 function PartageOffrePage({
