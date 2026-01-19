@@ -139,6 +139,18 @@ export async function createCompteJeuneFranceTravail(newJeune: {
   return jsonToBaseBeneficiaire(content)
 }
 
+export async function verifierEmailExistantBeneficiaireFranceTravail(
+  email: string
+): Promise<boolean> {
+  const session = await getSession()
+  const { content } = await apiPost<{ emailExistant: boolean }>(
+    `/conseillers/pole-emploi/verifier-email-beneficiaire`,
+    { email },
+    session!.accessToken
+  )
+  return content.emailExistant
+}
+
 export async function getIdJeuneMilo(
   numeroDossier: string,
   accessToken: string
