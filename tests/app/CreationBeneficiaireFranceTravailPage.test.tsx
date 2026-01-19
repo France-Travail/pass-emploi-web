@@ -132,7 +132,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           await userEvent.click(boutonContinuer)
         })
 
-        it("demande le remplissage de l'email", async () => {
+        it("affiche un message d'erreur", async () => {
           // Then
           const alert = screen.getByRole('alert', {
             name: `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`,
@@ -197,6 +197,37 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
               `Le compte associé à cette adresse e-mail ${emailAutreConseiller} est déjà présent dans le portefeuille d'un autre conseiller`
             )
           ).toBeInTheDocument()
+        })
+      })
+
+      describe("quand la vérification de l'email échoue", () => {
+        it("affiche un message d'erreur", async () => {
+          // Given
+          const emailAVerifier = 'test@example.com'
+          const messageErreur = 'Erreur de connexion au serveur'
+          const { verifierEmailExistantBeneficiaireFranceTravail } =
+            await import('services/beneficiaires.service')
+          ;(
+            verifierEmailExistantBeneficiaireFranceTravail as jest.Mock
+          ).mockRejectedValueOnce(new Error(messageErreur))
+
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailAVerifier)
+
+          // When
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          await waitFor(() => {
+            expect(
+              screen.queryByText(`Renseignez l'identité du bénéficiaire`)
+            ).not.toBeInTheDocument()
+          })
+          const alert = screen.getByRole('alert', {
+            name: messageErreur,
+          })
+          expect(alert).toBeInTheDocument()
         })
       })
     })

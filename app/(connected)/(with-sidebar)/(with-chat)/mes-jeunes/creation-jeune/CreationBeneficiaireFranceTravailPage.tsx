@@ -148,21 +148,20 @@ function CreationBeneficiaireFranceTravailPage({
         />
       )}
 
-      {emailExistantError &&
-        emailExistantError.type === 'PORTEFEUILLE_CONSEILLER' && (
-          <FailureAlert
-            label={`Le compte associé à cette adresse e-mail ${emailExistantError.email} est déjà présent dans votre portefeuille`}
-            onAcknowledge={() => setEmailExistantError(undefined)}
-          >
-            <AlertLink
-              href={`/mes-jeunes/${emailExistantError.id}`}
-              label='Voir la fiche du bénéficiaire'
-              type='warning'
-            />
-          </FailureAlert>
-        )}
+      {emailExistantError?.type === 'PORTEFEUILLE_CONSEILLER' && (
+        <FailureAlert
+          label={`Le compte associé à cette adresse e-mail ${emailExistantError.email} est déjà présent dans votre portefeuille`}
+          onAcknowledge={() => setEmailExistantError(undefined)}
+        >
+          <AlertLink
+            href={`/mes-jeunes/${emailExistantError.id}`}
+            label='Voir la fiche du bénéficiaire'
+            type='warning'
+          />
+        </FailureAlert>
+      )}
 
-      {emailExistantError && emailExistantError.type === 'AUTRE_CONSEILLER' && (
+      {emailExistantError?.type === 'AUTRE_CONSEILLER' && (
         <FailureAlert
           label='Compte déjà rattaché à un autre conseiller'
           onAcknowledge={() => setEmailExistantError(undefined)}

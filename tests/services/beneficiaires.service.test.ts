@@ -52,6 +52,7 @@ import {
   rechercheBeneficiairesDeLEtablissement,
   renvoyerEmailActivation,
   supprimerJeuneInactif,
+  verifierEmailExistantBeneficiaireFranceTravail,
 } from 'services/beneficiaires.service'
 import { Periode } from 'types/dates'
 import { ApiError } from 'utils/httpClient'
@@ -860,6 +861,54 @@ describe('JeunesApiService', () => {
         nbHeuresDeclarees,
         nbHeuresValidees,
       })
+    })
+  })
+
+  describe('.verifierEmailExistantBeneficiaireFranceTravail', () => {
+    it("retourne true si l'email existe déjà", async () => {
+      // Given
+      const email = 'test@example.com'
+      ;(getSession as jest.Mock).mockResolvedValue({
+        user: { id: 'id-conseiller-1' },
+        accessToken: 'accessToken',
+      })
+      ;(apiPost as jest.Mock).mockResolvedValue({
+        content: { emailExistant: true },
+      })
+
+      // When
+      const actual = await verifierEmailExistantBeneficiaireFranceTravail(email)
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/conseillers/pole-emploi/verifier-email-beneficiaire',
+        { email },
+        'accessToken'
+      )
+      expect(actual).toEqual(true)
+    })
+
+    it("retourne false si l'email n'existe pas", async () => {
+      // Given
+      const email = 'nouveau@example.com'
+      ;(getSession as jest.Mock).mockResolvedValue({
+        user: { id: 'id-conseiller-1' },
+        accessToken: 'accessToken',
+      })
+      ;(apiPost as jest.Mock).mockResolvedValue({
+        content: { emailExistant: false },
+      })
+
+      // When
+      const actual = await verifierEmailExistantBeneficiaireFranceTravail(email)
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/conseillers/pole-emploi/verifier-email-beneficiaire',
+        { email },
+        'accessToken'
+      )
+      expect(actual).toEqual(false)
     })
   })
 })
