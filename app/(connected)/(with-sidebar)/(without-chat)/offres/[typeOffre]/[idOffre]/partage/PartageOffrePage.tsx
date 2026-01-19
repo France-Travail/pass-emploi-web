@@ -25,7 +25,7 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useChatCredentials } from 'utils/chat/chatCredentialsContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
-;``
+
 type PartageOffrePageProps = {
   readonly offre: DetailOffre
   readonly listes?: Liste[]
