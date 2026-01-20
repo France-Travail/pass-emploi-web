@@ -5,11 +5,13 @@ import { notFound } from 'next/navigation'
 import PartageOffre from 'app/(connected)/(with-sidebar)/(without-chat)/offres/[typeOffre]/[idOffre]/partage/page'
 import PartageOffrePage from 'app/(connected)/(with-sidebar)/(without-chat)/offres/[typeOffre]/[idOffre]/partage/PartageOffrePage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
+import { desListes } from 'fixtures/listes'
 import {
   unDetailImmersion,
   unDetailOffreEmploi,
   unDetailServiceCivique,
 } from 'fixtures/offre'
+import { Liste } from 'interfaces/liste'
 import {
   DetailImmersion,
   DetailOffreEmploi,
@@ -17,6 +19,7 @@ import {
 } from 'interfaces/offre'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
 import { getImmersionServerSide } from 'services/immersions.service'
+import { getListesServerSide } from 'services/listes.service'
 import { getOffreEmploiServerSide } from 'services/offres-emploi.service'
 import { getServiceCiviqueServerSide } from 'services/services-civiques.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -29,17 +32,20 @@ jest.mock('services/offres-emploi.service')
 jest.mock('services/services-civiques.service')
 jest.mock('services/immersions.service')
 jest.mock('services/beneficiaires.service')
+jest.mock('services/listes.service')
 
 describe('Page Partage Offre', () => {
   let offreEmploi: DetailOffreEmploi
   let serviceCivique: DetailServiceCivique
   let immersion: DetailImmersion
+  let listes: Liste[]
 
   beforeEach(() => {
     // Given
     offreEmploi = unDetailOffreEmploi()
     serviceCivique = unDetailServiceCivique()
     immersion = unDetailImmersion()
+    listes = desListes()
     ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
       user: { id: 'id-conseiller-1' },
       accessToken: 'accessToken',
@@ -52,6 +58,7 @@ describe('Page Partage Offre', () => {
     ;(getBeneficiairesDuConseillerServerSide as jest.Mock).mockResolvedValue(
       desItemsBeneficiaires()
     )
+    ;(getListesServerSide as jest.Mock).mockResolvedValue(listes)
     ;(headers as jest.Mock).mockReturnValue(
       new Map([['referer', 'referer-url']])
     )
@@ -73,6 +80,7 @@ describe('Page Partage Offre', () => {
     expect(PartageOffrePage).toHaveBeenCalledWith(
       {
         offre: offreEmploi,
+        listes,
         returnTo: 'referer-url',
       },
       undefined
@@ -98,6 +106,7 @@ describe('Page Partage Offre', () => {
     expect(PartageOffrePage).toHaveBeenCalledWith(
       {
         offre: serviceCivique,
+        listes,
         returnTo: 'referer-url',
       },
       undefined
@@ -123,6 +132,7 @@ describe('Page Partage Offre', () => {
     expect(PartageOffrePage).toHaveBeenCalledWith(
       {
         offre: immersion,
+        listes,
         returnTo: 'referer-url',
       },
       undefined
@@ -164,6 +174,7 @@ describe('Page Partage Offre', () => {
     // Then
     expect(PartageOffrePage).toHaveBeenCalledWith(
       expect.objectContaining({
+        listes,
         returnTo: '/offres',
       }),
       undefined
