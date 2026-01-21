@@ -89,5 +89,5 @@ jobs:
         run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
       - name: Yarn audit
-        run: yarn npm audit --severity high
+        run: yarn npm audit --recursive --severity high
         continue-on-error: false
