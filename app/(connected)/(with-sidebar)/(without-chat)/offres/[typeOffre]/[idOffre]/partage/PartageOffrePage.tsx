@@ -113,6 +113,8 @@ function PartageOffrePage({
         idsDestinataires,
         cleChiffrement: chatCredentials!.cleChiffrement,
         message: message || messageDefault,
+        aDesBeneficiairesDirects: idsBeneficiairesDirects.length > 0,
+        aDesListesDeDiffusion: idsListes.length > 0,
       })
       setAlerte(AlerteParam.partageOffre)
       router.push(returnTo)

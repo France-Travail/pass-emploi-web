@@ -179,6 +179,8 @@ describe('PartageOffrePage client side', () => {
           idsDestinataires: [jeunes[2].id, jeunes[0].id],
           cleChiffrement: 'cleChiffrement',
           message,
+          aDesBeneficiairesDirects: true,
+          aDesListesDeDiffusion: false,
         })
       })
 
@@ -196,6 +198,8 @@ describe('PartageOffrePage client side', () => {
           cleChiffrement: 'cleChiffrement',
           message:
             'Bonjour, je vous partage une offre d’emploi qui pourrait vous intéresser.',
+          aDesBeneficiairesDirects: true,
+          aDesListesDeDiffusion: false,
         })
       })
 
@@ -280,6 +284,8 @@ describe('PartageOffrePage client side', () => {
         idsDestinataires: [listes[0].beneficiaires[0].id],
         cleChiffrement: 'cleChiffrement',
         message,
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
       })
     })
 
@@ -309,6 +315,8 @@ describe('PartageOffrePage client side', () => {
         ]),
         cleChiffrement: 'cleChiffrement',
         message,
+        aDesBeneficiairesDirects: true,
+        aDesListesDeDiffusion: true,
       })
     })
 
@@ -338,6 +346,8 @@ describe('PartageOffrePage client side', () => {
         ]),
         cleChiffrement: 'cleChiffrement',
         message,
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
       })
     })
 
@@ -358,6 +368,8 @@ describe('PartageOffrePage client side', () => {
         idsDestinataires: [listes[0].beneficiaires[0].id],
         cleChiffrement: 'cleChiffrement',
         message: expect.stringContaining('offre d'),
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
       })
     })
 

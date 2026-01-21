@@ -604,6 +604,8 @@ describe('MessagesFirebaseAndApiService', () => {
         idsDestinataires: idsJeunes,
         message: newMessageGroupe,
         cleChiffrement,
+        aDesBeneficiairesDirects: true,
+        aDesListesDeDiffusion: false,
       })
     })
 
@@ -650,12 +652,87 @@ describe('MessagesFirebaseAndApiService', () => {
       )
     })
 
-    it('tracks partage d’offre', () => {
+    it('envoie MESSAGE_OFFRE_PARTAGEE pour bénéficiaires directs', () => {
       // Then
       expect(apiPost).toHaveBeenCalledWith(
         '/evenements',
         {
           type: 'MESSAGE_OFFRE_PARTAGEE',
+          emetteur: {
+            type: 'CONSEILLER',
+            structure: 'MILO',
+            id: 'id-conseiller-1',
+          },
+        },
+        accessToken
+      )
+    })
+
+    it('envoie MESSAGE_ENVOYE_MULTIPLE_OFFRE pour listes de diffusion', async () => {
+      // Given
+      ;(apiPost as jest.Mock).mockClear()
+
+      // When
+      await partagerOffre({
+        offre,
+        idsDestinataires: idsJeunes,
+        message: newMessageGroupe,
+        cleChiffrement,
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
+      })
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/evenements',
+        {
+          type: 'MESSAGE_ENVOYE_MULTIPLE_OFFRE',
+          emetteur: {
+            type: 'CONSEILLER',
+            structure: 'MILO',
+            id: 'id-conseiller-1',
+          },
+        },
+        accessToken
+      )
+      expect(apiPost).not.toHaveBeenCalledWith(
+        '/evenements',
+        expect.objectContaining({ type: 'MESSAGE_OFFRE_PARTAGEE' }),
+        accessToken
+      )
+    })
+
+    it('tracks les deux événements quand bénéficiaires directs et listes de diffusion', async () => {
+      // Given
+      ;(apiPost as jest.Mock).mockClear()
+
+      // When
+      await partagerOffre({
+        offre,
+        idsDestinataires: idsJeunes,
+        message: newMessageGroupe,
+        cleChiffrement,
+        aDesBeneficiairesDirects: true,
+        aDesListesDeDiffusion: true,
+      })
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/evenements',
+        {
+          type: 'MESSAGE_OFFRE_PARTAGEE',
+          emetteur: {
+            type: 'CONSEILLER',
+            structure: 'MILO',
+            id: 'id-conseiller-1',
+          },
+        },
+        accessToken
+      )
+      expect(apiPost).toHaveBeenCalledWith(
+        '/evenements',
+        {
+          type: 'MESSAGE_ENVOYE_MULTIPLE_OFFRE',
           emetteur: {
             type: 'CONSEILLER',
             structure: 'MILO',
