@@ -73,6 +73,8 @@ type PartageOffre = {
   idsDestinataires: string[]
   cleChiffrement: string
   message: string
+  aDesBeneficiairesDirects: boolean
+  aDesListesDeDiffusion: boolean
 }
 
 type PartageAction = {
@@ -99,6 +101,7 @@ type MessageTypeEvenement =
   | 'MESSAGE_IMPORTANT_MODIFIE'
   | 'MESSAGE_IMPORTANT_SUPPRIME'
   | 'MESSAGE_ACTION_COMMENTEE'
+  | 'MESSAGE_ENVOYE_MULTIPLE_OFFRE'
 
 export async function getChatCredentials(): Promise<ChatCredentials> {
   const session = await getSession()
@@ -440,6 +443,8 @@ export async function partagerOffre({
   idsDestinataires,
   message,
   offre,
+  aDesBeneficiairesDirects,
+  aDesListesDeDiffusion,
 }: PartageOffre) {
   const session = await getSession()
   const now = DateTime.now()
@@ -451,7 +456,13 @@ export async function partagerOffre({
     date: now,
   }
 
-  await envoyerPartageOffre(idsDestinataires, nouveauMessage, session!)
+  await envoyerPartageOffre(
+    idsDestinataires,
+    nouveauMessage,
+    session!,
+    aDesBeneficiairesDirects,
+    aDesListesDeDiffusion
+  )
 }
 
 export async function commenterAction({
@@ -543,7 +554,9 @@ export async function supprimerMessage(
 async function envoyerPartageOffre(
   idsDestinataires: string[],
   nouveauMessage: CreateFirebaseMessagePartageOffre,
-  session: Session
+  session: Session,
+  aDesBeneficiairesDirects: boolean,
+  aDesListesDeDiffusion: boolean
 ) {
   const chats = await getChatsDuConseiller(session.user.id)
   const chatsDestinataires = Object.entries(chats)
@@ -565,18 +578,37 @@ async function envoyerPartageOffre(
     ),
   ])
 
+  const evenements: Promise<void>[] = []
+
+  if (aDesBeneficiairesDirects) {
+    evenements.push(
+      evenementMessage(
+        'MESSAGE_OFFRE_PARTAGEE',
+        session.user.structure,
+        session.user.id,
+        session.accessToken
+      )
+    )
+  }
+
+  if (aDesListesDeDiffusion) {
+    evenements.push(
+      evenementMessage(
+        'MESSAGE_ENVOYE_MULTIPLE_OFFRE',
+        session.user.structure,
+        session.user.id,
+        session.accessToken
+      )
+    )
+  }
+
   await Promise.all([
     notifierNouveauMessage(
       session.user.id,
       idsDestinataires,
       session.accessToken
     ),
-    evenementMessage(
-      'MESSAGE_OFFRE_PARTAGEE',
-      session.user.structure,
-      session.user.id,
-      session.accessToken
-    ),
+    ...evenements,
   ])
 }
 

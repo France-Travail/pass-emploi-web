@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation'
 
 import PartageOffrePage from 'app/(connected)/(with-sidebar)/(without-chat)/offres/[typeOffre]/[idOffre]/partage/PartageOffrePage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
+import { desListes } from 'fixtures/listes'
 import {
   unDetailImmersion,
   unDetailOffreEmploi,
   unDetailServiceCivique,
 } from 'fixtures/offre'
 import { IdentiteBeneficiaire } from 'interfaces/beneficiaire'
+import { Liste } from 'interfaces/liste'
 import {
   DetailImmersion,
   DetailOffre,
@@ -131,7 +133,9 @@ describe('PartageOffrePage client side', () => {
         //Then
         expect(partagerOffre).not.toHaveBeenCalled()
         expect(
-          screen.getByText(/Le champ ”Destinataires” est vide./)
+          screen.getByText(
+            /Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire./
+          )
         ).toBeInTheDocument()
       })
     })
@@ -175,6 +179,8 @@ describe('PartageOffrePage client side', () => {
           idsDestinataires: [jeunes[2].id, jeunes[0].id],
           cleChiffrement: 'cleChiffrement',
           message,
+          aDesBeneficiairesDirects: true,
+          aDesListesDeDiffusion: false,
         })
       })
 
@@ -192,6 +198,8 @@ describe('PartageOffrePage client side', () => {
           cleChiffrement: 'cleChiffrement',
           message:
             'Bonjour, je vous partage une offre d’emploi qui pourrait vous intéresser.',
+          aDesBeneficiairesDirects: true,
+          aDesListesDeDiffusion: false,
         })
       })
 
@@ -203,6 +211,181 @@ describe('PartageOffrePage client side', () => {
         expect(alerteSetter).toHaveBeenCalledWith('partageOffre')
         expect(push).toHaveBeenCalledWith('/return/to')
       })
+    })
+  })
+
+  describe('avec listes de diffusion', () => {
+    let offre: DetailOffre
+    let jeunes: IdentiteBeneficiaire[]
+    let listes: Liste[]
+
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    let push: () => void
+    beforeEach(async () => {
+      alerteSetter = jest.fn()
+      push = jest.fn(async () => {})
+      ;(useRouter as jest.Mock).mockReturnValue({ push })
+
+      offre = unDetailOffreEmploi()
+      jeunes = desItemsBeneficiaires()
+      listes = desListes()
+      ;(partagerOffre as jest.Mock).mockResolvedValue({})
+      ;({ container } = await renderWithContexts(
+        <PartageOffrePage
+          offre={offre}
+          listes={listes}
+          returnTo='/return/to'
+        />,
+        {
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+    })
+
+    it('valide le formulaire si une liste est sélectionnée', async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+      const buttonValider = screen.getByRole('button', { name: 'Envoyer' })
+
+      // When
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+      await userEvent.click(buttonValider)
+
+      // Then
+      expect(partagerOffre).toHaveBeenCalled()
+      expect(
+        screen.queryByText(
+          /Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire./
+        )
+      ).not.toBeInTheDocument()
+    })
+
+    it("partage l'offre avec les bénéficiaires de la liste", async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+      const inputMessage: HTMLTextAreaElement = screen.getByRole('textbox', {
+        name: /Message/,
+      })
+      const buttonValider = screen.getByRole('button', { name: 'Envoyer' })
+      const message = "Regarde cette offre qui pourrait t'intéresser."
+
+      // When
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+      await userEvent.type(inputMessage, message)
+      await userEvent.click(buttonValider)
+
+      // Then
+      expect(partagerOffre).toHaveBeenCalledWith({
+        offre,
+        idsDestinataires: [listes[0].beneficiaires[0].id],
+        cleChiffrement: 'cleChiffrement',
+        message,
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
+      })
+    })
+
+    it("partage l'offre avec les bénéficiaires directs et ceux des listes sans doublons", async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+      const inputMessage: HTMLTextAreaElement = screen.getByRole('textbox', {
+        name: /Message/,
+      })
+      const buttonValider = screen.getByRole('button', { name: 'Envoyer' })
+      const message = "Regarde cette offre qui pourrait t'intéresser."
+
+      // When - sélectionne un bénéficiaire et une liste
+      await userEvent.type(selectJeune, 'Sanfamiye Nadia')
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+      await userEvent.type(inputMessage, message)
+      await userEvent.click(buttonValider)
+
+      // Then
+      expect(partagerOffre).toHaveBeenCalledWith({
+        offre,
+        idsDestinataires: expect.arrayContaining([
+          jeunes[1].id,
+          listes[0].beneficiaires[0].id,
+        ]),
+        cleChiffrement: 'cleChiffrement',
+        message,
+        aDesBeneficiairesDirects: true,
+        aDesListesDeDiffusion: true,
+      })
+    })
+
+    it('sélectionne plusieurs listes', async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+      const inputMessage: HTMLTextAreaElement = screen.getByRole('textbox', {
+        name: /Message/,
+      })
+      const buttonValider = screen.getByRole('button', { name: 'Envoyer' })
+      const message = "Regarde cette offre qui pourrait t'intéresser."
+
+      // When
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+      await userEvent.type(selectJeune, 'Liste métiers pâtisserie (1)')
+      await userEvent.type(inputMessage, message)
+      await userEvent.click(buttonValider)
+
+      // Then
+      expect(partagerOffre).toHaveBeenCalledWith({
+        offre,
+        idsDestinataires: expect.arrayContaining([
+          listes[0].beneficiaires[0].id,
+          listes[1].beneficiaires[0].id,
+        ]),
+        cleChiffrement: 'cleChiffrement',
+        message,
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
+      })
+    })
+
+    it("partage l'offre avec un message par défaut quand une liste est sélectionnée", async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+      const buttonValider = screen.getByRole('button', { name: 'Envoyer' })
+
+      // When
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+      await userEvent.click(buttonValider)
+
+      // Then
+      expect(partagerOffre).toHaveBeenCalledWith({
+        offre,
+        idsDestinataires: [listes[0].beneficiaires[0].id],
+        cleChiffrement: 'cleChiffrement',
+        message: expect.stringContaining('offre d'),
+        aDesBeneficiairesDirects: false,
+        aDesListesDeDiffusion: true,
+      })
+    })
+
+    it('affiche les listes sélectionnées', async () => {
+      // Given
+      const selectJeune = screen.getByRole('combobox', {
+        name: /Bénéficiaires/,
+      })
+
+      // When
+      await userEvent.type(selectJeune, 'Liste export international (1)')
+
+      // Then
+      expect(
+        screen.getByText('Liste export international (1)')
+      ).toBeInTheDocument()
     })
   })
 

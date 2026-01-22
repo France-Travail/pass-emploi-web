@@ -2,7 +2,7 @@
 
 import { withTransaction } from '@elastic/apm-rum-react'
 import { useRouter } from 'next/navigation'
-import React, { FormEvent, ReactElement, useState } from 'react'
+import React, { FormEvent, ReactElement, useMemo, useState } from 'react'
 
 import BeneficiairesMultiselectAutocomplete, {
   OptionBeneficiaire,
@@ -16,8 +16,8 @@ import Etape from 'components/ui/Form/Etape'
 import Label from 'components/ui/Form/Label'
 import Textarea from 'components/ui/Form/Textarea'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
-import { ValueWithError } from 'components/ValueWithError'
 import { getNomBeneficiaireComplet } from 'interfaces/beneficiaire'
+import { Liste } from 'interfaces/liste'
 import { DetailOffre, TypeOffre } from 'interfaces/offre'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
@@ -26,31 +26,40 @@ import { useChatCredentials } from 'utils/chat/chatCredentialsContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 type PartageOffrePageProps = {
-  offre: DetailOffre
-  returnTo: string
+  readonly offre: DetailOffre
+  readonly listes?: Liste[]
+  readonly returnTo: string
 }
 
-function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
+function PartageOffrePage({
+  offre,
+  listes = [],
+  returnTo,
+}: PartageOffrePageProps) {
   const chatCredentials = useChatCredentials()
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
 
   const [portefeuille] = usePortefeuille()
-  const [idsDestinataires, setIdsDestinataires] = useState<
-    ValueWithError<string[]>
-  >({ value: [] })
+  const [idsBeneficiairesDirects, setIdsBeneficiairesDirects] = useState<
+    string[]
+  >([])
+  const [idsListes, setIdsListes] = useState<string[]>([])
   const [message, setMessage] = useState<string | undefined>()
   const [isPartageEnCours, setIsPartageEnCours] = useState<boolean>(false)
+  const [errorDestinataires, setErrorDestinataires] = useState<
+    string | undefined
+  >(undefined)
 
   function formIsValid(): boolean {
-    const idsDestinatairesEstValide = Boolean(idsDestinataires.value.length > 0)
-    if (!idsDestinatairesEstValide)
-      setIdsDestinataires({
-        ...idsDestinataires,
-        error:
-          'Le champ ”Destinataires” est vide. Sélectionnez au moins un destinataire.',
-      })
-    return idsDestinatairesEstValide
+    const isValid = idsDestinataires.length > 0
+
+    if (!isValid) {
+      setErrorDestinataires(
+        'Le champ "Destinataires" est vide. Sélectionnez au moins un destinataire.'
+      )
+    }
+    return isValid
   }
 
   function buildOptionsJeunes(): OptionBeneficiaire[] {
@@ -62,31 +71,50 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
 
   function updateIdsDestinataires(selectedIds: {
     beneficiaires?: string[]
-    listes?: string[]
+    listeListes?: string[]
   }) {
-    setIdsDestinataires({
-      value: selectedIds.beneficiaires!,
-      error: !selectedIds.beneficiaires!.length
-        ? 'Le champ ”Destinataires” est vide. Sélectionnez au moins un destinataire.'
-        : undefined,
-    })
+    if (selectedIds.beneficiaires !== undefined) {
+      setIdsBeneficiairesDirects(selectedIds.beneficiaires)
+    }
+
+    if (selectedIds.listeListes !== undefined) {
+      setIdsListes(selectedIds.listeListes)
+    }
+
+    if (
+      (selectedIds.beneficiaires && selectedIds.beneficiaires.length > 0) ||
+      (selectedIds.listeListes && selectedIds.listeListes.length > 0) ||
+      idsBeneficiairesDirects.length > 0 ||
+      idsListes.length > 0
+    ) {
+      setErrorDestinataires(undefined)
+    }
   }
+
+  const idsDestinataires = useMemo(() => {
+    const idsDesListes = listes
+      .filter((liste) => idsListes.includes(liste.id))
+      .flatMap((liste) => liste.beneficiaires.map((b) => b.id))
+
+    return Array.from(new Set([...idsBeneficiairesDirects, ...idsDesListes]))
+  }, [idsBeneficiairesDirects, idsListes, listes])
 
   async function partager(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!formIsValid()) return
 
     setIsPartageEnCours(true)
-
     const messageDefault = getDefaultMessage(offre.type)
 
     try {
       const { partagerOffre } = await import('services/messages.service')
       await partagerOffre({
         offre,
-        idsDestinataires: idsDestinataires.value,
+        idsDestinataires,
         cleChiffrement: chatCredentials!.cleChiffrement,
         message: message || messageDefault,
+        aDesBeneficiairesDirects: idsBeneficiairesDirects.length > 0,
+        aDesListesDeDiffusion: idsListes.length > 0,
       })
       setAlerte(AlerteParam.partageOffre)
       router.push(returnTo)
@@ -118,9 +146,10 @@ function PartageOffrePage({ offre, returnTo }: PartageOffrePageProps) {
           <BeneficiairesMultiselectAutocomplete
             id={'select-beneficiaires'}
             beneficiaires={buildOptionsJeunes()}
+            listes={listes}
             typeSelection='Bénéficiaires'
             onUpdate={updateIdsDestinataires}
-            error={idsDestinataires.error}
+            error={errorDestinataires}
           />
         </Etape>
 
