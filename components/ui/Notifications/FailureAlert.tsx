@@ -16,10 +16,11 @@ export default function FailureAlert({
   shouldFocus,
   className,
   children,
-}: FailureMessageProps) {
+}: Readonly<FailureMessageProps>) {
   return (
     <div
       role='alert'
+      aria-label={label}
       className={
         'text-warning bg-warning-lighten p-6 flex flex-col rounded-base mb-8 ' +
         (className ?? '')

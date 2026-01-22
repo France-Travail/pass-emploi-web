@@ -17,11 +17,11 @@ export function PortefeuilleProvider({
   children,
   portefeuille,
   setterForTests,
-}: {
+}: Readonly<{
   children: ReactNode
   portefeuille: Portefeuille
   setterForTests?: (updatedBeneficiaires: Portefeuille) => void
-}) {
+}>) {
   const [state, setPortefeuille] = useState<Portefeuille>(portefeuille)
   const setter = setterForTests ?? setPortefeuille
 

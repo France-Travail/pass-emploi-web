@@ -121,10 +121,8 @@ export async function getConseillersDuJeuneServerSide(
 export async function getConseillersDuJeuneClientSide(
   idJeune: string
 ): Promise<ConseillerHistorique[]> {
-  {
-    const session = await getSession()
-    return getConseillersDuBeneficiaire(idJeune, session!.accessToken)
-  }
+  const session = await getSession()
+  return getConseillersDuBeneficiaire(idJeune, session!.accessToken)
 }
 
 export async function createCompteJeuneFranceTravail(newJeune: {
@@ -139,6 +137,18 @@ export async function createCompteJeuneFranceTravail(newJeune: {
     session!.accessToken
   )
   return jsonToBaseBeneficiaire(content)
+}
+
+export async function verifierEmailExistantBeneficiaireFranceTravail(
+  email: string
+): Promise<boolean> {
+  const session = await getSession()
+  const { content } = await apiPost<{ emailExistant: boolean }>(
+    `/conseillers/pole-emploi/verifier-email-beneficiaire`,
+    { email },
+    session!.accessToken
+  )
+  return content.emailExistant
 }
 
 export async function getIdJeuneMilo(
@@ -361,19 +371,17 @@ async function getConseillersDuBeneficiaire(
   idBeneficiaire: string,
   accessToken: string
 ): Promise<ConseillerHistorique[]> {
-  {
-    try {
-      const { content: historique } = await apiGet<ConseillerHistoriqueJson[]>(
-        `/jeunes/${idBeneficiaire}/conseillers`,
-        accessToken
-      )
-      return historique.map(toConseillerHistorique)
-    } catch (e) {
-      if (e instanceof ApiError && e.statusCode === 404) {
-        return []
-      }
-      throw e
+  try {
+    const { content: historique } = await apiGet<ConseillerHistoriqueJson[]>(
+      `/jeunes/${idBeneficiaire}/conseillers`,
+      accessToken
+    )
+    return historique.map(toConseillerHistorique)
+  } catch (e) {
+    if (e instanceof ApiError && e.statusCode === 404) {
+      return []
     }
+    throw e
   }
 }
 

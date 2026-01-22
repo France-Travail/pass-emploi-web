@@ -1,14 +1,10 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
 
 import CreationBeneficiaireFranceTravailPage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/creation-jeune/CreationBeneficiaireFranceTravailPage'
-import {
-  desItemsBeneficiaires,
-  uneBaseBeneficiaire,
-} from 'fixtures/beneficiaire'
 import { desListes } from 'fixtures/listes'
 import {
   extractBeneficiaireWithActivity,
@@ -21,103 +17,88 @@ import { createCompteJeuneFranceTravail } from 'services/beneficiaires.service'
 import { ajouterBeneficiaireAListe } from 'services/listes.service'
 import renderWithContexts from 'tests/renderWithContexts'
 
+import { unItemBeneficiaire } from '../../fixtures/beneficiaire'
+
 jest.mock('services/beneficiaires.service')
 jest.mock('services/listes.service')
 
 describe('CreationBeneficiaireFranceTravailPage client side', () => {
   let container: HTMLElement
   let submitButton: HTMLElement
+  let boutonContinuer: HTMLElement
+  const emailBeneficiairePortefeuillle = 'nadia.sanfamiye@mail.fr'
+
+  const portefeuille: Portefeuille = [
+    unItemBeneficiaire({
+      id: 'id-beneficiaire-2',
+      prenom: 'Nadia',
+      nom: 'Sanfamiye',
+      lastActivity: '2022-01-30T17:30:07.756Z',
+      email: emailBeneficiairePortefeuillle,
+    }),
+    unItemBeneficiaire({
+      id: 'id-beneficiaire-3',
+      prenom: 'Maria',
+      nom: "D'Aböville-Muñoz François",
+      lastActivity: '2022-02-07T17:30:07.756Z',
+      dateFinCEJ: '2022-06-11T00:00:00.000+00:00',
+      email: 'maria.daboville-munoz-francois@example.com',
+    }),
+  ].map(extractBeneficiaireWithActivity)
+  const emailExistant = portefeuille[0].email
 
   let push: () => void
   let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
   let portefeuilleSetter: (updatedBeneficiaires: Portefeuille) => void
-  let portefeuille: Portefeuille
-  const emailLabel: string = '* E-mail (ex : monemail@exemple.com)'
+  const emailLabel: string = '* E-mail (Obligatoire)'
   beforeEach(async () => {
     push = jest.fn()
     ;(useRouter as jest.Mock).mockReturnValue({ push })
     alerteSetter = jest.fn()
     portefeuilleSetter = jest.fn()
-    portefeuille = desItemsBeneficiaires().map(extractBeneficiaireWithActivity)
   })
 
-  describe('quand le conseiller n’est pas Avenir Pro', () => {
+  describe("quand le conseiller n'est pas Avenir Pro", () => {
     beforeEach(async () => {
       ;({ container } = await renderWithContexts(
         <CreationBeneficiaireFranceTravailPage />,
         {
           customAlerte: { setter: alerteSetter },
-          customPortefeuille: { setter: portefeuilleSetter },
+          customPortefeuille: {
+            value: portefeuille,
+            setter: portefeuilleSetter,
+          },
         }
       ))
 
-      submitButton = screen.getByRole('button', {
-        name: 'Créer le compte',
+      boutonContinuer = screen.getByRole('button', {
+        name: 'Continuer',
+      })
+
+      // Attendre que les mises à jour asynchrones se stabilisent
+      await waitFor(() => {
+        expect(container).toBeInTheDocument()
       })
     })
 
-    describe("quand le formulaire n'a pas encore été soumis", () => {
+    describe('quand le formulaire est à la première étape (vérification du mail)', () => {
       it('a11y', async () => {
         const results = await axe(container)
         expect(results).toHaveNoViolations()
       })
 
-      it('devrait afficher les champ de création de compte', () => {
+      it('devrait afficher le champ email', () => {
         // Then
         expect(
-          screen.getByText(
-            'Saisissez les coordonnées du bénéficiaire pour lequel vous voulez créer un compte'
-          )
+          screen.getByText("Renseignez l'adresse mail du bénéficiaire")
         ).toBeInTheDocument()
-        expect(screen.getByLabelText('* Prénom')).toBeInTheDocument()
-        expect(screen.getByLabelText('* Nom')).toBeInTheDocument()
         expect(screen.getByLabelText(emailLabel)).toBeInTheDocument()
       })
 
-      describe('quand on soumet le formulaire avec un champ incorrect', () => {
-        beforeEach(async () => {
-          // Given
-          const inputFirstname = screen.getByLabelText('* Prénom')
-          await userEvent.type(inputFirstname, 'Nadia')
-          const inputName = screen.getByLabelText('* Nom')
-          await userEvent.type(inputName, 'Sanfamiye')
-          const inputEmail = screen.getByLabelText(emailLabel)
-          await userEvent.type(inputEmail, 'nadia.sanfamiye@francetravail.fr')
-        })
-
+      describe('quand on continue avec le champ email incorrect', () => {
         it('a11y', async () => {
           const results = await axe(container)
           expect(results).toHaveNoViolations()
-        })
-
-        it('demande le remplissage du prénom', async () => {
-          // Given
-          const inputFirstname = screen.getByLabelText('* Prénom')
-          await userEvent.clear(inputFirstname)
-
-          // When
-          await userEvent.click(submitButton)
-
-          // Then
-          expect(
-            screen.getByText('Veuillez renseigner le prénom du bénéficiaire')
-          ).toBeInTheDocument()
-          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
-        })
-
-        it('demande le remplissage du nom', async () => {
-          // Given
-          const inputName = screen.getByLabelText('* Nom')
-          await userEvent.clear(inputName)
-
-          // When
-          await userEvent.click(submitButton)
-
-          // Then
-          expect(
-            screen.getByText('Veuillez renseigner le nom du bénéficiaire')
-          ).toBeInTheDocument()
-          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
         })
 
         it("demande le remplissage de l'email", async () => {
@@ -126,95 +107,269 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           await userEvent.clear(inputEmail)
 
           // When
-          await userEvent.click(submitButton)
+          await userEvent.click(boutonContinuer)
 
           // Then
+          const alert = screen.getByRole('alert', {
+            name: 'Le formulaire contient 1 erreur(s).',
+          })
+          expect(alert).toBeInTheDocument()
           expect(
-            screen.getByText("Veuillez renseigner l'e-mail du bénéficiaire")
+            within(alert).getByText('Le champ Email est vide.')
           ).toBeInTheDocument()
           expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
         })
       })
+
+      describe('quand on continue avec un mail déjà existant dans le portefeuille', () => {
+        beforeEach(async () => {
+          // Given
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailExistant!)
+
+          // When
+          await userEvent.click(boutonContinuer)
+        })
+
+        it("affiche un message d'erreur", async () => {
+          // Then
+          const alert = screen.getByRole('alert', {
+            name: `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`,
+          })
+          expect(alert).toBeInTheDocument()
+          expect(
+            within(alert).getByRole('link', {
+              name: 'Voir la fiche du bénéficiaire',
+            })
+          ).toBeInTheDocument()
+          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(0)
+        })
+
+        it("masque l'erreur quand on corrige l'email et qu'on continue", async () => {
+          // When
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, 'nouvel.email@example.com')
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          expect(
+            screen.queryByRole('alert', {
+              name: `Le compte associé à cette adresse e-mail ${emailExistant} est déjà présent dans votre portefeuille`,
+            })
+          ).not.toBeInTheDocument()
+          expect(
+            screen.getByText("Renseignez l'identité du bénéficiaire")
+          ).toBeInTheDocument()
+        })
+      })
+
+      describe("quand on continue avec un mail déjà existant dans le portefeuille d'un autre conseiller FT", () => {
+        it("affiche un message d'erreur", async () => {
+          // Given
+          const emailAutreConseiller = 'autre.conseiller@example.com'
+          const { verifierEmailExistantBeneficiaireFranceTravail } =
+            await import('services/beneficiaires.service')
+          ;(
+            verifierEmailExistantBeneficiaireFranceTravail as jest.Mock
+          ).mockResolvedValueOnce(true)
+
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailAutreConseiller)
+
+          // When
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          await waitFor(() => {
+            expect(
+              screen.queryByText(`Renseignez l'identité du bénéficiaire`)
+            ).not.toBeInTheDocument()
+          })
+          const alert = screen.getByRole('alert', {
+            name: 'Compte déjà rattaché à un autre conseiller',
+          })
+          expect(alert).toBeInTheDocument()
+          expect(
+            within(alert).getByText(
+              `Le compte associé à cette adresse e-mail ${emailAutreConseiller} est déjà présent dans le portefeuille d'un autre conseiller`
+            )
+          ).toBeInTheDocument()
+        })
+      })
+
+      describe("quand la vérification de l'email échoue", () => {
+        it("affiche un message d'erreur", async () => {
+          // Given
+          const emailAVerifier = 'test@example.com'
+          const messageErreur = 'Erreur de connexion au serveur'
+          const { verifierEmailExistantBeneficiaireFranceTravail } =
+            await import('services/beneficiaires.service')
+          ;(
+            verifierEmailExistantBeneficiaireFranceTravail as jest.Mock
+          ).mockRejectedValueOnce(new Error(messageErreur))
+
+          const inputEmail = screen.getByLabelText(emailLabel)
+          await userEvent.clear(inputEmail)
+          await userEvent.type(inputEmail, emailAVerifier)
+
+          // When
+          await userEvent.click(boutonContinuer)
+
+          // Then
+          await waitFor(() => {
+            expect(
+              screen.queryByText(`Renseignez l'identité du bénéficiaire`)
+            ).not.toBeInTheDocument()
+          })
+          const alert = screen.getByRole('alert', {
+            name: messageErreur,
+          })
+          expect(alert).toBeInTheDocument()
+        })
+      })
     })
 
-    describe('quand le formulaire a été soumis', () => {
-      const now = DateTime.now()
+    describe("quand le formulaire est à la deuxième étape (informations d'identité)", () => {
       beforeEach(async () => {
-        // Given
-        jest.spyOn(DateTime, 'now').mockReturnValue(now)
-        const inputFirstname = screen.getByLabelText('* Prénom')
-        await userEvent.type(inputFirstname, 'Nadia')
-        const inputName = screen.getByLabelText('* Nom')
-        await userEvent.type(inputName, 'Sanfamiye')
         const inputEmail = screen.getByLabelText(emailLabel)
-        await userEvent.type(inputEmail, 'nadia.sanfamiye@francetravail.fr')
+        await userEvent.clear(inputEmail)
+        await userEvent.type(inputEmail, 'ginette.claude@email.com')
+        await userEvent.click(boutonContinuer)
+
+        submitButton = await waitFor(() => {
+          return screen.getByRole('button', {
+            name: 'Créer le compte bénéficiaire',
+          })
+        })
       })
 
       it('a11y', async () => {
-        // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue(
-          uneBaseBeneficiaire()
-        )
-
-        // When
-        await userEvent.click(submitButton)
-
-        //Then
         const results = await axe(container)
         expect(results).toHaveNoViolations()
       })
 
-      it('devrait revenir sur la page des jeunes du conseiller', async () => {
-        // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue(
-          uneBaseBeneficiaire()
-        )
-
-        // When
-        await userEvent.click(submitButton)
-
+      it("devrait afficher les champs d'identité du bénéficiaire", () => {
         // Then
-        expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
-        expect(createCompteJeuneFranceTravail).toHaveBeenCalledWith({
-          firstName: 'Nadia',
-          lastName: 'Sanfamiye',
-          email: 'nadia.sanfamiye@francetravail.fr',
-        })
-
-        expect(portefeuilleSetter).toHaveBeenCalledWith([
-          ...portefeuille,
-          {
-            ...uneBaseBeneficiaire(),
-            creationDate: now.toISO(),
-            estAArchiver: false,
-          },
-        ])
-        expect(alerteSetter).toHaveBeenCalledWith(
-          'creationBeneficiaire',
-          'id-beneficiaire-1'
-        )
-        expect(push).toHaveBeenCalledWith('/mes-jeunes')
+        expect(
+          screen.getByText("Renseignez l'identité du bénéficiaire")
+        ).toBeInTheDocument()
+        expect(screen.getByLabelText('* Prénom')).toBeInTheDocument()
+        expect(screen.getByLabelText('* Nom')).toBeInTheDocument()
       })
 
-      it("devrait afficher un message d'erreur en cas de création de compte en échec", async () => {
-        // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockRejectedValue({
-          message: "un message d'erreur",
+      describe('quand on soumet le formulaire avec un champ incorrect', () => {
+        it('a11y', async () => {
+          const results = await axe(container)
+          expect(results).toHaveNoViolations()
         })
 
-        // When
-        await userEvent.click(submitButton)
+        it('demande le remplissage du prénom', async () => {
+          // When
+          await userEvent.click(submitButton)
 
-        // Then
-        expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
-        await waitFor(() => {
-          expect(screen.getByText("un message d'erreur")).toBeInTheDocument()
+          // Then
+          const alert = screen.getByRole('alert', {
+            name: 'Le formulaire contient 2 erreur(s).',
+          })
+          expect(alert).toBeInTheDocument()
+          expect(
+            within(alert).getByText('Le champ Prénom est vide.')
+          ).toBeInTheDocument()
+          expect(
+            within(alert).getByText('Le champ Nom est vide.')
+          ).toBeInTheDocument()
+        })
+      })
+
+      describe('quand on soumet le formulaire avec les champs corrects', () => {
+        const now = DateTime.now()
+        beforeEach(async () => {
+          // Given
+          jest.spyOn(DateTime, 'now').mockReturnValue(now)
+          const inputFirstname = screen.getByLabelText('* Prénom')
+          await userEvent.type(inputFirstname, 'Ginette')
+          const inputName = screen.getByLabelText('* Nom')
+          await userEvent.type(inputName, 'Claude')
+        })
+
+        it('devrait revenir sur la page des jeunes du conseiller', async () => {
+          // Given
+          ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue({
+            id: 'id-beneficiaire-4',
+            prenom: 'Ginette',
+            nom: 'Claude',
+          })
+
+          // When
+          await userEvent.click(submitButton)
+
+          // Then
+          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
+          expect(createCompteJeuneFranceTravail).toHaveBeenCalledWith({
+            firstName: 'Ginette',
+            lastName: 'Claude',
+            email: 'ginette.claude@email.com',
+          })
+
+          expect(portefeuilleSetter).toHaveBeenCalledWith([
+            ...portefeuille,
+            {
+              id: 'id-beneficiaire-4',
+              prenom: 'Ginette',
+              nom: 'Claude',
+              creationDate: now.toISO(),
+              estAArchiver: false,
+              email: 'ginette.claude@email.com',
+            },
+          ])
+          expect(alerteSetter).toHaveBeenCalledWith(
+            'creationBeneficiaire',
+            'id-beneficiaire-4'
+          )
+          expect(push).toHaveBeenCalledWith('/mes-jeunes')
+        })
+
+        it("devrait afficher un message d'erreur en cas de création de compte en échec", async () => {
+          // Given
+          ;(createCompteJeuneFranceTravail as jest.Mock).mockRejectedValue({
+            message: "un message d'erreur",
+          })
+
+          // When
+          await userEvent.click(submitButton)
+
+          // Then
+          expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
+          await waitFor(() => {
+            expect(
+              screen.getByRole('alert', { name: "un message d'erreur" })
+            ).toBeInTheDocument()
+          })
+        })
+      })
+
+      describe("quand on revient à l'étape précédente", () => {
+        it("devrait revenir sur l'étape de renseignement du mail", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: "Retour à l'étape 1 : saisie de l'adresse email Retour",
+            })
+          )
+
+          // Then
+          expect(
+            screen.getByText("Renseignez l'adresse mail du bénéficiaire")
+          ).toBeInTheDocument()
         })
       })
     })
   })
 
-  describe('quand le conseiller est Avenir Pro', () => {
+  describe('quand le conseiller est Avenir Pro et le formulaire à la deuxième étape', () => {
     let listes: Liste[]
     beforeEach(async () => {
       listes = desListes()
@@ -222,15 +377,34 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
         <CreationBeneficiaireFranceTravailPage listes={listes} />,
         {
           customAlerte: { setter: alerteSetter },
-          customPortefeuille: { setter: portefeuilleSetter },
+          customPortefeuille: {
+            value: portefeuille,
+            setter: portefeuilleSetter,
+          },
           customConseiller: {
             structure: structureAvenirPro,
           },
         }
       ))
 
-      submitButton = screen.getByRole('button', {
-        name: 'Créer le compte',
+      boutonContinuer = screen.getByRole('button', {
+        name: 'Continuer',
+      })
+
+      const inputEmail = screen.getByLabelText(emailLabel)
+      await userEvent.clear(inputEmail)
+      await userEvent.type(inputEmail, 'ginette.claude@email.com')
+      await userEvent.click(boutonContinuer)
+
+      submitButton = await waitFor(() => {
+        return screen.getByRole('button', {
+          name: 'Créer le compte bénéficiaire',
+        })
+      })
+
+      // Attendre que les mises à jour asynchrones se stabilisent
+      await waitFor(() => {
+        expect(container).toBeInTheDocument()
       })
     })
 
@@ -270,11 +444,9 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
         // Given
         jest.spyOn(DateTime, 'now').mockReturnValue(now)
         const inputFirstname = screen.getByLabelText('* Prénom')
-        await userEvent.type(inputFirstname, 'Nadia')
+        await userEvent.type(inputFirstname, 'Ginette')
         const inputName = screen.getByLabelText('* Nom')
-        await userEvent.type(inputName, 'Sanfamiye')
-        const inputEmail = screen.getByLabelText(emailLabel)
-        await userEvent.type(inputEmail, 'nadia.sanfamiye@francetravail.fr')
+        await userEvent.type(inputName, 'Claude')
         const selectListe = screen.getByLabelText(
           '* Sélectionnez la liste du bénéficiaire'
         )
@@ -288,7 +460,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       it('a11y', async () => {
         // Given
         ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue(
-          uneBaseBeneficiaire()
+          portefeuille
         )
 
         // When
@@ -301,9 +473,11 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
 
       it('devrait revenir sur la page des jeunes du conseiller', async () => {
         // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue(
-          uneBaseBeneficiaire()
-        )
+        ;(createCompteJeuneFranceTravail as jest.Mock).mockResolvedValue({
+          id: 'id-beneficiaire-4',
+          prenom: 'Ginette',
+          nom: 'Claude',
+        })
         ;(ajouterBeneficiaireAListe as jest.Mock).mockResolvedValue({})
 
         // When
@@ -312,45 +486,32 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
         // Then
         expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
         expect(createCompteJeuneFranceTravail).toHaveBeenCalledWith({
-          firstName: 'Nadia',
-          lastName: 'Sanfamiye',
-          email: 'nadia.sanfamiye@francetravail.fr',
+          firstName: 'Ginette',
+          lastName: 'Claude',
+          email: 'ginette.claude@email.com',
         })
         expect(ajouterBeneficiaireAListe).toHaveBeenCalledWith(
           listes[0].id,
-          'id-beneficiaire-1',
+          'id-beneficiaire-4',
           'id-conseiller-1'
         )
 
         expect(portefeuilleSetter).toHaveBeenCalledWith([
           ...portefeuille,
           {
-            ...uneBaseBeneficiaire(),
+            id: 'id-beneficiaire-4',
+            prenom: 'Ginette',
+            nom: 'Claude',
             creationDate: now.toISO(),
             estAArchiver: false,
+            email: 'ginette.claude@email.com',
           },
         ])
         expect(alerteSetter).toHaveBeenCalledWith(
           'creationBeneficiaire',
-          'id-beneficiaire-1'
+          'id-beneficiaire-4'
         )
         expect(push).toHaveBeenCalledWith('/mes-jeunes')
-      })
-
-      it("devrait afficher un message d'erreur en cas de création de compte en échec", async () => {
-        // Given
-        ;(createCompteJeuneFranceTravail as jest.Mock).mockRejectedValue({
-          message: "un message d'erreur",
-        })
-
-        // When
-        await userEvent.click(submitButton)
-
-        // Then
-        expect(createCompteJeuneFranceTravail).toHaveBeenCalledTimes(1)
-        await waitFor(() => {
-          expect(screen.getByText("un message d'erreur")).toBeInTheDocument()
-        })
       })
     })
   })

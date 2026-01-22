@@ -17,10 +17,6 @@ function sauvegardeHistorique(history: EmailActivation[]) {
 
 export function peutRenvoyerEmailActivation(idBeneficiaire: string): boolean {
   const historiqueRenvois = recupereHistoriqueRenvois()
-  console.log(
-    `Stockage du renvoi d'email pour l'id ${idBeneficiaire}`,
-    historiqueRenvois
-  )
   const entry = historiqueRenvois.find(
     (renvoi) => renvoi.idBeneficiaire === idBeneficiaire
   )
