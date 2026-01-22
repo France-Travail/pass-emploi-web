@@ -44,6 +44,7 @@ export const unBeneficiaireWithActivity = (
     creationDate: '2020-04-12T05:30:07.756Z',
     lastActivity: '2021-12-07T17:30:07.756Z',
     estAArchiver: false,
+    idPartenaire: 'id-partenaire-1',
   }
   return { ...defaults, ...overrides }
 }
@@ -182,6 +183,7 @@ export const unItemBeneficiaireJson = (
     creationDate: '2020-04-12T05:30:07.756Z',
     lastActivity: '2021-12-07T17:30:07.756Z',
     dispositif: 'CEJ',
+    idPartenaire: 'id-partenaire-1',
   }
   return { ...defaults, ...overrides }
 }

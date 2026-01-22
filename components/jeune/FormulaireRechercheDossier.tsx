@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useRef, useState } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 
 import IndicationRechercheDossier from 'components/jeune/IndicationRechercheDossier'
 import Button from 'components/ui/Button/Button'
@@ -13,7 +13,6 @@ type FormulaireRechercheDossierProps = {
 
 export default function FormulaireRechercheDossier({
   onRechercheDossier,
-  errMessage,
 }: Readonly<FormulaireRechercheDossierProps>) {
   const [idDossier, setIdDossier] = useState<string | undefined>()
   const [messageErreur, setMessageErreur] = useState<string | undefined>()
@@ -42,11 +41,6 @@ export default function FormulaireRechercheDossier({
     setMessageErreur(undefined)
     setIdDossier(value)
   }
-
-  useEffect(() => {
-    setMessageErreur(errMessage)
-    if (errMessage) inputRef.current!.focus()
-  }, [errMessage])
 
   return (
     <>

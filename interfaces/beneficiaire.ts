@@ -65,6 +65,7 @@ export type BeneficiaireWithActivity = IdentiteBeneficiaire & {
   lastActivity?: string
   dateFinCEJ?: string
   email?: string
+  idPartenaire?: string
 }
 
 type BaseBeneficiaire = BeneficiaireWithActivity & {
@@ -287,5 +288,6 @@ export function extractBeneficiaireWithActivity(
     dateFinCEJ: beneficiaire.dateFinCEJ,
     estAArchiver: beneficiaire.estAArchiver,
     email: beneficiaire.email,
+    idPartenaire: beneficiaire.idPartenaire,
   }
 }

@@ -241,62 +241,48 @@ function DossierBeneficiaireMilo(
         </div>
       )}
 
-      <div className='mt-14'>
-        {erreurMessageCreationCompte && (
-          <InputError
-            className='mb-2'
-            id='creation-button--error'
-            ref={(e) => e?.focus()}
+      <div className='flex items-center gap-4 mt-10'>
+        <Button
+          style={ButtonStyle.TERTIARY}
+          onClick={onRetour}
+          ref={retourButtonRef}
+        >
+          <IconComponent
+            name={IconName.ArrowBackward}
+            className='mr-2.5 w-3 h-3'
+            role='img'
+            focusable={false}
+            aria-label="Retour Création d'un compte bénéficiaire étape 1"
+          />
+          Retour
+        </Button>
+
+        {dossier.email && (
+          <Button
+            id='creation-button'
+            type='button'
+            onClick={() => addBeneficiaire()}
+            isLoading={creationEnCours}
+            disabled={Boolean(
+              erreurMessageCreationCompte || beneficiaireExisteDejaMilo
+            )}
+            describedBy={erreurMessageCreationCompte}
           >
-            {erreurMessageCreationCompte}
-          </InputError>
+            Créer le compte
+          </Button>
         )}
 
-        <div className='flex items-center gap-4'>
-          <Button
-            style={ButtonStyle.TERTIARY}
-            onClick={onRetour}
-            ref={retourButtonRef}
-          >
+        {!dossier.email && (
+          <Button type='button' onClick={onRefresh}>
             <IconComponent
-              name={IconName.ArrowBackward}
-              className='mr-2.5 w-3 h-3'
-              role='img'
+              name={IconName.Refresh}
+              className='w-4 h-4 mr-2.5'
+              aria-hidden={true}
               focusable={false}
-              aria-label="Retour Création d'un compte bénéficiaire étape 1"
             />
-            Retour
+            Rafraîchir le compte
           </Button>
-
-          {dossier.email && (
-            <Button
-              id='creation-button'
-              type='button'
-              onClick={() => addBeneficiaire()}
-              isLoading={creationEnCours}
-              disabled={Boolean(
-                erreurMessageCreationCompte || beneficiaireExisteDejaMilo
-              )}
-              describedBy={
-                erreurMessageCreationCompte && 'creation-button--error'
-              }
-            >
-              Créer le compte
-            </Button>
-          )}
-
-          {!dossier.email && (
-            <Button type='button' onClick={onRefresh}>
-              <IconComponent
-                name={IconName.Refresh}
-                className='w-4 h-4 mr-2.5'
-                aria-hidden={true}
-                focusable={false}
-              />
-              Rafraîchir le compte
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
       {afficherModalActivationCompteur && (
