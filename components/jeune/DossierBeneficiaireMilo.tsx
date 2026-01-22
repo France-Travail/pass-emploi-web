@@ -171,6 +171,7 @@ function DossierBeneficiaireMilo(
               className='mr-2'
               onClick={() => choisirDispositif(Dispositif.CEJ)}
             />
+            {''}
             Contrat d’Engagement Jeune (CEJ)
           </label>
           <label htmlFor='dispositif-pacea' className='block py-2'>
@@ -181,6 +182,7 @@ function DossierBeneficiaireMilo(
               className='mr-2'
               onClick={() => choisirDispositif(Dispositif.PACEA)}
             />
+            {''}
             Parcours contractualisé d’accompagnement vers l’emploi et
             l’autonomie (PACEA)
           </label>
@@ -267,22 +269,20 @@ function DossierBeneficiaireMilo(
           </Button>
 
           {dossier.email && (
-            <>
-              <Button
-                id='creation-button'
-                type='button'
-                onClick={() => addBeneficiaire()}
-                isLoading={creationEnCours}
-                disabled={Boolean(
-                  erreurMessageCreationCompte || beneficiaireExisteDejaMilo
-                )}
-                describedBy={
-                  erreurMessageCreationCompte && 'creation-button--error'
-                }
-              >
-                Créer le compte
-              </Button>
-            </>
+            <Button
+              id='creation-button'
+              type='button'
+              onClick={() => addBeneficiaire()}
+              isLoading={creationEnCours}
+              disabled={Boolean(
+                erreurMessageCreationCompte || beneficiaireExisteDejaMilo
+              )}
+              describedBy={
+                erreurMessageCreationCompte && 'creation-button--error'
+              }
+            >
+              Créer le compte
+            </Button>
           )}
 
           {!dossier.email && (

@@ -48,18 +48,19 @@ function CreationBeneficiaireMiloPage() {
 
   async function creerCompteJeune(
     beneficiaireData: BeneficiaireMiloFormData,
-    options: { surcharge: boolean } = { surcharge: false }
+    options?: { surcharge?: boolean }
   ) {
+    const { surcharge = false } = options ?? {}
+
     setErreurCreation(undefined)
     setCompteBeneficiaireExisteDeja(false)
 
     try {
       const { createCompteJeuneMilo } =
         await import('services/conseiller.service')
-      const beneficiaireCree = await createCompteJeuneMilo(
-        beneficiaireData,
-        options
-      )
+      const beneficiaireCree = await createCompteJeuneMilo(beneficiaireData, {
+        surcharge,
+      })
 
       setPortefeuille(
         portefeuille.concat({

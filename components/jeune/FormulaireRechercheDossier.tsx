@@ -14,7 +14,7 @@ type FormulaireRechercheDossierProps = {
 export default function FormulaireRechercheDossier({
   onRechercheDossier,
   errMessage,
-}: FormulaireRechercheDossierProps) {
+}: Readonly<FormulaireRechercheDossierProps>) {
   const [idDossier, setIdDossier] = useState<string | undefined>()
   const [messageErreur, setMessageErreur] = useState<string | undefined>()
   const [rechercheEnCours, setRechercheEnCours] = useState<boolean>(false)
