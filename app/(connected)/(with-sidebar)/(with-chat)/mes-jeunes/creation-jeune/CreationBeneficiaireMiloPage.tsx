@@ -16,6 +16,13 @@ import { ApiError } from 'utils/httpClient'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 import LabelDeuxEtapes from '../../../../../../components/ui/Form/LabelDeuxEtapes'
+import AlertLink from '../../../../../../components/ui/Notifications/AlertLink'
+import FailureAlert from '../../../../../../components/ui/Notifications/FailureAlert'
+
+interface EmailExistantError {
+  email?: string
+  id: string | undefined
+}
 
 function CreationBeneficiaireMiloPage() {
   const router = useRouter()
@@ -28,11 +35,22 @@ function CreationBeneficiaireMiloPage() {
   const [dossier, setDossier] = useState<DossierMilo | undefined>()
   const [erreurDossier, setErreurDossier] = useState<string | undefined>()
   const [erreurCreation, setErreurCreation] = useState<string | undefined>()
+  const [erreurEmailExistantPortefeuille, setErreurEmailExistantPortefeuille] =
+    useState<EmailExistantError | undefined>()
   const [compteBeneficiaireExisteDeja, setCompteBeneficiaireExisteDeja] =
     useState<boolean>(false)
 
   async function rechercherDossier(id: string) {
     clearDossier()
+
+    const beneficiaire = portefeuille.find((b) => b.idPartenaire === id)
+    if (beneficiaire) {
+      setErreurEmailExistantPortefeuille({
+        email: beneficiaire.email,
+        id: beneficiaire.id,
+      })
+      return
+    }
 
     try {
       const { getDossierJeune } = await import('services/conseiller.service')
@@ -48,18 +66,19 @@ function CreationBeneficiaireMiloPage() {
 
   async function creerCompteJeune(
     beneficiaireData: BeneficiaireMiloFormData,
-    options: { surcharge: boolean } = { surcharge: false }
+    options?: { surcharge?: boolean }
   ) {
+    const { surcharge = false } = options ?? {}
+
     setErreurCreation(undefined)
     setCompteBeneficiaireExisteDeja(false)
 
     try {
       const { createCompteJeuneMilo } =
         await import('services/conseiller.service')
-      const beneficiaireCree = await createCompteJeuneMilo(
-        beneficiaireData,
-        options
-      )
+      const beneficiaireCree = await createCompteJeuneMilo(beneficiaireData, {
+        surcharge,
+      })
 
       setPortefeuille(
         portefeuille.concat({
@@ -86,6 +105,7 @@ function CreationBeneficiaireMiloPage() {
     setErreurDossier(undefined)
     setDossier(undefined)
     setErreurCreation(undefined)
+    setErreurEmailExistantPortefeuille(undefined)
     setCompteBeneficiaireExisteDeja(false)
   }
 
@@ -98,14 +118,38 @@ function CreationBeneficiaireMiloPage() {
 
   return (
     <>
+      {erreurCreation && (
+        <FailureAlert
+          label={erreurCreation}
+          onAcknowledge={() => setErreurCreation(undefined)}
+        />
+      )}
+
+      {erreurDossier && (
+        <FailureAlert
+          label={erreurDossier}
+          onAcknowledge={() => setErreurDossier(undefined)}
+        />
+      )}
+
+      {erreurEmailExistantPortefeuille && (
+        <FailureAlert
+          label={`Le compte associé à cette adresse e-mail ${erreurEmailExistantPortefeuille.email} est déjà présent dans votre portefeuille`}
+          onAcknowledge={() => setErreurEmailExistantPortefeuille(undefined)}
+        >
+          <AlertLink
+            href={`/mes-jeunes/${erreurEmailExistantPortefeuille.id}`}
+            label='Voir la fiche du bénéficiaire'
+            type='warning'
+          />
+        </FailureAlert>
+      )}
+
       <LabelDeuxEtapes etape={dossier ? 2 : 1} ref={etapeRef} />
 
       {!dossier && (
         <div className='mt-4'>
-          <FormulaireRechercheDossier
-            onRechercheDossier={rechercherDossier}
-            errMessage={erreurDossier}
-          />
+          <FormulaireRechercheDossier onRechercheDossier={rechercherDossier} />
         </div>
       )}
 
