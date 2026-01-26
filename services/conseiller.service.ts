@@ -96,9 +96,11 @@ export async function getDossierJeune(
 
 export async function createCompteJeuneMilo(
   newJeune: BeneficiaireMiloFormData,
-  { surcharge }: { surcharge: boolean }
+  options?: { surcharge?: boolean }
 ): Promise<IdentiteBeneficiaire> {
   const session = await getSession()
+  const surcharge = options?.surcharge
+
   const { content } = await apiPost<IdentiteBeneficiaire>(
     `/conseillers/milo/jeunes`,
     {

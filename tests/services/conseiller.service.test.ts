@@ -2,21 +2,28 @@ import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 
 import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
+import { uneBaseBeneficiaire } from 'fixtures/beneficiaire'
 import {
   unBaseConseillerJson,
   unConseiller,
   unConseillerJson,
 } from 'fixtures/conseiller'
+import { unDossierMilo } from 'fixtures/milo'
+import { Dispositif } from 'interfaces/beneficiaire'
 import { structureMilo } from 'interfaces/structure'
 import {
+  createCompteJeuneMilo,
   getConseillers,
   getConseillerServerSide,
+  getDossierJeune,
   modifierAgence,
   modifierDateSignatureCGU,
   modifierNotificationsSonores,
   recupererBeneficiaires,
   supprimerConseiller,
 } from 'services/conseiller.service'
+
+import { BeneficiaireMiloFormData } from '../../interfaces/json/beneficiaire'
 
 jest.mock('clients/api.client')
 
@@ -247,6 +254,136 @@ describe('ConseillerApiService', () => {
         '/conseillers/id-conseiller-1',
         accessToken
       )
+    })
+  })
+
+  describe('.getDossierJeune', () => {
+    it('récupère un dossier jeune depuis i-milo', async () => {
+      // Given
+      const accessToken = 'accessToken'
+      const dossier = unDossierMilo()
+      ;(apiGet as jest.Mock).mockResolvedValue({ content: dossier })
+
+      // When
+      const actual = await getDossierJeune('1234')
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/conseillers/milo/dossiers/1234',
+        accessToken
+      )
+      expect(actual).toEqual(dossier)
+    })
+
+    it(`renvoie undefined si le dossier n'existe pas`, async () => {
+      // Given
+      const accessToken = 'accessToken'
+      ;(apiGet as jest.Mock).mockResolvedValue({ content: undefined })
+
+      // When
+      const actual = await getDossierJeune('9999')
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/conseillers/milo/dossiers/9999',
+        accessToken
+      )
+      expect(actual).toBeUndefined()
+    })
+  })
+
+  describe('.createCompteJeuneMilo', () => {
+    it('crée un compte bénéficiaire MILO sans surcharge', async () => {
+      // Given
+      const accessToken = 'accessToken'
+      const beneficiaire = uneBaseBeneficiaire()
+      ;(apiPost as jest.Mock).mockResolvedValue({ content: beneficiaire })
+
+      const newJeune: BeneficiaireMiloFormData = {
+        idDossier: '1234',
+        nom: 'GIRAC',
+        prenom: 'Kenji',
+        email: 'kenji@mail.com',
+        dispositif: Dispositif.CEJ,
+        peutVoirLeCompteurDesHeures: false,
+      }
+
+      // When
+      const actual = await createCompteJeuneMilo(newJeune)
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/conseillers/milo/jeunes',
+        {
+          ...newJeune,
+          idConseiller: 'id-conseiller-1',
+          surcharge: undefined,
+        },
+        accessToken
+      )
+      expect(actual).toEqual(beneficiaire)
+    })
+
+    it('crée un compte bénéficiaire MILO avec surcharge à false', async () => {
+      // Given
+      const accessToken = 'accessToken'
+      const beneficiaire = uneBaseBeneficiaire()
+      ;(apiPost as jest.Mock).mockResolvedValue({ content: beneficiaire })
+
+      const newJeune: BeneficiaireMiloFormData = {
+        idDossier: '1234',
+        nom: 'GIRAC',
+        prenom: 'Kenji',
+        email: 'kenji@mail.com',
+        dispositif: Dispositif.PACEA,
+        peutVoirLeCompteurDesHeures: true,
+      }
+
+      // When
+      const actual = await createCompteJeuneMilo(newJeune, { surcharge: false })
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/conseillers/milo/jeunes',
+        {
+          ...newJeune,
+          idConseiller: 'id-conseiller-1',
+          surcharge: false,
+        },
+        accessToken
+      )
+      expect(actual).toEqual(beneficiaire)
+    })
+
+    it('crée un compte bénéficiaire MILO avec surcharge à true', async () => {
+      // Given
+      const accessToken = 'accessToken'
+      const beneficiaire = uneBaseBeneficiaire()
+      ;(apiPost as jest.Mock).mockResolvedValue({ content: beneficiaire })
+
+      const newJeune: BeneficiaireMiloFormData = {
+        idDossier: '1234',
+        nom: 'GIRAC',
+        prenom: 'Kenji',
+        email: 'kenji@mail.com',
+        dispositif: Dispositif.CEJ,
+        peutVoirLeCompteurDesHeures: false,
+      }
+
+      // When
+      const actual = await createCompteJeuneMilo(newJeune, { surcharge: true })
+
+      // Then
+      expect(apiPost).toHaveBeenCalledWith(
+        '/conseillers/milo/jeunes',
+        {
+          ...newJeune,
+          idConseiller: 'id-conseiller-1',
+          surcharge: true,
+        },
+        accessToken
+      )
+      expect(actual).toEqual(beneficiaire)
     })
   })
 })

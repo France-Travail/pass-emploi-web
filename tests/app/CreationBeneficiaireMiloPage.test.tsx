@@ -74,6 +74,142 @@ describe('CreationBeneficiaireMiloPage client side', () => {
     })
   })
 
+  describe('quand le bénéficiaire recherché existe déjà dans le portefeuille', () => {
+    const portefeuille = desItemsBeneficiaires().map(
+      extractBeneficiaireWithActivity
+    )
+
+    beforeEach(async () => {
+      ;({ container } = await renderWithContexts(
+        <CreationBeneficiaireMiloPage />,
+        {
+          customPortefeuille: { value: portefeuille },
+        }
+      ))
+    })
+
+    it("affiche une alerte quand l'idPartenaire existe déjà", async () => {
+      // Given
+      const beneficiaireExistant = portefeuille[0]
+
+      // When
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        beneficiaireExistant.idPartenaire!
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+
+      // Then
+      expect(
+        screen.getByText(
+          `Le compte associé à cette adresse e-mail ${beneficiaireExistant.email} est déjà présent dans votre portefeuille`
+        )
+      ).toBeInTheDocument()
+      expect(getDossierJeune).not.toHaveBeenCalled()
+    })
+
+    it("affiche un lien vers la fiche du bénéficiaire dans l'alerte", async () => {
+      // Given
+      const beneficiaireExistant = portefeuille[0]
+
+      // When
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        beneficiaireExistant.idPartenaire!
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+
+      // Then
+      const lien = screen.getByRole('link', {
+        name: 'Voir la fiche du bénéficiaire',
+      })
+      expect(lien).toBeInTheDocument()
+      expect(lien).toHaveAttribute(
+        'href',
+        `/mes-jeunes/${beneficiaireExistant.id}`
+      )
+    })
+
+    it("permet de fermer l'alerte", async () => {
+      // Given
+      const beneficiaireExistant = portefeuille[0]
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        beneficiaireExistant.idPartenaire!
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+
+      // Then
+      expect(
+        screen.queryByText(
+          `Le compte associé à cette adresse e-mail ${beneficiaireExistant.email} est déjà présent dans votre portefeuille`
+        )
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('quand la recherche de dossier échoue', () => {
+    beforeEach(async () => {
+      ;(getDossierJeune as jest.Mock).mockRejectedValue(
+        new Error('Dossier non trouvé')
+      )
+      ;({ container } = await renderWithContexts(
+        <CreationBeneficiaireMiloPage />
+      ))
+    })
+
+    it(`affiche une alerte en cas d'erreur`, async () => {
+      // When
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        '999999'
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+
+      // Then
+      expect(screen.getByText('Dossier non trouvé')).toBeInTheDocument()
+    })
+
+    it("permet de fermer l'alerte d'erreur", async () => {
+      // Given
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        '999999'
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+      expect(screen.getByText('Dossier non trouvé')).toBeInTheDocument()
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+
+      // Then
+      expect(screen.queryByText('Dossier non trouvé')).not.toBeInTheDocument()
+    })
+  })
+
   describe('quand on a recherché un dossier', () => {
     let push: () => void
     let refresh: () => void
@@ -237,7 +373,7 @@ describe('CreationBeneficiaireMiloPage client side', () => {
       })
 
       describe('au clic sur le bouton de confirmation de la modale', () => {
-        it('appelle l’api avec la surcharge', async () => {
+        it(`appelle l'api avec la surcharge`, async () => {
           const boutonConfirmation = screen.getByRole('button', {
             name: 'Confirmer la création de compte',
           })
@@ -257,6 +393,75 @@ describe('CreationBeneficiaireMiloPage client side', () => {
             { surcharge: true }
           )
         })
+      })
+
+      describe(`au clic sur le bouton d'annulation de la modale`, () => {
+        it('ferme la modale et remet le focus sur le bouton Retour', async () => {
+          // When
+          const boutonAnnulation = screen.getByRole('button', {
+            name: 'Annuler',
+          })
+          await userEvent.click(boutonAnnulation)
+
+          // Then
+          expect(
+            screen.queryByText(
+              `Un compte bénéficiaire avec l'adresse kenji-faux-mail@mail.com existe déjà dans i-milo`
+            )
+          ).not.toBeInTheDocument()
+          expect(
+            screen.queryByRole('button', {
+              name: 'Confirmer la création de compte',
+            })
+          ).not.toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('au clic sur le bouton Retour', () => {
+      it(`revient à l'étape de recherche et nettoie les états`, async () => {
+        // When
+        const boutonRetour = screen.getByRole('button', {
+          name: /Retour/,
+        })
+        await userEvent.click(boutonRetour)
+
+        // Then
+        expect(
+          screen.getByText(
+            'Saisissez le numéro de dossier du jeune pour lequel vous voulez créer un compte'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByRole('group', {
+            name: 'Sélectionner le dispositif (champ obligatoire)',
+          })
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe("quand la création échoue avec une erreur autre que l'erreur 422", () => {
+      it("affiche l'alerte d'erreur et permet de la fermer", async () => {
+        // Given
+        await userEvent.click(screen.getByRole('radio', { name: /PACEA/ }))
+        ;(createCompteJeuneMilo as jest.Mock).mockRejectedValue(
+          new Error('Erreur serveur')
+        )
+
+        // When
+        const createCompteButton = screen.getByRole('button', {
+          name: 'Créer le compte',
+        })
+        await userEvent.click(createCompteButton)
+
+        // Then
+        expect(screen.getByText('Erreur serveur')).toBeInTheDocument()
+
+        // When - fermer l'alerte
+        await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+
+        // Then
+        expect(screen.queryByText('Erreur serveur')).not.toBeInTheDocument()
       })
     })
   })
