@@ -44,7 +44,11 @@ describe('Gestion du compte dans la fiche jeune', () => {
 
   beforeEach(async () => {
     push = jest.fn()
-    ;(useRouter as jest.Mock).mockReturnValue({ push, replace: jest.fn() })
+    ;(useRouter as jest.Mock).mockReturnValue({
+      push,
+      replace: jest.fn(),
+      refresh: jest.fn(),
+    })
     alerteSetter = jest.fn()
     portefeuilleSetter = jest.fn()
     portefeuille = desItemsBeneficiaires().map(extractBeneficiaireWithActivity)

@@ -30,6 +30,7 @@ function CreationBeneficiaireMiloPage() {
   const [portefeuille, setPortefeuille] = usePortefeuille()
 
   const etapeRef = useRef<HTMLDivElement>(null)
+  const [etape, setEtape] = useState<1 | 2>(1)
   const dossierBeneficiaireRef = useRef<{ focusRetour: () => void }>(null)
 
   const [dossier, setDossier] = useState<DossierMilo | undefined>()
@@ -41,7 +42,7 @@ function CreationBeneficiaireMiloPage() {
     useState<boolean>(false)
 
   async function rechercherDossier(id: string) {
-    clearDossier()
+    clearErreurs()
 
     const beneficiaire = portefeuille.find((b) => b.idPartenaire === id)
     if (beneficiaire) {
@@ -56,8 +57,10 @@ function CreationBeneficiaireMiloPage() {
       const { getDossierJeune } = await import('services/conseiller.service')
       const dossierJeune = await getDossierJeune(id)
       setDossier(dossierJeune)
+      setEtape(2)
       etapeRef.current!.focus()
     } catch (error) {
+      setEtape(1)
       setErreurDossier(
         (error as Error).message || "Une erreur inconnue s'est produite"
       )
@@ -85,6 +88,8 @@ function CreationBeneficiaireMiloPage() {
           ...beneficiaireCree,
           creationDate: DateTime.now().toISO(),
           estAArchiver: false,
+          idPartenaire: dossier?.id,
+          email: beneficiaireData.email,
         })
       )
       setAlerte(AlerteParam.creationBeneficiaire, beneficiaireCree.id)
@@ -101,9 +106,8 @@ function CreationBeneficiaireMiloPage() {
     }
   }
 
-  function clearDossier() {
+  function clearErreurs() {
     setErreurDossier(undefined)
-    setDossier(undefined)
     setErreurCreation(undefined)
     setErreurEmailExistantPortefeuille(undefined)
     setCompteBeneficiaireExisteDeja(false)
@@ -145,15 +149,18 @@ function CreationBeneficiaireMiloPage() {
         </FailureAlert>
       )}
 
-      <LabelDeuxEtapes etape={dossier ? 2 : 1} ref={etapeRef} />
+      <LabelDeuxEtapes etape={etape} ref={etapeRef} />
 
-      {!dossier && (
+      {etape === 1 && (
         <div className='mt-4'>
-          <FormulaireRechercheDossier onRechercheDossier={rechercherDossier} />
+          <FormulaireRechercheDossier
+            onRechercheDossier={rechercherDossier}
+            idDossier={dossier?.id}
+          />
         </div>
       )}
 
-      {dossier && (
+      {etape === 2 && dossier && (
         <DossierBeneficiaireMilo
           ref={dossierBeneficiaireRef}
           dossier={dossier}
@@ -162,7 +169,8 @@ function CreationBeneficiaireMiloPage() {
           beneficiaireExisteDejaMilo={compteBeneficiaireExisteDeja}
           onRefresh={() => rechercherDossier(dossier.id)}
           onRetour={() => {
-            clearDossier()
+            clearErreurs()
+            setEtape(1)
             etapeRef.current!.focus()
           }}
           onAnnulationCreerCompte={() => {

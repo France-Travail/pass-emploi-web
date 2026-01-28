@@ -152,7 +152,9 @@ describe('CreationBeneficiaireMiloPage client side', () => {
       )
 
       // When
-      await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+      await userEvent.click(
+        screen.getByRole('button', { name: "J'ai compris" })
+      )
 
       // Then
       expect(
@@ -203,7 +205,9 @@ describe('CreationBeneficiaireMiloPage client side', () => {
       expect(screen.getByText('Dossier non trouvé')).toBeInTheDocument()
 
       // When
-      await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+      await userEvent.click(
+        screen.getByRole('button', { name: "J'ai compris" })
+      )
 
       // Then
       expect(screen.queryByText('Dossier non trouvé')).not.toBeInTheDocument()
@@ -310,6 +314,8 @@ describe('CreationBeneficiaireMiloPage client side', () => {
           ...uneBaseBeneficiaire(),
           creationDate: now.toISO(),
           estAArchiver: false,
+          idPartenaire: dossier.id,
+          email: 'kenji-faux-mail@mail.com',
         },
       ])
       expect(setAlerte).toHaveBeenCalledWith(
@@ -458,11 +464,71 @@ describe('CreationBeneficiaireMiloPage client side', () => {
         expect(screen.getByText('Erreur serveur')).toBeInTheDocument()
 
         // When - fermer l'alerte
-        await userEvent.click(screen.getByRole('button', { name: "J'ai compris" }))
+        await userEvent.click(
+          screen.getByRole('button', { name: "J'ai compris" })
+        )
 
         // Then
         expect(screen.queryByText('Erreur serveur')).not.toBeInTheDocument()
       })
+    })
+  })
+
+  describe('quand on crée un compte puis recherche le même dossier à nouveau', () => {
+    it('affiche une erreur indiquant que le bénéficiaire est déjà dans le portefeuille', async () => {
+      // Given
+      const dossier = unDossierMilo()
+      const beneficiaireCree = uneBaseBeneficiaire()
+      const now = DateTime.now()
+
+      jest.spyOn(DateTime, 'now').mockReturnValue(now)
+      ;(getDossierJeune as jest.Mock).mockResolvedValue(dossier)
+      ;(createCompteJeuneMilo as jest.Mock).mockResolvedValue(beneficiaireCree)
+
+      const push = jest.fn()
+      const refresh = jest.fn()
+      const setAlerte = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ push, refresh })
+
+      await renderWithContexts(<CreationBeneficiaireMiloPage />, {
+        customPortefeuille: { value: [] },
+        customAlerte: { setter: setAlerte },
+      })
+
+      // When - Recherche et création du premier compte
+      await userEvent.type(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        }),
+        dossier.id
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+      await userEvent.click(screen.getByRole('radio', { name: /PACEA/ }))
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // Then - Vérifier que la création a réussi
+      expect(createCompteJeuneMilo).toHaveBeenCalledTimes(1)
+      expect(push).toHaveBeenCalledWith('/mes-jeunes')
+
+      // When - Retour à l'étape de recherche (simule navigation back sans refresh)
+      await userEvent.click(screen.getByRole('button', { name: /Retour/ }))
+
+      // When - Recherche du même dossier (le champ garde la valeur précédente)
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Valider le numéro' })
+      )
+
+      // Then - Vérifier l'erreur "déjà dans le portefeuille"
+      expect(
+        screen.getByText(
+          `Le compte associé à cette adresse e-mail ${dossier.email} est déjà présent dans votre portefeuille`
+        )
+      ).toBeInTheDocument()
+      expect(getDossierJeune).toHaveBeenCalledTimes(1) // Une seule fois, la 2ème recherche ne l'appelle pas
     })
   })
 })
