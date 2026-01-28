@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from 'react'
+import React, { useState } from 'react'
 
 import IndicationRechercheDossier from 'components/jeune/IndicationRechercheDossier'
 import Button from 'components/ui/Button/Button'
@@ -8,18 +8,18 @@ import Label from 'components/ui/Form/Label'
 
 type FormulaireRechercheDossierProps = {
   onRechercheDossier: (idDossier: string) => Promise<void>
-  errMessage?: string
+  idDossier?: string
 }
 
 export default function FormulaireRechercheDossier({
   onRechercheDossier,
+  idDossier: idDossierProp = '',
 }: Readonly<FormulaireRechercheDossierProps>) {
-  const [idDossier, setIdDossier] = useState<string | undefined>()
+  const [idDossier, setIdDossier] = useState<string>(idDossierProp)
   const [messageErreur, setMessageErreur] = useState<string | undefined>()
   const [rechercheEnCours, setRechercheEnCours] = useState<boolean>(false)
-  const inputRef = useRef<HTMLInputElement>(null)
 
-  async function handleSearchSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSearchSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
     if (!idDossier) {
@@ -64,9 +64,9 @@ export default function FormulaireRechercheDossier({
         )}
 
         <Input
-          ref={inputRef}
           type='text'
           id='recherche-numero'
+          defaultValue={idDossier}
           onChange={handleSearchInputChanges}
           invalid={Boolean(messageErreur)}
           placeholder='123456'
