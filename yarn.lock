@@ -7359,13 +7359,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-dom-parser@npm:5.1.5":
-  version: 5.1.5
-  resolution: "html-dom-parser@npm:5.1.5"
+"html-dom-parser@npm:5.1.4":
+  version: 5.1.4
+  resolution: "html-dom-parser@npm:5.1.4"
   dependencies:
     domhandler: "npm:5.0.3"
     htmlparser2: "npm:10.1.0"
-  checksum: 10c0/03e6812ba21c7a4c9cf03e4f4dee897994fabdd87fee8aa9e47d0dddf53aaab327bc0f278cc6ec0aa5891fc2e53367bef60366ff2385a0e0f12fa9b368d1b2ee
+  checksum: 10c0/3c87ff8caac7a2ca9fada9de8f1e830261abb150d2743c79f6cc3904fe5ffc701bce9fe8cb495040e689f943e804ff009bfbfc99d73bdbd236ac8dd0559b63db
   languageName: node
   linkType: hard
 
@@ -7385,12 +7385,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-react-parser@npm:5.2.13":
-  version: 5.2.13
-  resolution: "html-react-parser@npm:5.2.13"
+"html-react-parser@npm:5.2.15":
+  version: 5.2.15
+  resolution: "html-react-parser@npm:5.2.15"
   dependencies:
     domhandler: "npm:5.0.3"
-    html-dom-parser: "npm:5.1.5"
+    html-dom-parser: "npm:5.1.4"
     react-property: "npm:2.0.2"
     style-to-js: "npm:1.1.21"
   peerDependencies:
@@ -7399,7 +7399,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/9a5aeaf8396052e3b4e439eae8959fce1763bc445baafeeb83f34deb9218f2d7b17dfef34cce81e9b2ef752fcc944f675e6f34a8fd303cc0bd74a5cc417d84e0
+  checksum: 10c0/11aa6c1dc603812645c403dd9bc6acfed9e1232fc87933e76f39e959e6d74a7bcfd592e5baa9e41d6cc932c8d348865fdced7e98ac4f0827bb08e8131abf016e
   languageName: node
   linkType: hard
 
@@ -10164,7 +10164,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.5"
     eslint-plugin-react-compiler: "npm:19.0.0-beta-e552027-20250112"
     firebase: "npm:12.8.0"
-    html-react-parser: "npm:5.2.13"
+    html-react-parser: "npm:5.2.15"
     jest: "npm:^29.7.0"
     jest-axe: "npm:^10.0.0"
     jest-environment-jsdom: "npm:^29.7.0"
