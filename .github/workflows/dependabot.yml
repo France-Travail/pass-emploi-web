@@ -5,9 +5,7 @@ on:
     types: [opened, synchronize, reopened]
   schedule:
     - cron: '0 */6 * * *'
-  workflow_dispatch:
 
 jobs:
   dependabot:
-    uses: France-Travail/pass-emploi-tools/.github/workflows/dependabot.yml@master
-    secrets: inherit
+    uses: France-Travail/pass-emploi-tools/.github/workflows/dependabot.yml@7fbddd28471c99d0a60b2d74db50c0c6f8c95215
