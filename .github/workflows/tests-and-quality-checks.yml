@@ -17,23 +17,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          node-version-file: .nvmrc
-          cache: yarn
-
-      - name: Install dependencies
-        run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
-
-      - name: Run ESLint
-        run: yarn lint
-
-      - name: Run TypeScript typecheck
-        run: yarn tsc --noEmit
+      - uses: France-Travail/pass-emploi-tools/.github/actions/lint-and-typecheck@a6df6452244ac3d2180e2eeab01a4c4de12abf67
 
   test:
     name: Tests
@@ -41,27 +25,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
-        with:
-          node-version-file: .nvmrc
-          cache: yarn
-
-      - name: Install dependencies
-        run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
-
-      - name: Run tests with coverage
-        run: yarn test
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 1
+      - uses: France-Travail/pass-emploi-tools/.github/actions/test-and-upload@a6df6452244ac3d2180e2eeab01a4c4de12abf67
 
   sonarqube:
     name: SonarQube Analysis
@@ -73,20 +37,6 @@ jobs:
       github.event.pull_request.user.id != 49699333
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: France-Travail/pass-emploi-tools/.github/actions/sonarqube-scan@a6df6452244ac3d2180e2eeab01a4c4de12abf67
         with:
-          fetch-depth: 0
-
-      - name: Download coverage report
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
-        with:
-          name: coverage-report
-          path: coverage/
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
-        with:
-          projectBaseDir: .
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
