@@ -11,5 +11,5 @@ on:
 
 jobs:
   security-checks:
-    uses: France-Travail/pass-emploi-tools/.github/workflows/security-checks.yml@main
+    uses: France-Travail/pass-emploi-tools/.github/workflows/security-checks.yml@master
     secrets: inherit

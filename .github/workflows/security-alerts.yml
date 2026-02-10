@@ -7,7 +7,7 @@ on:
 
 jobs:
   security-alerts:
-    uses: France-Travail/pass-emploi-tools/.github/workflows/security-alerts.yml@main
+    uses: France-Travail/pass-emploi-tools/.github/workflows/security-alerts.yml@master
     with:
       repo-name: 'pass-emploi-web'
     secrets: inherit
