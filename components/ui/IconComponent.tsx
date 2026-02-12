@@ -56,6 +56,7 @@ import PeopleFillIcon from 'assets/icons/informations/people_fill.svg'
 import PeopleOutlineIcon from 'assets/icons/informations/people_outline.svg'
 import ScheduleIcon from 'assets/icons/informations/schedule.svg'
 import ScheduleOutlineIcon from 'assets/icons/informations/schedule_outline.svg'
+import SpeakerIcon from 'assets/icons/informations/speaker.svg'
 import TimerIcon from 'assets/icons/informations/timer.svg'
 import VisibilityOffIcon from 'assets/icons/informations/visibility-off.svg'
 import VisibilityOnIcon from 'assets/icons/informations/visibility-on.svg'
@@ -155,6 +156,7 @@ export enum IconName {
   Send = 'Send',
   Settings = 'Settings',
   Share = 'Share',
+  Speaker = 'Speaker',
   Spinner = 'Spinner',
   Suitcase = 'Suitcase',
   SwapVert = 'SwapVert',
@@ -224,6 +226,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.Schedule]: ScheduleIcon,
   [IconName.ScheduleOutline]: ScheduleOutlineIcon,
   [IconName.Share]: ShareIcon,
+  [IconName.Speaker]: SpeakerIcon,
   [IconName.SwapVert]: SwapVertIcon,
   [IconName.Info]: InfoIcon,
   [IconName.Add]: AddIcon,

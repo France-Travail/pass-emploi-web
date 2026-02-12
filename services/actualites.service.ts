@@ -1,6 +1,9 @@
+import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
+import { apiGet, apiPost } from 'clients/api.client'
 import {
+  ActualiteMissionLocale,
   ActualitesRaw,
   ArticleCouleur,
   ArticleJson,
@@ -84,4 +87,46 @@ function getUrlActualites(structure: Structure): string {
       return process.env
         .NEXT_PUBLIC_WORDPRESS_ACTUS_ACCOMPAGNEMENTS_INTENSIFS_LINK as string
   }
+}
+
+export async function getActualitesMissionLocaleClientSide(): Promise<
+  ActualiteMissionLocale[]
+> {
+  const session = await getSession()
+  if (!session) return []
+  return getActualitesMissionLocale(session.user.id, session.accessToken)
+}
+
+export async function getActualitesMissionLocale(
+  idConseiller: string,
+  accessToken: string
+): Promise<ActualiteMissionLocale[]> {
+  const { content } = await apiGet<ActualiteMissionLocale[]>(
+    `/conseillers/milo/${idConseiller}/actualites`,
+    accessToken
+  )
+  return content
+}
+
+export async function creerActualiteMissionLocaleClientSide(
+  contenu: string
+): Promise<ActualiteMissionLocale> {
+  const session = await getSession()
+  const { user, accessToken } = session!
+
+  return creerActualiteMissionLocale(user.id, 'Actualité', contenu, accessToken)
+}
+
+export async function creerActualiteMissionLocale(
+  idConseiller: string,
+  titre: string,
+  contenu: string,
+  accessToken: string
+): Promise<ActualiteMissionLocale> {
+  const { content } = await apiPost<ActualiteMissionLocale>(
+    `/conseillers/milo/${idConseiller}/actualites`,
+    { titre, contenu },
+    accessToken
+  )
+  return content
 }

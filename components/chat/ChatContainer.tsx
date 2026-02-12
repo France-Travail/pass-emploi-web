@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+import BandeauActualites from 'components/chat/BandeauActualites'
 import ChatRoom from 'components/chat/ChatRoom'
 import ConversationBeneficiaire from 'components/chat/ConversationBeneficiaire'
 import ListeListes from 'components/chat/ListeListes'
 import RubriqueListes from 'components/chat/RubriqueListes'
+import { ActualiteMissionLocale } from 'interfaces/actualites'
 import {
   BeneficiaireEtChat,
   ConseillerHistorique,
 } from 'interfaces/beneficiaire'
 import { Liste } from 'interfaces/liste'
+import { getActualitesMissionLocaleClientSide } from 'services/actualites.service'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
 import { getListesClientSide } from 'services/listes.service'
 import { useChats } from 'utils/chat/chatsContext'
@@ -44,15 +47,28 @@ export default function ChatContainer({
   const [listes, setListes] = useState<Liste[]>()
   const [listeSelectionnee, setListeSelectionnee] = useListeSelectionnee()
 
+  const [showActualites, setShowActualites] = useState<boolean>(false)
+  const [actualites, setActualites] = useState<ActualiteMissionLocale[]>()
+
   function afficherConversation(conversation: BeneficiaireEtChat | undefined) {
     if (conversation) conversationAFocus.current = conversation.id
     setCurrentConversation(conversation)
+  }
+
+  async function rafraichirActualites() {
+    const actualitesChargees = await getActualitesMissionLocaleClientSide()
+    setActualites(actualitesChargees)
   }
 
   useEffect(() => {
     if (showRubriqueListes && !listes) getListesClientSide().then(setListes)
     if (showRubriqueListes === false) chatRoomRef.current?.focusAccesListes()
   }, [listes, showRubriqueListes])
+
+  useEffect(() => {
+    if (showActualites && !actualites)
+      getActualitesMissionLocaleClientSide().then(setActualites)
+  }, [actualites, showActualites])
 
   useEffect(() => {
     if (
@@ -103,12 +119,21 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && (
+          {showActualites && (
+            <BandeauActualites
+              actualites={actualites}
+              onRetourMessagerie={() => setShowActualites(false)}
+              onActualiteCreee={rafraichirActualites}
+            />
+          )}
+
+          {!showRubriqueListes && !showActualites && (
             <ChatRoom
               ref={chatRoomRef}
               beneficiairesChats={chats}
               onOuvertureMenu={onShowMenu}
               onAccesListes={() => setShowRubriqueListes(true)}
+              onAccesActualites={() => setShowActualites(true)}
               onAccesConversation={afficherConversation}
             />
           )}
@@ -125,7 +150,15 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && currentConversation && (
+          {showActualites && (
+            <BandeauActualites
+              actualites={actualites}
+              onRetourMessagerie={() => setShowActualites(false)}
+              onActualiteCreee={rafraichirActualites}
+            />
+          )}
+
+          {!showRubriqueListes && !showActualites && currentConversation && (
             <ConversationBeneficiaire
               onBack={() => afficherConversation(undefined)}
               beneficiaireChat={currentConversation}
@@ -133,12 +166,13 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && !currentConversation && (
+          {!showRubriqueListes && !showActualites && !currentConversation && (
             <ChatRoom
               ref={chatRoomRef}
               beneficiairesChats={chats}
               onOuvertureMenu={onShowMenu}
               onAccesListes={() => setShowRubriqueListes(true)}
+              onAccesActualites={() => setShowActualites(true)}
               onAccesConversation={afficherConversation}
             />
           )}
