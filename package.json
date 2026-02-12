@@ -20,8 +20,8 @@
     "release:major": "./release.sh major"
   },
   "dependencies": {
-    "@elastic/apm-rum": "5.17.0",
-    "@elastic/apm-rum-react": "2.0.6",
+    "@elastic/apm-rum": "5.17.2",
+    "@elastic/apm-rum-react": "2.0.8",
     "@next/bundle-analyzer": "^15.5.9",
     "crypto-js": "4.2.0",
     "dotenv": "17.2.4",
@@ -61,7 +61,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash.isequal": "^4.5.8",
     "@types/luxon": "^3.7.1",
-    "@types/react": "^19.2.13",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/sanitize-html": "^2.16.0",
     "css-loader": "^7.1.3",
