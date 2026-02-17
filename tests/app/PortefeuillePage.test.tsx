@@ -3,18 +3,14 @@ import userEvent from '@testing-library/user-event'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
-import { notFound } from 'next/navigation'
-import { useRouter } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import React from 'react'
 
 import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
 import {
   desBeneficiairesAvecActionsNonTerminees,
   unBeneficiaireAvecActionsNonTerminees,
-  unBeneficiaireWithActivity,
   unDetailBeneficiaire,
-  uneBaseBeneficiaire,
-  unItemBeneficiaire,
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
@@ -24,9 +20,9 @@ import {
   structureMilo,
 } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
-import { getComptageHeuresPortefeuille } from 'services/beneficiaires.service'
 import {
   changerVisibiliteComptageHeures,
+  getComptageHeuresPortefeuille,
   getJeuneDetailsClientSide,
 } from 'services/beneficiaires.service'
 import { recupererBeneficiaires } from 'services/conseiller.service'
@@ -971,7 +967,7 @@ describe('PortefeuillePage client side', () => {
     it('affiche un bandeau lui informant la date de migration', async () => {
       // GIVEN
       const conseiller = unConseiller({
-        dateDeMigration: DateTime.fromISO('2025-11-20'),
+        dateDeMigration: DateTime.fromISO('2025-11-01'),
       })
 
       // WHEN
@@ -985,10 +981,8 @@ describe('PortefeuillePage client side', () => {
       expect(
         screen.getByRole('status', { name: /Information importante/i })
       ).toBeInTheDocument()
-      expect(
-        screen.getByText(/La migration de l’application du CEJ/i)
-      ).toHaveTextContent(
-        /La migration de l’application du CEJ vers Parcours Emploi aura lieu jeudi 20 novembre pour la Gironde.Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires à votre portefeuille./i
+      expect(screen.getByText(/Le\s+samedi 1er novembre/i)).toHaveTextContent(
+        /Le\s+samedi 1er novembre, l’application du CEJ ne sera plus disponible\. Vos services seront accessibles sur l’applicatif CVM Messagerie instantanée\.\s*Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires à votre portefeuille\./i
       )
     })
   })

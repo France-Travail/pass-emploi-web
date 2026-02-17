@@ -184,8 +184,9 @@ function PortefeuillePage({
       {conseillerDoitMigrer && (
         <InformationMessage label='Information importante' className='mb-6'>
           <p>
-            La migration de l’application du CEJ vers Parcours Emploi aura lieu{' '}
-            {toMonthday(conseiller.dateDeMigration!)} pour la Gironde.
+            Le {toMonthday(conseiller.dateDeMigration!)}, l’application du CEJ
+            ne sera plus disponible. Vos services seront accessibles sur
+            l’applicatif CVM Messagerie instantanée.
             <br />
             Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires
             à votre portefeuille.
