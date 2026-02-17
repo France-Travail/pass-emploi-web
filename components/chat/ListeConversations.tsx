@@ -51,7 +51,7 @@ function ListeConversations(
 
         {conversations?.length === 0 && (
           <>
-            <div className='flex flex-col justify-center  items-center'>
+            <div className='flex flex-col justify-center items-center'>
               <IllustrationComponent
                 name={IllustrationName.Messagerie}
                 focusable={false}
