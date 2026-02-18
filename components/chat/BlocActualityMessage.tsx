@@ -63,10 +63,13 @@ export default function BlocActualityMessage({ messages }: BlocMessageProps) {
               </div>
 
               <p>
-                <span className='sr-only'>
-                  Posté par ${m.prenomNomConseiller}
+                <span className='text-xs-medium'>
+                  Posté par {m.prenomNomConseiller} ·{' '}
                 </span>
-                <span aria-label={toFrenchTime(m.dateCreation, { a11y: true })}>
+                <span
+                  className='text-xs-medium'
+                  aria-label={toFrenchTime(m.dateCreation, { a11y: true })}
+                >
                   {toFrenchTime(m.dateCreation)}
                 </span>
               </p>
