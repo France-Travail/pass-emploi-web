@@ -8,7 +8,7 @@ import SpinningLoader from 'components/ui/SpinningLoader'
 import { ActualiteMessage } from '../../interfaces/actualiteMilo'
 import Button from '../ui/Button/Button'
 
-import BlocActualityMessage from './BlocActualityMessage'
+import MessageActualites from './MessageActualites'
 
 interface BandeauActualitesProps {
   actualites: ActualiteMessage[] | undefined
@@ -50,7 +50,7 @@ export default function BandeauActualites({
           {!isLoading && (
             <>
               {actualites && actualites.length > 0 ? (
-                <BlocActualityMessage messages={actualites} />
+                <MessageActualites messages={actualites} />
               ) : (
                 <div className='bg-primary-lighten p-6 rounded-base mb-6'>
                   <div className='flex items-start gap-4'>

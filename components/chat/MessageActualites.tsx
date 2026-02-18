@@ -21,7 +21,7 @@ type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
 }
 
-export default function BlocActualityMessage({ messages }: BlocMessageProps) {
+export default function MessageActualites({ messages }: BlocMessageProps) {
   function permuterMenuEdition() {}
 
   let afficherMenuEdition
