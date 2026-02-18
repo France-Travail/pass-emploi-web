@@ -41,11 +41,3 @@ export type EtiquetteArticle = {
   nom: string
   couleur?: ArticleCouleur
 }
-
-export type ActualiteMissionLocale = {
-  id: string
-  titre: string
-  contenu: string
-  datePublication: string
-  idConseiller: string
-}

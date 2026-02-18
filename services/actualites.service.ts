@@ -1,9 +1,9 @@
+import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
 import { apiGet, apiPost } from 'clients/api.client'
 import {
-  ActualiteMissionLocale,
   ActualitesRaw,
   ArticleCouleur,
   ArticleJson,
@@ -12,6 +12,9 @@ import {
 } from 'interfaces/actualites'
 import { Structure } from 'interfaces/structure'
 import { fetchJson } from 'utils/httpClient'
+
+import { ActualiteMessage } from '../interfaces/actualiteMilo'
+import { ActualiteJson } from '../interfaces/json/actualite'
 
 export async function getActualites(
   structure: Structure
@@ -90,7 +93,7 @@ function getUrlActualites(structure: Structure): string {
 }
 
 export async function getActualitesMissionLocaleClientSide(): Promise<
-  ActualiteMissionLocale[]
+  ActualiteMessage[]
 > {
   const session = await getSession()
   if (!session) return []
@@ -100,17 +103,17 @@ export async function getActualitesMissionLocaleClientSide(): Promise<
 export async function getActualitesMissionLocale(
   idConseiller: string,
   accessToken: string
-): Promise<ActualiteMissionLocale[]> {
-  const { content } = await apiGet<ActualiteMissionLocale[]>(
+): Promise<ActualiteMessage[]> {
+  const { content } = await apiGet<{ actualites: ActualiteJson[] }>(
     `/conseillers/milo/${idConseiller}/actualites`,
     accessToken
   )
-  return content
+  return content.actualites.map((actualite) => mapToActualitesMilo(actualite))
 }
 
 export async function creerActualiteMissionLocaleClientSide(
   contenu: string
-): Promise<ActualiteMissionLocale> {
+): Promise<ActualiteJson> {
   const session = await getSession()
   const { user, accessToken } = session!
 
@@ -122,11 +125,24 @@ export async function creerActualiteMissionLocale(
   titre: string,
   contenu: string,
   accessToken: string
-): Promise<ActualiteMissionLocale> {
-  const { content } = await apiPost<ActualiteMissionLocale>(
+): Promise<ActualiteJson> {
+  const { content } = await apiPost<ActualiteJson>(
     `/conseillers/milo/${idConseiller}/actualites`,
     { titre, contenu },
     accessToken
   )
   return content
+}
+
+function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {
+  return {
+    id: actualiteJson.id,
+    titre: actualiteJson.titre,
+    contenu: actualiteJson.contenu,
+    dateCreation: DateTime.fromISO(actualiteJson.dateCreation),
+    titreLien: actualiteJson.titreLien,
+    lien: actualiteJson.lien,
+    proprietaire: actualiteJson.proprietaire,
+    prenomNomConseiller: actualiteJson.prenomNomConseiller,
+  }
 }

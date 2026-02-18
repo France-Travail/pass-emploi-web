@@ -8,11 +8,14 @@ import Textarea from 'components/ui/Form/Textarea'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
 import { ValueWithError } from 'components/ValueWithError'
-import { ActualiteMissionLocale } from 'interfaces/actualites'
 import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
+import { ActualiteMessage } from '../../interfaces/actualiteMilo'
+
+import BlocActualityMessage from './BlocActualityMessage'
+
 interface BandeauActualitesProps {
-  actualites: ActualiteMissionLocale[] | undefined
+  actualites: ActualiteMessage[] | undefined
   onRetourMessagerie: () => void
   onActualiteCreee: () => Promise<void>
 }
@@ -27,6 +30,7 @@ export default function BandeauActualites({
   const [actualite, setActualite] = useState<ValueWithError<string>>({
     value: '',
   })
+
   const [messagerieEstVisible, setMessagerieEstVisible] =
     useState<boolean>(true)
   const [isPublishing, setIsPublishing] = useState<boolean>(false)
@@ -74,44 +78,13 @@ export default function BandeauActualites({
       />
 
       {messagerieEstVisible && (
-        <div className='items-center flex mx-3 relative h-full overflow-y-auto'>
+        <div className='items-center relative h-full overflow-y-auto p-4'>
           {isLoading && <SpinningLoader alert={true} />}
 
           {!isLoading && !afficherFormulaire && (
             <>
               {actualites && actualites.length > 0 ? (
-                <div className='flex flex-col gap-4 mb-6'>
-                  {actualites.map((actu) => (
-                    <div
-                      key={actu.id}
-                      className='bg-white p-4 rounded-base shadow-base'
-                    >
-                      <div className='flex items-start gap-3'>
-                        <IconComponent
-                          name={IconName.Notification}
-                          className='w-6 h-6 fill-primary flex-shrink-0 mt-1'
-                          aria-hidden={true}
-                          focusable={false}
-                        />
-                        <div className='flex-1'>
-                          <p className='text-base-regular text-content whitespace-pre-wrap'>
-                            {actu.contenu}
-                          </p>
-                          <p className='text-xs-regular text-content_color mt-2'>
-                            {new Date(actu.datePublication).toLocaleDateString(
-                              'fr-FR',
-                              {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              }
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <BlocActualityMessage messages={actualites} />
               ) : (
                 <div className='bg-primary-lighten p-6 rounded-base mb-6'>
                   <div className='flex items-start gap-4'>
