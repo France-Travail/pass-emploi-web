@@ -2,65 +2,31 @@ import React, { useRef, useState } from 'react'
 
 import HeaderChat from 'components/chat/HeaderChat'
 import { MessagerieCachee } from 'components/chat/MessagerieCachee'
-import Button, { ButtonStyle } from 'components/ui/Button/Button'
-import Label from 'components/ui/Form/Label'
-import Textarea from 'components/ui/Form/Textarea'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
-import { ValueWithError } from 'components/ValueWithError'
-import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
 import { ActualiteMessage } from '../../interfaces/actualiteMilo'
+import Button from '../ui/Button/Button'
 
 import BlocActualityMessage from './BlocActualityMessage'
 
 interface BandeauActualitesProps {
   actualites: ActualiteMessage[] | undefined
   onRetourMessagerie: () => void
-  onActualiteCreee: () => Promise<void>
 }
 
 export default function BandeauActualites({
   actualites,
   onRetourMessagerie,
-  onActualiteCreee,
 }: BandeauActualitesProps) {
   const headerRef = useRef<{ focusRetour: () => void }>(null)
-  const [afficherFormulaire, setAfficherFormulaire] = useState<boolean>(false)
-  const [actualite, setActualite] = useState<ValueWithError<string>>({
-    value: '',
-  })
 
   const [messagerieEstVisible, setMessagerieEstVisible] =
     useState<boolean>(true)
-  const [isPublishing, setIsPublishing] = useState<boolean>(false)
 
   const isLoading = actualites === undefined
 
-  function ouvrirFormulaire() {
-    setAfficherFormulaire(true)
-  }
-
-  function annuler() {
-    setAfficherFormulaire(false)
-    setActualite({ value: '' })
-  }
-
-  async function publierActualite() {
-    if (!actualite.value.trim()) return
-
-    try {
-      setIsPublishing(true)
-      await creerActualiteMissionLocaleClientSide(actualite.value)
-      setAfficherFormulaire(false)
-      setActualite({ value: '' })
-      await onActualiteCreee()
-    } catch (error) {
-      console.error('Erreur lors de la publication:', error)
-    } finally {
-      setIsPublishing(false)
-    }
-  }
+  function ouvrirFormulaire() {}
 
   function permuterVisibiliteMessagerie() {
     setMessagerieEstVisible(!messagerieEstVisible)
@@ -81,7 +47,7 @@ export default function BandeauActualites({
         <div className='items-center relative h-full overflow-y-auto p-4'>
           {isLoading && <SpinningLoader alert={true} />}
 
-          {!isLoading && !afficherFormulaire && (
+          {!isLoading && (
             <>
               {actualites && actualites.length > 0 ? (
                 <BlocActualityMessage messages={actualites} />
@@ -108,36 +74,6 @@ export default function BandeauActualites({
                 </div>
               )}
             </>
-          )}
-
-          {!isLoading && afficherFormulaire && (
-            <div className='bg-white p-6 rounded-base'>
-              <div className='flex flex-col gap-4'>
-                <Label htmlFor='actualite'>Rédigez votre actualité</Label>
-                <Textarea
-                  id='actualite'
-                  defaultValue={actualite.value}
-                  onChange={(value: string) => setActualite({ value })}
-                  rows={8}
-                />
-              </div>
-
-              <div className='flex justify-end gap-4 mt-6'>
-                <Button
-                  style={ButtonStyle.SECONDARY}
-                  onClick={annuler}
-                  disabled={isPublishing}
-                >
-                  Annuler
-                </Button>
-                <Button
-                  onClick={publierActualite}
-                  disabled={!actualite.value.trim() || isPublishing}
-                >
-                  {isPublishing ? 'Publication...' : "Publier l'actualité"}
-                </Button>
-              </div>
-            </div>
           )}
         </div>
       )}

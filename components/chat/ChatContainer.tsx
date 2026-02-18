@@ -5,7 +5,6 @@ import ChatRoom from 'components/chat/ChatRoom'
 import ConversationBeneficiaire from 'components/chat/ConversationBeneficiaire'
 import ListeListes from 'components/chat/ListeListes'
 import RubriqueListes from 'components/chat/RubriqueListes'
-import { ActualiteMissionLocale } from 'interfaces/actualites'
 import {
   BeneficiaireEtChat,
   ConseillerHistorique,
@@ -18,6 +17,8 @@ import { useChats } from 'utils/chat/chatsContext'
 import { useCurrentConversation } from 'utils/chat/currentConversationContext'
 import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
+
+import { ActualiteMessage } from '../../interfaces/actualiteMilo'
 
 type ChatContainerProps = {
   onShowMenu: () => void
@@ -48,16 +49,11 @@ export default function ChatContainer({
   const [listeSelectionnee, setListeSelectionnee] = useListeSelectionnee()
 
   const [showActualites, setShowActualites] = useState<boolean>(false)
-  const [actualites, setActualites] = useState<ActualiteMissionLocale[]>()
+  const [actualites, setActualites] = useState<ActualiteMessage[]>()
 
   function afficherConversation(conversation: BeneficiaireEtChat | undefined) {
     if (conversation) conversationAFocus.current = conversation.id
     setCurrentConversation(conversation)
-  }
-
-  async function rafraichirActualites() {
-    const actualitesChargees = await getActualitesMissionLocaleClientSide()
-    setActualites(actualitesChargees)
   }
 
   useEffect(() => {
@@ -66,9 +62,10 @@ export default function ChatContainer({
   }, [listes, showRubriqueListes])
 
   useEffect(() => {
-    if (showActualites && !actualites)
+    if (showActualites) {
       getActualitesMissionLocaleClientSide().then(setActualites)
-  }, [actualites, showActualites])
+    }
+  }, [showActualites])
 
   useEffect(() => {
     if (
@@ -123,7 +120,6 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
-              onActualiteCreee={rafraichirActualites}
             />
           )}
 
@@ -154,7 +150,6 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
-              onActualiteCreee={rafraichirActualites}
             />
           )}
 
