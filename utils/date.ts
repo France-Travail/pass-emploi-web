@@ -31,13 +31,13 @@ export function toLongMonthDate(date: string | DateTime): string {
 const WEEKDAY_MONTH_LONG = 'EEEE d MMMM'
 /** mercredi 2 juin */
 export function toMonthday(date: string | DateTime): string {
-  return toFrenchFormat(date, WEEKDAY_MONTH_LONG)
+  return withFrenchOrdinalDay(toFrenchFormat(date, WEEKDAY_MONTH_LONG))
 }
 
 const WEEKDAY = 'EEEE d'
 /** mercredi 2 */
 export function toWeekday(date: string | DateTime): string {
-  return toFrenchFormat(date, WEEKDAY)
+  return withFrenchOrdinalDay(toFrenchFormat(date, WEEKDAY))
 }
 
 const TIME = "HH':'mm"
@@ -135,6 +135,10 @@ function toFrenchString(
 function toFrenchFormat(date: string | DateTime, format: string): string {
   const datetime = date instanceof DateTime ? date : DateTime.fromISO(date)
   return datetime.toFormat(format, { locale: 'fr-FR' })
+}
+
+function withFrenchOrdinalDay(formatted: string): string {
+  return formatted.replace(/\b1\b/, '1er')
 }
 
 export function getPeriodeComprenant(
