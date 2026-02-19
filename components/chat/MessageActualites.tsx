@@ -21,6 +21,16 @@ type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
 }
 
+function confirmerRedirectionLienExterne(
+  e: React.MouseEvent<HTMLAnchorElement>,
+  lien: string
+) {
+  e.preventDefault()
+  if (window.confirm('Vous allez quitter l\u2019espace conseiller')) {
+    window.open(lien, '_blank', 'noopener, noreferrer')
+  }
+}
+
 export default function MessageActualites({ messages }: BlocMessageProps) {
   function permuterMenuEdition() {}
 
@@ -57,8 +67,11 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                       <a
                         href={m.lien}
                         target='_blank'
-                        rel='noreferrer'
+                        rel='noreferrer noopener'
                         className='underline text-base-medium text-primary-darken'
+                        onClick={(e) =>
+                          confirmerRedirectionLienExterne(e, m.lien)
+                        }
                       >
                         <IconComponent
                           name={IconName.OpenInNew}
