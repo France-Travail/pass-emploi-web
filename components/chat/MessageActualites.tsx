@@ -35,6 +35,22 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
           >
             <p className='text-primary-darken text-base-bold'>{m.titre}</p>
             <p className='text-primary-darken text-s-regular'>{m.contenu}</p>
+            {m.lien && m.titreLien && (
+              <a
+                href={m.lien}
+                target='_blank'
+                rel='noreferrer'
+                className='underline text-base-medium text-primary-darken'
+              >
+                <IconComponent
+                  name={IconName.OpenInNew}
+                  className='inline shrink-0 w-5 h-5 ml-1 mr-1 fill-current'
+                  focusable={false}
+                  aria-hidden={true}
+                />
+                {m.titreLien}
+              </a>
+            )}
           </div>
           <div className='relative'>
             <button
