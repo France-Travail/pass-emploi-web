@@ -348,7 +348,7 @@ function ChatRoom(
                 Partager ici les informations de votre mission locale
               </span>
             </div>
-            <div className='flex flex-col'>
+            <div className='flex flex-col ml-auto'>
               <IconComponent
                 name={IconName.Speaker}
                 className='w-12 h-10 fill-primary'

@@ -1,21 +1,11 @@
 import { DateTime } from 'luxon'
 import React, { useEffect, useRef } from 'react'
 
+import { ActualiteMessage } from '../../interfaces/actualiteMilo'
 import { toFrenchDateTime, toFrenchTime } from '../../utils/date'
 import IconComponent, { IconName } from '../ui/IconComponent'
 
 import DateMessage from './DateMessage'
-
-type ActualiteMessage = {
-  id: string
-  titre: string
-  contenu: string
-  dateCreation: DateTime
-  titreLien: string
-  lien: string
-  proprietaire: boolean
-  prenomNomConseiller: string
-}
 
 type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
@@ -61,12 +51,12 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
   }, [messages])
 
   return (
-    <ul className='w-full'>
+    <ul className='w-full space-y-6'>
       {Array.from(messagesParDate.values()).map(
         ({ date, messages: groupe }) => (
           <li key={date.toISODate()}>
             <DateMessage date={date} />
-            <ul>
+            <ul className='space-y-6'>
               {groupe.map((m) => {
                 const estDernierMessage = m.id === idDernierMessage
                 return (
@@ -76,12 +66,12 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                     id={estDernierMessage ? 'derniere-actualite' : undefined}
                   >
                     <div
-                      className={`break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1 gap-2`}
+                      className={`break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1`}
                     >
-                      <p className='text-primary-darken text-base-bold'>
+                      <p className='text-primary-darken text-base-bold mb-2'>
                         {m.titre}
                       </p>
-                      <p className='text-primary-darken text-s-regular'>
+                      <p className='text-primary-darken text-s-regular mb-2'>
                         {m.contenu}
                       </p>
                       {m.lien && m.titreLien && (
@@ -96,7 +86,7 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                         >
                           <IconComponent
                             name={IconName.OpenInNew}
-                            className='inline shrink-0 w-5 h-5 ml-1 mr-1 fill-current'
+                            className='inline shrink-0 w-4 h-4 ml-1 mr-1 fill-current'
                             focusable={false}
                             aria-hidden={true}
                           />
@@ -113,8 +103,22 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                 ${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour
                 votre message du ${toFrenchDateTime(m.dateCreation, { a11y: true })}
               `}
-                        className='flex items-center gap-2 ml-auto text-xs-medium text-content'
+                        className='flex items-center gap-2 text-xs-medium text-content'
                       >
+                        <p>
+                          <span
+                            className='text-xs-medium'
+                            aria-label={toFrenchTime(m.dateCreation, {
+                              a11y: true,
+                            })}
+                          >
+                            {toFrenchTime(m.dateCreation)} ·{' '}
+                          </span>
+                          <span className='text-xs-medium'>
+                            Posté par {m.prenomNomConseiller}
+                          </span>
+                        </p>
+
                         <div
                           className={
                             afficherMenuEdition
@@ -129,20 +133,6 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                             name={IconName.More}
                           />
                         </div>
-
-                        <p>
-                          <span className='text-xs-medium'>
-                            Posté par {m.prenomNomConseiller} ·{' '}
-                          </span>
-                          <span
-                            className='text-xs-medium'
-                            aria-label={toFrenchTime(m.dateCreation, {
-                              a11y: true,
-                            })}
-                          >
-                            {toFrenchTime(m.dateCreation)}
-                          </span>
-                        </p>
                       </button>
                     </div>
                   </li>

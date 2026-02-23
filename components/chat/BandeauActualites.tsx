@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react'
 
-import HeaderChat from 'components/chat/HeaderChat'
+import BoutonRetour from 'components/chat/BoutonRetour'
 import { MessagerieCachee } from 'components/chat/MessagerieCachee'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
@@ -11,15 +11,15 @@ import Button from '../ui/Button/Button'
 import MessageActualites from './MessageActualites'
 
 interface BandeauActualitesProps {
-  actualites: ActualiteMessage[] | undefined
-  onRetourMessagerie: () => void
+  readonly actualites: ActualiteMessage[] | undefined
+  readonly onRetourMessagerie: () => void
 }
 
 export default function BandeauActualites({
   actualites,
   onRetourMessagerie,
 }: BandeauActualitesProps) {
-  const headerRef = useRef<{ focusRetour: () => void }>(null)
+  const retourRef = useRef<HTMLButtonElement>(null)
 
   const [messagerieEstVisible, setMessagerieEstVisible] =
     useState<boolean>(true)
@@ -34,14 +34,16 @@ export default function BandeauActualites({
 
   return (
     <>
-      <HeaderChat
-        ref={headerRef}
-        titre='Actualités de ma mission locale'
-        labelRetour='Retour'
-        onBack={onRetourMessagerie}
-        onPermuterVisibiliteMessagerie={permuterVisibiliteMessagerie}
-        messagerieEstVisible={messagerieEstVisible}
-      />
+      <div className='items-center mx-4 my-6'>
+        <BoutonRetour
+          ref={retourRef}
+          labelRetour='Retour'
+          onBack={onRetourMessagerie}
+        />
+        <h2 className='w-full text-left text-primary text-m-bold ml-2 mt-4'>
+          Actualités de ma mission locale
+        </h2>
+      </div>
 
       {messagerieEstVisible && (
         <div className='items-center relative h-full overflow-y-auto p-4'>
