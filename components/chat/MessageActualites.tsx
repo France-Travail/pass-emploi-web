@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { toFrenchDateTime, toFrenchTime } from '../../utils/date'
 import IconComponent, { IconName } from '../ui/IconComponent'
@@ -36,6 +36,10 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
 
   let afficherMenuEdition
 
+  const dernierMessageRef = useRef<HTMLLIElement>(null)
+  const idDernierMessage =
+    messages.length > 0 ? messages[messages.length - 1].id : null
+
   const messagesParDate = messages.reduce<
     Map<string, { date: DateTime; messages: ActualiteMessage[] }>
   >((acc, m) => {
@@ -45,91 +49,109 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
     return acc
   }, new Map())
 
+  useEffect(() => {
+    if (dernierMessageRef.current) {
+      dernierMessageRef.current.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+      })
+      const button = dernierMessageRef.current.querySelector('button')
+      button?.focus()
+    }
+  }, [messages])
+
   return (
-    <div className='w-full'>
+    <ul className='w-full'>
       {Array.from(messagesParDate.values()).map(
         ({ date, messages: groupe }) => (
-          <div key={date.toISODate()}>
+          <li key={date.toISODate()}>
             <DateMessage date={date} />
             <ul>
-              {groupe.map((m) => (
-                <li key={m.id}>
-                  <div
-                    className={`text-base-regular break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1`}
+              {groupe.map((m) => {
+                const estDernierMessage = m.id === idDernierMessage
+                return (
+                  <li
+                    key={m.id}
+                    ref={estDernierMessage ? dernierMessageRef : null}
+                    id={estDernierMessage ? 'derniere-actualite' : undefined}
                   >
-                    <p className='text-primary-darken text-base-bold'>
-                      {m.titre}
-                    </p>
-                    <p className='text-primary-darken text-s-regular'>
-                      {m.contenu}
-                    </p>
-                    {m.lien && m.titreLien && (
-                      <a
-                        href={m.lien}
-                        target='_blank'
-                        rel='noreferrer noopener'
-                        className='underline text-base-medium text-primary-darken'
-                        onClick={(e) =>
-                          confirmerRedirectionLienExterne(e, m.lien)
-                        }
-                      >
-                        <IconComponent
-                          name={IconName.OpenInNew}
-                          className='inline shrink-0 w-5 h-5 ml-1 mr-1 fill-current'
-                          focusable={false}
-                          aria-hidden={true}
-                        />
-                        {m.titreLien}
-                      </a>
-                    )}
-                  </div>
-                  <div className='relative'>
-                    <button
-                      type='button'
-                      onClick={permuterMenuEdition}
-                      title={`${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour votre message du ${toFrenchDateTime(m.dateCreation)}`}
-                      aria-label={`
+                    <div
+                      className={`break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1 gap-2`}
+                    >
+                      <p className='text-primary-darken text-base-bold'>
+                        {m.titre}
+                      </p>
+                      <p className='text-primary-darken text-s-regular'>
+                        {m.contenu}
+                      </p>
+                      {m.lien && m.titreLien && (
+                        <a
+                          href={m.lien}
+                          target='_blank'
+                          rel='noreferrer noopener'
+                          className='underline text-base text-primary-darken'
+                          onClick={(e) =>
+                            confirmerRedirectionLienExterne(e, m.lien)
+                          }
+                        >
+                          <IconComponent
+                            name={IconName.OpenInNew}
+                            className='inline shrink-0 w-5 h-5 ml-1 mr-1 fill-current'
+                            focusable={false}
+                            aria-hidden={true}
+                          />
+                          {m.titreLien}
+                        </a>
+                      )}
+                    </div>
+                    <div className='relative'>
+                      <button
+                        type='button'
+                        onClick={permuterMenuEdition}
+                        title={`${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour votre message du ${toFrenchDateTime(m.dateCreation)}`}
+                        aria-label={`
                 ${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour
                 votre message du ${toFrenchDateTime(m.dateCreation, { a11y: true })}
               `}
-                      className='flex items-center gap-2 ml-auto text-xs-medium text-content'
-                    >
-                      <div
-                        className={
-                          afficherMenuEdition
-                            ? 'bg-primary rounded-full fill-white'
-                            : 'fill-grey-800 hover:rounded-full hover:shadow-m'
-                        }
+                        className='flex items-center gap-2 ml-auto text-xs-medium text-content'
                       >
-                        <IconComponent
-                          focusable={false}
-                          aria-hidden={true}
-                          className='inline w-4 h-4 m-1'
-                          name={IconName.More}
-                        />
-                      </div>
-
-                      <p>
-                        <span className='text-xs-medium'>
-                          Posté par {m.prenomNomConseiller} ·{' '}
-                        </span>
-                        <span
-                          className='text-xs-medium'
-                          aria-label={toFrenchTime(m.dateCreation, {
-                            a11y: true,
-                          })}
+                        <div
+                          className={
+                            afficherMenuEdition
+                              ? 'bg-primary rounded-full fill-white'
+                              : 'fill-grey-800 hover:rounded-full hover:shadow-m'
+                          }
                         >
-                          {toFrenchTime(m.dateCreation)}
-                        </span>
-                      </p>
-                    </button>
-                  </div>
-                </li>
-              ))}
+                          <IconComponent
+                            focusable={false}
+                            aria-hidden={true}
+                            className='inline w-4 h-4 m-1'
+                            name={IconName.More}
+                          />
+                        </div>
+
+                        <p>
+                          <span className='text-xs-medium'>
+                            Posté par {m.prenomNomConseiller} ·{' '}
+                          </span>
+                          <span
+                            className='text-xs-medium'
+                            aria-label={toFrenchTime(m.dateCreation, {
+                              a11y: true,
+                            })}
+                          >
+                            {toFrenchTime(m.dateCreation)}
+                          </span>
+                        </p>
+                      </button>
+                    </div>
+                  </li>
+                )
+              })}
             </ul>
-          </div>
+          </li>
         )
       )}
-    </div>
+    </ul>
   )
 }

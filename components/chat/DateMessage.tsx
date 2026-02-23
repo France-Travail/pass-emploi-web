@@ -10,7 +10,7 @@ export default function DateMessage({ date }: DateMessageProps) {
   const label = dateIsToday(date) ? "Aujourd'hui" : `Le ${toShortDate(date)}`
 
   return (
-    <div className='text-base-regular text-center mb-3'>
+    <div className='text-s-regular text-center mb-3'>
       <p>{label}</p>
     </div>
   )

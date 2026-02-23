@@ -37,7 +37,7 @@ export default function BandeauActualites({
       <HeaderChat
         ref={headerRef}
         titre='Actualités de ma mission locale'
-        labelRetour='Retour sur ma messagerie'
+        labelRetour='Retour'
         onBack={onRetourMessagerie}
         onPermuterVisibiliteMessagerie={permuterVisibiliteMessagerie}
         messagerieEstVisible={messagerieEstVisible}
