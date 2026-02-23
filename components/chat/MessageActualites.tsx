@@ -9,6 +9,7 @@ import DateMessage from './DateMessage'
 
 type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
+  readonly shouldAutoFocusLastMessage?: boolean
 }
 
 function confirmerRedirectionLienExterne(
@@ -21,7 +22,10 @@ function confirmerRedirectionLienExterne(
   }
 }
 
-export default function MessageActualites({ messages }: BlocMessageProps) {
+export default function MessageActualites({
+  messages,
+  shouldAutoFocusLastMessage = true,
+}: BlocMessageProps) {
   function permuterMenuEdition() {}
 
   let afficherMenuEdition
@@ -40,7 +44,7 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
   }, new Map())
 
   useEffect(() => {
-    if (dernierMessageRef.current) {
+    if (shouldAutoFocusLastMessage && dernierMessageRef.current) {
       dernierMessageRef.current.scrollIntoView({
         block: 'nearest',
         inline: 'nearest',
@@ -48,7 +52,7 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
       const button = dernierMessageRef.current.querySelector('button')
       button?.focus()
     }
-  }, [messages])
+  }, [messages, shouldAutoFocusLastMessage])
 
   return (
     <ul className='w-full space-y-6'>
@@ -63,7 +67,7 @@ export default function MessageActualites({ messages }: BlocMessageProps) {
                   <li
                     key={m.id}
                     ref={estDernierMessage ? dernierMessageRef : null}
-                    id={estDernierMessage ? 'derniere-actualite' : undefined}
+                    id={m.id}
                   >
                     <div
                       className={`break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1`}

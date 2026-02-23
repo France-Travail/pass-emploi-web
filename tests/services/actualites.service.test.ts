@@ -6,11 +6,10 @@ import { ActualitesRaw, ArticleJson, TagJson } from 'interfaces/actualites'
 import { ActualiteJson } from 'interfaces/json/actualite'
 import {
   structureAvenirPro,
-  structureConseillDepartemental,
+  structureBrsa,
+  structureConseilDepartemental,
+  structureFTCej,
   structureMilo,
-  structurePoleEmploi,
-  structurePoleEmploiAIJ,
-  structurePoleEmploiBRSA,
 } from 'interfaces/structure'
 import {
   creerActualiteMissionLocale,
@@ -204,7 +203,7 @@ describe('ActualitesService', () => {
       ;(fetchJson as jest.Mock).mockResolvedValueOnce({ content: [] })
 
       // When
-      await getActualites(structurePoleEmploi)
+      await getActualites(structureFTCej)
 
       // Then
       expect(fetchJson).toHaveBeenCalledWith('http://pe.url')
@@ -220,7 +219,7 @@ describe('ActualitesService', () => {
       ;(fetchJson as jest.Mock).mockResolvedValueOnce({ content: [] })
 
       // When
-      await getActualites(structureConseillDepartemental)
+      await getActualites(structureConseilDepartemental)
 
       // Then
       expect(fetchJson).toHaveBeenCalledWith('http://cd.url')
@@ -253,7 +252,7 @@ describe('ActualitesService', () => {
       ;(fetchJson as jest.Mock).mockResolvedValueOnce({ content: [] })
 
       // When
-      await getActualites(structurePoleEmploiBRSA)
+      await getActualites(structureBrsa)
 
       // Then
       expect(fetchJson).toHaveBeenCalledWith('http://intensif.url')
@@ -299,7 +298,8 @@ describe('ActualitesService', () => {
           title: { rendered: 'Article' },
           tags: [],
           content: {
-            rendered: '<p>Texte</p><img src="image.jpg" /><script>alert("bad")</script>',
+            rendered:
+              '<p>Texte</p><img src="image.jpg" /><script>alert("bad")</script>',
           },
           sticky: false,
         },
@@ -391,7 +391,10 @@ describe('ActualitesService', () => {
       })
 
       // When
-      const result = await getActualitesMissionLocale('conseiller-123', 'token-abc')
+      const result = await getActualitesMissionLocale(
+        'conseiller-123',
+        'token-abc'
+      )
 
       // Then
       expect(apiGet).toHaveBeenCalledWith(
