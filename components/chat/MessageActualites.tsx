@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import ConfirmationRedirectionModal from 'components/ConfirmationRedirectionModal'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { toFrenchDateTime, toFrenchTime } from 'utils/date'
+import { toFrenchTime } from 'utils/date'
 
 import DateMessage from './DateMessage'
 
@@ -17,12 +17,7 @@ export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
 }: BlocMessageProps) {
-  const [afficherMenuEdition, setAfficherMenuEdition] = useState(false)
   const [lienAOuvrir, setLienAOuvrir] = useState<string | null>(null)
-
-  function permuterMenuEdition() {
-    setAfficherMenuEdition(!afficherMenuEdition)
-  }
 
   function confirmerRedirectionLienExterne(
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -107,40 +102,18 @@ export default function MessageActualites({
                           </a>
                         )}
                       </div>
-                      <div className='relative'>
-                        <button
-                          type='button'
-                          onClick={permuterMenuEdition}
-                          title={`${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour votre message du ${toFrenchDateTime(m.dateCreation)}`}
-                          aria-label={`
-                  ${afficherMenuEdition ? 'Cacher' : 'Voir'} les actions possibles pour
-                  votre message du ${toFrenchDateTime(m.dateCreation, { a11y: true })}
-                `}
-                          className='flex items-center gap-2 text-xs-medium text-content'
+                      <div className='flex items-center gap-2 text-xs-medium text-content mt-1'>
+                        <span
+                          className='text-xs-medium'
+                          aria-label={toFrenchTime(m.dateCreation, {
+                            a11y: true,
+                          })}
                         >
-                          <p>
-                            <span
-                              className='text-xs-medium'
-                              aria-label={toFrenchTime(m.dateCreation, {
-                                a11y: true,
-                              })}
-                            >
-                              {toFrenchTime(m.dateCreation)} ·{' '}
-                            </span>
-                            <span className='text-xs-medium'>
-                              Posté par {m.prenomNomConseiller}
-                            </span>
-                          </p>
-
-                          <div className='fill-grey-800 hover:rounded-full hover:shadow-m'>
-                            <IconComponent
-                              focusable={false}
-                              aria-hidden={true}
-                              className='inline w-4 h-4 m-1'
-                              name={IconName.More}
-                            />
-                          </div>
-                        </button>
+                          {toFrenchTime(m.dateCreation)} ·{' '}
+                        </span>
+                        <span className='text-xs-medium'>
+                          Posté par {m.prenomNomConseiller}
+                        </span>
                       </div>
                     </li>
                   )

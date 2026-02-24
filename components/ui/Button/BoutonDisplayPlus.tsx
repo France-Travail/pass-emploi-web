@@ -5,13 +5,13 @@ import IconComponent, { IconName } from 'components/ui/IconComponent'
 
 interface BoutonDisplayPlusProps {
   readonly onClick: () => void
-  readonly isLoading: boolean
+  readonly isLoading?: boolean
   readonly label: string
 }
 
 export default function BoutonDisplayPlus({
   onClick,
-  isLoading,
+  isLoading = false,
   label,
 }: BoutonDisplayPlusProps) {
   return (

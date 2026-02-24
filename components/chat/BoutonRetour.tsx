@@ -6,16 +6,17 @@ interface BoutonRetourProps {
   labelRetour: string
   onBack: () => void
   messagerieFullScreen?: boolean
+  id?: string
 }
 
 function BoutonRetour(
-  { labelRetour, onBack, messagerieFullScreen }: BoutonRetourProps,
+  { labelRetour, onBack, messagerieFullScreen, id }: BoutonRetourProps,
   ref: ForwardedRef<HTMLButtonElement>
 ) {
   return (
     <button
       ref={ref}
-      id='chat-bouton-retour'
+      id={id}
       className={`border-none rounded-full mr-2 ${messagerieFullScreen ? '' : 'bg-primary-lighten'} flex items-center hover:text-primary focus:pr-2`}
       aria-label={labelRetour}
       onClick={onBack}
