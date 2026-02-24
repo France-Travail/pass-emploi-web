@@ -4,9 +4,9 @@ import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 
 interface BoutonDisplayPlusProps {
-  onClick: () => void
-  isLoading: boolean
-  label: string
+  readonly onClick: () => void
+  readonly isLoading: boolean
+  readonly label: string
 }
 
 export default function BoutonDisplayPlus({

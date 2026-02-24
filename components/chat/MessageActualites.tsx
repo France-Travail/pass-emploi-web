@@ -17,7 +17,7 @@ function confirmerRedirectionLienExterne(
   lien: string
 ) {
   e.preventDefault()
-  if (window.confirm('Vous allez quitter l\u2019espace conseiller')) {
+  if (globalThis.confirm('Vous allez quitter l\u2019espace conseiller')) {
     window.open(lien, '_blank', 'noopener, noreferrer')
   }
 }
@@ -33,8 +33,7 @@ export default function MessageActualites({
   }
 
   const dernierMessageRef = useRef<HTMLLIElement>(null)
-  const idDernierMessage =
-    messages.length > 0 ? messages[messages.length - 1].id : null
+  const idDernierMessage = messages.at(-1)?.id ?? null
 
   const messagesParDate = messages.reduce<
     Map<string, { date: DateTime; messages: ActualiteMessage[] }>

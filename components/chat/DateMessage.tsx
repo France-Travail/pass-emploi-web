@@ -3,7 +3,7 @@ import { DateTime } from 'luxon'
 import { dateIsToday, toShortDate } from 'utils/date'
 
 type DateMessageProps = {
-  date: DateTime
+  readonly date: DateTime
 }
 
 export default function DateMessage({ date }: DateMessageProps) {
