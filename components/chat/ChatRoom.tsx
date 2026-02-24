@@ -33,6 +33,7 @@ type ChatRoomProps = {
   beneficiairesChats: BeneficiaireEtChat[] | undefined
   onOuvertureMenu: () => void
   onAccesListes: () => void
+  onAccesActualites: () => void
   onAccesConversation: (conversation: BeneficiaireEtChat) => void
 }
 
@@ -41,6 +42,7 @@ function ChatRoom(
     beneficiairesChats,
     onOuvertureMenu,
     onAccesListes,
+    onAccesActualites,
     onAccesConversation,
   }: ChatRoomProps,
   ref: ForwardedRef<{
@@ -332,6 +334,35 @@ function ChatRoom(
           >
             <RechercheBeneficiaire onSearchFilterBy={filtrerConversations} />
           </div>
+
+          <button
+            className='flex text-primary bg-primary rounded-base p-4 mb-2 mx-4'
+            onClick={onAccesActualites}
+            type='button'
+          >
+            <div className='flex flex-col gap-2'>
+              <span className='grow text-base-bold text-left text-white'>
+                Actualités
+              </span>
+              <span className='text-s-regular text-left text-white'>
+                Partager ici les informations de votre mission locale
+              </span>
+            </div>
+            <div className='flex flex-col ml-auto'>
+              <IconComponent
+                name={IconName.Speaker}
+                className='w-12 h-10 fill-primary'
+                aria-hidden={true}
+                focusable={false}
+              />
+              <IconComponent
+                name={IconName.ChevronRight}
+                className='mr-2 h-6 w-6 fill-current'
+                aria-hidden={true}
+                focusable={false}
+              />
+            </div>
+          </button>
 
           <button
             ref={accesListesRef}
