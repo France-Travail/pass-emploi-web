@@ -313,10 +313,12 @@ describe('ActualitesService', () => {
 
       // Then
       expect(output).toBeDefined()
-      // Le contenu devrait contenir le texte et l'image mais pas le script
+      // Le contenu devrait contenir le texte et l'image
       expect(output![0].contenu).toContain('Texte')
       expect(output![0].contenu).toContain('img')
-      expect(output![0].contenu).not.toContain('script')
+      // Vérifie que le script est échappé et non exécutable
+      expect(output![0].contenu).not.toContain('<script>')
+      expect(output![0].contenu).toContain('&lt;script&gt;')
     })
   })
 
