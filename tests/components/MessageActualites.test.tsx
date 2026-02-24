@@ -166,11 +166,23 @@ describe('MessageActualites', () => {
 
   describe('quand on clique sur un lien externe', () => {
     beforeEach(() => {
-      global.confirm = jest.fn()
       global.open = jest.fn()
+
+      // Créer l'élément modal-root pour les portals
+      const modalRoot = document.createElement('div')
+      modalRoot.setAttribute('id', 'modal-root')
+      document.body.appendChild(modalRoot)
     })
 
-    it('affiche une confirmation avant de rediriger', async () => {
+    afterEach(() => {
+      // Nettoyer l'élément modal-root
+      const modalRoot = document.getElementById('modal-root')
+      if (modalRoot) {
+        document.body.removeChild(modalRoot)
+      }
+    })
+
+    it('affiche un modal de confirmation avant de rediriger', async () => {
       // Given
       const messages = [
         uneActualiteMilo({
@@ -178,7 +190,6 @@ describe('MessageActualites', () => {
           lien: 'https://external.com',
         }),
       ]
-      ;(global.confirm as jest.Mock).mockReturnValue(false)
 
       // When
       render(<MessageActualites messages={messages} />)
@@ -186,10 +197,43 @@ describe('MessageActualites', () => {
       await userEvent.click(lien)
 
       // Then
-      expect(global.confirm).toHaveBeenCalledWith(
-        'Vous allez quitter l\u2019espace conseiller'
-      )
+      expect(
+        screen.getByRole('heading', {
+          name: 'Redirection vers un site externe',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          "Vous allez quitter l'espace conseiller pour accéder au site :"
+        )
+      ).toBeInTheDocument()
+      expect(screen.getByText('https://external.com')).toBeInTheDocument()
+    })
+
+    it('n ouvre pas le lien si l utilisateur annule', async () => {
+      // Given
+      const messages = [
+        uneActualiteMilo({
+          titreLien: 'Lien externe',
+          lien: 'https://external.com',
+        }),
+      ]
+
+      // When
+      render(<MessageActualites messages={messages} />)
+      const lien = screen.getByRole('link', { name: /Lien externe/i })
+      await userEvent.click(lien)
+
+      const boutonAnnuler = screen.getByRole('button', { name: 'Annuler' })
+      await userEvent.click(boutonAnnuler)
+
+      // Then
       expect(global.open).not.toHaveBeenCalled()
+      expect(
+        screen.queryByRole('heading', {
+          name: 'Redirection vers un site externe',
+        })
+      ).not.toBeInTheDocument()
     })
 
     it('ouvre le lien si l utilisateur confirme', async () => {
@@ -200,17 +244,16 @@ describe('MessageActualites', () => {
           lien: 'https://external.com',
         }),
       ]
-      ;(global.confirm as jest.Mock).mockReturnValue(true)
 
       // When
       render(<MessageActualites messages={messages} />)
       const lien = screen.getByRole('link', { name: /Lien externe/i })
       await userEvent.click(lien)
 
+      const boutonContinuer = screen.getByRole('button', { name: /Continuer/i })
+      await userEvent.click(boutonContinuer)
+
       // Then
-      expect(global.confirm).toHaveBeenCalledWith(
-        'Vous allez quitter l\u2019espace conseiller'
-      )
       expect(global.open).toHaveBeenCalledWith(
         'https://external.com',
         '_blank',
