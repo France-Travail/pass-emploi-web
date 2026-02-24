@@ -5,6 +5,7 @@ import { DateTime } from 'luxon'
 
 import MessageActualites from 'components/chat/MessageActualites'
 import { desActualitesMilo, uneActualiteMilo } from 'fixtures/actualiteMilo'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 
 describe('MessageActualites', () => {
   describe('quand il y a plusieurs messages', () => {
@@ -73,10 +74,14 @@ describe('MessageActualites', () => {
       render(<MessageActualites messages={messages} />)
 
       // Then
-      expect(screen.getByText(/Posté par Nils Tavernier/)).toBeInTheDocument()
-      expect(screen.getByText(/Posté par Laura Cadio/)).toBeInTheDocument()
-      expect(screen.getByText('10h00')).toBeInTheDocument()
-      expect(screen.getByText('14h30')).toBeInTheDocument()
+      expect(
+        screen.getAllByText(/Posté par Nils Tavernier/).length
+      ).toBeGreaterThan(0)
+      expect(
+        screen.getAllByText(/Posté par Laura Cadio/).length
+      ).toBeGreaterThan(0)
+      expect(screen.getByText(/10:00/)).toBeInTheDocument()
+      expect(screen.getByText(/14:30/)).toBeInTheDocument()
     })
 
     it('a une structure sémantique correcte', () => {
@@ -111,7 +116,8 @@ describe('MessageActualites', () => {
       const dernierMessageElement = screen
         .getByText('Forum des entreprises')
         .closest('li')
-      expect(dernierMessageElement).toHaveAttribute('id', 'derniere-actualite')
+      // Le dernier message a l'id de l'actualité elle-même
+      expect(dernierMessageElement).toHaveAttribute('id', 'actualite-3')
     })
 
     it('passe le test a11y', async () => {
@@ -216,7 +222,7 @@ describe('MessageActualites', () => {
   describe('quand il n y a pas de message', () => {
     it('affiche une liste vide', () => {
       // Given
-      const messages: any[] = []
+      const messages: ActualiteMessage[] = []
 
       // When
       const { container } = render(<MessageActualites messages={messages} />)

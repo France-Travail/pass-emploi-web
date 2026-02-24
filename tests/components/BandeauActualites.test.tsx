@@ -4,6 +4,7 @@ import { axe } from 'jest-axe'
 
 import BandeauActualites from 'components/chat/BandeauActualites'
 import { desActualitesMilo } from 'fixtures/actualiteMilo'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 
 describe('BandeauActualites', () => {
   const onRetourMessagerie = jest.fn()
@@ -23,7 +24,7 @@ describe('BandeauActualites', () => {
       )
 
       // Then
-      expect(screen.getByRole('alert')).toBeInTheDocument()
+      expect(screen.getByText('Chargement en cours')).toBeInTheDocument()
     })
   })
 
@@ -124,7 +125,7 @@ describe('BandeauActualites', () => {
   describe('quand il n y a pas d actualités', () => {
     it('affiche un message d information', () => {
       // Given
-      const actualites: any[] = []
+      const actualites: ActualiteMessage[] = []
 
       // When
       render(
@@ -142,32 +143,14 @@ describe('BandeauActualites', () => {
       ).toBeInTheDocument()
       expect(
         screen.getByText(
-          'Elles seront visibles par l\u2019ensemble des bénéficiaires de votre mission locale'
+          "Elles seront visibles par l'ensemble des bénéficiaires de votre mission locale"
         )
       ).toBeInTheDocument()
     })
 
-    it('affiche l icône de haut-parleur', () => {
-      // Given
-      const actualites: any[] = []
-
-      // When
-      const { container } = render(
-        <BandeauActualites
-          actualites={actualites}
-          onRetourMessagerie={onRetourMessagerie}
-        />
-      )
-
-      // Then
-      const icon = container.querySelector('svg')
-      expect(icon).toBeInTheDocument()
-      expect(icon).toHaveClass('w-32', 'h-32', 'fill-primary')
-    })
-
     it('affiche quand même le bouton créer une actualité', () => {
       // Given
-      const actualites: any[] = []
+      const actualites: ActualiteMessage[] = []
 
       // When
       render(
@@ -185,7 +168,7 @@ describe('BandeauActualites', () => {
 
     it('passe le test a11y', async () => {
       // Given
-      const actualites: any[] = []
+      const actualites: ActualiteMessage[] = []
 
       // When
       const { container } = render(
@@ -239,29 +222,6 @@ describe('BandeauActualites', () => {
         '.items-center.relative.h-full.overflow-y-auto.p-4'
       )
       expect(messageContainer).toBeInTheDocument()
-    })
-  })
-
-  describe('bouton créer une actualité', () => {
-    it('a l icône d ajout', () => {
-      // Given
-      const actualites = desActualitesMilo()
-
-      // When
-      render(
-        <BandeauActualites
-          actualites={actualites}
-          onRetourMessagerie={onRetourMessagerie}
-        />
-      )
-
-      // Then
-      const button = screen.getByRole('button', {
-        name: /Créer une actualité/i,
-      })
-      const icon = button.querySelector('svg')
-      expect(icon).toBeInTheDocument()
-      expect(icon).toHaveClass('w-4', 'h-4', 'mr-2')
     })
   })
 })

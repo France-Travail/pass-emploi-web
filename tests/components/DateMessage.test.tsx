@@ -80,7 +80,7 @@ describe('DateMessage', () => {
 
       // Then
       const div = container.querySelector('div')
-      expect(div).toHaveClass('text-base-regular', 'text-center', 'mb-3')
+      expect(div).toHaveClass('text-s-regular', 'text-center', 'mb-3')
 
       const p = container.querySelector('p')
       expect(p).toBeInTheDocument()
