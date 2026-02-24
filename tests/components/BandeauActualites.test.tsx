@@ -207,7 +207,7 @@ describe('BandeauActualites', () => {
       const actualites = desActualitesMilo()
 
       // When
-      const { container } = render(
+      render(
         <BandeauActualites
           actualites={actualites}
           onRetourMessagerie={onRetourMessagerie}
@@ -216,9 +216,7 @@ describe('BandeauActualites', () => {
 
       // Then
       expect(screen.getByRole('button', { name: 'Retour' })).toBeInTheDocument()
-      expect(
-        screen.getByRole('heading', { level: 2 })
-      ).toBeInTheDocument()
+      expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: /Créer une actualité/i })
       ).toBeInTheDocument()
@@ -250,7 +248,7 @@ describe('BandeauActualites', () => {
       const actualites = desActualitesMilo()
 
       // When
-      const { container } = render(
+      render(
         <BandeauActualites
           actualites={actualites}
           onRetourMessagerie={onRetourMessagerie}

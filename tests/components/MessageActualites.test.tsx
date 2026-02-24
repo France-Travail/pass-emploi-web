@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { DateTime } from 'luxon'
@@ -34,10 +34,7 @@ describe('MessageActualites', () => {
 
       // Then
       const lienAtelier = screen.getByRole('link', { name: /S inscrire/i })
-      expect(lienAtelier).toHaveAttribute(
-        'href',
-        'https://example.com/atelier'
-      )
+      expect(lienAtelier).toHaveAttribute('href', 'https://example.com/atelier')
 
       const lienPortesOuvertes = screen.getByRole('link', {
         name: /Plus d informations/i,
@@ -114,10 +111,7 @@ describe('MessageActualites', () => {
       const dernierMessageElement = screen
         .getByText('Forum des entreprises')
         .closest('li')
-      expect(dernierMessageElement).toHaveAttribute(
-        'id',
-        'derniere-actualite'
-      )
+      expect(dernierMessageElement).toHaveAttribute('id', 'derniere-actualite')
     })
 
     it('passe le test a11y', async () => {
