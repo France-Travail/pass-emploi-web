@@ -17,8 +17,10 @@ import { useChats } from 'utils/chat/chatsContext'
 import { useCurrentConversation } from 'utils/chat/currentConversationContext'
 import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
+import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 import { ActualiteMessage } from '../../interfaces/actualiteMilo'
+import { estMilo } from '../../interfaces/structure'
 
 type ChatContainerProps = {
   onShowMenu: () => void
@@ -39,6 +41,7 @@ export default function ChatContainer({
   }>(null)
 
   const chats = useChats()
+  const [conseiller] = useConseiller()
 
   const [currentConversation, setCurrentConversation] = useCurrentConversation()
   const [conseillers, setConseillers] = useState<ConseillerHistorique[]>([])
@@ -116,7 +119,7 @@ export default function ChatContainer({
             />
           )}
 
-          {showActualites && (
+          {showActualites && estMilo(conseiller.structure) && (
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
@@ -146,7 +149,7 @@ export default function ChatContainer({
             />
           )}
 
-          {showActualites && (
+          {showActualites && estMilo(conseiller.structure) && (
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
