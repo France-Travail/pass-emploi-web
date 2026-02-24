@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { ActualiteMessage } from '../../interfaces/actualiteMilo'
 import { toFrenchDateTime, toFrenchTime } from '../../utils/date'
@@ -26,9 +26,11 @@ export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
 }: BlocMessageProps) {
-  function permuterMenuEdition() {}
+  const [afficherMenuEdition, setAfficherMenuEdition] = useState(false)
 
-  let afficherMenuEdition
+  function permuterMenuEdition() {
+    setAfficherMenuEdition(!afficherMenuEdition)
+  }
 
   const dernierMessageRef = useRef<HTMLLIElement>(null)
   const idDernierMessage =
@@ -123,13 +125,7 @@ export default function MessageActualites({
                           </span>
                         </p>
 
-                        <div
-                          className={
-                            afficherMenuEdition
-                              ? 'bg-primary rounded-full fill-white'
-                              : 'fill-grey-800 hover:rounded-full hover:shadow-m'
-                          }
-                        >
+                        <div className='fill-grey-800 hover:rounded-full hover:shadow-m'>
                           <IconComponent
                             focusable={false}
                             aria-hidden={true}
