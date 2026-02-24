@@ -5,9 +5,9 @@ import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 
 interface ConfirmationRedirectionModalProps {
-  lien: string
-  onConfirmation: () => void
-  onCancel: () => void
+  readonly lien: string
+  readonly onConfirmation: () => void
+  readonly onCancel: () => void
 }
 
 export default function ConfirmationRedirectionModal({
