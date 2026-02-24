@@ -13,7 +13,7 @@ import DisplayMessageBeneficiaire from 'components/chat/DisplayMessageBeneficiai
 import DisplayMessageConseiller from 'components/chat/DisplayMessageConseiller'
 import HeaderChat from 'components/chat/HeaderChat'
 import { MessagerieCachee } from 'components/chat/MessagerieCachee'
-import Button, { ButtonStyle } from 'components/ui/Button/Button'
+import BoutonDisplayPlus from 'components/ui/Button/BoutonDisplayPlus'
 import FileInput from 'components/ui/Form/FileInput'
 import InputError from 'components/ui/Form/InputError'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
@@ -408,21 +408,11 @@ export function Conversation({
                     )}
 
                     {hasMoreMessages && (
-                      <Button
+                      <BoutonDisplayPlus
                         onClick={chargerPlusDeMessages}
-                        style={ButtonStyle.TERTIARY}
-                        className='mx-auto mb-3'
                         isLoading={loadingMoreMessages}
-                        type='button'
-                      >
-                        <IconComponent
-                          name={IconName.ChevronUp}
-                          aria-hidden={true}
-                          focusable={false}
-                          className='w-4 h-4 fill-current mr-2'
-                        />
-                        Voir messages plus anciens
-                      </Button>
+                        label='Voir messages plus anciens'
+                      />
                     )}
                   </>
                 )}
