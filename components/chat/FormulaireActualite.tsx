@@ -84,7 +84,7 @@ export default function FormulaireActualite({
       noValidate={true}
       className='flex flex-col gap-6'
     >
-      <div className='ml-16 mr-16 flex flex-col gap-2'>
+      <div className='ml-4 mr-4 flex flex-col gap-2'>
         <Label
           htmlFor='actualite-titre'
           inputRequired={true}
@@ -113,7 +113,7 @@ export default function FormulaireActualite({
         </div>
       </div>
 
-      <div className='ml-16 mr-16 flex flex-col gap-2'>
+      <div className='ml-4 mr-4 flex flex-col gap-2'>
         <Label
           htmlFor='actualite-contenu'
           mainClassName='text-base-bold'
@@ -138,7 +138,7 @@ export default function FormulaireActualite({
         />
       </div>
 
-      <div className='ml-16 mr-16 flex flex-col gap-2'>
+      <div className='ml-4 mr-4 flex flex-col gap-2'>
         <Label htmlFor='actualite-titre-lien' mainClassName='text-base-bold'>
           Titre du lien
         </Label>
@@ -158,7 +158,7 @@ export default function FormulaireActualite({
         </div>
       </div>
 
-      <div className='ml-16 mr-16 flex flex-col gap-2'>
+      <div className='ml-4 mr-4 flex flex-col gap-2'>
         <Label htmlFor='actualite-lien' mainClassName='text-base-bold'>
           Lien de redirection
         </Label>
