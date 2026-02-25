@@ -5,6 +5,7 @@ import InputError from 'components/ui/Form/InputError'
 import Label from 'components/ui/Form/Label'
 import ResettableTextarea from 'components/ui/Form/ResettableTextarea'
 import ResettableTextInput from 'components/ui/Form/ResettableTextInput'
+import { ValueWithError } from 'components/ValueWithError'
 
 type FormulaireActualiteProps = {
   onCreation: (
@@ -20,34 +21,37 @@ export default function FormulaireActualite({
   onCreation,
   onAnnulation,
 }: Readonly<FormulaireActualiteProps>) {
-  const [titre, setTitre] = useState<string>('')
-  const [contenu, setContenu] = useState<string>('')
-  const [titreLien, setTitreLien] = useState<string>('')
-  const [lien, setLien] = useState<string>('')
-
-  const [erreurTitre, setErreurTitre] = useState<string | undefined>()
-  const [erreurContenu, setErreurContenu] = useState<string | undefined>()
-  const [erreurLien, setErreurLien] = useState<string | undefined>()
+  const [titre, setTitre] = useState<ValueWithError>({ value: '' })
+  const [contenu, setContenu] = useState<ValueWithError>({ value: '' })
+  const [titreLien, setTitreLien] = useState<ValueWithError>({ value: '' })
+  const [lien, setLien] = useState<ValueWithError>({ value: '' })
 
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
 
   function validerFormulaire(): boolean {
     let isValid = true
 
-    if (!titre.trim()) {
-      setErreurTitre('Le champ "Titre" est obligatoire')
+    if (!titre.value.trim()) {
+      setTitre({
+        value: titre.value,
+        error: 'Le champ "Titre" est obligatoire',
+      })
       isValid = false
     }
 
-    if (!contenu.trim()) {
-      setErreurContenu('Le champ "Contenu" est obligatoire')
+    if (!contenu.value.trim()) {
+      setContenu({
+        value: contenu.value,
+        error: 'Le champ "Contenu" est obligatoire',
+      })
       isValid = false
     }
 
-    if (titreLien.trim() && !lien.trim()) {
-      setErreurLien(
-        'Si vous renseignez un titre de lien, le lien est obligatoire'
-      )
+    if (titreLien.value.trim() && !lien.value.trim()) {
+      setLien({
+        value: lien.value,
+        error: 'Si vous renseignez un titre de lien, le lien est obligatoire',
+      })
       isValid = false
     }
 
@@ -57,10 +61,6 @@ export default function FormulaireActualite({
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    setErreurTitre(undefined)
-    setErreurContenu(undefined)
-    setErreurLien(undefined)
-
     if (!validerFormulaire()) {
       return
     }
@@ -68,10 +68,10 @@ export default function FormulaireActualite({
     try {
       setCreationEnCours(true)
       await onCreation(
-        titre.trim(),
-        contenu.trim(),
-        titreLien.trim() || undefined,
-        lien.trim() || undefined
+        titre.value.trim(),
+        contenu.value.trim(),
+        titreLien.value.trim() || undefined,
+        lien.value.trim() || undefined
       )
     } finally {
       setCreationEnCours(false)
@@ -84,7 +84,7 @@ export default function FormulaireActualite({
       noValidate={true}
       className='flex flex-col gap-6'
     >
-      <div>
+      <div className='ml-16 mr-16 flex flex-col gap-2'>
         <Label
           htmlFor='actualite-titre'
           inputRequired={true}
@@ -92,33 +92,28 @@ export default function FormulaireActualite({
         >
           Titre
         </Label>
-        {erreurTitre && (
+        {titre.error && (
           <InputError id='actualite-titre--error' className='mb-2'>
-            {erreurTitre}
+            {titre.error}
           </InputError>
         )}
         <ResettableTextInput
           type='text'
           id='actualite-titre'
-          value={titre}
+          value={titre.value}
           onChange={(value) => {
-            if (value.length <= 100) {
-              setTitre(value)
-              setErreurTitre(undefined)
-            }
+            if (value.length <= 100) setTitre({ value, error: '' })
           }}
-          onReset={() => {
-            setTitre('')
-            setErreurTitre(undefined)
-          }}
-          invalid={Boolean(erreurTitre)}
+          onReset={() => setTitre({ value: '', error: '' })}
+          invalid={Boolean(titre.error)}
+          placeholder='Renseigner un titre pour votre actualité'
         />
         <div className='text-xs-regular text-right mt-1'>
-          {titre.length} / 100
+          {titre.value.length} / 100
         </div>
       </div>
 
-      <div>
+      <div className='ml-16 mr-16 flex flex-col gap-2'>
         <Label
           htmlFor='actualite-contenu'
           mainClassName='text-base-bold'
@@ -126,76 +121,60 @@ export default function FormulaireActualite({
         >
           Contenu
         </Label>
-        {erreurContenu && (
+        {contenu.error && (
           <InputError id='actualite-contenu--error' className='mb-2'>
-            {erreurContenu}
+            {contenu.error}
           </InputError>
         )}
         <ResettableTextarea
           id='actualite-contenu'
-          value={contenu}
-          onChange={(value) => {
-            setContenu(value)
-            setErreurContenu(undefined)
-          }}
-          onReset={() => {
-            setContenu('')
-            setErreurContenu(undefined)
-          }}
-          invalid={Boolean(erreurContenu)}
+          value={contenu.value}
+          onChange={(value) => setContenu({ value, error: '' })}
+          onReset={() => setContenu({ value: '', error: '' })}
+          invalid={Boolean(contenu.error)}
           rows={5}
           maxLength={500}
           placeholder='Renseigner une description pour votre actualité'
         />
       </div>
 
-      <div>
+      <div className='ml-16 mr-16 flex flex-col gap-2'>
         <Label htmlFor='actualite-titre-lien' mainClassName='text-base-bold'>
           Titre du lien
         </Label>
         <ResettableTextInput
           type='text'
           id='actualite-titre-lien'
-          value={titreLien}
+          value={titreLien.value}
           onChange={(value) => {
-            if (value.length <= 50) {
-              setTitreLien(value)
-              setErreurLien(undefined)
-            }
+            if (value.length <= 50) setTitreLien({ value, error: '' })
           }}
-          onReset={() => {
-            setTitreLien('')
-            setErreurLien(undefined)
-          }}
-          invalid={Boolean(erreurLien)}
+          onReset={() => setTitreLien({ value: '', error: '' })}
+          invalid={Boolean(lien.error)}
+          placeholder="Nom du lien qui s'affichera auprès des bénéficiaires"
         />
         <div className='text-xs-regular text-right mt-1'>
-          {titreLien.length} / 50
+          {titreLien.value.length} / 50
         </div>
       </div>
 
-      <div>
+      <div className='ml-16 mr-16 flex flex-col gap-2'>
         <Label htmlFor='actualite-lien' mainClassName='text-base-bold'>
-          Lien
+          Lien de redirection
         </Label>
-        {erreurLien && (
+        {lien.error && (
           <InputError id='actualite-lien--error' className='mb-2'>
-            {erreurLien}
+            {lien.error}
           </InputError>
         )}
         <ResettableTextInput
           type='url'
           id='actualite-lien'
-          value={lien}
-          onChange={(value) => {
-            setLien(value)
-            setErreurLien(undefined)
-          }}
-          onReset={() => {
-            setLien('')
-            setErreurLien(undefined)
-          }}
-          invalid={Boolean(erreurLien)}
+          value={lien.value}
+          onChange={(value) => setLien({ value, error: '' })}
+          onReset={() => setLien({ value: '', error: '' })}
+          invalid={Boolean(lien.error)}
+          placeholder='https://'
         />
       </div>
 

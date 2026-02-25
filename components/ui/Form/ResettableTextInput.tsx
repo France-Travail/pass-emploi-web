@@ -19,6 +19,7 @@ interface ResettableTextInputProps {
   className?: string
   required?: boolean
   invalid?: boolean
+  placeholder?: string
 }
 
 function ResettableTextInput(
@@ -31,6 +32,7 @@ function ResettableTextInput(
     className,
     required = false,
     invalid = false,
+    placeholder,
   }: ResettableTextInputProps,
   ref: ForwardedRef<HTMLInputElement>
 ) {
@@ -67,6 +69,7 @@ function ResettableTextInput(
         onChange={applyChange}
         className='flex-1 p-3 bg-white rounded-l-base outline-hidden'
         required={required}
+        placeholder={placeholder}
         aria-describedby={invalid ? id + '--error' : undefined}
         aria-invalid={invalid || undefined}
       />

@@ -24,6 +24,7 @@ type ModalProps = Pick<ModalContainerProps, 'onClose'> & {
   title: string
   children: ReactNode
   titleIcon?: IconName
+  titleIconClassName?: string
   titleIllustration?: IllustrationName | FC<SVGProps<SVGElement>>
   titleImageSrc?: string | StaticImport
   containerClassName?: string
@@ -35,6 +36,7 @@ function Modal(
     onClose,
     title,
     titleIcon,
+    titleIconClassName,
     titleIllustration,
     titleImageSrc,
     containerClassName,
@@ -72,7 +74,9 @@ function Modal(
             name={titleIcon}
             focusable={false}
             aria-hidden={true}
-            className='w-16 h-16 m-auto fill-primary mb-8'
+            className={
+              titleIconClassName ?? 'w-16 h-16 m-auto fill-primary mb-8'
+            }
           />
         )}
         {titleIllustration && !isSVG(titleIllustration) && (

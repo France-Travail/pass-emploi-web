@@ -152,22 +152,24 @@ export default function BandeauActualites({
         )}
       </div>
 
-      <div className='flex justify-center gap-4 mb-6'>
-        <Button onClick={ouvrirFormulaire}>
+      <div className='justify-center mb-6 mr-4 ml-4'>
+        <Button onClick={ouvrirFormulaire} className='w-full'>
           <IconComponent
-            name={IconName.Add}
-            className='w-4 h-4 mr-2'
+            name={IconName.SpeakerButton}
+            className='w-4 h-4 mr-2 mt-1'
             aria-hidden={true}
             focusable={false}
           />
-          Créer une actualité
+          Diffuser une actualité
         </Button>
       </div>
 
       {afficherModal && (
         <Modal
           ref={modalRef}
-          title='Créer une actualité'
+          titleIcon={IconName.ChevronWithCircle}
+          titleIconClassName='w-[140px] h-[140px] m-auto fill-primary mb-8'
+          title='Partager ici une actualité de votre mission locale'
           onClose={fermerModal}
           containerClassName='rounded-large bg-white w-[620px] max-w-[90%] max-h-[90vh] overflow-auto p-3'
         >
