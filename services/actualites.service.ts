@@ -112,23 +112,45 @@ export async function getActualitesMissionLocale(
 }
 
 export async function creerActualiteMissionLocaleClientSide(
-  contenu: string
+  titre: string,
+  contenu: string,
+  titreLien?: string,
+  lien?: string
 ): Promise<ActualiteJson> {
   const session = await getSession()
   const { user, accessToken } = session!
 
-  return creerActualiteMissionLocale(user.id, 'Actualité', contenu, accessToken)
+  return creerActualiteMissionLocale(
+    user.id,
+    titre,
+    contenu,
+    accessToken,
+    titreLien,
+    lien
+  )
 }
 
 export async function creerActualiteMissionLocale(
   idConseiller: string,
   titre: string,
   contenu: string,
-  accessToken: string
+  accessToken: string,
+  titreLien?: string,
+  lien?: string
 ): Promise<ActualiteJson> {
+  const payload: {
+    titre: string
+    contenu: string
+    titreLien?: string
+    lien?: string
+  } = { titre, contenu }
+
+  if (titreLien) payload.titreLien = titreLien
+  if (lien) payload.lien = lien
+
   const { content } = await apiPost<ActualiteJson>(
     `/conseillers/milo/${idConseiller}/actualites`,
-    { titre, contenu },
+    payload,
     accessToken
   )
   return content

@@ -1,30 +1,37 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import BoutonRetour from 'components/chat/BoutonRetour'
+import Modal, { ModalHandles } from 'components/Modal'
 import BoutonDisplayPlus from 'components/ui/Button/BoutonDisplayPlus'
 import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
+import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
 import { ActualiteMessage } from '../../interfaces/actualiteMilo'
 
+import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
 
 interface BandeauActualitesProps {
   readonly actualites: ActualiteMessage[] | undefined
   readonly onRetourMessagerie: () => void
+  readonly onActualiteCreee?: () => void
 }
 const NB_ACTUALITES_PAR_PAGE = 10
 export default function BandeauActualites({
   actualites,
   onRetourMessagerie,
+  onActualiteCreee,
 }: BandeauActualitesProps) {
   const retourRef = useRef<HTMLButtonElement>(null)
   const idPrecedentePremiereActualite = useRef<string | undefined>(undefined)
+  const modalRef = useRef<ModalHandles>(null)
 
   const [nombreActualitesAffichees, setNombreActualitesAffichees] =
     useState<number>(NB_ACTUALITES_PAR_PAGE)
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
+  const [afficherModal, setAfficherModal] = useState<boolean>(false)
 
   const isLoading = actualites === undefined
 
@@ -34,7 +41,26 @@ export default function BandeauActualites({
   const aPlusActualites =
     actualites && actualites.length > nombreActualitesAffichees
 
-  function ouvrirFormulaire() {}
+  function ouvrirFormulaire() {
+    setAfficherModal(true)
+  }
+
+  function fermerModal() {
+    setAfficherModal(false)
+  }
+
+  async function creerActualite(
+    titre: string,
+    contenu: string,
+    titreLien?: string,
+    lien?: string
+  ) {
+    await creerActualiteMissionLocaleClientSide(titre, contenu, titreLien, lien)
+    fermerModal()
+    if (onActualiteCreee) {
+      onActualiteCreee()
+    }
+  }
 
   function chargerPlusActualites() {
     if (actualitesAffichees && actualitesAffichees.length > 0) {
@@ -126,7 +152,7 @@ export default function BandeauActualites({
         )}
       </div>
 
-      <div className='flex justify-center gap-4'>
+      <div className='flex justify-center gap-4 mb-6'>
         <Button onClick={ouvrirFormulaire}>
           <IconComponent
             name={IconName.Add}
@@ -137,6 +163,20 @@ export default function BandeauActualites({
           Créer une actualité
         </Button>
       </div>
+
+      {afficherModal && (
+        <Modal
+          ref={modalRef}
+          title='Créer une actualité'
+          onClose={fermerModal}
+          containerClassName='rounded-large bg-white w-[620px] max-w-[90%] max-h-[90vh] overflow-auto p-3'
+        >
+          <FormulaireActualite
+            onCreation={creerActualite}
+            onAnnulation={fermerModal}
+          />
+        </Modal>
+      )}
     </>
   )
 }

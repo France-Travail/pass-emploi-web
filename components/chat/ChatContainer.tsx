@@ -54,6 +54,11 @@ export default function ChatContainer({
   const [showActualites, setShowActualites] = useState<boolean>(false)
   const [actualites, setActualites] = useState<ActualiteMessage[]>()
 
+  async function rafraichirActualites() {
+    const nouvellesActualites = await getActualitesMissionLocaleClientSide()
+    setActualites(nouvellesActualites)
+  }
+
   function afficherConversation(conversation: BeneficiaireEtChat | undefined) {
     if (conversation) conversationAFocus.current = conversation.id
     setCurrentConversation(conversation)
@@ -123,6 +128,7 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
+              onActualiteCreee={rafraichirActualites}
             />
           )}
 
@@ -153,6 +159,7 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
+              onActualiteCreee={rafraichirActualites}
             />
           )}
 

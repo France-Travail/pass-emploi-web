@@ -53,6 +53,7 @@ function ResettableTextInput(
     <div
       className={
         styles.wrapper +
+        (invalid ? ' ' + styles.invalid : '') +
         ' flex flex-horizontal overflow-hidden bg-white ' +
         (className ?? '')
       }
