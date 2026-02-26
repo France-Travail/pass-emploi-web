@@ -6,6 +6,7 @@ import Label from 'components/ui/Form/Label'
 import ResettableTextarea from 'components/ui/Form/ResettableTextarea'
 import ResettableTextInput from 'components/ui/Form/ResettableTextInput'
 import { ValueWithError } from 'components/ValueWithError'
+import IconComponent, { IconName } from '../ui/IconComponent'
 
 type FormulaireActualiteProps = {
   onCreation: (
@@ -84,7 +85,7 @@ export default function FormulaireActualite({
       noValidate={true}
       className='flex flex-col gap-6'
     >
-      <div className='ml-4 mr-4 flex flex-col gap-2'>
+      <div className='flex flex-col'>
         <Label
           htmlFor='actualite-titre'
           inputRequired={true}
@@ -113,7 +114,7 @@ export default function FormulaireActualite({
         </div>
       </div>
 
-      <div className='ml-4 mr-4 flex flex-col gap-2'>
+      <div className='flex flex-col'>
         <Label
           htmlFor='actualite-contenu'
           mainClassName='text-base-bold'
@@ -138,7 +139,7 @@ export default function FormulaireActualite({
         />
       </div>
 
-      <div className='ml-4 mr-4 flex flex-col gap-2'>
+      <div className='flex flex-col'>
         <Label htmlFor='actualite-titre-lien' mainClassName='text-base-bold'>
           Titre du lien
         </Label>
@@ -158,7 +159,7 @@ export default function FormulaireActualite({
         </div>
       </div>
 
-      <div className='ml-4 mr-4 flex flex-col gap-2'>
+      <div className='flex flex-col'>
         <Label htmlFor='actualite-lien' mainClassName='text-base-bold'>
           Lien de redirection
         </Label>
@@ -179,14 +180,13 @@ export default function FormulaireActualite({
       </div>
 
       <div className='flex justify-center gap-4'>
-        <Button
-          type='button'
-          onClick={onAnnulation}
-          style={ButtonStyle.SECONDARY}
-        >
-          Annuler
-        </Button>
-        <Button type='submit' isLoading={creationEnCours}>
+        <Button type='submit' className='w-full' isLoading={creationEnCours}>
+          <IconComponent
+            name={IconName.Send}
+            focusable={false}
+            aria-hidden={true}
+            className='mr-2 w-4 h-4'
+          />
           Diffuser mon actualité aux bénéficiaires
         </Button>
       </div>
