@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import BoutonRetour from 'components/chat/BoutonRetour'
-import Modal, { ModalHandles } from 'components/Modal'
+import Modal from 'components/Modal'
 import BoutonDisplayPlus from 'components/ui/Button/BoutonDisplayPlus'
 import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
 import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
-import { ActualiteMessage } from '../../interfaces/actualiteMilo'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 
 import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
@@ -26,12 +26,12 @@ export default function BandeauActualites({
 }: BandeauActualitesProps) {
   const retourRef = useRef<HTMLButtonElement>(null)
   const idPrecedentePremiereActualite = useRef<string | undefined>(undefined)
-  const modalRef = useRef<ModalHandles>(null)
 
   const [nombreActualitesAffichees, setNombreActualitesAffichees] =
     useState<number>(NB_ACTUALITES_PAR_PAGE)
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
   const [afficherModal, setAfficherModal] = useState<boolean>(false)
+  const [erreurCreation, setErreurCreation] = useState<string | undefined>()
 
   const isLoading = actualites === undefined
 
@@ -55,10 +55,14 @@ export default function BandeauActualites({
     titreLien?: string,
     lien?: string
   ) {
-    await creerActualiteMissionLocaleClientSide(titre, contenu, titreLien, lien)
-    fermerModal()
-    if (onActualiteCreee) {
-      onActualiteCreee()
+    try {
+      await creerActualiteMissionLocaleClientSide(titre, contenu, titreLien, lien)
+      fermerModal()
+      if (onActualiteCreee) onActualiteCreee()
+    } catch {
+      setErreurCreation(
+        "Une erreur est survenue lors de la diffusion de l'actualité. Veuillez réessayer."
+      )
     }
   }
 
@@ -91,7 +95,7 @@ export default function BandeauActualites({
 
   return (
     <>
-      <div className='items-center mx-4 my-6'>
+      <div className='flex items-center mx-4 my-6'>
         <BoutonRetour
           ref={retourRef}
           labelRetour='Retour'
@@ -102,7 +106,7 @@ export default function BandeauActualites({
         </h2>
       </div>
 
-      <div className='items-center relative h-full overflow-y-auto p-4'>
+      <div className='relative h-full overflow-y-auto p-4'>
         {isLoading && <SpinningLoader alert={true} />}
 
         {!isLoading && (
@@ -166,17 +170,18 @@ export default function BandeauActualites({
 
       {afficherModal && (
         <Modal
-          ref={modalRef}
           titleIcon={IconName.ChevronWithCircle}
           titleIconClassName='w-[140px] h-[140px] m-auto fill-primary mb-8'
           title='Partager ici une actualité de votre mission locale'
           onClose={fermerModal}
           containerClassName='rounded-large bg-white w-[620px] max-w-[90%] max-h-[90vh] overflow-auto p-3'
         >
-          <FormulaireActualite
-            onCreation={creerActualite}
-            onAnnulation={fermerModal}
-          />
+          {erreurCreation && (
+            <p role='alert' className='text-warning text-s-bold mb-4'>
+              {erreurCreation}
+            </p>
+          )}
+          <FormulaireActualite onCreation={creerActualite} />
         </Modal>
       )}
     </>

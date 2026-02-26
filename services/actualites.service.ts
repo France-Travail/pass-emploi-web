@@ -13,8 +13,8 @@ import {
 import { Structure } from 'interfaces/structure'
 import { fetchJson } from 'utils/httpClient'
 
-import { ActualiteMessage } from '../interfaces/actualiteMilo'
-import { ActualiteJson } from '../interfaces/json/actualite'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
+import { ActualiteJson } from 'interfaces/json/actualite'
 
 export async function getActualites(
   structure: Structure
@@ -118,7 +118,8 @@ export async function creerActualiteMissionLocaleClientSide(
   lien?: string
 ): Promise<ActualiteJson> {
   const session = await getSession()
-  const { user, accessToken } = session!
+  if (!session) throw new Error('Session expirée')
+  const { user, accessToken } = session
 
   return creerActualiteMissionLocale(
     user.id,

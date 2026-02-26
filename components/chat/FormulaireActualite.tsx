@@ -5,8 +5,8 @@ import InputError from 'components/ui/Form/InputError'
 import Label from 'components/ui/Form/Label'
 import ResettableTextarea from 'components/ui/Form/ResettableTextarea'
 import ResettableTextInput from 'components/ui/Form/ResettableTextInput'
+import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ValueWithError } from 'components/ValueWithError'
-import IconComponent, { IconName } from '../ui/IconComponent'
 
 type FormulaireActualiteProps = {
   onCreation: (
@@ -15,12 +15,10 @@ type FormulaireActualiteProps = {
     titreLien?: string,
     lien?: string
   ) => Promise<void>
-  onAnnulation: () => void
 }
 
 export default function FormulaireActualite({
   onCreation,
-  onAnnulation,
 }: Readonly<FormulaireActualiteProps>) {
   const [titre, setTitre] = useState<ValueWithError>({ value: '' })
   const [contenu, setContenu] = useState<ValueWithError>({ value: '' })
@@ -52,6 +50,12 @@ export default function FormulaireActualite({
       setLien({
         value: lien.value,
         error: 'Si vous renseignez un titre de lien, le lien est obligatoire',
+      })
+      isValid = false
+    } else if (lien.value.trim() && !/^https?:\/\/.+/.test(lien.value.trim())) {
+      setLien({
+        value: lien.value,
+        error: 'Le lien doit commencer par http:// ou https://',
       })
       isValid = false
     }
@@ -187,7 +191,7 @@ export default function FormulaireActualite({
             aria-hidden={true}
             className='mr-2 w-4 h-4'
           />
-          Diffuser mon actualité aux bénéficiaires
+          Diffuser mon actualité
         </Button>
       </div>
     </form>

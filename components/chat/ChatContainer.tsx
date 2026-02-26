@@ -19,8 +19,8 @@ import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
-import { ActualiteMessage } from '../../interfaces/actualiteMilo'
-import { estMilo } from '../../interfaces/structure'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
+import { estMilo } from 'interfaces/structure'
 
 type ChatContainerProps = {
   onShowMenu: () => void
