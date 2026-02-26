@@ -52,8 +52,7 @@ export default function MessageActualites({
         block: 'nearest',
         inline: 'nearest',
       })
-      const button = dernierMessageRef.current.querySelector('button')
-      button?.focus()
+      dernierMessageRef.current.focus()
     }
   }, [messages, shouldAutoFocusLastMessage])
 
@@ -72,6 +71,7 @@ export default function MessageActualites({
                       key={m.id}
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
+                      tabIndex={0}
                     >
                       <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
                         <p className='text-primary-darken text-base-bold mb-2'>

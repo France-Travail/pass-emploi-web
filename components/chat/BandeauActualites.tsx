@@ -30,6 +30,7 @@ export default function BandeauActualites({
     useState<number>(NB_ACTUALITES_PAR_PAGE)
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
   const [afficherModal, setAfficherModal] = useState<boolean>(false)
+  const [formulaireKey, setFormulaireKey] = useState<number>(0)
   const [erreurCreation, setErreurCreation] = useState<string | undefined>()
 
   const isLoading = actualites === undefined
@@ -41,6 +42,8 @@ export default function BandeauActualites({
     actualites && actualites.length > nombreActualitesAffichees
 
   function ouvrirFormulaire() {
+    setFormulaireKey((k) => k + 1)
+    setErreurCreation(undefined)
     setAfficherModal(true)
   }
 
@@ -99,13 +102,14 @@ export default function BandeauActualites({
 
   return (
     <>
-      <div className='flex items-center mx-4 my-6'>
+      <div className='mx-4 my-6'>
         <BoutonRetour
           ref={retourRef}
           labelRetour='Retour'
+          className='items-center mb-4'
           onBack={onRetourMessagerie}
         />
-        <h2 className='w-full text-left text-primary text-m-bold ml-2 mt-4'>
+        <h2 className='w-full text-left text-primary text-m-bold mt-4'>
           Actualités de ma mission locale
         </h2>
       </div>
@@ -178,14 +182,17 @@ export default function BandeauActualites({
           titleIconClassName='w-[140px] h-[140px] m-auto fill-primary mb-8'
           title='Partager ici une actualité de votre mission locale'
           onClose={fermerModal}
-          containerClassName='rounded-large bg-white w-[620px] max-w-[90%] max-h-[90vh] overflow-auto p-3'
+          containerClassName='bg-white overflow-auto p-3 w-full h-full rounded-none layout-s:w-[620px] layout-s:max-w-[90%] layout-s:h-auto layout-s:max-h-[90vh] layout-s:rounded-large'
         >
           {erreurCreation && (
             <p role='alert' className='text-warning text-s-bold mb-4'>
               {erreurCreation}
             </p>
           )}
-          <FormulaireActualite onCreation={creerActualite} />
+          <FormulaireActualite
+            key={formulaireKey}
+            onCreation={creerActualite}
+          />
         </Modal>
       )}
     </>
