@@ -73,9 +73,7 @@ export default function MessageActualites({
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
                     >
-                      <div
-                        className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'
-                      >
+                      <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
                         <p className='text-primary-darken text-base-bold mb-2'>
                           {m.titre}
                         </p>

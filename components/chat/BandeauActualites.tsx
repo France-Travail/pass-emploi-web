@@ -6,9 +6,8 @@ import BoutonDisplayPlus from 'components/ui/Button/BoutonDisplayPlus'
 import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
-import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
-
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
+import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
 import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
@@ -56,7 +55,12 @@ export default function BandeauActualites({
     lien?: string
   ) {
     try {
-      await creerActualiteMissionLocaleClientSide(titre, contenu, titreLien, lien)
+      await creerActualiteMissionLocaleClientSide(
+        titre,
+        contenu,
+        titreLien,
+        lien
+      )
       fermerModal()
       if (onActualiteCreee) onActualiteCreee()
     } catch {

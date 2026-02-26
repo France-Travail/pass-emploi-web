@@ -116,23 +116,23 @@ function ResettableTextarea(
           aria-invalid={invalid || undefined}
         />
         {value.length > 0 && (
-        <button
-          type='reset'
-          className='absolute top-3 right-3 w-10 h-10 rounded-full hover:rounded-full hover:bg-primary-lighten'
-          onClick={applyReset}
-        >
-          <span id={id + '--reset-label'} className='sr-only'>
-            Effacer le champ de saisie
-          </span>
-          <IconComponent
-            name={IconName.Close}
-            focusable={false}
-            role='img'
-            aria-labelledby={id + '--reset-label'}
-            title='Effacer le champ de saisie'
-            className='m-auto w-6 h-6 fill-current'
-          />
-        </button>
+          <button
+            type='reset'
+            className='absolute top-3 right-3 w-10 h-10 rounded-full hover:rounded-full hover:bg-primary-lighten'
+            onClick={applyReset}
+          >
+            <span id={id + '--reset-label'} className='sr-only'>
+              Effacer le champ de saisie
+            </span>
+            <IconComponent
+              name={IconName.Close}
+              focusable={false}
+              role='img'
+              aria-labelledby={id + '--reset-label'}
+              title='Effacer le champ de saisie'
+              className='m-auto w-6 h-6 fill-current'
+            />
+          </button>
         )}
       </div>
       {Boolean(maxLength) && (

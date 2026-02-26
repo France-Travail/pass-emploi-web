@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react'
 
-import Button, { ButtonStyle } from 'components/ui/Button/Button'
+import Button from 'components/ui/Button/Button'
 import InputError from 'components/ui/Form/InputError'
 import Label from 'components/ui/Form/Label'
 import ResettableTextarea from 'components/ui/Form/ResettableTextarea'

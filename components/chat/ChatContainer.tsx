@@ -5,11 +5,13 @@ import ChatRoom from 'components/chat/ChatRoom'
 import ConversationBeneficiaire from 'components/chat/ConversationBeneficiaire'
 import ListeListes from 'components/chat/ListeListes'
 import RubriqueListes from 'components/chat/RubriqueListes'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   BeneficiaireEtChat,
   ConseillerHistorique,
 } from 'interfaces/beneficiaire'
 import { Liste } from 'interfaces/liste'
+import { estMilo } from 'interfaces/structure'
 import { getActualitesMissionLocaleClientSide } from 'services/actualites.service'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
 import { getListesClientSide } from 'services/listes.service'
@@ -19,12 +21,9 @@ import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
-import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { estMilo } from 'interfaces/structure'
-
 type ChatContainerProps = {
-  onShowMenu: () => void
-  messagerieFullScreen?: boolean
+  readonly onShowMenu: () => void
+  readonly messagerieFullScreen?: boolean
 }
 
 export default function ChatContainer({
