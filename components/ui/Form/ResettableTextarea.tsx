@@ -115,6 +115,7 @@ function ResettableTextarea(
           aria-describedby={invalid ? id + '--error' : undefined}
           aria-invalid={invalid || undefined}
         />
+        {value.length > 0 && (
         <button
           type='reset'
           className='absolute top-3 right-3 w-10 h-10 rounded-full hover:rounded-full hover:bg-primary-lighten'
@@ -132,6 +133,7 @@ function ResettableTextarea(
             className='m-auto w-6 h-6 fill-current'
           />
         </button>
+        )}
       </div>
       {Boolean(maxLength) && (
         <DecompteCaracteres
