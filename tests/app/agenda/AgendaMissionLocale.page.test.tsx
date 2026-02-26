@@ -287,13 +287,12 @@ describe('Agenda - Onglet Mission Locale', () => {
       const buttonAgendaRecherche = screen.getByRole('button', {
         name: 'Rechercher',
       })
-      const buttonReinitialiserRecherche = screen.getByRole('button', {
-        name: 'Effacer le champ de saisie',
-      })
-
       // When
       await userEvent.type(inputRechercheAgenda, 'Prise')
       await userEvent.click(buttonAgendaRecherche)
+      const buttonReinitialiserRecherche = screen.getByRole('button', {
+        name: 'Effacer le champ de saisie',
+      })
 
       // Then
       await waitFor(() => {
