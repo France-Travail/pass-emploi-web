@@ -37,7 +37,9 @@ describe('FormulaireActualite', () => {
           "Nom du lien qui s'affichera auprès des bénéficiaires"
         )
       ).toBeInTheDocument()
-      expect(screen.getByPlaceholderText('https://')).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText('https://exemple.fr')
+      ).toBeInTheDocument()
     })
 
     it('affiche le bouton de soumission', () => {
@@ -147,7 +149,7 @@ describe('FormulaireActualite', () => {
         'Mon contenu de test'
       )
       await userEvent.type(
-        screen.getByPlaceholderText('https://'),
+        screen.getByPlaceholderText('https://exemple.fr'),
         'pas-une-url-valide'
       )
 
@@ -158,7 +160,7 @@ describe('FormulaireActualite', () => {
 
       // Then
       expect(
-        screen.getByText('Le lien doit commencer par http:// ou https://')
+        screen.getByText('Le lien est invalide (ex. : https://exemple.fr)')
       ).toBeInTheDocument()
       expect(onCreation).not.toHaveBeenCalled()
     })
@@ -189,7 +191,7 @@ describe('FormulaireActualite', () => {
   describe('soumission valide', () => {
     it('appelle onCreation avec les valeurs saisies', async () => {
       // Given
-      onCreation.mockResolvedValue(undefined)
+      onCreation.mockResolvedValue(jest.fn())
       render(<FormulaireActualite onCreation={onCreation} />)
       await userEvent.type(
         screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
@@ -237,7 +239,7 @@ describe('FormulaireActualite', () => {
         'En savoir plus'
       )
       await userEvent.type(
-        screen.getByPlaceholderText('https://'),
+        screen.getByPlaceholderText('https://exemple.fr'),
         'https://example.com'
       )
 
