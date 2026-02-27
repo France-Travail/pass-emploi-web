@@ -71,7 +71,7 @@ export default function MessageActualites({
                       key={m.id}
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
-                      tabIndex={0}
+                      tabIndex={estDernierMessage ? -1 : undefined}
                     >
                       <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
                         <p className='text-primary-darken text-base-bold mb-2'>
