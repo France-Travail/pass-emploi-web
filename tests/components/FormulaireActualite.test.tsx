@@ -17,8 +17,14 @@ describe('FormulaireActualite', () => {
       render(<FormulaireActualite onCreation={onCreation} />)
 
       // Then
-      expect(screen.getByPlaceholderText('Renseigner un titre pour votre actualité')).toBeInTheDocument()
-      expect(screen.getByPlaceholderText('Renseigner une description pour votre actualité')).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        )
+      ).toBeInTheDocument()
     })
 
     it('affiche les champs optionnels Titre du lien et Lien de redirection', () => {
@@ -26,7 +32,11 @@ describe('FormulaireActualite', () => {
       render(<FormulaireActualite onCreation={onCreation} />)
 
       // Then
-      expect(screen.getByPlaceholderText("Nom du lien qui s'affichera auprès des bénéficiaires")).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        )
+      ).toBeInTheDocument()
       expect(screen.getByPlaceholderText('https://')).toBeInTheDocument()
     })
 
@@ -72,7 +82,10 @@ describe('FormulaireActualite', () => {
     it('affiche une erreur si le contenu est vide', async () => {
       // Given
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
+      await userEvent.type(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
 
       // When
       await userEvent.click(
@@ -89,13 +102,20 @@ describe('FormulaireActualite', () => {
     it('affiche une erreur si le titre du lien est renseigné sans lien', async () => {
       // Given
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
       await userEvent.type(
-        screen.getByPlaceholderText('Renseigner une description pour votre actualité'),
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
         'Mon contenu de test'
       )
       await userEvent.type(
-        screen.getByPlaceholderText("Nom du lien qui s'affichera auprès des bénéficiaires"),
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        ),
         'En savoir plus'
       )
 
@@ -116,9 +136,14 @@ describe('FormulaireActualite', () => {
     it('affiche une erreur si le lien a un format invalide', async () => {
       // Given
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
       await userEvent.type(
-        screen.getByPlaceholderText('Renseigner une description pour votre actualité'),
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
         'Mon contenu de test'
       )
       await userEvent.type(
@@ -149,7 +174,10 @@ describe('FormulaireActualite', () => {
       ).toBeInTheDocument()
 
       // When
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'M')
+      await userEvent.type(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'M'
+      )
 
       // Then
       expect(() =>
@@ -163,9 +191,14 @@ describe('FormulaireActualite', () => {
       // Given
       onCreation.mockResolvedValue(undefined)
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
       await userEvent.type(
-        screen.getByPlaceholderText('Renseigner une description pour votre actualité'),
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
         'Mon contenu de test'
       )
 
@@ -187,13 +220,20 @@ describe('FormulaireActualite', () => {
       // Given
       onCreation.mockResolvedValue(undefined)
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
       await userEvent.type(
-        screen.getByPlaceholderText('Renseigner une description pour votre actualité'),
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
         'Mon contenu de test'
       )
       await userEvent.type(
-        screen.getByPlaceholderText("Nom du lien qui s'affichera auprès des bénéficiaires"),
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        ),
         'En savoir plus'
       )
       await userEvent.type(
@@ -224,9 +264,14 @@ describe('FormulaireActualite', () => {
         })
       )
       render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Mon titre')
       await userEvent.type(
-        screen.getByPlaceholderText('Renseigner une description pour votre actualité'),
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
         'Mon contenu de test'
       )
 
@@ -255,7 +300,10 @@ describe('FormulaireActualite', () => {
       render(<FormulaireActualite onCreation={onCreation} />)
 
       // When
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), 'Bonjour')
+      await userEvent.type(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Bonjour'
+      )
 
       // Then
       expect(screen.getByText('7 / 100')).toBeInTheDocument()
@@ -267,7 +315,10 @@ describe('FormulaireActualite', () => {
       const titre101Chars = 'a'.repeat(101)
 
       // When
-      await userEvent.type(screen.getByPlaceholderText('Renseigner un titre pour votre actualité'), titre101Chars)
+      await userEvent.type(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        titre101Chars
+      )
 
       // Then
       expect(screen.getByText('100 / 100')).toBeInTheDocument()

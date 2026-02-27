@@ -52,7 +52,7 @@ export default function FormulaireActualite({
         error: 'Si vous renseignez un titre de lien, le lien est obligatoire',
       })
       isValid = false
-    } else if (URL.canParse(lien.value.trim())) {
+    } else if (lien.value.trim() && !/^https?:\/\/.+/.test(lien.value.trim())) {
       setLien({
         value: lien.value,
         error: 'Le lien doit commencer par http:// ou https://',
