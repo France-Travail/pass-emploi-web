@@ -1,23 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 import BoutonRetour from 'components/chat/BoutonRetour'
+import Modal from 'components/Modal'
 import BoutonDisplayPlus from 'components/ui/Button/BoutonDisplayPlus'
 import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
+import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
-import { ActualiteMessage } from '../../interfaces/actualiteMilo'
-
+import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
 
 interface BandeauActualitesProps {
   readonly actualites: ActualiteMessage[] | undefined
   readonly onRetourMessagerie: () => void
+  readonly onActualiteCreee?: () => void
 }
 const NB_ACTUALITES_PAR_PAGE = 10
 export default function BandeauActualites({
   actualites,
   onRetourMessagerie,
+  onActualiteCreee,
 }: BandeauActualitesProps) {
   const retourRef = useRef<HTMLButtonElement>(null)
   const idPrecedentePremiereActualite = useRef<string | undefined>(undefined)
@@ -25,6 +29,9 @@ export default function BandeauActualites({
   const [nombreActualitesAffichees, setNombreActualitesAffichees] =
     useState<number>(NB_ACTUALITES_PAR_PAGE)
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
+  const [afficherModal, setAfficherModal] = useState<boolean>(false)
+  const [formulaireKey, setFormulaireKey] = useState<number>(0)
+  const [erreurCreation, setErreurCreation] = useState<string | undefined>()
 
   const isLoading = actualites === undefined
 
@@ -34,7 +41,37 @@ export default function BandeauActualites({
   const aPlusActualites =
     actualites && actualites.length > nombreActualitesAffichees
 
-  function ouvrirFormulaire() {}
+  function ouvrirFormulaire() {
+    setFormulaireKey((k) => k + 1)
+    setErreurCreation(undefined)
+    setAfficherModal(true)
+  }
+
+  function fermerModal() {
+    setAfficherModal(false)
+  }
+
+  async function creerActualite(
+    titre: string,
+    contenu: string,
+    titreLien?: string,
+    lien?: string
+  ) {
+    try {
+      await creerActualiteMissionLocaleClientSide(
+        titre,
+        contenu,
+        titreLien,
+        lien
+      )
+      fermerModal()
+      if (onActualiteCreee) onActualiteCreee()
+    } catch {
+      setErreurCreation(
+        "Une erreur est survenue lors de la diffusion de l'actualité. Veuillez réessayer."
+      )
+    }
+  }
 
   function chargerPlusActualites() {
     if (actualitesAffichees && actualitesAffichees.length > 0) {
@@ -65,18 +102,19 @@ export default function BandeauActualites({
 
   return (
     <>
-      <div className='items-center mx-4 my-6'>
+      <div className='mx-4 my-6'>
         <BoutonRetour
           ref={retourRef}
           labelRetour='Retour'
+          className='items-center mb-4'
           onBack={onRetourMessagerie}
         />
-        <h2 className='w-full text-left text-primary text-m-bold ml-2 mt-4'>
+        <h2 className='w-full text-left text-primary text-m-bold mt-4'>
           Actualités de ma mission locale
         </h2>
       </div>
 
-      <div className='items-center relative h-full overflow-y-auto p-4'>
+      <div className='relative h-full overflow-y-auto p-4'>
         {isLoading && <SpinningLoader alert={true} />}
 
         {!isLoading && (
@@ -126,17 +164,37 @@ export default function BandeauActualites({
         )}
       </div>
 
-      <div className='flex justify-center gap-4'>
-        <Button onClick={ouvrirFormulaire}>
+      <div className='justify-center mb-6 mr-4 ml-4'>
+        <Button onClick={ouvrirFormulaire} className='w-full'>
           <IconComponent
-            name={IconName.Add}
-            className='w-4 h-4 mr-2'
+            name={IconName.SpeakerButton}
+            className='w-4 h-4 mr-2 mt-1'
             aria-hidden={true}
             focusable={false}
           />
-          Créer une actualité
+          Diffuser une actualité
         </Button>
       </div>
+
+      {afficherModal && (
+        <Modal
+          titleIcon={IconName.ChevronWithCircle}
+          titleIconClassName='w-[140px] h-[140px] m-auto fill-primary mb-8'
+          title='Partager ici une actualité de votre mission locale'
+          onClose={fermerModal}
+          containerClassName='bg-white overflow-auto p-3 w-full h-full rounded-none layout-s:w-[620px] layout-s:max-w-[90%] layout-s:h-auto layout-s:max-h-[90vh] layout-s:rounded-large'
+        >
+          {erreurCreation && (
+            <p role='alert' className='text-warning text-s-bold mb-4'>
+              {erreurCreation}
+            </p>
+          )}
+          <FormulaireActualite
+            key={formulaireKey}
+            onCreation={creerActualite}
+          />
+        </Modal>
+      )}
     </>
   )
 }

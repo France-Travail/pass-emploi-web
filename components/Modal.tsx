@@ -24,8 +24,10 @@ type ModalProps = Pick<ModalContainerProps, 'onClose'> & {
   title: string
   children: ReactNode
   titleIcon?: IconName
+  titleIconClassName?: string
   titleIllustration?: IllustrationName | FC<SVGProps<SVGElement>>
   titleImageSrc?: string | StaticImport
+  containerClassName?: string
 }
 
 function Modal(
@@ -34,16 +36,22 @@ function Modal(
     onClose,
     title,
     titleIcon,
+    titleIconClassName,
     titleIllustration,
     titleImageSrc,
+    containerClassName,
   }: ModalProps,
   ref: ForwardedRef<ModalHandles>
 ) {
   const modalContainerRef = useRef<ModalHandles>(null)
   useImperativeHandle(ref, () => modalContainerRef.current!)
 
+  const defaultClassName =
+    'rounded-large bg-white max-h-[90%] max-w-[min(90%,_620px)] overflow-auto p-3'
+  const finalClassName = containerClassName || defaultClassName
+
   const modalTemplate = (
-    <div className='rounded-large bg-white max-h-[90%] max-w-[min(90%,_620px)] overflow-auto p-3'>
+    <div className={finalClassName}>
       <div className='flex justify-end'>
         <button
           type='button'
@@ -66,7 +74,9 @@ function Modal(
             name={titleIcon}
             focusable={false}
             aria-hidden={true}
-            className='w-16 h-16 m-auto fill-primary mb-8'
+            className={
+              titleIconClassName ?? 'w-16 h-16 m-auto fill-primary mb-8'
+            }
           />
         )}
         {titleIllustration && !isSVG(titleIllustration) && (

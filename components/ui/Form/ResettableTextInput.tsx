@@ -19,6 +19,7 @@ interface ResettableTextInputProps {
   className?: string
   required?: boolean
   invalid?: boolean
+  placeholder?: string
 }
 
 function ResettableTextInput(
@@ -31,6 +32,7 @@ function ResettableTextInput(
     className,
     required = false,
     invalid = false,
+    placeholder,
   }: ResettableTextInputProps,
   ref: ForwardedRef<HTMLInputElement>
 ) {
@@ -53,6 +55,7 @@ function ResettableTextInput(
     <div
       className={
         styles.wrapper +
+        (invalid ? ' ' + styles.invalid : '') +
         ' flex flex-horizontal overflow-hidden bg-white ' +
         (className ?? '')
       }
@@ -66,26 +69,29 @@ function ResettableTextInput(
         onChange={applyChange}
         className='flex-1 p-3 bg-white rounded-l-base outline-hidden'
         required={required}
+        placeholder={placeholder}
         aria-describedby={invalid ? id + '--error' : undefined}
         aria-invalid={invalid || undefined}
       />
-      <button
-        type='reset'
-        className='m-auto w-10 h-10 rounded-full hover:rounded-full hover:bg-primary-lighten'
-        onClick={applyReset}
-      >
-        <span id={id + '--reset-label'} className='sr-only'>
-          Effacer le champ de saisie
-        </span>
-        <IconComponent
-          name={IconName.Close}
-          focusable={false}
-          role='img'
-          aria-labelledby={id + '--reset-label'}
-          title='Effacer le champ de saisie'
-          className='m-auto w-6 h-6 fill-current'
-        />
-      </button>
+      {value.length > 0 && (
+        <button
+          type='reset'
+          className='m-auto w-10 h-10 rounded-full hover:rounded-full hover:bg-primary-lighten'
+          onClick={applyReset}
+        >
+          <span id={id + '--reset-label'} className='sr-only'>
+            Effacer le champ de saisie
+          </span>
+          <IconComponent
+            name={IconName.Close}
+            focusable={false}
+            role='img'
+            aria-labelledby={id + '--reset-label'}
+            title='Effacer le champ de saisie'
+            className='m-auto w-6 h-6 fill-current'
+          />
+        </button>
+      )}
     </div>
   )
 }

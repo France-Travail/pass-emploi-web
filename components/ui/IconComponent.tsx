@@ -35,6 +35,7 @@ import CheckIcon from 'assets/icons/informations/check.svg'
 import CheckCircleFillIcon from 'assets/icons/informations/check_circle_fill.svg'
 import CheckCircleOutlineIcon from 'assets/icons/informations/check_circle_outline.svg'
 import ChecklistRtlFillIcon from 'assets/icons/informations/checklist_rtl_fill.svg'
+import ChevronWithCircle from 'assets/icons/informations/chevron-with-circle.svg'
 import DescriptionIcon from 'assets/icons/informations/description.svg'
 import DownloadIcon from 'assets/icons/informations/download.svg'
 import ErrorIcon from 'assets/icons/informations/error.svg'
@@ -56,6 +57,7 @@ import PeopleFillIcon from 'assets/icons/informations/people_fill.svg'
 import PeopleOutlineIcon from 'assets/icons/informations/people_outline.svg'
 import ScheduleIcon from 'assets/icons/informations/schedule.svg'
 import ScheduleOutlineIcon from 'assets/icons/informations/schedule_outline.svg'
+import SpeakerButton from 'assets/icons/informations/speaker-for-button.svg'
 import SpeakerWithCircleIcon from 'assets/icons/informations/speaker-with-circle.svg'
 import SpeakerIcon from 'assets/icons/informations/speaker.svg'
 import TimerIcon from 'assets/icons/informations/timer.svg'
@@ -110,6 +112,7 @@ export enum IconName {
   ChevronLeft = 'ChevronLeft',
   ChevronRight = 'ChevronRight',
   ChevronUp = 'ChevronUp',
+  ChevronWithCircle = 'ChevronWithCircle',
   Close = 'Close',
   Contract = 'Contract',
   DecorativePoint = 'DecorativePoint',
@@ -159,6 +162,7 @@ export enum IconName {
   Share = 'Share',
   Speaker = 'Speaker',
   SpeakerWithCircle = 'SpeakerWithCircle',
+  SpeakerButton = 'SpeakerButton',
   Spinner = 'Spinner',
   Suitcase = 'Suitcase',
   SwapVert = 'SwapVert',
@@ -191,6 +195,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.ChevronLeft]: ChevronLeftIcon,
   [IconName.ChevronRight]: ChevronRightIcon,
   [IconName.ChevronUp]: ChevronUpIcon,
+  [IconName.ChevronWithCircle]: ChevronWithCircle,
   [IconName.Close]: CloseIcon,
   [IconName.Contract]: ContractIcon,
   [IconName.DecorativePoint]: DecorativePointIcon,
@@ -229,6 +234,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.ScheduleOutline]: ScheduleOutlineIcon,
   [IconName.Share]: ShareIcon,
   [IconName.Speaker]: SpeakerIcon,
+  [IconName.SpeakerButton]: SpeakerButton,
   [IconName.SpeakerWithCircle]: SpeakerWithCircleIcon,
   [IconName.SwapVert]: SwapVertIcon,
   [IconName.Info]: InfoIcon,
