@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react'
 
+import BoutonRetour from 'components/chat/BoutonRetour'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 
 function HeaderChat(
@@ -72,22 +73,12 @@ function HeaderChat(
   return (
     <div className='items-center mx-4 my-6 short:hidden'>
       <div className='pb-3 flex items-center justify-between'>
-        <button
+        <BoutonRetour
           ref={retourRef}
-          id='chat-bouton-retour'
-          className={`border-none rounded-full mr-2 ${messagerieFullScreen ? '' : 'bg-primary-lighten'} flex items-center hover:text-primary focus:pr-2`}
-          aria-label={labelRetour}
-          onClick={onBack}
-          type='button'
-        >
-          <IconComponent
-            name={IconName.ArrowBackward}
-            aria-hidden={true}
-            focusable={false}
-            className='w-5 h-5 fill-primary mr-3'
-          />
-          <span className='text-s-regular text-content underline'>Retour</span>
-        </button>
+          labelRetour={labelRetour}
+          onBack={onBack}
+          messagerieFullScreen={messagerieFullScreen}
+        />
 
         <div className='relative flex items-center gap-2 justify-end text-xs-medium text-content'>
           <button
