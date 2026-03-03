@@ -29,7 +29,7 @@ export default function MessageActualites({
 
   function ouvrirLienExterne() {
     if (lienAOuvrir) {
-      window.open(lienAOuvrir, '_blank', 'noopener, noreferrer')
+      window.open(lienAOuvrir, '_blank', 'noopener,noreferrer')
       setLienAOuvrir(null)
     }
   }
@@ -52,8 +52,7 @@ export default function MessageActualites({
         block: 'nearest',
         inline: 'nearest',
       })
-      const button = dernierMessageRef.current.querySelector('button')
-      button?.focus()
+      dernierMessageRef.current.focus()
     }
   }, [messages, shouldAutoFocusLastMessage])
 
@@ -72,10 +71,9 @@ export default function MessageActualites({
                       key={m.id}
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
+                      tabIndex={estDernierMessage ? -1 : undefined}
                     >
-                      <div
-                        className={`break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1`}
-                      >
+                      <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
                         <p className='text-primary-darken text-base-bold mb-2'>
                           {m.titre}
                         </p>
@@ -89,7 +87,7 @@ export default function MessageActualites({
                             rel='noreferrer noopener'
                             className='underline text-base text-primary-darken'
                             onClick={(e) =>
-                              confirmerRedirectionLienExterne(e, m.lien)
+                              confirmerRedirectionLienExterne(e, m.lien!)
                             }
                           >
                             <IconComponent
