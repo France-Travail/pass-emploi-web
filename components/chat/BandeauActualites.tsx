@@ -7,7 +7,10 @@ import Button from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import SpinningLoader from 'components/ui/SpinningLoader'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { creerActualiteMissionLocaleClientSide } from 'services/actualites.service'
+import {
+  creerActualiteMissionLocaleClientSide,
+  modifierActualiteMissionLocaleClientSide,
+} from 'services/actualites.service'
 
 import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
@@ -30,6 +33,9 @@ export default function BandeauActualites({
     useState<number>(NB_ACTUALITES_PAR_PAGE)
   const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true)
   const [afficherModal, setAfficherModal] = useState<boolean>(false)
+  const [actualiteAModifier, setActualiteAModifier] = useState<
+    ActualiteMessage | undefined
+  >(undefined)
   const [formulaireKey, setFormulaireKey] = useState<number>(0)
   const [erreurCreation, setErreurCreation] = useState<string | undefined>()
 
@@ -42,6 +48,14 @@ export default function BandeauActualites({
     actualites && actualites.length > nombreActualitesAffichees
 
   function ouvrirFormulaire() {
+    setActualiteAModifier(undefined)
+    setFormulaireKey((k) => k + 1)
+    setErreurCreation(undefined)
+    setAfficherModal(true)
+  }
+
+  function ouvrirFormulaireModification(actualite: ActualiteMessage) {
+    setActualiteAModifier(actualite)
     setFormulaireKey((k) => k + 1)
     setErreurCreation(undefined)
     setAfficherModal(true)
@@ -49,6 +63,7 @@ export default function BandeauActualites({
 
   function fermerModal() {
     setAfficherModal(false)
+    setActualiteAModifier(undefined)
   }
 
   async function creerActualite(
@@ -69,6 +84,30 @@ export default function BandeauActualites({
     } catch {
       setErreurCreation(
         "Une erreur est survenue lors de la diffusion de l'actualité. Veuillez réessayer."
+      )
+    }
+  }
+
+  async function modifierActualite(
+    titre: string,
+    contenu: string,
+    titreLien?: string,
+    lien?: string
+  ) {
+    if (!actualiteAModifier) return
+    try {
+      await modifierActualiteMissionLocaleClientSide(
+        actualiteAModifier.id,
+        titre,
+        contenu,
+        titreLien,
+        lien
+      )
+      fermerModal()
+      if (onActualiteCreee) onActualiteCreee()
+    } catch {
+      setErreurCreation(
+        "Une erreur est survenue lors de la modification de l'actualité. Veuillez réessayer."
       )
     }
   }
@@ -136,6 +175,7 @@ export default function BandeauActualites({
                 <MessageActualites
                   messages={actualitesAffichees!}
                   shouldAutoFocusLastMessage={isInitialLoad}
+                  onModification={ouvrirFormulaireModification}
                 />
               </>
             ) : (
@@ -180,7 +220,11 @@ export default function BandeauActualites({
         <Modal
           titleIcon={IconName.ChevronWithCircle}
           titleIconClassName='w-[140px] h-[140px] m-auto fill-primary mb-8'
-          title='Partager ici une actualité de votre mission locale'
+          title={
+            actualiteAModifier
+              ? "Modifier l'actualité"
+              : 'Partager ici une actualité de votre mission locale'
+          }
           onClose={fermerModal}
           containerClassName='bg-white overflow-auto p-3 w-full h-full rounded-none layout-s:w-[620px] layout-s:max-w-[90%] layout-s:h-auto layout-s:max-h-[90vh] layout-s:rounded-large'
         >
@@ -191,7 +235,17 @@ export default function BandeauActualites({
           )}
           <FormulaireActualite
             key={formulaireKey}
-            onCreation={creerActualite}
+            onCreation={actualiteAModifier ? modifierActualite : creerActualite}
+            initialValues={
+              actualiteAModifier
+                ? {
+                    titre: actualiteAModifier.titre,
+                    contenu: actualiteAModifier.contenu,
+                    titreLien: actualiteAModifier.titreLien,
+                    lien: actualiteAModifier.lien,
+                  }
+                : undefined
+            }
           />
         </Modal>
       )}

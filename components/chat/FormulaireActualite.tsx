@@ -15,15 +15,30 @@ type FormulaireActualiteProps = {
     titreLien?: string,
     lien?: string
   ) => Promise<void>
+  initialValues?: {
+    titre: string
+    contenu: string
+    titreLien?: string
+    lien?: string
+  }
 }
 
 export default function FormulaireActualite({
   onCreation,
+  initialValues,
 }: Readonly<FormulaireActualiteProps>) {
-  const [titre, setTitre] = useState<ValueWithError>({ value: '' })
-  const [contenu, setContenu] = useState<ValueWithError>({ value: '' })
-  const [titreLien, setTitreLien] = useState<ValueWithError>({ value: '' })
-  const [lien, setLien] = useState<ValueWithError>({ value: '' })
+  const [titre, setTitre] = useState<ValueWithError>({
+    value: initialValues?.titre ?? '',
+  })
+  const [contenu, setContenu] = useState<ValueWithError>({
+    value: initialValues?.contenu ?? '',
+  })
+  const [titreLien, setTitreLien] = useState<ValueWithError>({
+    value: initialValues?.titreLien ?? '',
+  })
+  const [lien, setLien] = useState<ValueWithError>({
+    value: initialValues?.lien ?? '',
+  })
 
   const [creationEnCours, setCreationEnCours] = useState<boolean>(false)
 

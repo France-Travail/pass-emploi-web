@@ -262,6 +262,138 @@ describe('MessageActualites', () => {
     })
   })
 
+  describe('menu de modification', () => {
+    it('affiche le bouton d actions pour les actualités dont on est propriétaire', () => {
+      // Given
+      const messages = desActualitesMilo()
+
+      // When
+      render(
+        <MessageActualites messages={messages} onModification={jest.fn()} />
+      )
+
+      // Then - actualite-1 (proprietaire=true) et actualite-3 (proprietaire=true) → 2 boutons
+      const boutonsActions = screen.getAllByRole('button', {
+        name: /Voir les actions possibles/i,
+      })
+      expect(boutonsActions).toHaveLength(2)
+    })
+
+    it("n affiche pas le bouton d actions pour les actualités dont on n est pas propriétaire", () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: false })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onModification={jest.fn()} />
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Voir les actions possibles/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it("n affiche pas le bouton d actions si onModification n est pas fourni", () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(<MessageActualites messages={messages} />)
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Voir les actions possibles/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('affiche le menu au clic sur le bouton d actions', async () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onModification={jest.fn()} />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      ).toBeInTheDocument()
+    })
+
+    it("appelle onModification avec l actualité au clic sur Modifier", async () => {
+      // Given
+      const onModification = jest.fn()
+      const actualite = uneActualiteMilo({
+        id: 'actualite-1',
+        titre: 'Mon actualité',
+        proprietaire: true,
+      })
+
+      // When
+      render(
+        <MessageActualites
+          messages={[actualite]}
+          onModification={onModification}
+        />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+
+      // Then
+      expect(onModification).toHaveBeenCalledTimes(1)
+      expect(onModification).toHaveBeenCalledWith(actualite)
+    })
+
+    it('ferme le menu après avoir cliqué sur Modifier', async () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onModification={jest.fn()} />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Modifier l.actualité/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('chaque actualité a son propre menu indépendant', async () => {
+      // Given
+      const messages = desActualitesMilo().filter((m) => m.proprietaire)
+
+      // When
+      render(
+        <MessageActualites messages={messages} onModification={jest.fn()} />
+      )
+      const boutonsActions = screen.getAllByRole('button', {
+        name: /Voir les actions possibles/i,
+      })
+      await userEvent.click(boutonsActions[0])
+
+      // Then — un seul menu ouvert, pas deux
+      expect(
+        screen.getAllByRole('button', { name: /Modifier l.actualité/i })
+      ).toHaveLength(1)
+    })
+  })
+
   describe('quand il n y a pas de message', () => {
     it('affiche une liste vide', () => {
       // Given
