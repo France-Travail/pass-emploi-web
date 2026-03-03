@@ -3,8 +3,8 @@ export interface ActualiteJson {
   titre: string
   contenu: string
   dateCreation: string
-  titreLien: string
-  lien: string
+  titreLien?: string
+  lien?: string
   proprietaire: boolean
   prenomNomConseiller: string
 }

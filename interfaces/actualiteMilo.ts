@@ -5,8 +5,8 @@ export type ActualiteMessage = {
   titre: string
   contenu: string
   dateCreation: DateTime
-  titreLien: string
-  lien: string
+  titreLien?: string
+  lien?: string
   proprietaire: boolean
   prenomNomConseiller: string
 }

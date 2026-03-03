@@ -100,7 +100,7 @@ describe('BandeauActualites', () => {
 
       // Then
       expect(
-        screen.getByRole('button', { name: /Créer une actualité/i })
+        screen.getByRole('button', { name: /Diffuser une actualité/i })
       ).toBeInTheDocument()
     })
 
@@ -162,7 +162,7 @@ describe('BandeauActualites', () => {
 
       // Then
       expect(
-        screen.getByRole('button', { name: /Créer une actualité/i })
+        screen.getByRole('button', { name: /Diffuser une actualité/i })
       ).toBeInTheDocument()
     })
 
@@ -201,7 +201,7 @@ describe('BandeauActualites', () => {
       expect(screen.getByRole('button', { name: 'Retour' })).toBeInTheDocument()
       expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument()
       expect(
-        screen.getByRole('button', { name: /Créer une actualité/i })
+        screen.getByRole('button', { name: /Diffuser une actualité/i })
       ).toBeInTheDocument()
     })
 
@@ -219,7 +219,7 @@ describe('BandeauActualites', () => {
 
       // Then
       const messageContainer = container.querySelector(
-        '.items-center.relative.h-full.overflow-y-auto.p-4'
+        '.relative.h-full.overflow-y-auto.p-4'
       )
       expect(messageContainer).toBeInTheDocument()
     })

@@ -430,12 +430,15 @@ describe('ActualitesService', () => {
       ;(apiPost as jest.Mock).mockResolvedValue({ content: actualiteCreee })
 
       // When
-      const result = await creerActualiteMissionLocaleClientSide('Mon contenu')
+      const result = await creerActualiteMissionLocaleClientSide(
+        'Mon titre',
+        'Mon contenu'
+      )
 
       // Then
       expect(apiPost).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites',
-        { titre: 'Actualité', contenu: 'Mon contenu' },
+        { titre: 'Mon titre', contenu: 'Mon contenu' },
         'token-abc'
       )
       expect(result).toEqual(actualiteCreee)

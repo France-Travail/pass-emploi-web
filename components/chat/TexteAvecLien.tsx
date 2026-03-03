@@ -88,7 +88,7 @@ function confirmationRedirectionLienExterne(
 ) {
   e.preventDefault()
   if (window.confirm('Vous allez quitter l’espace conseiller')) {
-    window.open(lien, '_blank', 'noopener, noreferrer')
+    window.open(lien, '_blank', 'noopener,noreferrer')
   }
 }
 
