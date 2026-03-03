@@ -1,4 +1,14 @@
-.wrapper:has(input:focus) {
+.wrapper {
+    border: solid 1px var(--color-content-color);
+    border-radius: var(--radius-base);
+}
+
+.wrapper:has(input:focus),
+.wrapper:has(textarea:focus) {
     outline: 5px auto Highlight;
     outline: 5px auto -webkit-focus-ring-color;
+}
+
+.wrapper.invalid {
+    border-color: var(--color-warning);
 }

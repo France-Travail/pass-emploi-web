@@ -257,7 +257,7 @@ describe('MessageActualites', () => {
       expect(global.open).toHaveBeenCalledWith(
         'https://external.com',
         '_blank',
-        'noopener, noreferrer'
+        'noopener,noreferrer'
       )
     })
   })
