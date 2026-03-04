@@ -1,3 +1,4 @@
+/* eslint-disable react-compiler/react-compiler -- TODO: violations à corriger progressivement */
 import { DateTime } from 'luxon'
 import React, {
   ForwardedRef,

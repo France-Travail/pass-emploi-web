@@ -8,7 +8,6 @@ import {
   unEvenement,
   unEvenementJeuneJson,
   unEvenementJson,
-  unEvenementListItem,
   unEvenementMiloListItem,
 } from 'fixtures/evenement'
 import { AnimationCollective, StatutEvenement } from 'interfaces/evenement'

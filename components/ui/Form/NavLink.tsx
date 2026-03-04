@@ -1,3 +1,4 @@
+/* eslint-disable react-compiler/react-compiler -- TODO: violations à corriger progressivement */
 import Link from 'next/link'
 import React, { ReactElement } from 'react'
 

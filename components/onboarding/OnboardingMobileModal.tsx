@@ -1,3 +1,4 @@
+/* eslint-disable react-compiler/react-compiler -- TODO: violations à corriger progressivement */
 import React, { ReactElement, useRef, useState } from 'react'
 
 import Modal, { ModalHandles } from 'components/Modal'
