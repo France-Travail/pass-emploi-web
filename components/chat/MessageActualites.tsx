@@ -73,9 +73,9 @@ export default function MessageActualites({
                       key={m.id}
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
-                      tabIndex={estDernierMessage ? -1 : undefined}
+                      tabIndex={-1}
                     >
-                      <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
+                      <article className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
                         <p className='text-primary-darken text-base-bold mb-2'>
                           {m.titre}
                         </p>
@@ -101,7 +101,7 @@ export default function MessageActualites({
                             {m.titreLien}
                           </a>
                         )}
-                      </div>
+                      </article>
                       <FooterActualite
                         message={m}
                         onModification={onModification}

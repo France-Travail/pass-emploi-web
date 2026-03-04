@@ -132,7 +132,6 @@ export default function BandeauActualites({
       ) as HTMLElement
       if (elementToFocus) {
         elementToFocus.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-        elementToFocus.setAttribute('tabIndex', '-1')
         elementToFocus.focus()
       }
       idPrecedentePremiereActualite.current = undefined
