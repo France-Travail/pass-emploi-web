@@ -4,18 +4,29 @@ import React, { useEffect, useRef, useState } from 'react'
 import ConfirmationRedirectionModal from 'components/ConfirmationRedirectionModal'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { toFrenchTime } from 'utils/date'
+import { toFrenchDateTime, toFrenchTime } from 'utils/date'
 
 import DateMessage from './DateMessage'
 
 type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
   readonly shouldAutoFocusLastMessage?: boolean
+  readonly onModification?: (actualite: ActualiteMessage) => void
+}
+
+function scrollToRef(element: HTMLElement | null) {
+  if (element)
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    })
 }
 
 export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
+  onModification,
 }: BlocMessageProps) {
   const [lienAOuvrir, setLienAOuvrir] = useState<string | null>(null)
 
@@ -58,7 +69,11 @@ export default function MessageActualites({
 
   return (
     <>
-      <ul className='w-full space-y-6'>
+      <ul
+        className='w-full space-y-6'
+        aria-live='polite'
+        aria-relevant='additions'
+      >
         {Array.from(messagesParDate.values()).map(
           ({ date, messages: groupe }) => (
             <li key={date.toISODate()}>
@@ -71,10 +86,16 @@ export default function MessageActualites({
                       key={m.id}
                       ref={estDernierMessage ? dernierMessageRef : null}
                       id={m.id}
-                      tabIndex={estDernierMessage ? -1 : undefined}
+                      tabIndex={-1}
                     >
-                      <div className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
-                        <p className='text-primary-darken text-base-bold mb-2'>
+                      <article
+                        className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'
+                        aria-labelledby={`titre-actualite-${m.id}`}
+                      >
+                        <p
+                          id={`titre-actualite-${m.id}`}
+                          className='text-primary-darken text-base-bold mb-2'
+                        >
                           {m.titre}
                         </p>
                         <p className='text-primary-darken text-s-regular mb-2'>
@@ -99,20 +120,11 @@ export default function MessageActualites({
                             {m.titreLien}
                           </a>
                         )}
-                      </div>
-                      <div className='flex items-center gap-2 text-xs-medium text-content mt-1'>
-                        <span
-                          className='text-xs-medium'
-                          aria-label={toFrenchTime(m.dateCreation, {
-                            a11y: true,
-                          })}
-                        >
-                          {toFrenchTime(m.dateCreation)} ·{' '}
-                        </span>
-                        <span className='text-xs-medium'>
-                          Posté par {m.prenomNomConseiller}
-                        </span>
-                      </div>
+                      </article>
+                      <FooterActualite
+                        message={m}
+                        onModification={onModification}
+                      />
                     </li>
                   )
                 })}
@@ -130,5 +142,82 @@ export default function MessageActualites({
         />
       )}
     </>
+  )
+}
+
+function FooterActualite({
+  message,
+  onModification,
+}: {
+  readonly message: ActualiteMessage
+  readonly onModification?: (actualite: ActualiteMessage) => void
+}) {
+  const [afficherMenu, setAfficherMenu] = useState(false)
+
+  return (
+    <div className='relative flex items-center gap-2 text-xs-medium text-content mt-1'>
+      <span
+        className='text-xs-medium'
+        aria-label={toFrenchTime(message.dateCreation, { a11y: true })}
+      >
+        {toFrenchTime(message.dateCreation)} ·{' '}
+      </span>
+      <span className='text-xs-medium'>
+        Posté par {message.prenomNomConseiller}
+      </span>
+
+      {message.proprietaire && onModification && (
+        <>
+          <button
+            type='button'
+            onClick={() => setAfficherMenu(!afficherMenu)}
+            aria-label={`${afficherMenu ? 'Cacher' : 'Voir'} les actions possibles pour l'actualité du ${toFrenchDateTime(message.dateCreation, { a11y: true })}`}
+            className='flex items-center'
+          >
+            <div
+              className={
+                afficherMenu
+                  ? 'bg-primary rounded-full fill-white'
+                  : 'fill-grey-800 hover:rounded-full hover:shadow-m'
+              }
+            >
+              <IconComponent
+                focusable={false}
+                aria-hidden={true}
+                className='inline w-4 h-4 m-1'
+                name={IconName.More}
+              />
+            </div>
+          </button>
+
+          {afficherMenu && (
+            <div
+              className='absolute top-[2em] left-0 z-10 bg-white rounded-base p-2 shadow-m'
+              ref={scrollToRef}
+            >
+              <button
+                type='button'
+                onClick={() => {
+                  setAfficherMenu(false)
+                  onModification(message)
+                }}
+                className='p-2 flex items-center text-s-bold gap-2 hover:text-primary hover:rounded-base hover:bg-primary-lighten hover:shadow-m'
+              >
+                <IconComponent
+                  focusable={false}
+                  aria-hidden={true}
+                  className='inline w-4 h-4 fill-current'
+                  name={IconName.Edit}
+                />
+                Modifier l&apos;actualité
+                <span className='sr-only'>
+                  du {toFrenchDateTime(message.dateCreation, { a11y: true })}
+                </span>
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   )
 }
