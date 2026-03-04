@@ -26,15 +26,20 @@ function FiltresStatutAnimationsCollectives(
   ref: ForwardedRef<FiltresHandles>
 ) {
   const buttonRef = useRef<HTMLButtonElement>(null)
-  useImperativeHandle(ref, () => ({
-    focus: () => buttonRef.current!.focus(),
-    reset,
-  }))
-
   const [afficherFiltres, setAfficherFiltres] = useState<boolean>(false)
   const [statutsSelectionnes, setStatutsSelectionnes] = useState<
     StatutEvenement[]
   >([])
+
+  function reset() {
+    setStatutsSelectionnes([])
+    onFiltres([])
+  }
+
+  useImperativeHandle(ref, () => ({
+    focus: () => buttonRef.current!.focus(),
+    reset,
+  }))
 
   function actionnerStatut(statut: StatutEvenement) {
     if (statutsSelectionnes.includes(statut)) {
@@ -48,11 +53,6 @@ function FiltresStatutAnimationsCollectives(
     e.preventDefault()
     onFiltres(statutsSelectionnes)
     setAfficherFiltres(false)
-  }
-
-  function reset() {
-    setStatutsSelectionnes([])
-    onFiltres([])
   }
 
   useEffect(() => {

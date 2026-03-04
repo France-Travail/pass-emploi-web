@@ -31,12 +31,12 @@ function ListeListes(
   const isFirstRender = useRef<boolean>(true)
   const headerRef = useRef<{ focusRetour: () => void }>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const [idListeAFocus, setIdListeAFocus] = useState<string | undefined>()
+
   useImperativeHandle(ref, () => ({
     focusRetour: () => headerRef.current!.focusRetour(),
     focusListe: setIdListeAFocus,
   }))
-
-  const [idListeAFocus, setIdListeAFocus] = useState<string | undefined>()
 
   // FIXME useContext pour visibilité messagerie partout (mega context MessagerieStatesContext ?)
   const [messagerieEstVisible, setMessagerieEstVisible] =
