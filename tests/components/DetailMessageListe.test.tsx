@@ -1,7 +1,7 @@
 import { screen, within } from '@testing-library/react'
-import DetailMessageListe from 'components/chat/DetailMessageListe'
 import { DateTime } from 'luxon'
 
+import DetailMessageListe from 'components/chat/DetailMessageListe'
 import { unBeneficiaireChat } from 'fixtures/beneficiaire'
 import { unMessageListe } from 'fixtures/message'
 import { IdentiteBeneficiaire } from 'interfaces/beneficiaire'

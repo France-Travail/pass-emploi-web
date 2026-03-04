@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
-import { getListesClientSide } from 'services/listes.service'
 
 import ChatContainer from 'components/chat/ChatContainer'
 import {
@@ -15,6 +14,7 @@ import {
   IdentiteBeneficiaire,
 } from 'interfaces/beneficiaire'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
+import { getListesClientSide } from 'services/listes.service'
 import { getMessageImportant } from 'services/messages.service'
 import renderWithContexts from 'tests/renderWithContexts'
 

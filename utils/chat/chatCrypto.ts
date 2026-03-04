@@ -2,6 +2,7 @@ import AES from 'crypto-js/aes'
 import Base64 from 'crypto-js/enc-base64'
 import Utf8 from 'crypto-js/enc-utf8'
 import WordArray from 'crypto-js/lib-typedarrays'
+
 import { captureError } from 'utils/monitoring/elastic'
 
 export interface EncryptedTextWithInitializationVector {

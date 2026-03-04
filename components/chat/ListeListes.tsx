@@ -1,4 +1,3 @@
-/* eslint-disable react-compiler/react-compiler -- TODO: violations à corriger progressivement */
 import React, {
   ForwardedRef,
   forwardRef,
