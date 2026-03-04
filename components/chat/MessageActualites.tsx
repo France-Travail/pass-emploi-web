@@ -60,7 +60,11 @@ export default function MessageActualites({
 
   return (
     <>
-      <ul className='w-full space-y-6'>
+      <ul
+        className='w-full space-y-6'
+        aria-live='polite'
+        aria-relevant='additions'
+      >
         {Array.from(messagesParDate.values()).map(
           ({ date, messages: groupe }) => (
             <li key={date.toISODate()}>
@@ -75,8 +79,14 @@ export default function MessageActualites({
                       id={m.id}
                       tabIndex={-1}
                     >
-                      <article className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'>
-                        <p className='text-primary-darken text-base-bold mb-2'>
+                      <article
+                        className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'
+                        aria-labelledby={`titre-actualite-${m.id}`}
+                      >
+                        <p
+                          id={`titre-actualite-${m.id}`}
+                          className='text-primary-darken text-base-bold mb-2'
+                        >
                           {m.titre}
                         </p>
                         <p className='text-primary-darken text-s-regular mb-2'>
