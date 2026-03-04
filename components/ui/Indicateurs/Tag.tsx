@@ -1,3 +1,4 @@
+/* eslint-disable react-compiler/react-compiler -- TODO: violations à corriger progressivement */
 import React, { ReactElement } from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'

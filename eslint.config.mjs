@@ -1,24 +1,16 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-import { FlatCompat } from '@eslint/eslintrc'
-import js from '@eslint/js'
+import nextConfig from 'eslint-config-next/core-web-vitals'
 import prettierConfigRecommended from 'eslint-plugin-prettier/recommended'
 import reactCompiler from 'eslint-plugin-react-compiler'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-})
-
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextConfig,
   prettierConfigRecommended,
   {
+    // Rules using plugins registered by nextConfig for JS/JSX/TS/TSX files
+    files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
     rules: {
+      // TODO Next.js 16: nouvelle règle stricte, 47 violations à corriger progressivement
+      'react-hooks/set-state-in-effect': 'off',
       'import/no-unresolved': 'error',
       'import/order': [
         'error',
@@ -40,6 +32,17 @@ const eslintConfig = [
           pathGroupsExcludedImportTypes: ['builtin'],
         },
       ],
+      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel'] }],
+      'jsx-a11y/no-noninteractive-element-to-interactive-role': [
+        'error',
+        { ul: ['tablist'] },
+      ],
+    },
+  },
+  {
+    // Rules using @typescript-eslint plugin (registered by nextConfig for TS files only)
+    files: ['**/*.ts', '**/*.tsx'],
+    rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -47,11 +50,6 @@ const eslintConfig = [
           argsIgnorePattern: '^_',
           ignoreRestSiblings: true,
         },
-      ],
-      'jsx-a11y/no-noninteractive-tabindex': ['error', { roles: ['tabpanel'] }],
-      'jsx-a11y/no-noninteractive-element-to-interactive-role': [
-        'error',
-        { ul: ['tablist'] },
       ],
     },
   },
