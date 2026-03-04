@@ -59,8 +59,7 @@ const eslintConfig = [
       'react-compiler': reactCompiler,
     },
     rules: {
-      // TODO: 10 violations pré-existantes à corriger progressivement
-      'react-compiler/react-compiler': 'off',
+      'react-compiler/react-compiler': 'error',
     },
   },
   {
