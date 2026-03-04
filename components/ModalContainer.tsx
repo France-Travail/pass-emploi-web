@@ -29,15 +29,8 @@ function ModalContainer(
   ref: ForwardedRef<ModalHandles>
 ) {
   const modalContainerRef = useRef<HTMLDivElement>(null)
-  useImperativeHandle(ref, () => ({
-    focusClose,
-    closeModal: handleClose,
-  }))
   const [isRendered, setIsRendered] = useState(false)
   const previousFocusedElement = useRef<HTMLElement | null>(null)
-  const keyListeners = useRef<{
-    [key: string]: (e: KeyboardEvent) => void
-  }>({ Tab: handleTabKey, Escape: handleClose })
 
   function focusClose() {
     if (!previousFocusedElement.current)
@@ -79,6 +72,15 @@ function ModalContainer(
     const listener = keyListeners.current[e.key]
     return listener && listener(e)
   }
+
+  const keyListeners = useRef<{
+    [key: string]: (e: KeyboardEvent) => void
+  }>({ Tab: handleTabKey, Escape: handleClose })
+
+  useImperativeHandle(ref, () => ({
+    focusClose,
+    closeModal: handleClose,
+  }))
 
   useEffect(() => {
     setIsRendered(true)
