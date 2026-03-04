@@ -8,4 +8,4 @@ on:
 
 jobs:
   dependabot:
-    uses: France-Travail/pass-emploi-tools/.github/workflows/dependabot.yml@7d9fdf29449ef0d959b44873984261d138d95623
+    uses: France-Travail/pass-emploi-tools/.github/workflows/dependabot.yml@645baca94d9825a7502bc1b143097cc8a9c6b707
