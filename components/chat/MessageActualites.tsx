@@ -98,7 +98,7 @@ export default function MessageActualites({
                         >
                           {m.titre}
                         </p>
-                        <p className='text-primary-darken text-s-regular mb-2'>
+                        <p className='text-primary-darken text-s-regular mb-2 whitespace-pre-wrap'>
                           {m.contenu}
                         </p>
                         {m.lien && m.titreLien && (
