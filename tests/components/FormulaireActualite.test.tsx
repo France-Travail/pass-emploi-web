@@ -334,4 +334,120 @@ describe('FormulaireActualite', () => {
       expect(screen.getByText('0 / 50')).toBeInTheDocument()
     })
   })
+
+  describe('avec des valeurs initiales (mode édition)', () => {
+    it('pré-remplit les champs avec les valeurs fournies', () => {
+      // Given
+      const initialValues = {
+        titre: 'Titre existant',
+        contenu: 'Contenu existant',
+        titreLien: 'Voir plus',
+        lien: 'https://example.com',
+      }
+
+      // When
+      render(
+        <FormulaireActualite
+          onCreation={onCreation}
+          initialValues={initialValues}
+        />
+      )
+
+      // Then
+      expect(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
+      ).toHaveValue('Titre existant')
+      expect(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        )
+      ).toHaveValue('Contenu existant')
+      expect(
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        )
+      ).toHaveValue('Voir plus')
+      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue(
+        'https://example.com'
+      )
+    })
+
+    it('pré-remplit uniquement titre et contenu si titreLien et lien absents', () => {
+      // Given
+      const initialValues = { titre: 'Mon titre', contenu: 'Mon contenu' }
+
+      // When
+      render(
+        <FormulaireActualite
+          onCreation={onCreation}
+          initialValues={initialValues}
+        />
+      )
+
+      // Then
+      expect(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
+      ).toHaveValue('Mon titre')
+      expect(
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        )
+      ).toHaveValue('')
+      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue('')
+    })
+
+    it('soumet les valeurs modifiées', async () => {
+      // Given
+      onCreation.mockResolvedValue(undefined)
+      const initialValues = {
+        titre: 'Titre original',
+        contenu: 'Contenu original',
+      }
+
+      // When
+      render(
+        <FormulaireActualite
+          onCreation={onCreation}
+          initialValues={initialValues}
+        />
+      )
+      const champTitre = screen.getByPlaceholderText(
+        'Renseigner un titre pour votre actualité'
+      )
+      await userEvent.clear(champTitre)
+      await userEvent.type(champTitre, 'Titre modifié')
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/i })
+      )
+
+      // Then
+      expect(onCreation).toHaveBeenCalledWith(
+        'Titre modifié',
+        'Contenu original',
+        undefined,
+        undefined
+      )
+    })
+
+    it('affiche les compteurs initialisés avec la longueur des valeurs', () => {
+      // Given
+      const initialValues = {
+        titre: 'Abc',
+        contenu: 'Contenu',
+        titreLien: 'Ok',
+      }
+
+      // When
+      render(
+        <FormulaireActualite
+          onCreation={onCreation}
+          initialValues={initialValues}
+        />
+      )
+
+      // Then
+      expect(screen.getByText('3 / 100')).toBeInTheDocument()
+      expect(screen.getByText('2 / 50')).toBeInTheDocument()
+    })
+  })
 })
