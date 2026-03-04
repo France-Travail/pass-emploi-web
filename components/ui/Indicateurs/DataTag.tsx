@@ -39,37 +39,6 @@ export function DataTag({
     }
   }
 
-  function TagIcon() {
-    const iconStyle = 'inline w-4 h-4 fill-current mr-1'
-
-    if (iconLabel) {
-      const labelId = 'tag-icon-' + unsafeRandomId()
-      return (
-        <>
-          <IconComponent
-            name={iconName!}
-            focusable={false}
-            role='img'
-            aria-labelledby={labelId}
-            title={iconLabel}
-            className={iconStyle}
-          />
-          <span id={labelId} className='sr-only'>
-            {iconLabel}
-          </span>
-        </>
-      )
-    } else
-      return (
-        <IconComponent
-          name={iconName!}
-          aria-hidden={true}
-          focusable={false}
-          className={iconStyle}
-        />
-      )
-  }
-
   return (
     <span
       className={`inline-flex items-center rounded-base ${
@@ -78,8 +47,45 @@ export function DataTag({
         className ?? ''
       }`}
     >
-      {iconName && <TagIcon />}
+      {iconName && <TagIcon iconName={iconName} iconLabel={iconLabel} />}
       {text}
     </span>
   )
+}
+
+function TagIcon({
+  iconName,
+  iconLabel,
+}: {
+  iconName: IconName
+  iconLabel?: string
+}) {
+  const iconStyle = 'inline w-4 h-4 fill-current mr-1'
+
+  if (iconLabel) {
+    const labelId = 'tag-icon-' + unsafeRandomId()
+    return (
+      <>
+        <IconComponent
+          name={iconName}
+          focusable={false}
+          role='img'
+          aria-labelledby={labelId}
+          title={iconLabel}
+          className={iconStyle}
+        />
+        <span id={labelId} className='sr-only'>
+          {iconLabel}
+        </span>
+      </>
+    )
+  } else
+    return (
+      <IconComponent
+        name={iconName}
+        aria-hidden={true}
+        focusable={false}
+        className={iconStyle}
+      />
+    )
 }
