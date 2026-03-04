@@ -9,6 +9,7 @@ import {
 } from 'fixtures/beneficiaire'
 import { countMessagesNotRead, signIn } from 'services/messages.service'
 import renderWithContexts from 'tests/renderWithContexts'
+
 import { DetailBeneficiaire } from '../../interfaces/beneficiaire'
 import { getJeuneDetailsClientSide } from '../../services/beneficiaires.service'
 
