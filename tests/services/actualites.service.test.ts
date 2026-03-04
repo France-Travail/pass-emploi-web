@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 
-import { apiGet, apiPost } from 'clients/api.client'
+import { apiGet, apiPost, apiPut } from 'clients/api.client'
 import { ActualitesRaw, ArticleJson, TagJson } from 'interfaces/actualites'
 import { ActualiteJson } from 'interfaces/json/actualite'
 import {
@@ -17,6 +17,8 @@ import {
   getActualites,
   getActualitesMissionLocale,
   getActualitesMissionLocaleClientSide,
+  modifierActualiteMissionLocale,
+  modifierActualiteMissionLocaleClientSide,
 } from 'services/actualites.service'
 import { fetchJson } from 'utils/httpClient'
 
@@ -442,6 +444,120 @@ describe('ActualitesService', () => {
         'token-abc'
       )
       expect(result).toEqual(actualiteCreee)
+    })
+  })
+
+  describe('.modifierActualiteMissionLocaleClientSide', () => {
+    it('modifie une actualité avec la session', async () => {
+      // Given
+      const mockSession = {
+        user: { id: 'conseiller-123' },
+        accessToken: 'token-abc',
+      }
+      ;(getSession as jest.Mock).mockResolvedValue(mockSession)
+      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await modifierActualiteMissionLocaleClientSide(
+        'actualite-42',
+        'Titre modifié',
+        'Contenu modifié'
+      )
+
+      // Then
+      expect(apiPut).toHaveBeenCalledWith(
+        '/conseillers/milo/conseiller-123/actualites/actualite-42',
+        { titre: 'Titre modifié', contenu: 'Contenu modifié' },
+        'token-abc'
+      )
+    })
+
+    it('inclut titreLien et lien dans le payload si fournis', async () => {
+      // Given
+      const mockSession = {
+        user: { id: 'conseiller-123' },
+        accessToken: 'token-abc',
+      }
+      ;(getSession as jest.Mock).mockResolvedValue(mockSession)
+      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await modifierActualiteMissionLocaleClientSide(
+        'actualite-42',
+        'Titre',
+        'Contenu',
+        'Voir plus',
+        'https://example.com'
+      )
+
+      // Then
+      expect(apiPut).toHaveBeenCalledWith(
+        '/conseillers/milo/conseiller-123/actualites/actualite-42',
+        {
+          titre: 'Titre',
+          contenu: 'Contenu',
+          titreLien: 'Voir plus',
+          lien: 'https://example.com',
+        },
+        'token-abc'
+      )
+    })
+
+    it('lève une erreur si pas de session', async () => {
+      // Given
+      ;(getSession as jest.Mock).mockResolvedValue(null)
+
+      // When / Then
+      await expect(
+        modifierActualiteMissionLocaleClientSide(
+          'actualite-42',
+          'Titre',
+          'Contenu'
+        )
+      ).rejects.toThrow('Session expirée')
+      expect(apiPut).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('.modifierActualiteMissionLocale', () => {
+    it('appelle apiPut avec les bons paramètres', async () => {
+      // Given
+      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await modifierActualiteMissionLocale(
+        'conseiller-123',
+        'actualite-42',
+        'Titre modifié',
+        'Contenu modifié',
+        'token-abc'
+      )
+
+      // Then
+      expect(apiPut).toHaveBeenCalledWith(
+        '/conseillers/milo/conseiller-123/actualites/actualite-42',
+        { titre: 'Titre modifié', contenu: 'Contenu modifié' },
+        'token-abc'
+      )
+    })
+
+    it('n inclut pas titreLien et lien si absents', async () => {
+      // Given
+      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await modifierActualiteMissionLocale(
+        'conseiller-123',
+        'actualite-42',
+        'Titre',
+        'Contenu',
+        'token-abc'
+      )
+
+      // Then
+      const payload = (apiPut as jest.Mock).mock.calls[0][1]
+      expect(payload).not.toHaveProperty('titreLien')
+      expect(payload).not.toHaveProperty('lien')
     })
   })
 

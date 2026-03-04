@@ -3,14 +3,28 @@ import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 
 import BandeauActualites from 'components/chat/BandeauActualites'
-import { desActualitesMilo } from 'fixtures/actualiteMilo'
+import { desActualitesMilo, uneActualiteMilo } from 'fixtures/actualiteMilo'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
+import {
+  creerActualiteMissionLocaleClientSide,
+  modifierActualiteMissionLocaleClientSide,
+} from 'services/actualites.service'
+
+jest.mock('services/actualites.service')
 
 describe('BandeauActualites', () => {
   const onRetourMessagerie = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
+    const modalRoot = document.createElement('div')
+    modalRoot.setAttribute('id', 'modal-root')
+    document.body.appendChild(modalRoot)
+  })
+
+  afterEach(() => {
+    const modalRoot = document.getElementById('modal-root')
+    if (modalRoot) document.body.removeChild(modalRoot)
   })
 
   describe('quand les actualités sont en cours de chargement', () => {
@@ -181,6 +195,227 @@ describe('BandeauActualites', () => {
       // Then
       const results = await axe(container)
       expect(results).toHaveNoViolations()
+    })
+  })
+
+  describe('modification d une actualité', () => {
+    it('ouvre la modal de modification avec le bon titre au clic sur Modifier', async () => {
+      // Given
+      const actualites = desActualitesMilo()
+      render(
+        <BandeauActualites
+          actualites={actualites}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When - clic sur le bouton "More" de la première actualité propriétaire
+      await userEvent.click(
+        screen.getAllByRole('button', {
+          name: /Voir les actions possibles/i,
+        })[0]
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('heading', { name: "Modifier l'actualité" })
+      ).toBeInTheDocument()
+    })
+
+    it('pré-remplit le formulaire avec les données de l actualité', async () => {
+      // Given
+      const actualite = uneActualiteMilo({
+        id: 'actualite-1',
+        titre: 'Mon titre existant',
+        contenu: 'Mon contenu existant',
+        titreLien: 'Voir plus',
+        lien: 'https://example.com',
+        proprietaire: true,
+      })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
+      ).toHaveValue('Mon titre existant')
+      expect(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        )
+      ).toHaveValue('Mon contenu existant')
+      expect(
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        )
+      ).toHaveValue('Voir plus')
+      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue(
+        'https://example.com'
+      )
+    })
+
+    it('appelle modifierActualiteMissionLocaleClientSide à la soumission', async () => {
+      // Given
+      ;(
+        modifierActualiteMissionLocaleClientSide as jest.Mock
+      ).mockResolvedValue(undefined)
+      const onActualiteCreee = jest.fn()
+      const actualite = uneActualiteMilo({
+        id: 'actualite-42',
+        titre: 'Titre original',
+        contenu: 'Contenu original',
+        titreLien: undefined,
+        lien: undefined,
+        proprietaire: true,
+      })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+          onActualiteCreee={onActualiteCreee}
+        />
+      )
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/i })
+      )
+
+      // Then
+      expect(modifierActualiteMissionLocaleClientSide).toHaveBeenCalledWith(
+        'actualite-42',
+        'Titre original',
+        'Contenu original',
+        undefined,
+        undefined
+      )
+      expect(onActualiteCreee).toHaveBeenCalledTimes(1)
+    })
+
+    it('ferme la modal après modification réussie', async () => {
+      // Given
+      ;(
+        modifierActualiteMissionLocaleClientSide as jest.Mock
+      ).mockResolvedValue(undefined)
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('heading', { name: "Modifier l'actualité" })
+      ).not.toBeInTheDocument()
+    })
+
+    it('affiche un message d erreur si la modification échoue', async () => {
+      // Given
+      ;(
+        modifierActualiteMissionLocaleClientSide as jest.Mock
+      ).mockRejectedValue(new Error('Erreur réseau'))
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.getByText(
+          "Une erreur est survenue lors de la modification de l'actualité. Veuillez réessayer."
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('ouvre en mode création (non pré-rempli) après une modification', async () => {
+      // Given
+      ;(
+        modifierActualiteMissionLocaleClientSide as jest.Mock
+      ).mockResolvedValue(undefined)
+      const actualite = uneActualiteMilo({
+        titre: 'Titre original',
+        proprietaire: true,
+      })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // Ouvrir en mode modification puis fermer
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Modifier l.actualité/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/i })
+      )
+
+      // When - ouvrir le formulaire de création
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser une actualité/i })
+      )
+
+      // Then - le titre de la modal est celui de la création, et le champ est vide
+      expect(
+        screen.getByRole('heading', {
+          name: 'Partager ici une actualité de votre mission locale',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
+      ).toHaveValue('')
     })
   })
 

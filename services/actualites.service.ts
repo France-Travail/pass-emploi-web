@@ -2,7 +2,8 @@ import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
-import { apiGet, apiPost } from 'clients/api.client'
+import { apiGet, apiPost, apiPut } from 'clients/api.client'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   ActualitesRaw,
   ArticleCouleur,
@@ -10,11 +11,9 @@ import {
   EtiquetteArticle,
   TagJson,
 } from 'interfaces/actualites'
+import { ActualiteJson } from 'interfaces/json/actualite'
 import { Structure } from 'interfaces/structure'
 import { fetchJson } from 'utils/httpClient'
-
-import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { ActualiteJson } from 'interfaces/json/actualite'
 
 export async function getActualites(
   structure: Structure
@@ -155,6 +154,52 @@ export async function creerActualiteMissionLocale(
     accessToken
   )
   return content
+}
+
+export async function modifierActualiteMissionLocaleClientSide(
+  id: string,
+  titre: string,
+  contenu: string,
+  titreLien?: string,
+  lien?: string
+): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  return modifierActualiteMissionLocale(
+    session.user.id,
+    id,
+    titre,
+    contenu,
+    session.accessToken,
+    titreLien,
+    lien
+  )
+}
+
+export async function modifierActualiteMissionLocale(
+  idConseiller: string,
+  id: string,
+  titre: string,
+  contenu: string,
+  accessToken: string,
+  titreLien?: string,
+  lien?: string
+): Promise<void> {
+  const payload: {
+    titre: string
+    contenu: string
+    titreLien?: string
+    lien?: string
+  } = { titre, contenu }
+
+  if (titreLien) payload.titreLien = titreLien
+  if (lien) payload.lien = lien
+
+  await apiPut(
+    `/conseillers/milo/${idConseiller}/actualites/${id}`,
+    payload,
+    accessToken
+  )
 }
 
 function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {
