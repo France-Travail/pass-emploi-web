@@ -22,7 +22,7 @@
   "dependencies": {
     "@elastic/apm-rum": "5.17.3",
     "@elastic/apm-rum-react": "2.0.9",
-    "@next/bundle-analyzer": "^15.5.9",
+    "@next/bundle-analyzer": "^16.1.6",
     "crypto-js": "4.2.0",
     "dotenv": "17.3.1",
     "dotvault": "^0.0.9",
