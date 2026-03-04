@@ -5,10 +5,7 @@ import { axe } from 'jest-axe'
 import BandeauActualites from 'components/chat/BandeauActualites'
 import { desActualitesMilo, uneActualiteMilo } from 'fixtures/actualiteMilo'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import {
-  creerActualiteMissionLocaleClientSide,
-  modifierActualiteMissionLocaleClientSide,
-} from 'services/actualites.service'
+import { modifierActualiteMissionLocaleClientSide } from 'services/actualites.service'
 
 jest.mock('services/actualites.service')
 
