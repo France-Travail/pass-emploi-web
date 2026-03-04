@@ -14,6 +14,15 @@ type BlocMessageProps = {
   readonly onModification?: (actualite: ActualiteMessage) => void
 }
 
+function scrollToRef(element: HTMLElement | null) {
+  if (element)
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'nearest',
+    })
+}
+
 export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
@@ -140,19 +149,10 @@ function FooterActualite({
   message,
   onModification,
 }: {
-  message: ActualiteMessage
-  onModification?: (actualite: ActualiteMessage) => void
+  readonly message: ActualiteMessage
+  readonly onModification?: (actualite: ActualiteMessage) => void
 }) {
   const [afficherMenu, setAfficherMenu] = useState(false)
-
-  function scrollToRef(element: HTMLElement | null) {
-    if (element)
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
-      })
-  }
 
   return (
     <div className='relative flex items-center gap-2 text-xs-medium text-content mt-1'>
