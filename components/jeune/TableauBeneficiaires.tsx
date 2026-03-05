@@ -1,7 +1,14 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react'
+import {
+  ForwardedRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import FiltresDispositifs from 'components/action/FiltresDispositifs'
 import FiltresListes from 'components/action/FiltresListes'

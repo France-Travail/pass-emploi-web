@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import ActionRowPilotage from 'components/action/ActionRowPilotage'
 import EncartQualificationActions from 'components/action/EncartQualificationActions'
@@ -44,22 +44,40 @@ export default function TableauActionsAQualifier({
   const listeActionsRef = useRef<HTMLTableElement>(null)
   const filtresRef = useRef<HTMLButtonElement>(null)
   const [categoriesValidees, setCategoriesValidees] = useState<Categorie[]>([])
-  const [aReinitialiseLesFiltres, setAReinitialiseLesFiltres] =
-    useState<boolean>(false)
+  const shouldRefocusAfterReinit = useRef(false)
 
   const toutSelectionnerCheckboxRef = useRef<HTMLInputElement | null>(null)
   const [actionsSelectionnees, setActionsSelectionnees] = useState<
     ActionAQualifier[]
   >([])
-  const [beneficiaireSelectionne, setBeneficiaireSelectionne] =
-    useState<IdentiteBeneficiaire>()
 
-  const [actionSansCategorieSelectionnee, setActionSansCategorieSelectionnee] =
-    useState<boolean>(false)
-  const [
-    plusieursBeneficiairesSelectionnes,
-    setPlusieursBeneficiairesSelectionnes,
-  ] = useState<boolean>(false)
+  // Réinitialiser la sélection quand la liste filtrée change (prop venant du parent)
+  const [prevActionsFiltrees, setPrevActionsFiltrees] =
+    useState(actionsFiltrees)
+  if (prevActionsFiltrees !== actionsFiltrees) {
+    setPrevActionsFiltrees(actionsFiltrees)
+    setActionsSelectionnees([])
+  }
+
+  // État dérivé → useMemo
+  const beneficiairesSelectionnesMap = useMemo(() => {
+    const map = new Map<string, IdentiteBeneficiaire>()
+    actionsSelectionnees.forEach(({ idAction }) => {
+      const action = actionsFiltrees.find(({ id }) => idAction === id)
+      if (action) map.set(action.beneficiaire.id, action.beneficiaire)
+    })
+    return map
+  }, [actionsSelectionnees, actionsFiltrees])
+
+  const beneficiaireSelectionne = beneficiairesSelectionnesMap.values().next()
+    .value as IdentiteBeneficiaire | undefined
+  const plusieursBeneficiairesSelectionnes =
+    beneficiairesSelectionnesMap.size > 1
+
+  const actionSansCategorieSelectionnee = useMemo(
+    () => actionsSelectionnees.some((action) => !action.codeQualification),
+    [actionsSelectionnees]
+  )
 
   const boutonsDisabled =
     actionsSelectionnees.length === 0 ||
@@ -93,7 +111,7 @@ export default function TableauActionsAQualifier({
   function reinitialiserFiltres() {
     onFiltres([])
     setCategoriesValidees([])
-    setAReinitialiseLesFiltres(true)
+    shouldRefocusAfterReinit.current = true
   }
 
   function selectionnerAction({ id, categorie }: ActionPilotage) {
@@ -127,34 +145,7 @@ export default function TableauActionsAQualifier({
     return actionsSelectionnees.some((action) => action.idAction === id)
   }
 
-  function recupererBeneficiairesSelectionnes(): Map<
-    string,
-    IdentiteBeneficiaire
-  > {
-    const mapBeneficiaires = new Map<string, IdentiteBeneficiaire>()
-    actionsSelectionnees.forEach(({ idAction }) => {
-      const { beneficiaire } = actionsFiltrees.find(
-        ({ id }) => idAction === id
-      )!
-      mapBeneficiaires.set(beneficiaire.id, beneficiaire)
-    })
-    return mapBeneficiaires
-  }
-
-  useEffect(() => {
-    setActionsSelectionnees([])
-  }, [actionsFiltrees])
-
-  useEffect(() => {
-    setActionSansCategorieSelectionnee(
-      actionsSelectionnees.some((action) => !action.codeQualification)
-    )
-
-    const beneficiairesSelectionnes = recupererBeneficiairesSelectionnes()
-    setBeneficiaireSelectionne(beneficiairesSelectionnes.values().next().value)
-    setPlusieursBeneficiairesSelectionnes(beneficiairesSelectionnes.size > 1)
-  }, [actionsSelectionnees])
-
+  // Effet DOM : synchroniser l'état visuel de la checkbox "tout sélectionner"
   useEffect(() => {
     if (!actionsFiltrees.length) return
 
@@ -172,12 +163,14 @@ export default function TableauActionsAQualifier({
     else toutSelectionnerCheckbox.ariaChecked = 'false'
   }, [actionsFiltrees.length, actionsSelectionnees.length])
 
+  // Focus sur la liste après réinitialisation des filtres
   useEffect(() => {
-    if (aReinitialiseLesFiltres && actionsFiltrees.length) {
+    if (!shouldRefocusAfterReinit.current) return
+    if (actionsFiltrees.length) {
       listeActionsRef.current!.focus()
-      setAReinitialiseLesFiltres(false)
+      shouldRefocusAfterReinit.current = false
     }
-  }, [aReinitialiseLesFiltres, actionsFiltrees])
+  }, [actionsFiltrees])
 
   return (
     <>
@@ -194,8 +187,8 @@ export default function TableauActionsAQualifier({
           <FailureAlert label='Qualification impossible.'>
             <p>
               Vous ne pouvez pas qualifier une ou plusieurs actions sans
-              catégorie. Cliquez sur l’action pour pouvoir la modifier et lui
-              ajouter une catégorie.
+              catégorie. Cliquez sur l&apos;action pour pouvoir la modifier et
+              lui ajouter une catégorie.
             </p>
           </FailureAlert>
         )}
@@ -307,8 +300,8 @@ export default function TableauActionsAQualifier({
               <tr>
                 <th scope='col'>Sélection</th>
                 <th scope='col'>Nom et prénom du bénéficiaire</th>
-                <th scope='col'>Catégorie et date de l’action</th>
-                <th scope='col'>Titre et commentaire de l’action</th>
+                <th scope='col'>Catégorie et date de l&apos;action</th>
+                <th scope='col'>Titre et commentaire de l&apos;action</th>
                 <th scope='col'>Voir le détail</th>
               </tr>
             </thead>

@@ -32,11 +32,11 @@ export function SelecteurPeriode({
     getPeriodeComprenant(premierJour)
   )
 
-  const [periodePrecedente, setPeriodePrecedente] = useState<Periode>(
-    getPeriodeComprenant(premierJour.minus({ day: PERIODE_LENGTH_FULL_DAYS }))
+  const periodePrecedente = getPeriodeComprenant(
+    periodeAffichee.debut.minus({ day: PERIODE_LENGTH_FULL_DAYS })
   )
-  const [periodeSuivante, setPeriodeSuivante] = useState<Periode>(
-    getPeriodeComprenant(premierJour.plus({ day: PERIODE_LENGTH_FULL_DAYS }))
+  const periodeSuivante = getPeriodeComprenant(
+    periodeAffichee.debut.plus({ day: PERIODE_LENGTH_FULL_DAYS })
   )
 
   const debutPeriodeRef = useRef<HTMLInputElement>(null)
@@ -94,19 +94,6 @@ export function SelecteurPeriode({
   useEffect(() => {
     onNouvellePeriode(periodeAffichee, { shouldFocus: shouldFocusOnChange })
     debutPeriodeRef.current!.value = periodeAffichee.debut.toISODate()
-  }, [periodeAffichee])
-
-  useEffect(() => {
-    setPeriodePrecedente(
-      getPeriodeComprenant(
-        periodeAffichee.debut.minus({ day: PERIODE_LENGTH_FULL_DAYS })
-      )
-    )
-    setPeriodeSuivante(
-      getPeriodeComprenant(
-        periodeAffichee.debut.plus({ day: PERIODE_LENGTH_FULL_DAYS })
-      )
-    )
   }, [periodeAffichee])
 
   useEffect(() => {
