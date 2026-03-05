@@ -72,6 +72,7 @@ describe('<ChatRoom />', () => {
           onAccesConversation={accederConversation}
           onAccesListes={() => {}}
           onOuvertureMenu={() => {}}
+          onAccesActualites={jest.fn()}
         />,
         {
           customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -108,6 +109,9 @@ describe('<ChatRoom />', () => {
             onAccesConversation={accederConversation}
             onAccesListes={() => {}}
             onOuvertureMenu={() => {}}
+            onAccesActualites={function (): void {
+              throw new Error('Function not implemented.')
+            }}
           />,
           {
             customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -134,6 +138,9 @@ describe('<ChatRoom />', () => {
             onAccesConversation={accederConversation}
             onAccesListes={() => {}}
             onOuvertureMenu={() => {}}
+            onAccesActualites={function (): void {
+              throw new Error('Function not implemented.')
+            }}
           />,
           {
             customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -173,6 +180,9 @@ describe('<ChatRoom />', () => {
                 onAccesConversation={accederConversation}
                 onAccesListes={() => {}}
                 onOuvertureMenu={() => {}}
+                onAccesActualites={function (): void {
+                  throw new Error('Function not implemented.')
+                }}
               />,
               {
                 customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -269,6 +279,9 @@ describe('<ChatRoom />', () => {
                 onAccesConversation={accederConversation}
                 onAccesListes={() => {}}
                 onOuvertureMenu={() => {}}
+                onAccesActualites={function (): void {
+                  throw new Error('Function not implemented.')
+                }}
               />,
               {
                 customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -321,6 +334,9 @@ describe('<ChatRoom />', () => {
             onAccesConversation={accederConversation}
             onAccesListes={() => {}}
             onOuvertureMenu={() => {}}
+            onAccesActualites={function (): void {
+              throw new Error('Function not implemented.')
+            }}
           />,
           {
             customConseiller: unConseiller({ id: 'id-conseiller-1' }),
@@ -364,6 +380,7 @@ describe('<ChatRoom />', () => {
           onAccesConversation={accederConversation}
           onAccesListes={() => {}}
           onOuvertureMenu={() => {}}
+          onAccesActualites={jest.fn()}
         />
       ))
     })
@@ -456,6 +473,7 @@ describe('<ChatRoom />', () => {
           onAccesConversation={() => {}}
           onAccesListes={() => {}}
           onOuvertureMenu={() => {}}
+          onAccesActualites={jest.fn()}
         />
       )
 
@@ -484,6 +502,7 @@ describe('<ChatRoom />', () => {
           onAccesConversation={() => {}}
           onAccesListes={() => {}}
           onOuvertureMenu={() => {}}
+          onAccesActualites={jest.fn()}
         />
       )
 

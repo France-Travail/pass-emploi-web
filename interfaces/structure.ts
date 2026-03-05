@@ -8,7 +8,7 @@ export const structureAij = 'POLE_EMPLOI_AIJ'
 export const structureAccompagnementIntensif = 'FT_ACCOMPAGNEMENT_INTENSIF'
 export const structureAccompagnementGlobal = 'FT_ACCOMPAGNEMENT_GLOBAL'
 export const structureEquipEmploiRecrut = 'FT_EQUIP_EMPLOI_RECRUT'
-const structureConseilDepartemental = 'CONSEIL_DEPT'
+export const structureConseilDepartemental = 'CONSEIL_DEPT'
 
 const structuresCEJ = [structureMilo, structureFTCej] as const
 
