@@ -145,6 +145,10 @@ describe('ChatsProvider', () => {
     it("ne notifie pas quand un nouveau message d'un jeune arrive", async () => {
       // Given
       const conseiller = unConseiller({ notificationsSonores: false })
+      const credentials = {
+        token: 'tokenFirebase',
+        cleChiffrement: 'cleChiffrement',
+      }
 
       // When
       await act(async () =>
@@ -153,9 +157,11 @@ describe('ChatsProvider', () => {
             <link rel='icon' href='/cej-favicon.png' />
             <ConseillerProvider conseiller={conseiller}>
               <PortefeuilleProvider portefeuille={portefeuille}>
-                <ChatsProvider>
-                  <div />
-                </ChatsProvider>
+                <ChatCredentialsProvider credentials={credentials}>
+                  <ChatsProvider>
+                    <div />
+                  </ChatsProvider>
+                </ChatCredentialsProvider>
               </PortefeuilleProvider>
             </ConseillerProvider>
           </>

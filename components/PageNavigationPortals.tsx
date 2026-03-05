@@ -1,21 +1,25 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 
 import FilAriane from 'components/FilAriane'
 import { PAGE_NAVIGATION_ROOT_ID } from 'components/globals'
 import LienRetour from 'components/LienRetour'
 
+function useIsBrowser() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  )
+}
+
 export function PageRetourPortal({ lien }: { lien: string }) {
-  const [isBrowser, setIsBrowser] = useState(false)
+  const isBrowser = useIsBrowser()
 
   const pageRetourContainer = <LienRetour returnUrlOrPath={lien} />
-
-  useEffect(() => {
-    setIsBrowser(true)
-  }, [])
 
   if (isBrowser) {
     const pageRetourRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
@@ -28,13 +32,9 @@ export function PageRetourPortal({ lien }: { lien: string }) {
 }
 
 export function PageFilArianePortal() {
-  const [isBrowser, setIsBrowser] = useState(false)
+  const isBrowser = useIsBrowser()
 
   const pageFilArianeContainer = <FilAriane path={usePathname()} />
-
-  useEffect(() => {
-    setIsBrowser(true)
-  }, [])
 
   if (isBrowser) {
     const pageRetourRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
@@ -47,15 +47,11 @@ export function PageFilArianePortal() {
 }
 
 export function PageHeaderPortal({ header }: { header: string }) {
-  const [isBrowser, setIsBrowser] = useState(false)
+  const isBrowser = useIsBrowser()
 
   const pageHeaderContainer = (
     <h1 className='text-l-bold text-primary'>{header}</h1>
   )
-
-  useEffect(() => {
-    setIsBrowser(true)
-  }, [])
 
   if (isBrowser) {
     const pageHeaderRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
