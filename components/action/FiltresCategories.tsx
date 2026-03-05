@@ -3,7 +3,6 @@ import React, {
   FormEvent,
   ForwardedRef,
   forwardRef,
-  useEffect,
   useState,
 } from 'react'
 
@@ -78,17 +77,16 @@ function FiltresCategories(
     setAfficherFiltres(false)
   }
 
-  useEffect(() => {
-    setCategoriesSelectionnees(defaultValue)
-  }, [afficherFiltres])
-
   return (
     <div className='relative'>
       <button
         ref={ref}
         aria-controls='filtres-categories'
         aria-expanded={afficherFiltres}
-        onClick={() => setAfficherFiltres(!afficherFiltres)}
+        onClick={() => {
+          if (!afficherFiltres) setCategoriesSelectionnees(defaultValue)
+          setAfficherFiltres(!afficherFiltres)
+        }}
         title={`Filtrer les ${entites} par catégorie`}
         className='flex items-center p-4 w-full h-full gap-2'
         type='button'

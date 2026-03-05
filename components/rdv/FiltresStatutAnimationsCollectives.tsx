@@ -3,7 +3,6 @@ import React, {
   ForwardedRef,
   forwardRef,
   ReactElement,
-  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -27,9 +26,16 @@ function FiltresStatutAnimationsCollectives(
 ) {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [afficherFiltres, setAfficherFiltres] = useState<boolean>(false)
-  const [statutsSelectionnes, setStatutsSelectionnes] = useState<
-    StatutEvenement[]
-  >([])
+  const [statutsSelectionnes, setStatutsSelectionnes] =
+    useState<StatutEvenement[]>(defaultValue)
+
+  // Sync statutsSelectionnes si defaultValue change côté parent (pattern getDerivedStateFromProps)
+  const [prevDefaultValue, setPrevDefaultValue] =
+    useState<StatutEvenement[]>(defaultValue)
+  if (prevDefaultValue !== defaultValue) {
+    setPrevDefaultValue(defaultValue)
+    setStatutsSelectionnes(defaultValue)
+  }
 
   function reset() {
     setStatutsSelectionnes([])
@@ -55,15 +61,14 @@ function FiltresStatutAnimationsCollectives(
     setAfficherFiltres(false)
   }
 
-  useEffect(() => {
-    setStatutsSelectionnes(defaultValue)
-  }, [afficherFiltres, defaultValue])
-
   return (
     <div className='relative'>
       <button
         ref={buttonRef}
-        onClick={() => setAfficherFiltres(!afficherFiltres)}
+        onClick={() => {
+          if (!afficherFiltres) setStatutsSelectionnes(defaultValue)
+          setAfficherFiltres(!afficherFiltres)
+        }}
         aria-expanded={afficherFiltres}
         aria-controls='filtres-statut'
         title='Filtrer les animations collectives par statut'
