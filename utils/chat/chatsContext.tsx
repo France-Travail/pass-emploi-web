@@ -38,16 +38,14 @@ export function ChatsProvider({
   const pathname = usePathname()
 
   const [titleBackup, setTitleBackup] = useState<string | undefined>()
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
+  const [audio] = useState<HTMLAudioElement | null>(() =>
+    typeof window !== 'undefined' ? new Audio(CHEMIN_DU_SON) : null
+  )
 
   const [chats, setChats] = useState<BeneficiaireEtChat[]>()
   const [hasMessageNonLu, setHasMessageNonLu] = useState<boolean>(false)
 
   const destructorRef = useRef<() => void>(() => undefined)
-
-  useEffect(() => {
-    setAudio(new Audio(CHEMIN_DU_SON))
-  }, [])
 
   useEffect(() => {
     if (chatsForTests) {
