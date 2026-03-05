@@ -206,11 +206,16 @@ export default function FormulaireActualite({
           type='url'
           id='actualite-lien'
           value={lien.value}
-          onChange={(value) => setLien({ value, error: '' })}
+          onChange={(value) => {
+            if (value.length <= 2000) setLien({ value, error: '' })
+          }}
           onReset={() => setLien({ value: '', error: '' })}
           invalid={Boolean(lien.error)}
           placeholder='https://exemple.fr'
         />
+        <div className='text-xs-regular text-right mt-1'>
+          {lien.value.length} / 2000
+        </div>
       </div>
 
       <div className='flex justify-center gap-4'>
