@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 
-import { apiGet, apiPost, apiPut } from 'clients/api.client'
+import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
 import { ActualitesRaw, ArticleJson, TagJson } from 'interfaces/actualites'
 import { ActualiteJson } from 'interfaces/json/actualite'
 import {
@@ -19,6 +19,8 @@ import {
   getActualitesMissionLocaleClientSide,
   modifierActualiteMissionLocale,
   modifierActualiteMissionLocaleClientSide,
+  supprimerActualiteMissionLocale,
+  supprimerActualiteMissionLocaleClientSide,
 } from 'services/actualites.service'
 import { fetchJson } from 'utils/httpClient'
 
@@ -558,6 +560,58 @@ describe('ActualitesService', () => {
       const payload = (apiPut as jest.Mock).mock.calls[0][1]
       expect(payload).not.toHaveProperty('titreLien')
       expect(payload).not.toHaveProperty('lien')
+    })
+  })
+
+  describe('.supprimerActualiteMissionLocaleClientSide', () => {
+    it('supprime une actualité avec la session', async () => {
+      // Given
+      const mockSession = {
+        user: { id: 'conseiller-123' },
+        accessToken: 'token-abc',
+      }
+      ;(getSession as jest.Mock).mockResolvedValue(mockSession)
+      ;(apiDelete as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await supprimerActualiteMissionLocaleClientSide('actualite-42')
+
+      // Then
+      expect(apiDelete).toHaveBeenCalledWith(
+        '/conseillers/milo/conseiller-123/actualites/actualite-42',
+        'token-abc'
+      )
+    })
+
+    it('lève une erreur si pas de session', async () => {
+      // Given
+      ;(getSession as jest.Mock).mockResolvedValue(null)
+
+      // When / Then
+      await expect(
+        supprimerActualiteMissionLocaleClientSide('actualite-42')
+      ).rejects.toThrow('Session expirée')
+      expect(apiDelete).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('.supprimerActualiteMissionLocale', () => {
+    it('appelle apiDelete avec les bons paramètres', async () => {
+      // Given
+      ;(apiDelete as jest.Mock).mockResolvedValue(undefined)
+
+      // When
+      await supprimerActualiteMissionLocale(
+        'conseiller-123',
+        'actualite-42',
+        'token-abc'
+      )
+
+      // Then
+      expect(apiDelete).toHaveBeenCalledWith(
+        '/conseillers/milo/conseiller-123/actualites/actualite-42',
+        'token-abc'
+      )
     })
   })
 

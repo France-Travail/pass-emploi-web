@@ -10,8 +10,10 @@ import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   creerActualiteMissionLocaleClientSide,
   modifierActualiteMissionLocaleClientSide,
+  supprimerActualiteMissionLocaleClientSide,
 } from 'services/actualites.service'
 
+import ConfirmationSuppressionActualiteModal from './ConfirmationSuppressionActualiteModal'
 import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
 
@@ -38,6 +40,12 @@ export default function BandeauActualites({
   >(undefined)
   const [formulaireKey, setFormulaireKey] = useState<number>(0)
   const [erreurCreation, setErreurCreation] = useState<string | undefined>()
+  const [erreurSuppression, setErreurSuppression] = useState<
+    string | undefined
+  >()
+  const [actualiteASupprimer, setActualiteASupprimer] = useState<
+    ActualiteMessage | undefined
+  >(undefined)
 
   const isLoading = actualites === undefined
 
@@ -112,6 +120,25 @@ export default function BandeauActualites({
     }
   }
 
+  function demanderSuppression(actualite: ActualiteMessage) {
+    setActualiteASupprimer(actualite)
+  }
+
+  async function confirmerSuppression() {
+    if (!actualiteASupprimer) return
+    const id = actualiteASupprimer.id
+    setErreurSuppression(undefined)
+    setActualiteASupprimer(undefined)
+    try {
+      await supprimerActualiteMissionLocaleClientSide(id)
+      if (onActualiteCreee) onActualiteCreee()
+    } catch {
+      setErreurSuppression(
+        "Une erreur est survenue lors de la suppression de l'actualité. Veuillez réessayer."
+      )
+    }
+  }
+
   function chargerPlusActualites() {
     if (actualitesAffichees && actualitesAffichees.length > 0) {
       idPrecedentePremiereActualite.current = actualitesAffichees[0].id
@@ -171,10 +198,16 @@ export default function BandeauActualites({
                       Aucune actualité plus ancienne
                     </p>
                   )}
+                {erreurSuppression && (
+                  <p role='alert' className='text-warning text-s-bold mb-4'>
+                    {erreurSuppression}
+                  </p>
+                )}
                 <MessageActualites
                   messages={actualitesAffichees!}
                   shouldAutoFocusLastMessage={isInitialLoad}
                   onModification={ouvrirFormulaireModification}
+                  onSuppression={demanderSuppression}
                 />
               </>
             ) : (
@@ -214,6 +247,13 @@ export default function BandeauActualites({
           Diffuser une actualité
         </Button>
       </div>
+
+      {actualiteASupprimer && (
+        <ConfirmationSuppressionActualiteModal
+          onConfirmation={confirmerSuppression}
+          onCancel={() => setActualiteASupprimer(undefined)}
+        />
+      )}
 
       {afficherModal && (
         <Modal

@@ -5,7 +5,10 @@ import { axe } from 'jest-axe'
 import BandeauActualites from 'components/chat/BandeauActualites'
 import { desActualitesMilo, uneActualiteMilo } from 'fixtures/actualiteMilo'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
-import { modifierActualiteMissionLocaleClientSide } from 'services/actualites.service'
+import {
+  modifierActualiteMissionLocaleClientSide,
+  supprimerActualiteMissionLocaleClientSide,
+} from 'services/actualites.service'
 
 jest.mock('services/actualites.service')
 
@@ -413,6 +416,168 @@ describe('BandeauActualites', () => {
       expect(
         screen.getByPlaceholderText('Renseigner un titre pour votre actualité')
       ).toHaveValue('')
+    })
+  })
+
+  describe('suppression d une actualité', () => {
+    async function ouvrirModaleSuppression() {
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Supprimer l.actualité/i })
+      )
+    }
+
+    it('affiche la modale de confirmation au clic sur Supprimer', async () => {
+      // Given
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await ouvrirModaleSuppression()
+
+      // Then
+      expect(
+        screen.getByRole('heading', {
+          name: "Supprimer l'actualité dans le fil de votre mission locale",
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(/Êtes-vous bien sûr de vouloir supprimer cette actualité/)
+      ).toBeInTheDocument()
+    })
+
+    it('n appelle pas supprimerActualiteMissionLocaleClientSide si on annule', async () => {
+      // Given
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Annuler' }))
+
+      // Then
+      expect(supprimerActualiteMissionLocaleClientSide).not.toHaveBeenCalled()
+      expect(
+        screen.queryByRole('heading', {
+          name: "Supprimer l'actualité dans le fil de votre mission locale",
+        })
+      ).not.toBeInTheDocument()
+    })
+
+    it('appelle supprimerActualiteMissionLocaleClientSide avec le bon id après confirmation', async () => {
+      // Given
+      ;(
+        supprimerActualiteMissionLocaleClientSide as jest.Mock
+      ).mockResolvedValue(undefined)
+      const actualite = uneActualiteMilo({
+        id: 'actualite-42',
+        proprietaire: true,
+      })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(supprimerActualiteMissionLocaleClientSide).toHaveBeenCalledWith(
+        'actualite-42'
+      )
+    })
+
+    it('appelle onActualiteCreee après confirmation et suppression réussie', async () => {
+      // Given
+      ;(
+        supprimerActualiteMissionLocaleClientSide as jest.Mock
+      ).mockResolvedValue(undefined)
+      const onActualiteCreee = jest.fn()
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+          onActualiteCreee={onActualiteCreee}
+        />
+      )
+
+      // When
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(onActualiteCreee).toHaveBeenCalledTimes(1)
+    })
+
+    it('affiche un message d erreur si la suppression échoue', async () => {
+      // Given
+      ;(
+        supprimerActualiteMissionLocaleClientSide as jest.Mock
+      ).mockRejectedValue(new Error('Erreur réseau'))
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // When
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(
+        screen.getByText(
+          "Une erreur est survenue lors de la suppression de l'actualité. Veuillez réessayer."
+        )
+      ).toBeInTheDocument()
+    })
+
+    it("efface l erreur de suppression précédente lors d une nouvelle tentative", async () => {
+      // Given
+      ;(supprimerActualiteMissionLocaleClientSide as jest.Mock)
+        .mockRejectedValueOnce(new Error('Erreur réseau'))
+        .mockResolvedValueOnce(undefined)
+      const actualite = uneActualiteMilo({ proprietaire: true })
+      render(
+        <BandeauActualites
+          actualites={[actualite]}
+          onRetourMessagerie={onRetourMessagerie}
+        />
+      )
+
+      // Première tentative (échec)
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+      expect(
+        screen.getByText(/erreur est survenue lors de la suppression/)
+      ).toBeInTheDocument()
+
+      // When - deuxième tentative (succès)
+      await ouvrirModaleSuppression()
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(
+        screen.queryByText(/erreur est survenue lors de la suppression/)
+      ).not.toBeInTheDocument()
     })
   })
 
