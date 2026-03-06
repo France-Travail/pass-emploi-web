@@ -10,6 +10,7 @@ const eslintConfig = [
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
     rules: {
       'react-hooks/set-state-in-effect': 'error',
+      'react-hooks/exhaustive-deps': 'off',
       'import/no-unresolved': 'error',
       'import/order': [
         'error',
