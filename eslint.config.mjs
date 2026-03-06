@@ -9,8 +9,7 @@ const eslintConfig = [
     // Rules using plugins registered by nextConfig for JS/JSX/TS/TSX files
     files: ['**/*.{js,jsx,mjs,ts,tsx,mts,cts}'],
     rules: {
-      // TODO Next.js 16: nouvelle règle stricte, 47 violations à corriger progressivement
-      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/set-state-in-effect': 'error',
       'import/no-unresolved': 'error',
       'import/order': [
         'error',

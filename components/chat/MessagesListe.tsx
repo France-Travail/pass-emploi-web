@@ -80,7 +80,7 @@ function MessagesListe(
         `#message-${idMessageAFocus} button`
       )
       buttonAFocus?.focus()
-      setIdMessageAFocus(undefined)
+      setTimeout(() => setIdMessageAFocus(undefined), 0)
     }
   }, [messagerieEstVisible, messages, idMessageAFocus])
 

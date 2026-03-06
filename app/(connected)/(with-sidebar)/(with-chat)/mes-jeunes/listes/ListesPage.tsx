@@ -1,7 +1,7 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 
 import EmptyState from 'components/EmptyState'
 import PageActionsPortal from 'components/PageActionsPortal'
@@ -33,9 +33,12 @@ function ListesPage({ listes }: ListesPageProps) {
 
   const ALPHABETIQUE = 'ASC'
   const INVERSE = 'DESC'
-  const [listeTriees, setListesTriees] = useState(listes)
   const [tri, setTri] = useState<typeof ALPHABETIQUE | typeof INVERSE>(
     ALPHABETIQUE
+  )
+  const ordre = tri === ALPHABETIQUE ? 1 : -1
+  const listeTriees = [...listes].sort(
+    (liste1, liste2) => liste1.titre.localeCompare(liste2.titre) * ordre
   )
 
   const aDesBeneficiaires = portefeuille.length > 0
@@ -51,15 +54,6 @@ function ListesPage({ listes }: ListesPageProps) {
       aDesBeneficiaires,
     })
   }
-
-  useEffect(() => {
-    setListesTriees((listeListes) => {
-      const ordre = tri === ALPHABETIQUE ? 1 : -1
-      return [...listeListes].sort(
-        (liste1, liste2) => liste1.titre.localeCompare(liste2.titre) * ordre
-      )
-    })
-  }, [tri])
 
   let tracking = 'Listes diffusion'
   if (alerte?.key === AlerteParam.creationListe)
