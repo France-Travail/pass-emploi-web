@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
-import { apiGet, apiPost, apiPut } from 'clients/api.client'
+import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   ActualitesRaw,
@@ -198,6 +198,29 @@ export async function modifierActualiteMissionLocale(
   await apiPut(
     `/conseillers/milo/${idConseiller}/actualites/${id}`,
     payload,
+    accessToken
+  )
+}
+
+export async function supprimerActualiteMissionLocaleClientSide(
+  id: string
+): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  return supprimerActualiteMissionLocale(
+    session.user.id,
+    id,
+    session.accessToken
+  )
+}
+
+export async function supprimerActualiteMissionLocale(
+  idConseiller: string,
+  id: string,
+  accessToken: string
+): Promise<void> {
+  await apiDelete(
+    `/conseillers/milo/${idConseiller}/actualites/${id}`,
     accessToken
   )
 }

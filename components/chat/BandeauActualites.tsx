@@ -10,6 +10,7 @@ import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   creerActualiteMissionLocaleClientSide,
   modifierActualiteMissionLocaleClientSide,
+  supprimerActualiteMissionLocaleClientSide,
 } from 'services/actualites.service'
 
 import FormulaireActualite from './FormulaireActualite'
@@ -38,6 +39,9 @@ export default function BandeauActualites({
   >(undefined)
   const [formulaireKey, setFormulaireKey] = useState<number>(0)
   const [erreurCreation, setErreurCreation] = useState<string | undefined>()
+  const [erreurSuppression, setErreurSuppression] = useState<
+    string | undefined
+  >()
 
   const isLoading = actualites === undefined
 
@@ -112,6 +116,17 @@ export default function BandeauActualites({
     }
   }
 
+  async function supprimerActualite(actualite: ActualiteMessage) {
+    try {
+      await supprimerActualiteMissionLocaleClientSide(actualite.id)
+      if (onActualiteCreee) onActualiteCreee()
+    } catch {
+      setErreurSuppression(
+        "Une erreur est survenue lors de la suppression de l'actualité. Veuillez réessayer."
+      )
+    }
+  }
+
   function chargerPlusActualites() {
     if (actualitesAffichees && actualitesAffichees.length > 0) {
       idPrecedentePremiereActualite.current = actualitesAffichees[0].id
@@ -171,10 +186,16 @@ export default function BandeauActualites({
                       Aucune actualité plus ancienne
                     </p>
                   )}
+                {erreurSuppression && (
+                  <p role='alert' className='text-warning text-s-bold mb-4'>
+                    {erreurSuppression}
+                  </p>
+                )}
                 <MessageActualites
                   messages={actualitesAffichees!}
                   shouldAutoFocusLastMessage={isInitialLoad}
                   onModification={ouvrirFormulaireModification}
+                  onSuppression={supprimerActualite}
                 />
               </>
             ) : (

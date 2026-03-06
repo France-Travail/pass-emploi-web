@@ -12,6 +12,7 @@ type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
   readonly shouldAutoFocusLastMessage?: boolean
   readonly onModification?: (actualite: ActualiteMessage) => void
+  readonly onSuppression?: (actualite: ActualiteMessage) => void
 }
 
 function scrollToRef(element: HTMLElement | null) {
@@ -27,6 +28,7 @@ export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
   onModification,
+  onSuppression,
 }: BlocMessageProps) {
   const [lienAOuvrir, setLienAOuvrir] = useState<string | null>(null)
 
@@ -124,6 +126,7 @@ export default function MessageActualites({
                       <FooterActualite
                         message={m}
                         onModification={onModification}
+                        onSuppression={onSuppression}
                       />
                     </li>
                   )
@@ -148,9 +151,11 @@ export default function MessageActualites({
 function FooterActualite({
   message,
   onModification,
+  onSuppression,
 }: {
   readonly message: ActualiteMessage
   readonly onModification?: (actualite: ActualiteMessage) => void
+  readonly onSuppression?: (actualite: ActualiteMessage) => void
 }) {
   const [afficherMenu, setAfficherMenu] = useState(false)
 
@@ -166,7 +171,7 @@ function FooterActualite({
         Posté par {message.prenomNomConseiller}
       </span>
 
-      {message.proprietaire && onModification && (
+      {message.proprietaire && (onModification || onSuppression) && (
         <>
           <button
             type='button'
@@ -195,25 +200,48 @@ function FooterActualite({
               className='absolute top-[2em] left-0 z-10 bg-white rounded-base p-2 shadow-m'
               ref={scrollToRef}
             >
-              <button
-                type='button'
-                onClick={() => {
-                  setAfficherMenu(false)
-                  onModification(message)
-                }}
-                className='p-2 flex items-center text-s-bold gap-2 hover:text-primary hover:rounded-base hover:bg-primary-lighten hover:shadow-m'
-              >
-                <IconComponent
-                  focusable={false}
-                  aria-hidden={true}
-                  className='inline w-4 h-4 fill-current'
-                  name={IconName.Edit}
-                />
-                Modifier l&apos;actualité
-                <span className='sr-only'>
-                  du {toFrenchDateTime(message.dateCreation, { a11y: true })}
-                </span>
-              </button>
+              {onModification && (
+                <button
+                  type='button'
+                  onClick={() => {
+                    setAfficherMenu(false)
+                    onModification(message)
+                  }}
+                  className='p-2 flex items-center text-s-bold gap-2 hover:text-primary hover:rounded-base hover:bg-primary-lighten hover:shadow-m'
+                >
+                  <IconComponent
+                    focusable={false}
+                    aria-hidden={true}
+                    className='inline w-4 h-4 fill-current'
+                    name={IconName.Edit}
+                  />
+                  Modifier l&apos;actualité
+                  <span className='sr-only'>
+                    du {toFrenchDateTime(message.dateCreation, { a11y: true })}
+                  </span>
+                </button>
+              )}
+              {onSuppression && (
+                <button
+                  type='button'
+                  onClick={() => {
+                    setAfficherMenu(false)
+                    onSuppression(message)
+                  }}
+                  className='p-2 flex items-center text-warning text-s-bold gap-2 hover:rounded-base hover:bg-warning hover:text-white hover:shadow-m'
+                >
+                  <IconComponent
+                    focusable={false}
+                    aria-hidden={true}
+                    className='inline w-4 h-4 fill-current'
+                    name={IconName.Delete}
+                  />
+                  Supprimer le message{' '}
+                  <span className='sr-only'>
+                    du {toFrenchDateTime(message.dateCreation, { a11y: true })}
+                  </span>
+                </button>
+              )}
             </div>
           )}
         </>
