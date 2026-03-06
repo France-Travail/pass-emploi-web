@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import FiltresCategories, {
   Categorie,
@@ -79,14 +79,38 @@ function TableauDemarche({
   const filtresStatutRef = useRef<HTMLButtonElement>(null)
   const filtresCategoriesRef = useRef<HTMLButtonElement>(null)
 
-  const [aReinitialiseLesFiltres, setAReinitialiseLesFiltres] =
-    useState<boolean>(false)
+  const aReinitialiseLesFiltresRef = useRef<boolean>(false)
   const [filtreStatut, setFiltreStatut] = useState<string[]>([])
   const [filtreCategories, setFiltreCategories] = useState<Categorie[]>([])
-  const [demarchesAffichees, setDemarchesAffichees] =
-    useState<Demarche[]>(demarches)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [tri, setTri] = useState<TRI>(TRI.dateEcheanceDecroissante)
+
+  const demarchesAffichees = useMemo(() => {
+    const labelsCategoriesSelectionnees = filtreCategories
+      .map((c) => c.label)
+      .filter((e) => e !== undefined)
+
+    const filtreesParCategorie =
+      filtreCategories.length > 0
+        ? demarches.filter((demarche) =>
+            labelsCategoriesSelectionnees.includes(demarche.label)
+          )
+        : demarches
+
+    const filtreesParStatut =
+      filtreStatut.length > 0
+        ? filtreesParCategorie.filter((demarche) =>
+            filtreStatut.includes(demarche.statut)
+          )
+        : filtreesParCategorie
+
+    return [...filtreesParStatut].sort((demarche1, demarche2) => {
+      const dateFin1 = DateTime.fromISO(demarche1.dateFin)
+      const dateFin2 = DateTime.fromISO(demarche2.dateFin)
+      return tri === TRI.dateEcheanceCroissante
+        ? compareDates(dateFin1, dateFin2)
+        : compareDatesDesc(dateFin1, dateFin2)
+    })
+  }, [demarches, filtreCategories, filtreStatut, tri])
 
   const categories: Categorie[] = genererCategories()
 
@@ -138,56 +162,19 @@ function TableauDemarche({
   function reinitialiserFiltres() {
     setFiltreCategories([])
     setFiltreStatut([])
-    setAReinitialiseLesFiltres(true)
+    aReinitialiseLesFiltresRef.current = true
   }
 
   useEffect(() => {
-    setIsLoading(true)
-
-    const labelsCategoriesSelectionnees = filtreCategories
-      .map((categorieSelectionnee) => categorieSelectionnee.label)
-      .filter((e) => e !== undefined)
-
-    const demarchesFiltreesParCategorie =
-      filtreCategories.length > 0
-        ? demarches.filter((demarche) =>
-            labelsCategoriesSelectionnees.includes(demarche.label)
-          )
-        : demarches
-    const demarchesFiltreesParStatut =
-      filtreStatut.length > 0
-        ? demarchesFiltreesParCategorie.filter((demarche) =>
-            filtreStatut.includes(demarche.statut)
-          )
-        : demarchesFiltreesParCategorie
-
-    const demarchesTrieesEtFiltrees = [...demarchesFiltreesParStatut].sort(
-      (demarche1, demarche2) => {
-        const dateFin1 = DateTime.fromISO(demarche1.dateFin)
-        const dateFin2 = DateTime.fromISO(demarche2.dateFin)
-        return tri === TRI.dateEcheanceCroissante
-          ? compareDates(dateFin1, dateFin2)
-          : compareDatesDesc(dateFin1, dateFin2)
-      }
-    )
-
-    setDemarchesAffichees(demarchesTrieesEtFiltrees)
-
-    setIsLoading(false)
-  }, [tri, filtreStatut, filtreCategories])
-
-  useEffect(() => {
-    if (aReinitialiseLesFiltres && demarchesAffichees.length) {
+    if (aReinitialiseLesFiltresRef.current && demarchesAffichees.length) {
       listeDemarchesRef.current!.focus()
-      setAReinitialiseLesFiltres(false)
+      aReinitialiseLesFiltresRef.current = false
     }
-  }, [aReinitialiseLesFiltres, demarchesAffichees])
+  }, [demarchesAffichees])
 
   return (
     <>
-      {isLoading && <SpinningLoader alert={true} />}
-
-      {!isLoading && demarchesAffichees.length === 0 && (
+      {demarchesAffichees.length === 0 && (
         <div className='flex flex-col justify-center'>
           <EmptyState
             shouldFocus={true}
@@ -206,7 +193,7 @@ function TableauDemarche({
         </div>
       )}
 
-      {!isLoading && demarchesAffichees.length > 0 && (
+      {demarchesAffichees.length > 0 && (
         <Table
           ref={listeDemarchesRef}
           caption={{

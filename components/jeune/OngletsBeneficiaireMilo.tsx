@@ -56,7 +56,7 @@ export default function OngletsBeneficiaireMilo({
     ? DateTime.fromISO(debutSemaineInitiale)
     : DateTime.now().startOf('week')
 
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [offres, setOffres] = useState<Offre[]>([])
   const [actions, setActions] = useState<Action[]>([])
   const [rdvs, setRdvs] = useState<EvenementMiloListItem[]>([])
@@ -79,12 +79,14 @@ export default function OngletsBeneficiaireMilo({
     nouvellePeriode: Periode,
     opts: { shouldFocus: boolean }
   ) {
+    setIsLoading(true)
     setSemaine(nouvellePeriode)
     setShouldFocus(opts.shouldFocus)
     onChangementSemaine(currentTab, nouvellePeriode.debut)
   }
 
   function switchTab(newTab: OngletMilo, { withFocus = false } = {}) {
+    setIsLoading(true)
     setFocusCurrentTabContent(withFocus)
     setCurrentTab(newTab)
     onSwitchTab(newTab, semaine.debut)
@@ -101,8 +103,6 @@ export default function OngletsBeneficiaireMilo({
   }, [currentTab, focusCurrentTabContent])
 
   useEffect(() => {
-    setIsLoading(true)
-
     switch (currentTab) {
       case 'offres':
         getOffres(beneficiaire.id, semaine)
@@ -129,7 +129,7 @@ export default function OngletsBeneficiaireMilo({
           })
         break
       default:
-        setIsLoading(false)
+        setTimeout(() => setIsLoading(false), 0)
     }
   }, [semaine, currentTab])
 

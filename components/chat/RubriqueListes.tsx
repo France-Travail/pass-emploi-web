@@ -54,7 +54,7 @@ export default function RubriqueListes({
     if (messageSelectionne) messageRef.current!.focusRetour()
     if (!messageSelectionne && idMessageAFocus) {
       messagesListeRef.current!.focusMessage(idMessageAFocus)
-      setIdMessageAFocus(undefined)
+      setTimeout(() => setIdMessageAFocus(undefined), 0)
     }
   }, [messageSelectionne])
 

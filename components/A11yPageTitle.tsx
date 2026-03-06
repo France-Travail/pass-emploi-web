@@ -10,8 +10,10 @@ export default function A11yPageTitle() {
   const [pageTitle, setPageTitle] = useState<string>()
 
   useEffect(() => {
-    setPageTitle(document.title)
+    // setTimeout car document.title n'est accessible qu'après le rendu complet
+    const id = setTimeout(() => setPageTitle(document.title), 0)
     refContainer.current?.focus()
+    return () => clearTimeout(id)
   }, [pathname])
 
   return (

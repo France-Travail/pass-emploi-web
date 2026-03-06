@@ -116,7 +116,8 @@ export default function PartageRechercheButton({
   }
 
   useEffect(() => {
-    setErrorMessage(false)
+    const id = setTimeout(() => setErrorMessage(false), 0)
+    return () => clearTimeout(id)
   }, [suggestionOffreEmploi])
 
   return (

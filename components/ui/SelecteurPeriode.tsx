@@ -8,7 +8,6 @@ import {
   getPeriodeComprenant as _getPeriodeComprenant,
   PERIODE_LENGTH_FULL_DAYS,
 } from 'utils/date'
-import { useDebounce } from 'utils/hooks/useDebounce'
 
 type SelecteurPeriodeProps = {
   premierJour: DateTime
@@ -25,8 +24,6 @@ export function SelecteurPeriode({
   trackNavigation,
   className,
 }: SelecteurPeriodeProps): ReactElement {
-  const isFirstRender = useRef<boolean>(true)
-
   const periodeEnCours = getPeriodeComprenant(DateTime.now())
   const [periodeAffichee, setPeriodeAffichee] = useState<Periode>(
     getPeriodeComprenant(premierJour)
@@ -40,8 +37,7 @@ export function SelecteurPeriode({
   )
 
   const debutPeriodeRef = useRef<HTMLInputElement>(null)
-  const [periodeInput, setPeriodeInput] = useState<string>()
-  const debouncedPeriode = useDebounce(periodeInput, 500)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const regexDate = /^\d{4}-(0\d|1[0-2])-([0-2]\d|3[01])$/
   const [shouldFocusOnChange, setShouldFocusOnChange] = useState<boolean>(false)
 
@@ -85,20 +81,9 @@ export function SelecteurPeriode({
   }
 
   useEffect(() => {
-    isFirstRender.current = false
-    return () => {
-      isFirstRender.current = true
-    }
-  }, [])
-
-  useEffect(() => {
     onNouvellePeriode(periodeAffichee, { shouldFocus: shouldFocusOnChange })
     debutPeriodeRef.current!.value = periodeAffichee.debut.toISODate()
   }, [periodeAffichee])
-
-  useEffect(() => {
-    if (!isFirstRender.current) changerPeriode(debouncedPeriode)
-  }, [debouncedPeriode])
 
   return (
     <fieldset
@@ -130,7 +115,11 @@ export function SelecteurPeriode({
         id='debut-periode'
         type='date'
         defaultValue={periodeAffichee.debut.toISODate()}
-        onChange={(e) => setPeriodeInput(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value
+          if (debounceRef.current) clearTimeout(debounceRef.current)
+          debounceRef.current = setTimeout(() => changerPeriode(value), 500)
+        }}
         step={7}
         className='text-base-bold border-b'
       />
