@@ -13,6 +13,7 @@ import {
   supprimerActualiteMissionLocaleClientSide,
 } from 'services/actualites.service'
 
+import ConfirmationSuppressionActualiteModal from './ConfirmationSuppressionActualiteModal'
 import FormulaireActualite from './FormulaireActualite'
 import MessageActualites from './MessageActualites'
 
@@ -42,6 +43,9 @@ export default function BandeauActualites({
   const [erreurSuppression, setErreurSuppression] = useState<
     string | undefined
   >()
+  const [actualiteASupprimer, setActualiteASupprimer] = useState<
+    ActualiteMessage | undefined
+  >(undefined)
 
   const isLoading = actualites === undefined
 
@@ -116,9 +120,17 @@ export default function BandeauActualites({
     }
   }
 
-  async function supprimerActualite(actualite: ActualiteMessage) {
+  function demanderSuppression(actualite: ActualiteMessage) {
+    setActualiteASupprimer(actualite)
+  }
+
+  async function confirmerSuppression() {
+    if (!actualiteASupprimer) return
+    const id = actualiteASupprimer.id
+    setErreurSuppression(undefined)
+    setActualiteASupprimer(undefined)
     try {
-      await supprimerActualiteMissionLocaleClientSide(actualite.id)
+      await supprimerActualiteMissionLocaleClientSide(id)
       if (onActualiteCreee) onActualiteCreee()
     } catch {
       setErreurSuppression(
@@ -195,7 +207,7 @@ export default function BandeauActualites({
                   messages={actualitesAffichees!}
                   shouldAutoFocusLastMessage={isInitialLoad}
                   onModification={ouvrirFormulaireModification}
-                  onSuppression={supprimerActualite}
+                  onSuppression={demanderSuppression}
                 />
               </>
             ) : (
@@ -235,6 +247,13 @@ export default function BandeauActualites({
           Diffuser une actualité
         </Button>
       </div>
+
+      {actualiteASupprimer && (
+        <ConfirmationSuppressionActualiteModal
+          onConfirmation={confirmerSuppression}
+          onCancel={() => setActualiteASupprimer(undefined)}
+        />
+      )}
 
       {afficherModal && (
         <Modal

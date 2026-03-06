@@ -294,19 +294,6 @@ describe('MessageActualites', () => {
       ).not.toBeInTheDocument()
     })
 
-    it("n affiche pas le bouton d actions si onModification n est pas fourni", () => {
-      // Given
-      const messages = [uneActualiteMilo({ proprietaire: true })]
-
-      // When
-      render(<MessageActualites messages={messages} />)
-
-      // Then
-      expect(
-        screen.queryByRole('button', { name: /Voir les actions possibles/i })
-      ).not.toBeInTheDocument()
-    })
-
     it('affiche le menu au clic sur le bouton d actions', async () => {
       // Given
       const messages = [uneActualiteMilo({ proprietaire: true })]
@@ -371,6 +358,119 @@ describe('MessageActualites', () => {
       // Then
       expect(
         screen.queryByRole('button', { name: /Modifier l.actualité/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('affiche le bouton Supprimer quand onSuppression est fourni', async () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onSuppression={jest.fn()} />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('button', { name: /Supprimer l.actualité/i })
+      ).toBeInTheDocument()
+    })
+
+    it("n affiche pas le bouton Modifier si onModification n est pas fourni", async () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onSuppression={jest.fn()} />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Modifier l.actualité/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it('affiche le menu si seulement onSuppression est fourni', () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onSuppression={jest.fn()} />
+      )
+
+      // Then
+      expect(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      ).toBeInTheDocument()
+    })
+
+    it("n affiche pas le bouton d actions si ni onModification ni onSuppression ne sont fournis", () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(<MessageActualites messages={messages} />)
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Voir les actions possibles/i })
+      ).not.toBeInTheDocument()
+    })
+
+    it("appelle onSuppression avec l actualité au clic sur Supprimer", async () => {
+      // Given
+      const onSuppression = jest.fn()
+      const actualite = uneActualiteMilo({
+        id: 'actualite-1',
+        titre: 'Mon actualité',
+        proprietaire: true,
+      })
+
+      // When
+      render(
+        <MessageActualites
+          messages={[actualite]}
+          onSuppression={onSuppression}
+        />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Supprimer l.actualité/i })
+      )
+
+      // Then
+      expect(onSuppression).toHaveBeenCalledTimes(1)
+      expect(onSuppression).toHaveBeenCalledWith(actualite)
+    })
+
+    it('ferme le menu après avoir cliqué sur Supprimer', async () => {
+      // Given
+      const messages = [uneActualiteMilo({ proprietaire: true })]
+
+      // When
+      render(
+        <MessageActualites messages={messages} onSuppression={jest.fn()} />
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Voir les actions possibles/i })
+      )
+      await userEvent.click(
+        screen.getByRole('button', { name: /Supprimer l.actualité/i })
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('button', { name: /Supprimer l.actualité/i })
       ).not.toBeInTheDocument()
     })
 
