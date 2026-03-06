@@ -58,9 +58,11 @@ export default function LayoutLoginClient({
   }, [])
 
   useEffect(() => {
-    if (window.innerWidth < MIN_DESKTOP_WIDTH) {
-      setAfficherOnboarding(true)
-    }
+    // setTimeout car window n'est accessible qu'après le rendu côté client
+    const id = setTimeout(() => {
+      if (window.innerWidth < MIN_DESKTOP_WIDTH) setAfficherOnboarding(true)
+    }, 0)
+    return () => clearTimeout(id)
   }, [])
 
   return (

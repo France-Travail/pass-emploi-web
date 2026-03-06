@@ -2,7 +2,7 @@
 
 import { DateTime } from 'luxon'
 import { usePathname, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import ActualitesModal from 'components/ActualitesModal'
 import NavLink from 'components/ui/Form/NavLink'
@@ -55,10 +55,26 @@ export default function NavLinks({
     ? 'Une information en attente de mise à jour'
     : undefined
 
-  const [countNouvellesActualites, setCountNouvellesActualites] =
-    useState<number>()
-  const [labelNouvellesActualites, setLabelNouvellesActualites] =
-    useState<string>()
+  const countNouvellesActualites = useMemo(() => {
+    if (
+      !items.includes(NavItem.Actualites) ||
+      process.env.NEXT_PUBLIC_ENABLE_ACTUS !== 'true' ||
+      !actualites
+    )
+      return undefined
+    const count = compterNouvellesActualites(
+      conseiller.dateVisionnageActus,
+      actualites
+    )
+    return count || undefined
+  }, [actualites, conseiller.dateVisionnageActus, items])
+
+  const labelNouvellesActualites = useMemo(() => {
+    if (!countNouvellesActualites) return undefined
+    return countNouvellesActualites > 1
+      ? ' nouvelles actualités sont disponibles'
+      : ' nouvelle actualité est disponible'
+  }, [countNouvellesActualites])
 
   function isCurrentRoute(href: string) {
     return pathname.startsWith(href)
@@ -93,26 +109,6 @@ export default function NavLinks({
     modifierDateVisionnageActus(now)
     setConseiller({ ...conseiller, dateVisionnageActus: now.toISO() })
   }
-
-  useEffect(() => {
-    if (
-      !items.includes(NavItem.Actualites) ||
-      process.env.NEXT_PUBLIC_ENABLE_ACTUS !== 'true' ||
-      !actualites
-    )
-      return
-
-    const count = compterNouvellesActualites(
-      conseiller.dateVisionnageActus,
-      actualites
-    )
-    if (!count) return
-
-    setCountNouvellesActualites(count)
-    if (count > 1)
-      setLabelNouvellesActualites(' nouvelles actualités sont disponibles')
-    else setLabelNouvellesActualites(' nouvelle actualité est disponible')
-  }, [actualites, conseiller.dateVisionnageActus])
 
   return (
     <>

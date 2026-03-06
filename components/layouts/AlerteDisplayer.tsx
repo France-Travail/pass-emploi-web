@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { ID_CONTENU } from 'components/globals'
 import AlertLink from 'components/ui/Notifications/AlertLink'
@@ -19,18 +19,15 @@ export default function AlerteDisplayer({
   const alertes = getAlertesForStructure(conseiller.structure)
 
   const [alerte, setAlerte] = useAlerte()
-  const [alerteAAfficher, setAlerteAAfficher] = useState<
-    AlerteAffichee | undefined
-  >()
+  const alerteAAfficher = useMemo(
+    () => alerte && alertes[alerte.key],
+    [alerte, alertes]
+  )
 
   async function closeAlerte() {
     setAlerte(undefined)
     document.getElementById(ID_CONTENU)!.focus()
   }
-
-  useEffect(() => {
-    setAlerteAAfficher(alerte && alertes[alerte.key])
-  }, [alerte, alertes, setAlerte])
 
   return (
     <div className={hideOnLargeScreen ? 'layout-s:hidden' : ''}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import ActionBeneficiaireRow from 'components/action/ActionBeneficiaireRow'
 import EncartQualificationActions from 'components/action/EncartQualificationActions'
@@ -52,7 +52,6 @@ export default function TableauActionsBeneficiaire({
   const filtresStatutRef = useRef<HTMLButtonElement>(null)
   const filtresCategoriesRef = useRef<HTMLButtonElement>(null)
 
-  const [actionsFiltrees, setActionsFiltrees] = useState<Action[]>(actions)
   const statutsSansQualification = [
     StatutAction.AFaire,
     StatutAction.Terminee,
@@ -66,26 +65,51 @@ export default function TableauActionsBeneficiaire({
   ]
   const [statutsValides, setStatutsValides] = useState<string[]>([])
   const [categoriesValidees, setCategoriesValidees] = useState<Categorie[]>([])
-  const [aReinitialiseLesFiltres, setAReinitialiseLesFiltres] =
-    useState<boolean>(false)
+  const shouldRefocusAfterReinit = useRef(false)
 
-  const [actionsTriees, setActionsTriees] = useState<Action[]>(actions)
   const [triAntichronologique, setTriAntichronologique] =
     useState<boolean>(true)
 
   const [actionsSelectionnees, setActionsSelectionnees] = useState<
     ActionAQualifier[]
   >([])
-  const [actionSansCategorieSelectionnee, setActionSansCategorieSelectionnee] =
-    useState<boolean>(false)
   const toutSelectionnerCheckboxRef = useRef<HTMLInputElement | null>(null)
+
+  const actionsFiltrees = useMemo(() => {
+    let filtrees = actions
+    if (categoriesValidees.length)
+      filtrees = actions.filter((action) =>
+        categoriesValidees.some(
+          ({ code }) => code === action.qualification?.code
+        )
+      )
+    if (statutsValides.length)
+      filtrees = filtrees.filter((action) =>
+        statutsValides.includes(action.status)
+      )
+    return filtrees
+  }, [actions, categoriesValidees, statutsValides])
+
+  const actionsTriees = useMemo(
+    () =>
+      [...actionsFiltrees].sort((action1, action2) =>
+        comparerParDate(action1, action2, triAntichronologique)
+      ),
+    [actionsFiltrees, triAntichronologique]
+  )
+
+  const actionSansCategorieSelectionnee = useMemo(
+    () => actionsSelectionnees.some((action) => !action.codeQualification),
+    [actionsSelectionnees]
+  )
+
   const boutonsDisabled =
     actionsSelectionnees.length === 0 || actionSansCategorieSelectionnee
 
   function reinitialiserFiltres() {
     setStatutsValides([])
     setCategoriesValidees([])
-    setAReinitialiseLesFiltres(true)
+    shouldRefocusAfterReinit.current = true
   }
 
   const columnHeaderButtonStyle = 'flex items-center w-full h-full p-4'
@@ -98,11 +122,13 @@ export default function TableauActionsBeneficiaire({
 
   function filtrerActionsParCategorie(categoriesSelectionnees: Categorie[]) {
     setCategoriesValidees(categoriesSelectionnees)
+    setActionsSelectionnees([])
     filtresCategoriesRef.current!.focus()
   }
 
   function filtrerActionsParStatuts(statutsSelectionnes: string[]) {
     setStatutsValides(statutsSelectionnes)
+    setActionsSelectionnees([])
     filtresStatutRef.current!.focus()
   }
 
@@ -145,51 +171,22 @@ export default function TableauActionsBeneficiaire({
     }
   }, [])
 
-  useEffect(() => {
-    let actionsFiltreesParCategories = actions
-    if (categoriesValidees.length)
-      actionsFiltreesParCategories = actions.filter((action) =>
-        categoriesValidees.some(
-          ({ code }) => code === action.qualification?.code
-        )
-      )
-
-    let actionsFiltreesParCategoriesEtStatuts = actionsFiltreesParCategories
-    if (statutsValides.length)
-      actionsFiltreesParCategoriesEtStatuts =
-        actionsFiltreesParCategories.filter((action) =>
-          statutsValides.includes(action.status)
-        )
-
-    setActionsFiltrees(actionsFiltreesParCategoriesEtStatuts)
-  }, [actions, categoriesValidees, statutsValides])
-
-  useEffect(() => {
+  // Réinitialiser la sélection quand les actions de base changent (navigation semaine)
+  const [prevActions, setPrevActions] = useState(actions)
+  if (prevActions !== actions) {
+    setPrevActions(actions)
     setActionsSelectionnees([])
-  }, [actionsFiltrees])
+  }
 
   useEffect(() => {
     if (isFirstRender.current) return
+    if (!actionsFiltrees.length) return
 
-    if (actionsFiltrees.length && (aReinitialiseLesFiltres || shouldFocus)) {
+    if (shouldRefocusAfterReinit.current || shouldFocus) {
       listeActionsRef.current!.focus()
-      setAReinitialiseLesFiltres(false)
+      shouldRefocusAfterReinit.current = false
     }
-  }, [aReinitialiseLesFiltres, shouldFocus])
-
-  useEffect(() => {
-    setActionsTriees(
-      [...actionsFiltrees].sort((action1, action2) =>
-        comparerParDate(action1, action2, triAntichronologique)
-      )
-    )
-  }, [actionsFiltrees, triAntichronologique])
-
-  useEffect(() => {
-    setActionSansCategorieSelectionnee(
-      actionsSelectionnees.some((action) => !action.codeQualification)
-    )
-  }, [actionsSelectionnees])
+  }, [actionsFiltrees, shouldFocus])
 
   useEffect(() => {
     if (!avecQualification) return

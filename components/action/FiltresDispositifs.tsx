@@ -4,7 +4,6 @@ import React, {
   ForwardedRef,
   forwardRef,
   ReactElement,
-  useEffect,
   useState,
 } from 'react'
 
@@ -61,17 +60,16 @@ function FiltresDispositifs(
     setAfficherFiltres(false)
   }
 
-  useEffect(() => {
-    setDispositifSelectionne(defaultValue)
-  }, [afficherFiltres])
-
   return (
     <div className={'relative ' + (className ?? '')}>
       <button
         ref={ref}
         aria-controls='filtres-dispositifs'
         aria-expanded={afficherFiltres}
-        onClick={() => setAfficherFiltres(!afficherFiltres)}
+        onClick={() => {
+          if (!afficherFiltres) setDispositifSelectionne(defaultValue)
+          setAfficherFiltres(!afficherFiltres)
+        }}
         title='Filtrer par dispositifs'
         aria-label='Filtrer par dispositifs'
         className='flex items-center text-s-regular w-full h-full gap-2'

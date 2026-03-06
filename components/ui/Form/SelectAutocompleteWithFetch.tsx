@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 
 import InputError from 'components/ui/Form/InputError'
 import SelectAutocomplete from 'components/ui/Form/SelectAutocomplete'
-import { useDebounce } from 'utils/hooks/useDebounce'
 
 type WithSimplifiedLabel<T> = T & { upperCaseAlphaLabel: string }
 
@@ -32,7 +31,7 @@ export default function SelectAutocompleteWithFetch<T>({
   required,
   disabled = false,
 }: SelectAutocompleteWithFetchProps<T>) {
-  const isFirstRender = useRef<boolean>(true)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [entites, setEntites] = useState<WithSimplifiedLabel<T>[]>([])
   const options: Array<{ id: string; value: string }> = entites.map(
@@ -44,11 +43,33 @@ export default function SelectAutocompleteWithFetch<T>({
   const [input, setInput] = useState<{ value?: string; error?: string }>({
     value: defaultValue && toUpperCaseAlpha(defaultValue),
   })
-  const debouncedInput = useDebounce(input.value, 500)
 
   function handleInputChange(str: string) {
-    setInput({ value: toUpperCaseAlpha(str) })
+    const upperStr = toUpperCaseAlpha(str)
+    setInput({ value: upperStr })
     onUpdateSelected({ hasError: Boolean(str || required) })
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      if (upperStr) {
+        fetch(upperStr).then((newEntites) => {
+          const simplifiedEntities: WithSimplifiedLabel<T>[] = newEntites.map(
+            (e) => ({
+              ...e,
+              upperCaseAlphaLabel: toUpperCaseAlpha(
+                e[fieldNames.value] as string
+              ),
+            })
+          )
+          setEntites(simplifiedEntities)
+          const entite = findEntiteInListe(upperStr, simplifiedEntities)
+          onUpdateSelected({ selected: entite, hasError: !entite })
+        })
+      } else {
+        setEntites([])
+        onUpdateSelected({ hasError: Boolean(required) })
+      }
+    }, 500)
   }
 
   function validateSelected() {
@@ -74,36 +95,6 @@ export default function SelectAutocompleteWithFetch<T>({
       return entite as T
     }
   }
-
-  useEffect(() => {
-    if (isFirstRender.current) return
-
-    if (debouncedInput) {
-      fetch(debouncedInput).then((newEntites) => {
-        const simplifiedEntities: WithSimplifiedLabel<T>[] = newEntites.map(
-          (e) => ({
-            ...e,
-            upperCaseAlphaLabel: toUpperCaseAlpha(
-              e[fieldNames.value] as string
-            ),
-          })
-        )
-        setEntites(simplifiedEntities)
-        const entite = findEntiteInListe(debouncedInput, simplifiedEntities)
-        onUpdateSelected({ selected: entite, hasError: !entite })
-      })
-    } else {
-      setEntites([])
-      onUpdateSelected({ hasError: Boolean(required) })
-    }
-  }, [debouncedInput])
-
-  useEffect(() => {
-    isFirstRender.current = false
-    return () => {
-      isFirstRender.current = true
-    }
-  }, [])
 
   return (
     <>

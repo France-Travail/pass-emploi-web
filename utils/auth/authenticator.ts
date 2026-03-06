@@ -79,7 +79,7 @@ async function refreshAccessToken(jwt: HydratedJWT) {
       refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken, // Garde l'ancien refresh_token
       expiresAtTimestamp: expiresAtMs,
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       ...jwt,
       error: RefreshAccessTokenError,

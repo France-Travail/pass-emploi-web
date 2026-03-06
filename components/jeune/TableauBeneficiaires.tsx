@@ -1,7 +1,14 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { ForwardedRef, forwardRef, useEffect, useRef, useState } from 'react'
+import {
+  ForwardedRef,
+  forwardRef,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import FiltresDispositifs from 'components/action/FiltresDispositifs'
 import FiltresListes from 'components/action/FiltresListes'
@@ -62,12 +69,21 @@ function TableauBeneficiaires(
     (beneficiaire) => beneficiaire.dispositif !== beneficiaires[0].dispositif
   )
 
-  const [beneficiairesFiltres, setBeneficiairesFiltres] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >(trierParNom(beneficiaires, true))
-  const [beneficiairesTries, setBeneficiairesTries] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >(trierParNom(beneficiaires, true))
+  const beneficiairesFiltres = useMemo(() => {
+    const parDispositif = filtrerParDispositifs(beneficiaires, filtreDispositif)
+    return filtrerParListe(parDispositif, filtreListe)
+  }, [beneficiaires, filtreDispositif, filtreListe, listes])
+
+  const beneficiairesTries = useMemo(() => {
+    if (triActif.type === 'nom')
+      return trierParNom(beneficiairesFiltres, triActif.ordreCroissant)
+    if (triActif.type === 'heures')
+      return trierParHeures(beneficiairesFiltres, triActif.ordreCroissant)
+    return trierParDerniereActivite(
+      beneficiairesFiltres,
+      triActif.ordreCroissant
+    )
+  }, [beneficiairesFiltres, triActif, comptagesHeuresMilo])
 
   const [comptagesHeuresMilo, setComptagesHeuresMilo] =
     useState<CompteurHeuresPortefeuille | null>(null)
@@ -216,36 +232,6 @@ function TableauBeneficiaires(
 
     return result.trim()
   }
-
-  useEffect(() => {
-    setPage(page)
-  }, [beneficiaires])
-
-  useEffect(() => {
-    setBeneficiairesFiltres(
-      filtrerParDispositifs(beneficiaires, filtreDispositif)
-    )
-  }, [beneficiaires, filtreDispositif])
-
-  useEffect(() => {
-    setBeneficiairesFiltres(filtrerParListe(beneficiaires, filtreListe))
-  }, [beneficiaires, filtreListe])
-
-  useEffect(() => {
-    if (triActif.type === 'nom') {
-      setBeneficiairesTries(
-        trierParNom(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    } else if (triActif.type === 'heures') {
-      setBeneficiairesTries(
-        trierParHeures(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    } else if (triActif.type === 'activite') {
-      setBeneficiairesTries(
-        trierParDerniereActivite(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    }
-  }, [beneficiairesFiltres, triActif])
 
   useEffect(() => {
     if (estMilo(conseiller.structure)) {

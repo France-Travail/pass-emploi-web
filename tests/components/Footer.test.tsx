@@ -4,7 +4,6 @@ import React from 'react'
 
 import Footer from 'components/layouts/Footer'
 import { unConseiller } from 'fixtures/conseiller'
-import renderWithContexts from 'tests/renderWithContexts'
 
 describe('<Footer/>', () => {
   it('affiche les liens par défaut du footer ', () => {
