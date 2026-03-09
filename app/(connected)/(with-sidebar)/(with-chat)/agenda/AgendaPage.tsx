@@ -39,7 +39,10 @@ type AgendaPageProps = {
   debutPeriodeInitiale?: string
 }
 
-function AgendaPage({ onglet, debutPeriodeInitiale }: AgendaPageProps) {
+function AgendaPage({
+  onglet,
+  debutPeriodeInitiale,
+}: Readonly<AgendaPageProps>) {
   const [conseiller, setConseiller] = useConseiller()
   const [portefeuille] = usePortefeuille()
 

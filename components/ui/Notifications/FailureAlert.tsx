@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 
@@ -21,10 +22,10 @@ export default function FailureAlert({
     <div
       role='alert'
       aria-label={label}
-      className={
-        'text-warning bg-warning-lighten p-6 flex flex-col rounded-base mb-8 ' +
-        (className ?? '')
-      }
+      className={twMerge(
+        'text-warning bg-warning-lighten p-6 flex flex-col rounded-base mb-8',
+        className
+      )}
       ref={shouldFocus ? (e) => e?.focus() : undefined}
       tabIndex={shouldFocus ? -1 : undefined}
     >

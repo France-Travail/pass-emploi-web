@@ -72,9 +72,11 @@ function DetailsSessionPage({
   const [configurationSession, setConfigurationSession] = useState<{
     estVisible: boolean
     autoinscription: boolean
+    autodesinscription: boolean
   }>({
     estVisible: session.session.estVisible,
     autoinscription: session.session.autoinscription,
+    autodesinscription: session.session.autodesinscription,
   })
   const [loadingChangerConfiguration, setLoadingChangerConfiguration] =
     useState<boolean>(false)
@@ -129,6 +131,7 @@ function DetailsSessionPage({
     const nouvelleConfiguration = {
       autoinscription: false,
       estVisible: !configurationSession.estVisible,
+      autodesinscription: configurationSession.autoinscription,
     }
 
     const { configurerSession } = await import('services/sessions.service')
@@ -154,6 +157,8 @@ function DetailsSessionPage({
     const nouvelleConfiguration = {
       autoinscription: nouvelleAutoinscription,
       estVisible: nouvelleAutoinscription || configurationSession.estVisible,
+      autodesinscription:
+        nouvelleAutoinscription || configurationSession.autodesinscription,
     }
 
     const { configurerSession } = await import('services/sessions.service')

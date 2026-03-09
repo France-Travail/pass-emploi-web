@@ -12,11 +12,17 @@ import { IllustrationName } from 'components/ui/IllustrationComponent'
 import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import { SelecteurPeriode } from 'components/ui/SelecteurPeriode'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
-import { AnimationCollective, StatutEvenement } from 'interfaces/evenement'
+import {
+  AnimationCollective,
+  EtatVisibilite,
+  StatutEvenement,
+} from 'interfaces/evenement'
 import { Periode } from 'types/dates'
 import { trackEvent } from 'utils/analytics/matomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
+
+import InformationMessage from '../ui/Notifications/InformationMessage'
 
 type OngletAgendaMissionLocaleProps = {
   recupererAnimationsCollectives: (
@@ -38,7 +44,7 @@ export default function OngletAgendaMissionLocale({
   trackNavigation,
   debutPeriode,
   changerPeriode,
-}: OngletAgendaMissionLocaleProps) {
+}: Readonly<OngletAgendaMissionLocaleProps>) {
   const [conseiller] = useConseiller()
   const [evenements, setEvenements] = useState<AnimationCollective[]>()
 
@@ -50,9 +56,17 @@ export default function OngletAgendaMissionLocale({
   const [evenementsAffiches, setEvenementsAffiches] =
     useState<AnimationCollective[]>()
   const [shouldFocus, setShouldFocus] = useState<boolean>(false)
+  const [autoInscriptionActivee, setAutoInscriptionActivee] =
+    useState<boolean>(false)
 
   const [periode, setPeriode] = useState<Periode>()
   const [failed, setFailed] = useState<string>()
+
+  function onChangementEtatVisibilite(nouvelEtat: EtatVisibilite) {
+    setAutoInscriptionActivee(
+      nouvelEtat === 'auto-inscription' || nouvelEtat === 'auto-desinscription'
+    )
+  }
 
   async function modifierPeriode(
     nouvellePeriode: Periode,
@@ -155,7 +169,6 @@ export default function OngletAgendaMissionLocale({
           defaultValue={filtres}
         />
       </nav>
-
       {!evenementsAffiches && !failed && (
         <EmptyState
           illustrationName={IllustrationName.Sablier}
@@ -164,11 +177,16 @@ export default function OngletAgendaMissionLocale({
         />
       )}
 
-      <ErreursRecuperation
-        failed={failed}
-        shouldFocus={shouldFocus}
-        onRetry={() => chargerEvenementsPeriode(periode!)}
-      />
+      <div className='mt-4 space-y-3'>
+        {autoInscriptionActivee && (
+          <InformationMessage label='En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo' />
+        )}
+        <ErreursRecuperation
+          failed={failed}
+          shouldFocus={shouldFocus}
+          onRetry={() => chargerEvenementsPeriode(periode!)}
+        />
+      </div>
 
       {evenementsAffiches &&
         evenementsAffiches?.length === 0 &&
@@ -187,7 +205,6 @@ export default function OngletAgendaMissionLocale({
             />
           </div>
         )}
-
       {evenementsAffiches?.length === 0 &&
         evenements &&
         evenements?.length > 0 && (
@@ -198,13 +215,13 @@ export default function OngletAgendaMissionLocale({
             sousTitre='Vous pouvez essayer de modifier vos critères de recherche, ajuster les filtres appliqués, ou changer la période.'
           />
         )}
-
       {evenementsAffiches && evenementsAffiches.length > 0 && (
         <TableauAnimationsCollectives
           ref={tableRef}
           animationsCollectives={evenementsAffiches}
           labelPeriode={periode!.label}
           withRecherche={Boolean(recherche)}
+          onChangementEtatVisibilite={onChangementEtatVisibilite}
         />
       )}
     </>
@@ -213,9 +230,9 @@ export default function OngletAgendaMissionLocale({
 
 function RechercheAgendaForm({
   onSearch,
-}: {
+}: Readonly<{
   onSearch: (query: string) => void
-}) {
+}>) {
   const [conseiller] = useConseiller()
   const [portefeuille] = usePortefeuille()
   const [recherche, setRecherche] = useState<string>('')
@@ -277,11 +294,11 @@ function ErreursRecuperation({
   failed,
   shouldFocus,
   onRetry,
-}: {
+}: Readonly<{
   failed: string | undefined
   shouldFocus: boolean
   onRetry: () => Promise<void>
-}) {
+}>) {
   const labelContactSupport =
     'Si le problème persiste, contactez notre support.'
 
@@ -289,8 +306,8 @@ function ErreursRecuperation({
     case 'animationsCollectives':
       return (
         <FailureAlert
+          className='mb-0'
           label='La récupération des animations collectives de votre Mission Locale a échoué.'
-          className='mt-4'
         >
           <p className='pl-8'>{labelContactSupport}</p>
         </FailureAlert>
@@ -299,8 +316,8 @@ function ErreursRecuperation({
     case 'sessions':
       return (
         <FailureAlert
+          className='mb-0'
           label='La récupération des sessions de votre Mission Locale depuis i-milo a échoué.'
-          className='mt-4'
         >
           <p className='pl-8'>{labelContactSupport}</p>
         </FailureAlert>

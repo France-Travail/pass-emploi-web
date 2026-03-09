@@ -11,6 +11,7 @@ export type Session = {
     nbPlacesDisponibles?: number
     estVisible: boolean
     autoinscription: boolean
+    autodesinscription: boolean
     animateur?: string
     commentaire?: string
     statut: StatutEvenement
