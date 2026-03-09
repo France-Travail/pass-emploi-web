@@ -47,7 +47,7 @@
     "sharp": "0.34.5"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.4",
+    "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^9.39.2",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.2.1",
@@ -63,7 +63,7 @@
     "@types/luxon": "^3.7.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/sanitize-html": "^2.16.0",
+    "@types/sanitize-html": "^2.16.1",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.2",
     "eslint-config-next": "^15.5.8",
