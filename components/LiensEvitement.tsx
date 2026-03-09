@@ -13,7 +13,12 @@ export default function LiensEvitement() {
   const [pageHasChatAside, setPageHasChatAside] = useState<boolean>(false)
 
   useEffect(() => {
-    setPageHasChatAside(Boolean(document.getElementById(ID_CHAT)))
+    // setTimeout car le DOM n'est accessible qu'après le rendu complet
+    const id = setTimeout(
+      () => setPageHasChatAside(Boolean(document.getElementById(ID_CHAT))),
+      0
+    )
+    return () => clearTimeout(id)
   }, [pathname])
 
   if (isMobileViewport) return null

@@ -1,12 +1,12 @@
 import { render } from '@testing-library/react'
 import { headers } from 'next/headers'
-import { getListesServerSide } from 'services/listes.service'
 
 import EnvoiMessageGroupePage from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/envoi-message-groupe/EnvoiMessageGroupePage'
 import EnvoiMessageGroupe, {
   metadata,
 } from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/envoi-message-groupe/page'
 import { desListes } from 'fixtures/listes'
+import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 jest.mock('services/listes.service')

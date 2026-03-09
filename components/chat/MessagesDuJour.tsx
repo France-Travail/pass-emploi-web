@@ -125,10 +125,10 @@ export default function MessagesDuJour({
   useEffect(() => {
     if (messageAModifier) {
       inputRef.current!.value = messageSelectionne.content
-      setUserInput(messageSelectionne.content)
+      setTimeout(() => setUserInput(messageSelectionne.content), 0)
       inputRef.current!.focus()
     } else {
-      setUserInput('')
+      setTimeout(() => setUserInput(''), 0)
     }
   }, [messageAModifier])
 

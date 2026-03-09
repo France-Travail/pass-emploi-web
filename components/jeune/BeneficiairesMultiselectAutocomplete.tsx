@@ -244,7 +244,12 @@ export default function BeneficiairesMultiselectAutocomplete({
   }
 
   useEffect(() => {
-    setNavigateurEstEdge(/Edg/.test(navigator.userAgent))
+    // setTimeout car navigator n'est accessible qu'après le rendu côté client
+    const id = setTimeout(
+      () => setNavigateurEstEdge(/Edg/.test(navigator.userAgent)),
+      0
+    )
+    return () => clearTimeout(id)
   }, [])
 
   return (

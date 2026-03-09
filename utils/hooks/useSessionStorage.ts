@@ -24,8 +24,12 @@ export function useSessionStorage<T>(
   }, [value])
 
   useEffect(() => {
-    setValue(getSessionStorageOrDefault(key, defaultValue))
-    setInitialized(true)
+    // setTimeout évite d'appeler setState synchronement dans l'effect (SSR-safe)
+    const id = setTimeout(() => {
+      setValue(getSessionStorageOrDefault(key, defaultValue))
+      setInitialized(true)
+    }, 0)
+    return () => clearTimeout(id)
   }, [])
 
   return [value, setValue]

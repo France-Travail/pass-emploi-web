@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react'
+
 import ListesPage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/listes/ListesPage'
 import Listes from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/listes/page'
-import { getListesServerSide } from 'services/listes.service'
-
 import { desListes } from 'fixtures/listes'
+import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 jest.mock('utils/auth/getMandatorySessionServerSide', () => jest.fn())

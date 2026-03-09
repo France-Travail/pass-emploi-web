@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import EmptyState from 'components/EmptyState'
 import FiltresStatutAnimationsCollectives, {
@@ -47,9 +47,22 @@ export default function OngletAgendaMissionLocale({
 
   const [filtres, setFiltres] = useState<StatutEvenement[]>([])
   const [recherche, setRecherche] = useState<string>('')
-  const [evenementsAffiches, setEvenementsAffiches] =
-    useState<AnimationCollective[]>()
   const [shouldFocus, setShouldFocus] = useState<boolean>(false)
+
+  const evenementsAffiches = useMemo(() => {
+    if (!evenements) return undefined
+    let result = evenements
+    if (filtres.length)
+      result = result.filter((ac) => ac.statut && filtres.includes(ac.statut))
+    if (recherche) {
+      const querySplit = recherche.toLowerCase().split(/-|\s/)
+      result = result.filter((evenement) => {
+        const titre = evenement.titre.replace(/'/i, "'").toLowerCase()
+        return querySplit.some((item) => titre.includes(item))
+      })
+    }
+    return result
+  }, [evenements, filtres, recherche])
 
   const [periode, setPeriode] = useState<Periode>()
   const [failed, setFailed] = useState<string>()
@@ -65,7 +78,7 @@ export default function OngletAgendaMissionLocale({
 
   async function chargerEvenementsPeriode(nouvellePeriode: Periode) {
     setFailed(undefined)
-    setEvenementsAffiches(undefined)
+    setEvenements(undefined)
     let erreurs
     const { debut, fin } = nouvellePeriode
 
@@ -94,43 +107,13 @@ export default function OngletAgendaMissionLocale({
     setPeriode(nouvellePeriode)
   }
 
-  function filtrerEtChercherEvenements(): AnimationCollective[] {
-    setEvenementsAffiches(undefined)
-    let evenementsFiltres = evenements!
-
-    if (filtres.length)
-      evenementsFiltres = evenementsFiltres.filter(
-        (ac) => ac.statut && filtres.includes(ac.statut)
-      )
-
-    if (recherche) {
-      const querySplit = recherche.toLowerCase().split(/-|\s/)
-      evenementsFiltres = evenementsFiltres.filter((evenement) => {
-        const titre = evenement.titre.replace(/’/i, "'").toLowerCase()
-        return querySplit.some((item) => titre.includes(item))
-      })
-    }
-
-    setEvenementsAffiches(evenementsFiltres)
-    return evenementsFiltres
-  }
-
   useEffect(() => {
-    if (!evenements) return
-    filtrerEtChercherEvenements()
-  }, [evenements])
-
-  useEffect(() => {
-    if (!evenements) return
-    const evenementsFiltres = filtrerEtChercherEvenements()
-
-    if (evenementsFiltres.length) filtresRef.current!.focus()
+    if (!evenements || !evenementsAffiches?.length) return
+    filtresRef.current!.focus()
   }, [filtres])
 
   useEffect(() => {
     if (!evenements) return
-    filtrerEtChercherEvenements()
-
     tableRef.current?.focus()
   }, [recherche])
 

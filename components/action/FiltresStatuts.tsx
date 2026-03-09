@@ -4,7 +4,6 @@ import React, {
   ForwardedRef,
   forwardRef,
   ReactElement,
-  useEffect,
   useState,
 } from 'react'
 
@@ -72,17 +71,16 @@ function FiltresStatuts(
     setAfficherFiltresStatuts(false)
   }
 
-  useEffect(() => {
-    setStatutsSelectionnes(defaultValue)
-  }, [afficherFiltresStatuts])
-
   return (
     <div className='relative'>
       <button
         ref={ref}
         aria-controls='filtres-statut'
         aria-expanded={afficherFiltresStatuts}
-        onClick={() => setAfficherFiltresStatuts(!afficherFiltresStatuts)}
+        onClick={() => {
+          if (!afficherFiltresStatuts) setStatutsSelectionnes(defaultValue)
+          setAfficherFiltresStatuts(!afficherFiltresStatuts)
+        }}
         title={`Filtrer les ${entites} par statut`}
         className='flex items-center p-4 w-full h-full gap-2'
         type='button'

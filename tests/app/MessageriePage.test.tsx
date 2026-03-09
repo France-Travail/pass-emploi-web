@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import { axe } from 'jest-axe'
 import React from 'react'
-import { getListesClientSide } from 'services/listes.service'
 
 import MessageriePage from 'app/(connected)/(with-sidebar)/messagerie/MessageriePage'
 import {
@@ -17,6 +16,7 @@ import {
 } from 'interfaces/beneficiaire'
 import { ByDay, MessageListe } from 'interfaces/message'
 import { structureFTCej } from 'interfaces/structure'
+import { getListesClientSide } from 'services/listes.service'
 import {
   getMessagesListe,
   observeConseillerChats,

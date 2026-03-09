@@ -1,4 +1,4 @@
-import React, { FormEvent, MouseEvent, useEffect, useState } from 'react'
+import React, { FormEvent, MouseEvent, useState } from 'react'
 
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import Input from 'components/ui/Form/Input'
@@ -41,9 +41,12 @@ export function RenseignementMissionLocaleForm({
   isInModal = false,
 }: RenseignementMissionLocaleFormProps) {
   const [filtreDepartement, setFiltreFiltreDepartement] = useState<string>('')
-  const [MissionsLocalesFiltrees, setMissionsLocalesFiltrees] = useState<
-    MissionLocale[]
-  >(referentielMissionsLocales)
+  const MissionsLocalesFiltrees =
+    filtreDepartement !== ''
+      ? referentielMissionsLocales.filter(({ codeDepartement }) =>
+          padCodeDepartement(codeDepartement).startsWith(filtreDepartement)
+        )
+      : referentielMissionsLocales
   const [idMissionLocaleSelectionnee, setIdMissionLocaleSelectionnee] =
     useState<ValueWithError<string | undefined>>()
 
@@ -82,16 +85,6 @@ export function RenseignementMissionLocaleForm({
     )
     onMissionLocaleChoisie(missionLocale!)
   }
-
-  useEffect(() => {
-    const miloFiltrees =
-      filtreDepartement !== ''
-        ? referentielMissionsLocales.filter(({ codeDepartement }) =>
-            padCodeDepartement(codeDepartement).startsWith(filtreDepartement)
-          )
-        : referentielMissionsLocales
-    setMissionsLocalesFiltrees(miloFiltrees)
-  }, [filtreDepartement, referentielMissionsLocales])
 
   return (
     <form

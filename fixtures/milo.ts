@@ -11,4 +11,4 @@ export const unDossierMilo = (
     codePostal: '13000',
     dateDeNaissance: '1997-12-17',
     ...overrides,
-  } as DossierMilo)
+  }) as DossierMilo

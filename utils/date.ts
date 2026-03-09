@@ -1,5 +1,4 @@
 import { DateTime, Duration } from 'luxon'
-import { DateTimeFormatOptions } from 'luxon/src/misc'
 
 import { JourSemaine, Periode } from 'types/dates'
 
@@ -126,7 +125,7 @@ export function toFrenchDuration(
 
 function toFrenchString(
   date: string | DateTime,
-  format?: DateTimeFormatOptions
+  format?: Intl.DateTimeFormatOptions
 ): string {
   const datetime = date instanceof DateTime ? date : DateTime.fromISO(date)
   return datetime.toLocaleString(format, { locale: 'fr-FR' })
