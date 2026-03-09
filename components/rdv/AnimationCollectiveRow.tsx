@@ -18,9 +18,11 @@ import { usePortefeuille } from 'utils/portefeuilleContext'
 
 export function AnimationCollectiveRow({
   animationCollective,
-}: {
+  onChangementEtatVisibilite,
+}: Readonly<{
   animationCollective: AnimationCollective
-}) {
+  onChangementEtatVisibilite: (nouvelEtat: EtatVisibilite) => void
+}>) {
   const { date } = animationCollective
   const duree = toFrenchDuration(animationCollective.duree)
   const dureeA11y = toFrenchDuration(animationCollective.duree, { a11y: true })
@@ -43,26 +45,37 @@ export function AnimationCollectiveRow({
       await import('services/sessions.service')
 
     switch (nouvelEtat) {
+      case 'auto-desinscription':
+        await _configurerSession(animationCollective.id, {
+          estVisible: true,
+          autoinscription: true,
+          autodesinscription: true,
+        })
+        break
       case 'auto-inscription':
         await _configurerSession(animationCollective.id, {
           estVisible: true,
           autoinscription: true,
+          autodesinscription: false,
         })
         break
       case 'visible':
         await _configurerSession(animationCollective.id, {
           estVisible: true,
           autoinscription: false,
+          autodesinscription: false,
         })
         break
       case 'non-visible':
         await _configurerSession(animationCollective.id, {
           estVisible: false,
           autoinscription: false,
+          autodesinscription: false,
         })
         break
     }
 
+    onChangementEtatVisibilite(nouvelEtat)
     setEtatVisibilite(nouvelEtat)
 
     trackEvent({

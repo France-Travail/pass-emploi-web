@@ -118,7 +118,11 @@ export async function changerInscriptionsSession(
 
 export async function configurerSession(
   idSession: string,
-  configuration: { estVisible: boolean; autoinscription: boolean }
+  configuration: {
+    estVisible: boolean
+    autoinscription: boolean
+    autodesinscription: boolean
+  }
 ): Promise<void> {
   const session = await getSession()
   const accessToken = session!.accessToken
@@ -197,6 +201,7 @@ async function modifierInformationsSession(
   payload: {
     estVisible?: boolean
     autoinscription?: boolean
+    autodesinscription?: boolean
     inscriptions?: InformationBeneficiaireSession[]
   },
   accessToken: string
@@ -250,6 +255,7 @@ function jsonToSession(json: DetailsSessionJson): Session {
       lieu: json.session.lieu,
       estVisible: json.session.estVisible,
       autoinscription: json.session.autoinscription,
+      autodesinscription: json.session.autodesinscription,
       statut: jsonToStatutSession(json.session.statut),
     },
     offre: {

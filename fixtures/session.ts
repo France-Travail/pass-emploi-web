@@ -22,6 +22,7 @@ export function unDetailSessionJson(
       commentaire: 'bla',
       estVisible: true,
       autoinscription: true,
+      autodesinscription: true,
       statut: 'A_VENIR',
     },
     offre: {
@@ -60,6 +61,7 @@ export function unDetailSession(overrides: Partial<Session> = {}): Session {
       commentaire: 'bla',
       estVisible: true,
       autoinscription: true,
+      autodesinscription: true,
       nbPlacesDisponibles: 20,
       statut: StatutEvenement.AVenir,
     },
