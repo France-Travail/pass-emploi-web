@@ -44,7 +44,6 @@ function TableauBeneficiaires(
 
   const estConseillerAvenirPro = estAvenirPro(conseiller.structure)
 
-  const nombrePages = Math.ceil(beneficiaires.length / 10)
   const [page, setPage] = useState<number>(pageInitiale)
 
   const DEBUT_PERIODE = DateTime.now().startOf('week')
@@ -69,6 +68,8 @@ function TableauBeneficiaires(
     BeneficiaireAvecInfosComplementaires[]
   >(trierParNom(beneficiaires, true))
 
+  const nombrePages = Math.ceil(beneficiairesTries.length / 10)
+
   const [comptagesHeuresMilo, setComptagesHeuresMilo] =
     useState<CompteurHeuresPortefeuille | null>(null)
 
@@ -83,11 +84,13 @@ function TableauBeneficiaires(
 
   function handleFiltreDispositif(dispositif?: string) {
     setFiltreDispositif(dispositif)
+    changePage(1)
     filtreDispositifRef.current!.focus()
   }
 
   function handleFiltreListe(listeId?: string) {
     setFiltreListe(listeId)
+    changePage(1)
     filtreListeRef.current!.focus()
   }
 
@@ -222,14 +225,12 @@ function TableauBeneficiaires(
   }, [beneficiaires])
 
   useEffect(() => {
-    setBeneficiairesFiltres(
-      filtrerParDispositifs(beneficiaires, filtreDispositif)
+    const filtresParDispositif = filtrerParDispositifs(
+      beneficiaires,
+      filtreDispositif
     )
-  }, [beneficiaires, filtreDispositif])
-
-  useEffect(() => {
-    setBeneficiairesFiltres(filtrerParListe(beneficiaires, filtreListe))
-  }, [beneficiaires, filtreListe])
+    setBeneficiairesFiltres(filtrerParListe(filtresParDispositif, filtreListe))
+  }, [beneficiaires, filtreDispositif, filtreListe])
 
   useEffect(() => {
     if (triActif.type === 'nom') {
