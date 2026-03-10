@@ -287,7 +287,7 @@ describe('BandeauActualites', () => {
         <BandeauActualites
           actualites={[actualite]}
           onRetourMessagerie={onRetourMessagerie}
-          onActualiteCreee={onActualiteCreee}
+          onRafraichirActualites={onActualiteCreee}
         />
       )
 
@@ -449,7 +449,9 @@ describe('BandeauActualites', () => {
         })
       ).toBeInTheDocument()
       expect(
-        screen.getByText(/Êtes-vous bien sûr de vouloir supprimer cette actualité/)
+        screen.getByText(
+          /Êtes-vous bien sûr de vouloir supprimer cette actualité/
+        )
       ).toBeInTheDocument()
     })
 
@@ -513,7 +515,7 @@ describe('BandeauActualites', () => {
         <BandeauActualites
           actualites={[actualite]}
           onRetourMessagerie={onRetourMessagerie}
-          onActualiteCreee={onActualiteCreee}
+          onRafraichirActualites={onActualiteCreee}
         />
       )
 
@@ -550,7 +552,7 @@ describe('BandeauActualites', () => {
       ).toBeInTheDocument()
     })
 
-    it("efface l erreur de suppression précédente lors d une nouvelle tentative", async () => {
+    it('efface l erreur de suppression précédente lors d une nouvelle tentative', async () => {
       // Given
       ;(supprimerActualiteMissionLocaleClientSide as jest.Mock)
         .mockRejectedValueOnce(new Error('Erreur réseau'))

@@ -20,13 +20,13 @@ import MessageActualites from './MessageActualites'
 interface BandeauActualitesProps {
   readonly actualites: ActualiteMessage[] | undefined
   readonly onRetourMessagerie: () => void
-  readonly onActualiteCreee?: () => void
+  readonly onRafraichirActualites?: () => void
 }
 const NB_ACTUALITES_PAR_PAGE = 10
 export default function BandeauActualites({
   actualites,
   onRetourMessagerie,
-  onActualiteCreee,
+  onRafraichirActualites,
 }: BandeauActualitesProps) {
   const retourRef = useRef<HTMLButtonElement>(null)
   const idPrecedentePremiereActualite = useRef<string | undefined>(undefined)
@@ -88,7 +88,7 @@ export default function BandeauActualites({
         lien
       )
       fermerModal()
-      if (onActualiteCreee) onActualiteCreee()
+      if (onRafraichirActualites) onRafraichirActualites()
     } catch {
       setErreurCreation(
         "Une erreur est survenue lors de la diffusion de l'actualité. Veuillez réessayer."
@@ -112,7 +112,7 @@ export default function BandeauActualites({
         lien
       )
       fermerModal()
-      if (onActualiteCreee) onActualiteCreee()
+      if (onRafraichirActualites) onRafraichirActualites()
     } catch {
       setErreurCreation(
         "Une erreur est survenue lors de la modification de l'actualité. Veuillez réessayer."
@@ -131,7 +131,7 @@ export default function BandeauActualites({
     setActualiteASupprimer(undefined)
     try {
       await supprimerActualiteMissionLocaleClientSide(id)
-      if (onActualiteCreee) onActualiteCreee()
+      if (onRafraichirActualites) onRafraichirActualites()
     } catch {
       setErreurSuppression(
         "Une erreur est survenue lors de la suppression de l'actualité. Veuillez réessayer."
