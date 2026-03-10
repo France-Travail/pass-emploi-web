@@ -94,40 +94,53 @@ export default function MessageActualites({
                         className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'
                         aria-labelledby={`titre-actualite-${m.id}`}
                       >
-                        <p
-                          id={`titre-actualite-${m.id}`}
-                          className='text-primary-darken text-base-bold mb-2'
-                        >
-                          {m.titre}
-                        </p>
-                        <p className='text-primary-darken text-s-regular mb-2 whitespace-pre-wrap'>
-                          {m.contenu}
-                        </p>
-                        {m.lien && m.titreLien && (
-                          <a
-                            href={m.lien}
-                            target='_blank'
-                            rel='noreferrer noopener'
-                            className='underline text-base text-primary-darken'
-                            onClick={(e) =>
-                              confirmerRedirectionLienExterne(e, m.lien!)
-                            }
+                        {m.dateSuppression ? (
+                          <p
+                            id={`titre-actualite-${m.id}`}
+                            className='text-grey-600 text-s-regular italic'
                           >
-                            <IconComponent
-                              name={IconName.OpenInNew}
-                              className='inline shrink-0 w-4 h-4 ml-1 mr-1 fill-current'
-                              focusable={false}
-                              aria-hidden={true}
-                            />
-                            {m.titreLien}
-                          </a>
+                            Actualité supprimée
+                          </p>
+                        ) : (
+                          <>
+                            <p
+                              id={`titre-actualite-${m.id}`}
+                              className='text-primary-darken text-base-bold mb-2'
+                            >
+                              {m.titre}
+                            </p>
+                            <p className='text-primary-darken text-s-regular mb-2 whitespace-pre-wrap'>
+                              {m.contenu}
+                            </p>
+                            {m.lien && m.titreLien && (
+                              <a
+                                href={m.lien}
+                                target='_blank'
+                                rel='noreferrer noopener'
+                                className='underline text-base text-primary-darken'
+                                onClick={(e) =>
+                                  confirmerRedirectionLienExterne(e, m.lien!)
+                                }
+                              >
+                                <IconComponent
+                                  name={IconName.OpenInNew}
+                                  className='inline shrink-0 w-4 h-4 ml-1 mr-1 fill-current'
+                                  focusable={false}
+                                  aria-hidden={true}
+                                />
+                                {m.titreLien}
+                              </a>
+                            )}
+                          </>
                         )}
                       </article>
-                      <FooterActualite
-                        message={m}
-                        onModification={onModification}
-                        onSuppression={onSuppression}
-                      />
+                      {!m.dateSuppression && (
+                        <FooterActualite
+                          message={m}
+                          onModification={onModification}
+                          onSuppression={onSuppression}
+                        />
+                      )}
                     </li>
                   )
                 })}

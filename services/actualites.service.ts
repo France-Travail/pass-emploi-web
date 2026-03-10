@@ -231,6 +231,9 @@ function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {
     titre: actualiteJson.titre,
     contenu: actualiteJson.contenu,
     dateCreation: DateTime.fromISO(actualiteJson.dateCreation),
+    dateSuppression: actualiteJson.dateSuppression
+      ? DateTime.fromISO(actualiteJson.dateSuppression)
+      : undefined,
     titreLien: actualiteJson.titreLien,
     lien: actualiteJson.lien,
     proprietaire: actualiteJson.proprietaire,
