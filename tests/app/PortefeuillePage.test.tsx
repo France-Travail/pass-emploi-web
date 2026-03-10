@@ -56,6 +56,10 @@ describe('PortefeuillePage client side', () => {
   beforeEach(() => {
     alerteSetter = jest.fn()
     refresh = jest.fn(() => Promise.resolve())
+    ;(useRouter as jest.Mock).mockReturnValue({
+      replace: jest.fn(),
+      refresh,
+    })
     ;(signIn as jest.Mock).mockResolvedValue(undefined)
     ;(countMessagesNotRead as jest.Mock).mockImplementation((ids: string[]) =>
       Promise.resolve(
@@ -207,6 +211,7 @@ describe('PortefeuillePage client side', () => {
     beforeEach(async () => {
       // Given
       ;(useRouter as jest.Mock).mockReturnValue({
+        replace: jest.fn(),
         refresh: refresh,
       })
 
@@ -519,6 +524,7 @@ describe('PortefeuillePage client side', () => {
       // Given
       ;(getJeuneDetailsClientSide as jest.Mock).mockResolvedValue(undefined)
       ;(useRouter as jest.Mock).mockReturnValue({
+        replace: jest.fn(),
         refresh: jest.fn(),
       })
 
