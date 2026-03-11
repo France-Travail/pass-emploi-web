@@ -353,7 +353,7 @@ function ChatRoom(
               <div className='flex flex-col ml-auto'>
                 <IconComponent
                   name={IconName.Speaker}
-                  className='w-12 h-10 fill-primary'
+                  className='w-12.5 h-10 fill-primary'
                   aria-hidden={true}
                   focusable={false}
                 />
