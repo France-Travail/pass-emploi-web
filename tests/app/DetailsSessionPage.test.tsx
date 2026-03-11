@@ -104,7 +104,7 @@ describe('Détails Session Page Client', () => {
         )
       )
       expect(
-        getByDescriptionTerm('Date limite d’inscription :')
+        getByDescriptionTerm("Date limite d'inscription :")
       ).toHaveTextContent(
         DateTime.fromISO(session.session.dateMaxInscription!).toFormat(
           'dd/MM/yyyy'
@@ -128,10 +128,11 @@ describe('Détails Session Page Client', () => {
         ...unDetailSession().session,
         estVisible: false,
         autoinscription: false,
+        autodesinscription: false,
       },
     })
 
-    it('affiche un switch désactivé par défaut', async () => {
+    it('affiche un switch dont la valeur est celle de la visibilité de la session', async () => {
       // When
       await renderWithContexts(
         <DetailsSessionPage
@@ -183,6 +184,7 @@ describe('Détails Session Page Client', () => {
         expect(configurerSession).toHaveBeenCalledWith('session-1', {
           estVisible: true,
           autoinscription: false,
+          autodesinscription: false,
         })
         expect(toggleVisibiliteSession).toBeChecked()
       })
@@ -215,12 +217,21 @@ describe('Détails Session Page Client', () => {
     })
   })
 
-  describe('permet de gérer l’autoinscription des bénéficiaires à la session', () => {
+  describe('permet de gérer l’auto-inscription et désinscription des bénéficiaires à la session', () => {
     const sessionOnPeutPasSAutoinscrire = unDetailSession({
       session: {
         ...unDetailSession().session,
         estVisible: false,
         autoinscription: false,
+        autodesinscription: false,
+      },
+    })
+    const sessionOnPeutSAutoinscrireEtDesinscrire = unDetailSession({
+      session: {
+        ...unDetailSession().session,
+        estVisible: true,
+        autoinscription: true,
+        autodesinscription: true,
       },
     })
 
@@ -234,33 +245,108 @@ describe('Détails Session Page Client', () => {
         />
       )
       const toggleAutoinscription = getToggleAutoinscriptionSession()
+      const toggleAutodesinscription = getToggleAutodesinscriptionSession()
 
       // Then
       expect(toggleAutoinscription).not.toBeChecked()
+      expect(toggleAutodesinscription).not.toBeChecked()
     })
 
-    it('affiche un switch dont la valeur correspond à la possibilité de s’autoinscrire à la session', async () => {
-      // Given
-      const sessionOnPeutSAutoinscrire = unDetailSession()
-
+    it('affiche deux switch dont leur valeur correspond à la possibilité de s’autoinscrire/se désinscrire à la session', async () => {
       // When
       await renderWithContexts(
         <DetailsSessionPage
-          session={sessionOnPeutSAutoinscrire}
+          session={sessionOnPeutSAutoinscrireEtDesinscrire}
           beneficiairesStructureMilo={[]}
           returnTo='whatever'
         />
       )
       const toggleAutoinscription = getToggleAutoinscriptionSession()
+      const toggleAutodesinscription = getToggleAutodesinscriptionSession()
 
       // Then
       expect(toggleAutoinscription).toBeChecked()
+      expect(toggleAutodesinscription).toBeChecked()
     })
 
-    describe('au clic sur le switch', () => {
-      it('change la possibilité de s’autoinscrire et la visibilité', async () => {
-        // Given
+    it("affiche un message d'information si l'auto-inscription est activée", async () => {
+      // When
+      await renderWithContexts(
+        <DetailsSessionPage
+          session={unDetailSession({
+            session: {
+              ...unDetailSession().session,
+              estVisible: true,
+              autoinscription: true,
+              autodesinscription: false,
+            },
+          })}
+          beneficiairesStructureMilo={[]}
+          returnTo='whatever'
+        />
+      )
 
+      // Then
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).toBeInTheDocument()
+    })
+
+    it("affiche un message d'information si l'auto-désinscription est activée", async () => {
+      // When
+      await renderWithContexts(
+        <DetailsSessionPage
+          session={unDetailSession({
+            session: {
+              ...unDetailSession().session,
+              estVisible: true,
+              autoinscription: true,
+              autodesinscription: true,
+            },
+          })}
+          beneficiairesStructureMilo={[]}
+          returnTo='whatever'
+        />
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).toBeInTheDocument()
+    })
+
+    it("n'affiche pas de message d'information si l'auto-inscription est désactivée", async () => {
+      // When
+      await renderWithContexts(
+        <DetailsSessionPage
+          session={unDetailSession({
+            session: {
+              ...unDetailSession().session,
+              estVisible: true,
+              autoinscription: false,
+              autodesinscription: false,
+            },
+          })}
+          beneficiairesStructureMilo={[]}
+          returnTo='whatever'
+        />
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).not.toBeInTheDocument()
+    })
+
+    describe('au clic sur les switchs', () => {
+      it("active l’auto-inscription et la visibilité au clic sur le switch d'auto-inscription", async () => {
+        // Given
         await renderWithContexts(
           <DetailsSessionPage
             session={sessionOnPeutPasSAutoinscrire}
@@ -270,6 +356,7 @@ describe('Détails Session Page Client', () => {
         )
         const toggleAutoinscription = getToggleAutoinscriptionSession()
         const toggleVisibilite = getToggleVisibiliteSession()
+        const toggleAutodesinscription = getToggleAutodesinscriptionSession()
 
         // When
         await userEvent.click(toggleAutoinscription)
@@ -278,9 +365,63 @@ describe('Détails Session Page Client', () => {
         expect(configurerSession).toHaveBeenCalledWith('session-1', {
           autoinscription: true,
           estVisible: true,
+          autodesinscription: false,
         })
         expect(toggleAutoinscription).toBeChecked()
         expect(toggleVisibilite).toBeChecked()
+        expect(toggleAutodesinscription).not.toBeChecked()
+      })
+      it("active l'auto-désinscription, l'auto-inscription et la visibilité au clic sur le switch d'auto-désinscription", async () => {
+        // Given
+        await renderWithContexts(
+          <DetailsSessionPage
+            session={sessionOnPeutPasSAutoinscrire}
+            beneficiairesStructureMilo={[]}
+            returnTo='whatever'
+          />
+        )
+        const toggleAutoinscription = getToggleAutoinscriptionSession()
+        const toggleVisibilite = getToggleVisibiliteSession()
+        const toggleAutodesinscription = getToggleAutodesinscriptionSession()
+
+        // When
+        await userEvent.click(toggleAutodesinscription)
+
+        // Then
+        expect(configurerSession).toHaveBeenCalledWith('session-1', {
+          autoinscription: true,
+          estVisible: true,
+          autodesinscription: true,
+        })
+        expect(toggleAutoinscription).toBeChecked()
+        expect(toggleVisibilite).toBeChecked()
+        expect(toggleAutodesinscription).toBeChecked()
+      })
+      it("désactive l'auto-désinscription quand on désactive l'auto-inscription", async () => {
+        // Given
+        await renderWithContexts(
+          <DetailsSessionPage
+            session={sessionOnPeutSAutoinscrireEtDesinscrire}
+            beneficiairesStructureMilo={[]}
+            returnTo='whatever'
+          />
+        )
+        const toggleAutoinscription = getToggleAutoinscriptionSession()
+        const toggleVisibilite = getToggleVisibiliteSession()
+        const toggleAutodesinscription = getToggleAutodesinscriptionSession()
+
+        // When
+        await userEvent.click(toggleAutoinscription)
+
+        // Then
+        expect(configurerSession).toHaveBeenCalledWith('session-1', {
+          autoinscription: false,
+          estVisible: true,
+          autodesinscription: false,
+        })
+        expect(toggleAutoinscription).not.toBeChecked()
+        expect(toggleVisibilite).toBeChecked()
+        expect(toggleAutodesinscription).not.toBeChecked()
       })
     })
   })
@@ -823,7 +964,12 @@ function getToggleVisibiliteSession() {
 
 function getToggleAutoinscriptionSession() {
   return within(getEtapeConfiguration()).getByRole('switch', {
-    name: /Les bénéficiaires peuvent s’inscrire en autonomie/,
+    name: /Les bénéficiaires peuvent s'inscrire en autonomie/,
+  })
+}
+function getToggleAutodesinscriptionSession() {
+  return within(getEtapeConfiguration()).getByRole('switch', {
+    name: /Les bénéficiaires peuvent annuler eux-mêmes leur inscription aux ateliers/,
   })
 }
 
