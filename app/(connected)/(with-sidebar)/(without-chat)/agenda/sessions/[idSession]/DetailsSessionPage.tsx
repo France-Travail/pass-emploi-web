@@ -34,6 +34,8 @@ import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toFrenchDateTime, toShortDate } from 'utils/date'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
+import { EtatVisibilite } from '../../../../../../../interfaces/evenement'
+
 const DesinscriptionBeneficiaireModal = dynamic(
   () => import('components/session-imilo/DesinscriptionBeneficiaireModal')
 )
@@ -60,7 +62,7 @@ function DetailsSessionPage({
   beneficiairesStructureMilo,
   session,
   returnTo,
-}: DetailSessionProps) {
+}: Readonly<DetailSessionProps>) {
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
   const [portefeuille] = usePortefeuille()
@@ -69,15 +71,15 @@ function DetailsSessionPage({
   const aDesBeneficiaires = portefeuille.length > 0
   const inputBeneficiaires = useRef<HTMLInputElement>(null)
 
-  const [configurationSession, setConfigurationSession] = useState<{
-    estVisible: boolean
-    autoinscription: boolean
-    autodesinscription: boolean
-  }>({
-    estVisible: session.session.estVisible,
-    autoinscription: session.session.autoinscription,
-    autodesinscription: session.session.autodesinscription,
-  })
+  function initEtatVisibilite(): EtatVisibilite {
+    if (session.session.autodesinscription) return 'auto-desinscription'
+    if (session.session.autoinscription) return 'auto-inscription'
+    if (session.session.estVisible) return 'visible'
+    return 'non-visible'
+  }
+
+  const [etatVisibilite, setEtatVisibilite] =
+    useState<EtatVisibilite>(initEtatVisibilite())
   const [loadingChangerConfiguration, setLoadingChangerConfiguration] =
     useState<boolean>(false)
 
@@ -91,7 +93,7 @@ function DetailsSessionPage({
   >({ value: initBeneficiairesSelectionnes() })
   const [erreurInscriptions, setErreurInscriptions] = useState<boolean>(false)
 
-  const [beneficiaireADesinscrire, setBeneficiaireADesinscire] = useState<
+  const [beneficiaireADesinscrire, setBeneficiaireADesinscrire] = useState<
     | {
         value: string
         id: string
@@ -108,11 +110,11 @@ function DetailsSessionPage({
   const [trackingLabel, setTrackingLabel] = useState<string>(initialTracking)
 
   function openDesinscriptionBeneficiaireModal(id: string, nom: string) {
-    setBeneficiaireADesinscire({ value: nom, id })
+    setBeneficiaireADesinscrire({ value: nom, id })
   }
 
   function closeDesinscriptionBeneficiaireModal() {
-    setBeneficiaireADesinscire(undefined)
+    setBeneficiaireADesinscrire(undefined)
   }
 
   function initBeneficiairesSelectionnes() {
@@ -123,54 +125,64 @@ function DetailsSessionPage({
     }))
   }
 
-  async function handleChangerVisibiliteSession() {
-    setErreurInscriptions(false)
-    if (configurationSession.autoinscription) return
-    setLoadingChangerConfiguration(true)
-
-    const nouvelleConfiguration = {
-      autoinscription: false,
-      estVisible: !configurationSession.estVisible,
-      autodesinscription: configurationSession.autoinscription,
+  const etatVersConfiguration: Record<
+    EtatVisibilite,
+    {
+      estVisible: boolean
+      autoinscription: boolean
+      autodesinscription: boolean
     }
-
-    const { configurerSession } = await import('services/sessions.service')
-    await configurerSession(session.session.id, nouvelleConfiguration)
-
-    setConfigurationSession(nouvelleConfiguration)
-    setLoadingChangerConfiguration(false)
-
-    trackEvent({
-      structure: conseiller.structure,
-      categorie: 'Session i-milo',
-      action: 'clic visibilité',
-      nom: '',
-      aDesBeneficiaires,
-    })
+  > = {
+    'non-visible': {
+      estVisible: false,
+      autoinscription: false,
+      autodesinscription: false,
+    },
+    visible: {
+      estVisible: true,
+      autoinscription: false,
+      autodesinscription: false,
+    },
+    'auto-inscription': {
+      estVisible: true,
+      autoinscription: true,
+      autodesinscription: false,
+    },
+    'auto-desinscription': {
+      estVisible: true,
+      autoinscription: true,
+      autodesinscription: true,
+    },
   }
 
-  async function handleChangerAutoinscriptionSession() {
+  async function handleChangerConfiguration(nouvelEtat: EtatVisibilite) {
     setErreurInscriptions(false)
     setLoadingChangerConfiguration(true)
 
-    const nouvelleAutoinscription = !configurationSession.autoinscription
-    const nouvelleConfiguration = {
-      autoinscription: nouvelleAutoinscription,
-      estVisible: nouvelleAutoinscription || configurationSession.estVisible,
-      autodesinscription:
-        nouvelleAutoinscription || configurationSession.autodesinscription,
-    }
-
     const { configurerSession } = await import('services/sessions.service')
-    await configurerSession(session.session.id, nouvelleConfiguration)
+    await configurerSession(
+      session.session.id,
+      etatVersConfiguration[nouvelEtat]
+    )
 
-    setConfigurationSession(nouvelleConfiguration)
+    setEtatVisibilite(nouvelEtat)
     setLoadingChangerConfiguration(false)
 
+    let action
+    switch (nouvelEtat) {
+      case 'visible':
+        action = 'visibilité'
+      case 'non-visible':
+        action = 'visibilité'
+      case 'auto-inscription':
+        action = 'autoinscription'
+      case 'auto-desinscription':
+        action = 'autodesinscription'
+    }
     trackEvent({
       structure: conseiller.structure,
       categorie: 'Session i-milo',
-      action: 'clic autoinscription',
+      action,
       nom: '',
       aDesBeneficiaires,
     })
@@ -238,17 +250,17 @@ function DetailsSessionPage({
     const beneficiaireDejaInscrit = session.inscriptions.find(
       ({ idJeune }) => idJeune === idBeneficiaire
     )
-    if (!beneficiaireDejaInscrit) {
+    if (beneficiaireDejaInscrit) {
+      openDesinscriptionBeneficiaireModal(
+        beneficiaireDejaInscrit.idJeune,
+        `${beneficiaireDejaInscrit.prenom} ${beneficiaireDejaInscrit.nom}`
+      )
+    } else {
       const nouvelleSelection: BeneficiaireSelectionneSession[] =
         beneficiairesSelectionnes.value.filter((b) => b.id !== idBeneficiaire)
       setBeneficiairesSelectionnes({ value: nouvelleSelection })
       if (nbPlacesDisponibles.value !== undefined)
         setNbPlacesDisponibles({ value: nbPlacesDisponibles.value + 1 })
-    } else {
-      openDesinscriptionBeneficiaireModal(
-        beneficiaireDejaInscrit.idJeune,
-        `${beneficiaireDejaInscrit.prenom} ${beneficiaireDejaInscrit.nom}`
-      )
     }
   }
 
@@ -370,7 +382,7 @@ function DetailsSessionPage({
       {erreurInscriptions && (
         <FailureAlert
           shouldFocus={true}
-          label='Une erreur s’est produite, veuillez réessayer ultérieurement.'
+          label="Une erreur s'est produite, veuillez réessayer ultérieurement."
           className='mt-2'
         />
       )}
@@ -461,7 +473,7 @@ function DetailsSessionPage({
 
           <div className='mb-3'>
             <dt className='inline text-base-regular'>
-              Date limite d’inscription :
+              Date limite d&apos;inscription :
             </dt>
             <dd className='ml-2 inline text-base-medium'>
               {session.session.dateMaxInscription ? (
@@ -510,28 +522,66 @@ function DetailsSessionPage({
 
       <form>
         <Etape numero={1} titre='Configurez la session'>
+          {(etatVisibilite === 'auto-inscription' ||
+            etatVisibilite === 'auto-desinscription') && (
+            <InformationMessage label='En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo' />
+          )}
           <div className='grid grid-cols-[1fr_auto] auto-rows-fr items-center'>
             <Label htmlFor='visibilite-session'>
               Rendre visible la session aux bénéficiaires de la Mission Locale
             </Label>
             <Switch
               id='visibilite-session'
-              checked={configurationSession.estVisible}
-              onChange={handleChangerVisibiliteSession}
+              checked={etatVisibilite !== 'non-visible'}
+              onChange={() =>
+                handleChangerConfiguration(
+                  etatVisibilite === 'non-visible' ? 'visible' : 'non-visible'
+                )
+              }
               isLoading={loadingChangerConfiguration}
               disabled={
-                configurationSession.autoinscription || estClose(session)
+                etatVisibilite === 'auto-inscription' ||
+                etatVisibilite === 'auto-desinscription' ||
+                estClose(session)
               }
             />
 
             <Label htmlFor='autoinscription-session'>
-              Les bénéficiaires peuvent s’inscrire en autonomie à cette session
-              (dans la limite du nombre maximum de participants)
+              Les bénéficiaires peuvent s&#39;inscrire en autonomie à cette
+              session (dans la limite du nombre maximum de participants)
             </Label>
             <Switch
               id='autoinscription-session'
-              checked={configurationSession.autoinscription}
-              onChange={handleChangerAutoinscriptionSession}
+              checked={
+                etatVisibilite === 'auto-inscription' ||
+                etatVisibilite === 'auto-desinscription'
+              }
+              onChange={() =>
+                handleChangerConfiguration(
+                  etatVisibilite === 'auto-inscription' ||
+                    etatVisibilite === 'auto-desinscription'
+                    ? 'visible'
+                    : 'auto-inscription'
+                )
+              }
+              isLoading={loadingChangerConfiguration}
+              disabled={estClose(session)}
+            />
+
+            <Label htmlFor='autodesinscription-session'>
+              Les bénéficiaires peuvent annuler eux-mêmes leur inscription aux
+              ateliers
+            </Label>
+            <Switch
+              id='autodesinscription-session'
+              checked={etatVisibilite === 'auto-desinscription'}
+              onChange={() =>
+                handleChangerConfiguration(
+                  etatVisibilite === 'auto-desinscription'
+                    ? 'auto-inscription'
+                    : 'auto-desinscription'
+                )
+              }
               isLoading={loadingChangerConfiguration}
               disabled={estClose(session)}
             />
@@ -617,12 +667,12 @@ function DetailsSessionPage({
                   <BeneficiaireItemList
                     beneficiaire={beneficiaire}
                     actions={
-                      !dateLimiteInscriptionDepassee
-                        ? {
+                      dateLimiteInscriptionDepassee
+                        ? undefined
+                        : {
                             onDesinscrire: desinscrireBeneficiaire,
                             onReinscrire: reinscrireBeneficiaire,
                           }
-                        : undefined
                     }
                   />
                 </li>

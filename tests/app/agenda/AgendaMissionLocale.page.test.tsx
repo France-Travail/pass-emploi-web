@@ -415,7 +415,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Visible')
+      ).toHaveDisplayValue(['Visible'])
 
       expect(
         within(
@@ -425,7 +425,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo 2',
         })
-      ).toHaveTextContent('Non visible')
+      ).toHaveDisplayValue(['Non visible'])
 
       expect(
         within(
@@ -435,7 +435,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo 3',
         })
-      ).toHaveTextContent('Auto-inscription')
+      ).toHaveDisplayValue(['Visible'])
     })
 
     it('permet de modifier la visibilité d’une session', async () => {
@@ -474,7 +474,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Non visible')
+      ).toHaveDisplayValue('Non visible')
     })
 
     it('permet de modifier l’autoinscription à une session et affiche une info bulle', async () => {
@@ -518,7 +518,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Auto-inscription')
+      ).toHaveDisplayValue('Auto-inscription')
       expect(
         screen.queryByRole('status', {
           name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
@@ -567,7 +567,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Auto-inscription et désinscription')
+      ).toHaveDisplayValue('Auto-inscription et désinscription')
       expect(
         screen.getByRole('status', {
           name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
