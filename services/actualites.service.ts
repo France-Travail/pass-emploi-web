@@ -2,7 +2,7 @@ import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
-import { apiGet, apiPost, apiPut } from 'clients/api.client'
+import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   ActualitesRaw,
@@ -202,12 +202,38 @@ export async function modifierActualiteMissionLocale(
   )
 }
 
+export async function supprimerActualiteMissionLocaleClientSide(
+  id: string
+): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  return supprimerActualiteMissionLocale(
+    session.user.id,
+    id,
+    session.accessToken
+  )
+}
+
+export async function supprimerActualiteMissionLocale(
+  idConseiller: string,
+  id: string,
+  accessToken: string
+): Promise<void> {
+  await apiDelete(
+    `/conseillers/milo/${idConseiller}/actualites/${id}`,
+    accessToken
+  )
+}
+
 function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {
   return {
     id: actualiteJson.id,
     titre: actualiteJson.titre,
     contenu: actualiteJson.contenu,
     dateCreation: DateTime.fromISO(actualiteJson.dateCreation),
+    dateSuppression: actualiteJson.dateSuppression
+      ? DateTime.fromISO(actualiteJson.dateSuppression)
+      : undefined,
     titreLien: actualiteJson.titreLien,
     lien: actualiteJson.lien,
     proprietaire: actualiteJson.proprietaire,

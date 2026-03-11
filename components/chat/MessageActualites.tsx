@@ -12,6 +12,7 @@ type BlocMessageProps = {
   readonly messages: readonly ActualiteMessage[]
   readonly shouldAutoFocusLastMessage?: boolean
   readonly onModification?: (actualite: ActualiteMessage) => void
+  readonly onSuppression?: (actualite: ActualiteMessage) => void
 }
 
 function scrollToRef(element: HTMLElement | null) {
@@ -27,6 +28,7 @@ export default function MessageActualites({
   messages,
   shouldAutoFocusLastMessage = true,
   onModification,
+  onSuppression,
 }: BlocMessageProps) {
   const [lienAOuvrir, setLienAOuvrir] = useState<string | null>(null)
 
@@ -92,39 +94,53 @@ export default function MessageActualites({
                         className='break-words p-4 rounded-base bg-white mt-0 mr-0 mb-1'
                         aria-labelledby={`titre-actualite-${m.id}`}
                       >
-                        <p
-                          id={`titre-actualite-${m.id}`}
-                          className='text-primary-darken text-base-bold mb-2'
-                        >
-                          {m.titre}
-                        </p>
-                        <p className='text-primary-darken text-s-regular mb-2 whitespace-pre-wrap'>
-                          {m.contenu}
-                        </p>
-                        {m.lien && m.titreLien && (
-                          <a
-                            href={m.lien}
-                            target='_blank'
-                            rel='noreferrer noopener'
-                            className='underline text-base text-primary-darken'
-                            onClick={(e) =>
-                              confirmerRedirectionLienExterne(e, m.lien!)
-                            }
+                        {m.dateSuppression ? (
+                          <p
+                            id={`titre-actualite-${m.id}`}
+                            className='text-grey-600 text-s-regular italic'
                           >
-                            <IconComponent
-                              name={IconName.OpenInNew}
-                              className='inline shrink-0 w-4 h-4 ml-1 mr-1 fill-current'
-                              focusable={false}
-                              aria-hidden={true}
-                            />
-                            {m.titreLien}
-                          </a>
+                            Actualité supprimée
+                          </p>
+                        ) : (
+                          <>
+                            <p
+                              id={`titre-actualite-${m.id}`}
+                              className='text-primary-darken text-base-bold mb-2'
+                            >
+                              {m.titre}
+                            </p>
+                            <p className='text-primary-darken text-s-regular mb-2 whitespace-pre-wrap'>
+                              {m.contenu}
+                            </p>
+                            {m.lien && m.titreLien && (
+                              <a
+                                href={m.lien}
+                                target='_blank'
+                                rel='noreferrer noopener'
+                                className='underline text-base text-primary-darken'
+                                onClick={(e) =>
+                                  confirmerRedirectionLienExterne(e, m.lien!)
+                                }
+                              >
+                                <IconComponent
+                                  name={IconName.OpenInNew}
+                                  className='inline shrink-0 w-4 h-4 ml-1 mr-1 fill-current'
+                                  focusable={false}
+                                  aria-hidden={true}
+                                />
+                                {m.titreLien}
+                              </a>
+                            )}
+                          </>
                         )}
                       </article>
-                      <FooterActualite
-                        message={m}
-                        onModification={onModification}
-                      />
+                      {!m.dateSuppression && (
+                        <FooterActualite
+                          message={m}
+                          onModification={onModification}
+                          onSuppression={onSuppression}
+                        />
+                      )}
                     </li>
                   )
                 })}
@@ -148,9 +164,11 @@ export default function MessageActualites({
 function FooterActualite({
   message,
   onModification,
+  onSuppression,
 }: {
   readonly message: ActualiteMessage
   readonly onModification?: (actualite: ActualiteMessage) => void
+  readonly onSuppression?: (actualite: ActualiteMessage) => void
 }) {
   const [afficherMenu, setAfficherMenu] = useState(false)
 
@@ -166,7 +184,7 @@ function FooterActualite({
         Posté par {message.prenomNomConseiller}
       </span>
 
-      {message.proprietaire && onModification && (
+      {message.proprietaire && (onModification || onSuppression) && (
         <>
           <button
             type='button'
@@ -195,25 +213,48 @@ function FooterActualite({
               className='absolute top-[2em] left-0 z-10 bg-white rounded-base p-2 shadow-m'
               ref={scrollToRef}
             >
-              <button
-                type='button'
-                onClick={() => {
-                  setAfficherMenu(false)
-                  onModification(message)
-                }}
-                className='p-2 flex items-center text-s-bold gap-2 hover:text-primary hover:rounded-base hover:bg-primary-lighten hover:shadow-m'
-              >
-                <IconComponent
-                  focusable={false}
-                  aria-hidden={true}
-                  className='inline w-4 h-4 fill-current'
-                  name={IconName.Edit}
-                />
-                Modifier l&apos;actualité
-                <span className='sr-only'>
-                  du {toFrenchDateTime(message.dateCreation, { a11y: true })}
-                </span>
-              </button>
+              {onModification && (
+                <button
+                  type='button'
+                  onClick={() => {
+                    setAfficherMenu(false)
+                    onModification(message)
+                  }}
+                  className='p-2 flex items-center text-s-bold gap-2 hover:text-primary hover:rounded-base hover:bg-primary-lighten hover:shadow-m'
+                >
+                  <IconComponent
+                    focusable={false}
+                    aria-hidden={true}
+                    className='inline w-4 h-4 fill-current'
+                    name={IconName.Edit}
+                  />
+                  Modifier l&apos;actualité
+                  <span className='sr-only'>
+                    du {toFrenchDateTime(message.dateCreation, { a11y: true })}
+                  </span>
+                </button>
+              )}
+              {onSuppression && (
+                <button
+                  type='button'
+                  onClick={() => {
+                    setAfficherMenu(false)
+                    onSuppression(message)
+                  }}
+                  className='p-2 flex items-center text-warning text-s-bold gap-2 hover:rounded-base hover:bg-warning hover:text-white hover:shadow-m'
+                >
+                  <IconComponent
+                    focusable={false}
+                    aria-hidden={true}
+                    className='inline w-4 h-4 fill-current'
+                    name={IconName.Delete}
+                  />
+                  Supprimer l&apos;actualité{' '}
+                  <span className='sr-only'>
+                    du {toFrenchDateTime(message.dateCreation, { a11y: true })}
+                  </span>
+                </button>
+              )}
             </div>
           )}
         </>

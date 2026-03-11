@@ -127,7 +127,7 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
-              onActualiteCreee={rafraichirActualites}
+              onRafraichirActualites={rafraichirActualites}
             />
           )}
 
@@ -158,7 +158,7 @@ export default function ChatContainer({
             <BandeauActualites
               actualites={actualites}
               onRetourMessagerie={() => setShowActualites(false)}
-              onActualiteCreee={rafraichirActualites}
+              onRafraichirActualites={rafraichirActualites}
             />
           )}
 

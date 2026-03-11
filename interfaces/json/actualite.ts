@@ -3,6 +3,7 @@ export interface ActualiteJson {
   titre: string
   contenu: string
   dateCreation: string
+  dateSuppression?: string
   titreLien?: string
   lien?: string
   proprietaire: boolean
