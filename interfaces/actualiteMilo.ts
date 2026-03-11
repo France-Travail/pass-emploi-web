@@ -5,6 +5,7 @@ export type ActualiteMessage = {
   titre: string
   contenu: string
   dateCreation: DateTime
+  dateSuppression?: DateTime
   titreLien?: string
   lien?: string
   proprietaire: boolean

@@ -18,6 +18,7 @@ import ContractIcon from 'assets/icons/custom/contract.svg'
 import DecorativePointIcon from 'assets/icons/custom/decorative_point.svg'
 import NoteIcon from 'assets/icons/custom/note.svg'
 import PendingIcon from 'assets/icons/custom/pending.svg'
+import RemoveModalActualiteIcon from 'assets/icons/custom/remove-modal-actualite.svg'
 import RemoveIcon from 'assets/icons/custom/remove.svg'
 import SpinnerIcon from 'assets/icons/custom/spinner.svg'
 import SuitcaseIcon from 'assets/icons/custom/suitcase.svg'
@@ -154,6 +155,7 @@ export enum IconName {
   PeopleOutline = 'PeopleOutline',
   Refresh = 'Refresh',
   Remove = 'Remove',
+  RemoveModalActualite = 'RemoveModalActualite',
   Schedule = 'Schedule',
   ScheduleOutline = 'ScheduleOutline',
   Search = 'Search',
@@ -257,6 +259,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.VisibilityOff]: VisibilityOffIcon,
   [IconName.Timer]: TimerIcon,
   [IconName.Download]: DownloadIcon,
+  [IconName.RemoveModalActualite]: RemoveModalActualiteIcon,
 }
 
 type IconComponentProps = ComponentPropsWithoutRef<'svg'> & {
