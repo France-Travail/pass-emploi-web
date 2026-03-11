@@ -61,35 +61,13 @@ export default function FormulaireActualite({
       isValid = false
     }
 
-    function lienInvalide(): boolean {
-      let url: URL
-      try {
-        url = new URL(lien.value?.trim())
-      } catch {
-        return true
-      }
-
-      const protocolValide = ['http:', 'https:'].includes(url.protocol)
-      const hostValide = !!url.hostname
-      const sansIdentifiants = !url.username && !url.password
-
-      return !protocolValide || !hostValide || !sansIdentifiants
-    }
-
     if (titreLien.value.trim() && !lien.value.trim()) {
       setLien({
         value: lien.value,
         error: 'Si vous renseignez un titre de lien, le lien est obligatoire',
       })
       isValid = false
-    } else if (lien.value && lienInvalide()) {
-      setLien({
-        value: lien.value,
-        error: 'Le lien est invalide (ex. : https://exemple.fr)',
-      })
-      isValid = false
     }
-
     return isValid
   }
 

@@ -135,36 +135,6 @@ describe('FormulaireActualite', () => {
       expect(onCreation).not.toHaveBeenCalled()
     })
 
-    it('affiche une erreur si le lien a un format invalide', async () => {
-      // Given
-      render(<FormulaireActualite onCreation={onCreation} />)
-      await userEvent.type(
-        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
-        'Mon titre'
-      )
-      await userEvent.type(
-        screen.getByPlaceholderText(
-          'Renseigner une description pour votre actualité'
-        ),
-        'Mon contenu de test'
-      )
-      await userEvent.type(
-        screen.getByPlaceholderText('https://exemple.fr'),
-        'pas-une-url-valide'
-      )
-
-      // When
-      await userEvent.click(
-        screen.getByRole('button', { name: /Diffuser mon actualité/ })
-      )
-
-      // Then
-      expect(
-        screen.getByText('Le lien est invalide (ex. : https://exemple.fr)')
-      ).toBeInTheDocument()
-      expect(onCreation).not.toHaveBeenCalled()
-    })
-
     it("efface l'erreur du titre quand l'utilisateur saisit", async () => {
       // Given
       render(<FormulaireActualite onCreation={onCreation} />)
