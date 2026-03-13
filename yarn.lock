@@ -9945,6 +9945,7 @@ __metadata:
     sharp: "npm:0.34.5"
     source-map-explorer: "npm:^2.5.3"
     style-loader: "npm:^4.0.0"
+    tailwind-merge: "npm:^3.5.0"
     tailwindcss: "npm:^4.2.1"
     ts-loader: "npm:^9.5.4"
     ts-node: "npm:^10.9.2"
@@ -11594,6 +11595,13 @@ __metadata:
   dependencies:
     "@pkgr/core": "npm:^0.2.9"
   checksum: 10c0/cc4d446806688ae0d728ae7bb3f53176d065cf9536647fb85bdd721dcefbd7bf94874df6799ff61580f2b03a392659219b778a9254ad499f9a1f56c34787c235
+  languageName: node
+  linkType: hard
+
+"tailwind-merge@npm:^3.5.0":
+  version: 3.5.0
+  resolution: "tailwind-merge@npm:3.5.0"
+  checksum: 10c0/4dc588f5b5296ba3f38e1ebb41f02b6d24a8c5bb45e44b33748c118fb4b5767dd0efc464431ca3e75404056b618b5f67bec3708158baa65fed8a2fc9201e0c53
   languageName: node
   linkType: hard
 

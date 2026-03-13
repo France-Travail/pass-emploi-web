@@ -99,7 +99,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         titre: 'Titre offre session milo 3',
         sousTitre: 'Nom session',
         isSession: true,
-        etatVisibilite: 'auto-inscription',
+        etatVisibilite: 'visible',
       }),
     ])
     ;(configurerSession as jest.Mock).mockResolvedValue(undefined)
@@ -415,7 +415,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Visible')
+      ).toHaveDisplayValue(['Visible'])
 
       expect(
         within(
@@ -425,7 +425,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo 2',
         })
-      ).toHaveTextContent('Non visible')
+      ).toHaveDisplayValue(['Non visible'])
 
       expect(
         within(
@@ -435,7 +435,7 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo 3',
         })
-      ).toHaveTextContent('Auto-inscription')
+      ).toHaveDisplayValue(['Visible'])
     })
 
     it('permet de modifier la visibilité d’une session', async () => {
@@ -464,6 +464,7 @@ describe('Agenda - Onglet Mission Locale', () => {
       expect(configurerSession).toHaveBeenCalledWith('id-session-1', {
         estVisible: false,
         autoinscription: false,
+        autodesinscription: false,
       })
       expect(
         within(
@@ -473,10 +474,10 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Non visible')
+      ).toHaveDisplayValue('Non visible')
     })
 
-    it('permet de modifier l’autoinscription à une session', async () => {
+    it('permet de modifier l’autoinscription à une session et affiche une info bulle', async () => {
       // Given
       await waitFor(() => {
         expect(
@@ -485,6 +486,11 @@ describe('Agenda - Onglet Mission Locale', () => {
           })
         ).toBeInTheDocument()
       })
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).not.toBeInTheDocument()
 
       // When
       await userEvent.selectOptions(
@@ -502,6 +508,7 @@ describe('Agenda - Onglet Mission Locale', () => {
       expect(configurerSession).toHaveBeenCalledWith('id-session-1', {
         estVisible: true,
         autoinscription: true,
+        autodesinscription: false,
       })
       expect(
         within(
@@ -511,7 +518,61 @@ describe('Agenda - Onglet Mission Locale', () => {
         ).getByRole('combobox', {
           name: 'Visibilité de l’événement Titre offre session milo',
         })
-      ).toHaveTextContent('Auto-inscription')
+      ).toHaveDisplayValue('Auto-inscription')
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).toBeInTheDocument()
+    })
+
+    it('permet de modifier l’auto-désinscription à une session et affiche une info bulle', async () => {
+      // Given
+      await waitFor(() => {
+        expect(
+          screen.getByRole('table', {
+            name: '6 ateliers ou informations collectives du 1 septembre 2022 au 7 septembre 2022',
+          })
+        ).toBeInTheDocument()
+      })
+      expect(
+        screen.queryByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).not.toBeInTheDocument()
+
+      // When
+      await userEvent.selectOptions(
+        within(
+          screen.getByRole('row', {
+            name: /Titre offre session milo Nom session/,
+          })
+        ).getByRole('combobox', {
+          name: 'Visibilité de l’événement Titre offre session milo',
+        }),
+        'Auto-inscription et désinscription'
+      )
+
+      // Then
+      expect(configurerSession).toHaveBeenCalledWith('id-session-1', {
+        estVisible: true,
+        autoinscription: true,
+        autodesinscription: true,
+      })
+      expect(
+        within(
+          screen.getByRole('row', {
+            name: /Titre offre session milo Nom session/,
+          })
+        ).getByRole('combobox', {
+          name: 'Visibilité de l’événement Titre offre session milo',
+        })
+      ).toHaveDisplayValue('Auto-inscription et désinscription')
+      expect(
+        screen.getByRole('status', {
+          name: 'En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo',
+        })
+      ).toBeInTheDocument()
     })
 
     it('permet de changer de période de 7 jours', async () => {

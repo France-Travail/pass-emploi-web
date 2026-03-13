@@ -18,9 +18,11 @@ import { usePortefeuille } from 'utils/portefeuilleContext'
 
 export function AnimationCollectiveRow({
   animationCollective,
-}: {
+  onChangementEtatVisibilite,
+}: Readonly<{
   animationCollective: AnimationCollective
-}) {
+  onChangementEtatVisibilite: (nouvelEtat: EtatVisibilite) => void
+}>) {
   const { date } = animationCollective
   const duree = toFrenchDuration(animationCollective.duree)
   const dureeA11y = toFrenchDuration(animationCollective.duree, { a11y: true })
@@ -39,30 +41,17 @@ export function AnimationCollectiveRow({
   }
 
   async function configurerSession(nouvelEtat: EtatVisibilite) {
-    const { configurerSession: _configurerSession } =
-      await import('services/sessions.service')
+    const {
+      configurerSession: _configurerSession,
+      configurationParEtatVisibilite,
+    } = await import('services/sessions.service')
 
-    switch (nouvelEtat) {
-      case 'auto-inscription':
-        await _configurerSession(animationCollective.id, {
-          estVisible: true,
-          autoinscription: true,
-        })
-        break
-      case 'visible':
-        await _configurerSession(animationCollective.id, {
-          estVisible: true,
-          autoinscription: false,
-        })
-        break
-      case 'non-visible':
-        await _configurerSession(animationCollective.id, {
-          estVisible: false,
-          autoinscription: false,
-        })
-        break
-    }
+    await _configurerSession(
+      animationCollective.id,
+      configurationParEtatVisibilite[nouvelEtat]
+    )
 
+    onChangementEtatVisibilite(nouvelEtat)
     setEtatVisibilite(nouvelEtat)
 
     trackEvent({
@@ -150,7 +139,9 @@ function statusProps({ type, statut }: AnimationCollective): {
   }
 }
 
-function TagStatut(animationCollective: AnimationCollective): ReactElement {
+function TagStatut(
+  animationCollective: Readonly<AnimationCollective>
+): ReactElement {
   const { label, style } = statusProps(animationCollective)
   return (
     <_TagStatut
@@ -163,7 +154,7 @@ function TagStatut(animationCollective: AnimationCollective): ReactElement {
 function Inscrits({
   nombreMaxParticipants,
   nombreParticipants,
-}: AnimationCollective): ReactElement {
+}: Readonly<AnimationCollective>): ReactElement {
   const aUneCapaciteLimite = nombreMaxParticipants !== undefined
   const aAtteintLaCapaciteLimite = nombreParticipants >= nombreMaxParticipants!
   const aPlusieursParticipants = nombreParticipants !== 1
@@ -184,7 +175,7 @@ function Inscrits({
       {aUneCapaciteLimite && !aAtteintLaCapaciteLimite && (
         <>
           <span className='text-m-bold'>{nombreParticipants}</span>{' '}
-          {nombreParticipants !== 1 ? 'inscrits' : 'inscrit'} /
+          {nombreParticipants === 1 ? 'inscrit' : 'inscrits'} /
           {nombreMaxParticipants}
         </>
       )}
