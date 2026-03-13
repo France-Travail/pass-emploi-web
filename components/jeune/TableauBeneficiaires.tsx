@@ -61,12 +61,25 @@ function TableauBeneficiaires(
     (beneficiaire) => beneficiaire.dispositif !== beneficiaires[0].dispositif
   )
 
-  const [beneficiairesFiltres, setBeneficiairesFiltres] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >(trierParNom(beneficiaires, true))
-  const [beneficiairesTries, setBeneficiairesTries] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >(trierParNom(beneficiaires, true))
+  const beneficiairesFiltres = filtrerParListe(
+    filtrerParDispositifs(beneficiaires, filtreDispositif),
+    filtreListe
+  )
+
+  function trierBeneficiaires(
+    beneficiairesATrier: BeneficiaireAvecInfosComplementaires[]
+  ): BeneficiaireAvecInfosComplementaires[] {
+    if (triActif.type === 'nom')
+      return trierParNom(beneficiairesATrier, triActif.ordreCroissant)
+    if (triActif.type === 'heures')
+      return trierParHeures(beneficiairesATrier, triActif.ordreCroissant)
+    return trierParDerniereActivite(
+      beneficiairesATrier,
+      triActif.ordreCroissant
+    )
+  }
+
+  const beneficiairesTries = trierBeneficiaires(beneficiairesFiltres)
 
   const nombrePages = Math.ceil(beneficiairesTries.length / 10)
 
@@ -223,30 +236,6 @@ function TableauBeneficiaires(
   useEffect(() => {
     setPage(page)
   }, [beneficiaires])
-
-  useEffect(() => {
-    const filtresParDispositif = filtrerParDispositifs(
-      beneficiaires,
-      filtreDispositif
-    )
-    setBeneficiairesFiltres(filtrerParListe(filtresParDispositif, filtreListe))
-  }, [beneficiaires, filtreDispositif, filtreListe])
-
-  useEffect(() => {
-    if (triActif.type === 'nom') {
-      setBeneficiairesTries(
-        trierParNom(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    } else if (triActif.type === 'heures') {
-      setBeneficiairesTries(
-        trierParHeures(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    } else if (triActif.type === 'activite') {
-      setBeneficiairesTries(
-        trierParDerniereActivite(beneficiairesFiltres, triActif.ordreCroissant)
-      )
-    }
-  }, [beneficiairesFiltres, triActif])
 
   useEffect(() => {
     if (estMilo(conseiller.structure)) {
