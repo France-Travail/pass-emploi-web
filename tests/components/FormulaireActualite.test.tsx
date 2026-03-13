@@ -37,9 +37,7 @@ describe('FormulaireActualite', () => {
           "Nom du lien qui s'affichera auprès des bénéficiaires"
         )
       ).toBeInTheDocument()
-      expect(
-        screen.getByPlaceholderText('https://exemple.fr')
-      ).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('exemple.fr')).toBeInTheDocument()
     })
 
     it('affiche le bouton de soumission', () => {
@@ -149,7 +147,7 @@ describe('FormulaireActualite', () => {
         'Mon contenu de test'
       )
       await userEvent.type(
-        screen.getByPlaceholderText('https://exemple.fr'),
+        screen.getByPlaceholderText('exemple.fr'),
         'pas-une-url-valide'
       )
 
@@ -189,6 +187,45 @@ describe('FormulaireActualite', () => {
   })
 
   describe('soumission valide', () => {
+    it('appelle onCreation avec un lien sans protocole', async () => {
+      // Given
+      onCreation.mockResolvedValue(undefined)
+      render(<FormulaireActualite onCreation={onCreation} />)
+      await userEvent.type(
+        screen.getByPlaceholderText('Renseigner un titre pour votre actualité'),
+        'Mon titre'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          'Renseigner une description pour votre actualité'
+        ),
+        'Mon contenu de test'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText(
+          "Nom du lien qui s'affichera auprès des bénéficiaires"
+        ),
+        'En savoir plus'
+      )
+      await userEvent.type(
+        screen.getByPlaceholderText('exemple.fr'),
+        'example.com'
+      )
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: /Diffuser mon actualité/ })
+      )
+
+      // Then
+      expect(onCreation).toHaveBeenCalledWith(
+        'Mon titre',
+        'Mon contenu de test',
+        'En savoir plus',
+        'example.com'
+      )
+    })
+
     it('appelle onCreation avec les valeurs saisies', async () => {
       // Given
       onCreation.mockResolvedValue(jest.fn())
@@ -239,7 +276,7 @@ describe('FormulaireActualite', () => {
         'En savoir plus'
       )
       await userEvent.type(
-        screen.getByPlaceholderText('https://exemple.fr'),
+        screen.getByPlaceholderText('exemple.fr'),
         'https://example.com'
       )
 
@@ -367,7 +404,7 @@ describe('FormulaireActualite', () => {
           "Nom du lien qui s'affichera auprès des bénéficiaires"
         )
       ).toHaveValue('Voir plus')
-      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue(
+      expect(screen.getByPlaceholderText('exemple.fr')).toHaveValue(
         'https://example.com'
       )
     })
@@ -393,7 +430,7 @@ describe('FormulaireActualite', () => {
           "Nom du lien qui s'affichera auprès des bénéficiaires"
         )
       ).toHaveValue('')
-      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue('')
+      expect(screen.getByPlaceholderText('exemple.fr')).toHaveValue('')
     })
 
     it('soumet les valeurs modifiées', async () => {

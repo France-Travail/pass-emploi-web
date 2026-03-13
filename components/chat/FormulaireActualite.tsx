@@ -62,18 +62,7 @@ export default function FormulaireActualite({
     }
 
     function lienInvalide(): boolean {
-      let url: URL
-      try {
-        url = new URL(lien.value?.trim())
-      } catch {
-        return true
-      }
-
-      const protocolValide = ['http:', 'https:'].includes(url.protocol)
-      const hostValide = !!url.hostname
-      const sansIdentifiants = !url.username && !url.password
-
-      return !protocolValide || !hostValide || !sansIdentifiants
+      return !/^(https?:\/\/.+|(?!.*:\/\/).+\..+)$/.test(lien.value?.trim())
     }
 
     if (titreLien.value.trim() && !lien.value.trim()) {
@@ -211,7 +200,7 @@ export default function FormulaireActualite({
           }}
           onReset={() => setLien({ value: '', error: '' })}
           invalid={Boolean(lien.error)}
-          placeholder='https://exemple.fr'
+          placeholder='exemple.fr'
         />
         <div className='text-xs-regular text-right mt-1'>
           {lien.value.length} / 2000
