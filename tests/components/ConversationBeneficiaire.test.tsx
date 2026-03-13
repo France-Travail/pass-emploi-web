@@ -339,7 +339,7 @@ describe('<ConversationBeneficiaire />', () => {
       expect(open).toHaveBeenCalledWith(
         'https://www.pass-emploi.com/',
         '_blank',
-        'noopener, noreferrer'
+        'noopener,noreferrer'
       )
     })
 

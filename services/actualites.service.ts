@@ -1,5 +1,9 @@
+import { DateTime } from 'luxon'
+import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
+import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
+import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   ActualitesRaw,
   ArticleCouleur,
@@ -7,6 +11,7 @@ import {
   EtiquetteArticle,
   TagJson,
 } from 'interfaces/actualites'
+import { ActualiteJson } from 'interfaces/json/actualite'
 import { Structure } from 'interfaces/structure'
 import { fetchJson } from 'utils/httpClient'
 
@@ -83,5 +88,155 @@ function getUrlActualites(structure: Structure): string {
     case 'FT_EQUIP_EMPLOI_RECRUT':
       return process.env
         .NEXT_PUBLIC_WORDPRESS_ACTUS_ACCOMPAGNEMENTS_INTENSIFS_LINK as string
+  }
+}
+
+export async function getActualitesMissionLocaleClientSide(): Promise<
+  ActualiteMessage[]
+> {
+  const session = await getSession()
+  if (!session) return []
+  return getActualitesMissionLocale(session.user.id, session.accessToken)
+}
+
+export async function getActualitesMissionLocale(
+  idConseiller: string,
+  accessToken: string
+): Promise<ActualiteMessage[]> {
+  const { content } = await apiGet<{ actualites: ActualiteJson[] }>(
+    `/conseillers/milo/${idConseiller}/actualites`,
+    accessToken
+  )
+  return content.actualites.map((actualite) => mapToActualitesMilo(actualite))
+}
+
+export async function creerActualiteMissionLocaleClientSide(
+  titre: string,
+  contenu: string,
+  titreLien?: string,
+  lien?: string
+): Promise<ActualiteJson> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  const { user, accessToken } = session
+
+  return creerActualiteMissionLocale(
+    user.id,
+    titre,
+    contenu,
+    accessToken,
+    titreLien,
+    lien
+  )
+}
+
+export async function creerActualiteMissionLocale(
+  idConseiller: string,
+  titre: string,
+  contenu: string,
+  accessToken: string,
+  titreLien?: string,
+  lien?: string
+): Promise<ActualiteJson> {
+  const payload: {
+    titre: string
+    contenu: string
+    titreLien?: string
+    lien?: string
+  } = { titre, contenu }
+
+  if (titreLien) payload.titreLien = titreLien
+  if (lien) payload.lien = lien
+
+  const { content } = await apiPost<ActualiteJson>(
+    `/conseillers/milo/${idConseiller}/actualites`,
+    payload,
+    accessToken
+  )
+  return content
+}
+
+export async function modifierActualiteMissionLocaleClientSide(
+  id: string,
+  titre: string,
+  contenu: string,
+  titreLien?: string,
+  lien?: string
+): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  return modifierActualiteMissionLocale(
+    session.user.id,
+    id,
+    titre,
+    contenu,
+    session.accessToken,
+    titreLien,
+    lien
+  )
+}
+
+export async function modifierActualiteMissionLocale(
+  idConseiller: string,
+  id: string,
+  titre: string,
+  contenu: string,
+  accessToken: string,
+  titreLien?: string,
+  lien?: string
+): Promise<void> {
+  const payload: {
+    titre: string
+    contenu: string
+    titreLien?: string
+    lien?: string
+  } = { titre, contenu }
+
+  if (titreLien) payload.titreLien = titreLien
+  if (lien) payload.lien = lien
+
+  await apiPut(
+    `/conseillers/milo/${idConseiller}/actualites/${id}`,
+    payload,
+    accessToken
+  )
+}
+
+export async function supprimerActualiteMissionLocaleClientSide(
+  id: string
+): Promise<void> {
+  const session = await getSession()
+  if (!session) throw new Error('Session expirée')
+  return supprimerActualiteMissionLocale(
+    session.user.id,
+    id,
+    session.accessToken
+  )
+}
+
+export async function supprimerActualiteMissionLocale(
+  idConseiller: string,
+  id: string,
+  accessToken: string
+): Promise<void> {
+  await apiDelete(
+    `/conseillers/milo/${idConseiller}/actualites/${id}`,
+    accessToken
+  )
+}
+
+function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {
+  return {
+    id: actualiteJson.id,
+    titre: actualiteJson.titre,
+    contenu: actualiteJson.contenu,
+    dateCreation: DateTime.fromISO(actualiteJson.dateCreation),
+    dateSuppression: actualiteJson.dateSuppression
+      ? DateTime.fromISO(actualiteJson.dateSuppression)
+      : undefined,
+    titreLien: actualiteJson.titreLien,
+    lien: actualiteJson.lien,
+    proprietaire: actualiteJson.proprietaire,
+    prenomNomConseiller: actualiteJson.prenomNomConseiller,
   }
 }
