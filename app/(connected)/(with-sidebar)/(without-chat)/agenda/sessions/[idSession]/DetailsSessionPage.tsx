@@ -20,6 +20,7 @@ import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { ValueWithError } from 'components/ValueWithError'
 import { BeneficiaireEtablissement } from 'interfaces/beneficiaire'
+import { EtatVisibilite } from 'interfaces/evenement'
 import {
   estAClore,
   estClose,
@@ -33,8 +34,6 @@ import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toFrenchDateTime, toShortDate } from 'utils/date'
 import { usePortefeuille } from 'utils/portefeuilleContext'
-
-import { EtatVisibilite } from '../../../../../../../interfaces/evenement'
 
 const DesinscriptionBeneficiaireModal = dynamic(
   () => import('components/session-imilo/DesinscriptionBeneficiaireModal')
@@ -125,44 +124,15 @@ function DetailsSessionPage({
     }))
   }
 
-  const etatVersConfiguration: Record<
-    EtatVisibilite,
-    {
-      estVisible: boolean
-      autoinscription: boolean
-      autodesinscription: boolean
-    }
-  > = {
-    'non-visible': {
-      estVisible: false,
-      autoinscription: false,
-      autodesinscription: false,
-    },
-    visible: {
-      estVisible: true,
-      autoinscription: false,
-      autodesinscription: false,
-    },
-    'auto-inscription': {
-      estVisible: true,
-      autoinscription: true,
-      autodesinscription: false,
-    },
-    'auto-desinscription': {
-      estVisible: true,
-      autoinscription: true,
-      autodesinscription: true,
-    },
-  }
-
   async function handleChangerConfiguration(nouvelEtat: EtatVisibilite) {
     setErreurInscriptions(false)
     setLoadingChangerConfiguration(true)
 
-    const { configurerSession } = await import('services/sessions.service')
+    const { configurerSession, configurationParEtatVisibilite } =
+      await import('services/sessions.service')
     await configurerSession(
       session.session.id,
-      etatVersConfiguration[nouvelEtat]
+      configurationParEtatVisibilite[nouvelEtat]
     )
 
     setEtatVisibilite(nouvelEtat)
@@ -172,12 +142,16 @@ function DetailsSessionPage({
     switch (nouvelEtat) {
       case 'visible':
         action = 'visibilité'
+        break
       case 'non-visible':
         action = 'visibilité'
+        break
       case 'auto-inscription':
         action = 'autoinscription'
+        break
       case 'auto-desinscription':
         action = 'autodesinscription'
+        break
     }
     trackEvent({
       structure: conseiller.structure,
