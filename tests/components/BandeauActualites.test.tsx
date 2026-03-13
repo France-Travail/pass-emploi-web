@@ -264,7 +264,7 @@ describe('BandeauActualites', () => {
           "Nom du lien qui s'affichera auprès des bénéficiaires"
         )
       ).toHaveValue('Voir plus')
-      expect(screen.getByPlaceholderText('https://exemple.fr')).toHaveValue(
+      expect(screen.getByPlaceholderText('exemple.fr')).toHaveValue(
         'https://example.com'
       )
     })
