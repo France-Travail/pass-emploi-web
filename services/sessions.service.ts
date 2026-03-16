@@ -283,6 +283,7 @@ function jsonToSession(json: DetailsSessionJson): Session {
       estVisible: json.session.estVisible,
       autoinscription: json.session.autoinscription,
       autodesinscription: json.session.autodesinscription,
+      dateMaxDesinscription: json.session.dateMaxDesinscription,
       statut: jsonToStatutSession(json.session.statut),
     },
     offre: {

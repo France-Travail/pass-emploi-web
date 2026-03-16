@@ -462,6 +462,22 @@ function DetailsSessionPage({
           </div>
 
           <div className='mb-3'>
+            <dt className='inline text-base-regular'>
+              Date limite de désinscription :
+            </dt>
+            <dd className='ml-2 inline text-base-medium'>
+              {session.session.dateMaxDesinscription ? (
+                toShortDate(session.session.dateMaxDesinscription)
+              ) : (
+                <>
+                  <span aria-hidden={true}>--</span>
+                  <span className='sr-only'>information non disponible</span>
+                </>
+              )}
+            </dd>
+          </div>
+
+          <div className='mb-3'>
             <dt className='inline text-base-regular'>Animateur :</dt>
             <dd className='ml-2 inline text-base-medium'>
               {session.session.animateur ?? (
@@ -496,10 +512,6 @@ function DetailsSessionPage({
 
       <form>
         <Etape numero={1} titre='Configurez la session'>
-          {(etatVisibilite === 'auto-inscription' ||
-            etatVisibilite === 'auto-desinscription') && (
-            <InformationMessage label='En activant l’auto‑inscription ou la désinscription, vous autorisez l’enregistrement de cette information dans i‑Milo' />
-          )}
           <div className='grid grid-cols-[1fr_auto] auto-rows-fr items-center'>
             <Label htmlFor='visibilite-session'>
               Rendre visible la session aux bénéficiaires de la Mission Locale
@@ -513,13 +525,16 @@ function DetailsSessionPage({
                 )
               }
               isLoading={loadingChangerConfiguration}
-              disabled={
-                etatVisibilite === 'auto-inscription' ||
-                etatVisibilite === 'auto-desinscription' ||
-                estClose(session)
-              }
+              disabled={estClose(session)}
             />
 
+            {(etatVisibilite === 'auto-inscription' ||
+              etatVisibilite === 'auto-desinscription') && (
+              <InformationMessage
+                className='col-span-2'
+                label={`En activant l\u2019auto\u2011inscription ou la d\u00E9sinscription, vous autorisez l\u2019enregistrement de cette information dans i\u2011Milo`}
+              />
+            )}
             <Label htmlFor='autoinscription-session'>
               Les bénéficiaires peuvent s&#39;inscrire en autonomie à cette
               session (dans la limite du nombre maximum de participants)

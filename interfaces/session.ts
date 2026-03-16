@@ -7,6 +7,7 @@ export type Session = {
     dateHeureDebut: string
     dateHeureFin: string
     dateMaxInscription?: string
+    dateMaxDesinscription: string
     lieu: string
     nbPlacesDisponibles?: number
     estVisible: boolean

@@ -189,30 +189,38 @@ describe('Détails Session Page Client', () => {
         expect(toggleVisibiliteSession).toBeChecked()
       })
 
-      it('ne change pas la visibilité si l’autoinscription est activée', async () => {
+      it("désactive l’auto-inscription et l’auto-désinscription quand on désactive la visibilité", async () => {
         // Given
         await renderWithContexts(
           <DetailsSessionPage
-            session={{
-              ...sessionInvisible,
+            session={unDetailSession({
               session: {
-                ...sessionInvisible.session,
+                ...unDetailSession().session,
                 estVisible: true,
                 autoinscription: true,
+                autodesinscription: true,
               },
-            }}
+            })}
             beneficiairesStructureMilo={[]}
-            returnTo='whatever'
+            returnTo="whatever"
           />
         )
         const toggleVisibiliteSession = getToggleVisibiliteSession()
+        const toggleAutoinscription = getToggleAutoinscriptionSession()
+        const toggleAutodesinscription = getToggleAutodesinscriptionSession()
 
         // When
         await userEvent.click(toggleVisibiliteSession)
 
         // Then
-        expect(configurerSession).toHaveBeenCalledTimes(0)
-        expect(toggleVisibiliteSession).toBeChecked()
+        expect(configurerSession).toHaveBeenCalledWith("session-1", {
+          estVisible: false,
+          autoinscription: false,
+          autodesinscription: false,
+        })
+        expect(toggleVisibiliteSession).not.toBeChecked()
+        expect(toggleAutoinscription).not.toBeChecked()
+        expect(toggleAutodesinscription).not.toBeChecked()
       })
     })
   })
