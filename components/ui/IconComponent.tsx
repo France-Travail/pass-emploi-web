@@ -18,6 +18,7 @@ import ContractIcon from 'assets/icons/custom/contract.svg'
 import DecorativePointIcon from 'assets/icons/custom/decorative_point.svg'
 import NoteIcon from 'assets/icons/custom/note.svg'
 import PendingIcon from 'assets/icons/custom/pending.svg'
+import RemoveModalActualiteIcon from 'assets/icons/custom/remove-modal-actualite.svg'
 import RemoveIcon from 'assets/icons/custom/remove.svg'
 import SpinnerIcon from 'assets/icons/custom/spinner.svg'
 import SuitcaseIcon from 'assets/icons/custom/suitcase.svg'
@@ -35,6 +36,7 @@ import CheckIcon from 'assets/icons/informations/check.svg'
 import CheckCircleFillIcon from 'assets/icons/informations/check_circle_fill.svg'
 import CheckCircleOutlineIcon from 'assets/icons/informations/check_circle_outline.svg'
 import ChecklistRtlFillIcon from 'assets/icons/informations/checklist_rtl_fill.svg'
+import ChevronWithCircle from 'assets/icons/informations/chevron-with-circle.svg'
 import DescriptionIcon from 'assets/icons/informations/description.svg'
 import DownloadIcon from 'assets/icons/informations/download.svg'
 import ErrorIcon from 'assets/icons/informations/error.svg'
@@ -56,6 +58,9 @@ import PeopleFillIcon from 'assets/icons/informations/people_fill.svg'
 import PeopleOutlineIcon from 'assets/icons/informations/people_outline.svg'
 import ScheduleIcon from 'assets/icons/informations/schedule.svg'
 import ScheduleOutlineIcon from 'assets/icons/informations/schedule_outline.svg'
+import SpeakerButton from 'assets/icons/informations/speaker-for-button.svg'
+import SpeakerWithCircleIcon from 'assets/icons/informations/speaker-with-circle.svg'
+import SpeakerIcon from 'assets/icons/informations/speaker.svg'
 import TimerIcon from 'assets/icons/informations/timer.svg'
 import VisibilityOffIcon from 'assets/icons/informations/visibility-off.svg'
 import VisibilityOnIcon from 'assets/icons/informations/visibility-on.svg'
@@ -108,6 +113,7 @@ export enum IconName {
   ChevronLeft = 'ChevronLeft',
   ChevronRight = 'ChevronRight',
   ChevronUp = 'ChevronUp',
+  ChevronWithCircle = 'ChevronWithCircle',
   Close = 'Close',
   Contract = 'Contract',
   DecorativePoint = 'DecorativePoint',
@@ -149,12 +155,16 @@ export enum IconName {
   PeopleOutline = 'PeopleOutline',
   Refresh = 'Refresh',
   Remove = 'Remove',
+  RemoveModalActualite = 'RemoveModalActualite',
   Schedule = 'Schedule',
   ScheduleOutline = 'ScheduleOutline',
   Search = 'Search',
   Send = 'Send',
   Settings = 'Settings',
   Share = 'Share',
+  Speaker = 'Speaker',
+  SpeakerWithCircle = 'SpeakerWithCircle',
+  SpeakerButton = 'SpeakerButton',
   Spinner = 'Spinner',
   Suitcase = 'Suitcase',
   SwapVert = 'SwapVert',
@@ -187,6 +197,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.ChevronLeft]: ChevronLeftIcon,
   [IconName.ChevronRight]: ChevronRightIcon,
   [IconName.ChevronUp]: ChevronUpIcon,
+  [IconName.ChevronWithCircle]: ChevronWithCircle,
   [IconName.Close]: CloseIcon,
   [IconName.Contract]: ContractIcon,
   [IconName.DecorativePoint]: DecorativePointIcon,
@@ -224,6 +235,9 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.Schedule]: ScheduleIcon,
   [IconName.ScheduleOutline]: ScheduleOutlineIcon,
   [IconName.Share]: ShareIcon,
+  [IconName.Speaker]: SpeakerIcon,
+  [IconName.SpeakerButton]: SpeakerButton,
+  [IconName.SpeakerWithCircle]: SpeakerWithCircleIcon,
   [IconName.SwapVert]: SwapVertIcon,
   [IconName.Info]: InfoIcon,
   [IconName.Add]: AddIcon,
@@ -245,6 +259,7 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.VisibilityOff]: VisibilityOffIcon,
   [IconName.Timer]: TimerIcon,
   [IconName.Download]: DownloadIcon,
+  [IconName.RemoveModalActualite]: RemoveModalActualiteIcon,
 }
 
 type IconComponentProps = ComponentPropsWithoutRef<'svg'> & {

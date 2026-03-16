@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 
+import BandeauActualites from 'components/chat/BandeauActualites'
 import ChatRoom from 'components/chat/ChatRoom'
 import ConversationBeneficiaire from 'components/chat/ConversationBeneficiaire'
 import ListeListes from 'components/chat/ListeListes'
@@ -9,16 +10,18 @@ import {
   ConseillerHistorique,
 } from 'interfaces/beneficiaire'
 import { Liste } from 'interfaces/liste'
+import { estMilo } from 'interfaces/structure'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
 import { getListesClientSide } from 'services/listes.service'
 import { useChats } from 'utils/chat/chatsContext'
 import { useCurrentConversation } from 'utils/chat/currentConversationContext'
 import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
+import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 type ChatContainerProps = {
-  onShowMenu: () => void
-  messagerieFullScreen?: boolean
+  readonly onShowMenu: () => void
+  readonly messagerieFullScreen?: boolean
 }
 
 export default function ChatContainer({
@@ -35,6 +38,7 @@ export default function ChatContainer({
   }>(null)
 
   const chats = useChats()
+  const [conseiller] = useConseiller()
 
   const [currentConversation, setCurrentConversation] = useCurrentConversation()
   const [conseillers, setConseillers] = useState<ConseillerHistorique[]>([])
@@ -43,6 +47,8 @@ export default function ChatContainer({
   const [showRubriqueListes, setShowRubriqueListes] = useShowRubriqueListe()
   const [listes, setListes] = useState<Liste[]>()
   const [listeSelectionnee, setListeSelectionnee] = useListeSelectionnee()
+
+  const [showActualites, setShowActualites] = useState<boolean>(false)
 
   function afficherConversation(conversation: BeneficiaireEtChat | undefined) {
     if (conversation) conversationAFocus.current = conversation.id
@@ -103,12 +109,19 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && (
+          {showActualites && estMilo(conseiller.structure) && (
+            <BandeauActualites
+              onRetourMessagerie={() => setShowActualites(false)}
+            />
+          )}
+
+          {!showRubriqueListes && !showActualites && (
             <ChatRoom
               ref={chatRoomRef}
               beneficiairesChats={chats}
               onOuvertureMenu={onShowMenu}
               onAccesListes={() => setShowRubriqueListes(true)}
+              onAccesActualites={() => setShowActualites(true)}
               onAccesConversation={afficherConversation}
             />
           )}
@@ -125,7 +138,13 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && currentConversation && (
+          {showActualites && estMilo(conseiller.structure) && (
+            <BandeauActualites
+              onRetourMessagerie={() => setShowActualites(false)}
+            />
+          )}
+
+          {!showRubriqueListes && !showActualites && currentConversation && (
             <ConversationBeneficiaire
               onBack={() => afficherConversation(undefined)}
               beneficiaireChat={currentConversation}
@@ -133,12 +152,13 @@ export default function ChatContainer({
             />
           )}
 
-          {!showRubriqueListes && !currentConversation && (
+          {!showRubriqueListes && !showActualites && !currentConversation && (
             <ChatRoom
               ref={chatRoomRef}
               beneficiairesChats={chats}
               onOuvertureMenu={onShowMenu}
               onAccesListes={() => setShowRubriqueListes(true)}
+              onAccesActualites={() => setShowActualites(true)}
               onAccesConversation={afficherConversation}
             />
           )}
