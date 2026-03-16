@@ -66,6 +66,9 @@ function TableauBeneficiaires(
     filtreListe
   )
 
+  const [comptagesHeuresMilo, setComptagesHeuresMilo] =
+    useState<CompteurHeuresPortefeuille | null>(null)
+
   function trierBeneficiaires(
     beneficiairesATrier: BeneficiaireAvecInfosComplementaires[]
   ): BeneficiaireAvecInfosComplementaires[] {
@@ -82,9 +85,6 @@ function TableauBeneficiaires(
   const beneficiairesTries = trierBeneficiaires(beneficiairesFiltres)
 
   const nombrePages = Math.ceil(beneficiairesTries.length / 10)
-
-  const [comptagesHeuresMilo, setComptagesHeuresMilo] =
-    useState<CompteurHeuresPortefeuille | null>(null)
 
   function doitAfficherDateDerniereMiseAJourEtTriComptageHeure(
     beneficiaires: BeneficiaireAvecInfosComplementaires[]
