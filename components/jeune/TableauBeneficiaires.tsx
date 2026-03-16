@@ -21,6 +21,16 @@ import { getComptageHeuresPortefeuille } from 'services/beneficiaires.service'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toShortDate } from 'utils/date'
 
+function trierParNom(
+  beneficiairesATrier: BeneficiaireAvecInfosComplementaires[],
+  ordreAlphabetique: boolean
+): BeneficiaireAvecInfosComplementaires[] {
+  return [...beneficiairesATrier].sort((a, b) => {
+    const diff = a.nom.localeCompare(b.nom)
+    return ordreAlphabetique ? diff : -diff
+  })
+}
+
 const TableauBeneficiairesMilo = dynamic(
   () => import('components/jeune/TableauBeneficiairesMilo')
 )
@@ -61,8 +71,9 @@ function TableauBeneficiaires(
     (beneficiaire) => beneficiaire.dispositif !== beneficiaires[0].dispositif
   )
 
-  const beneficiairesFiltres = filtrerParListe(
-    filtrerParDispositifs(beneficiaires, filtreDispositif),
+  const beneficiairesFiltres = filtrerBeneficiaires(
+    beneficiaires,
+    filtreDispositif,
     filtreListe
   )
 
@@ -135,42 +146,30 @@ function TableauBeneficiaires(
     setPage(nouvellePage)
   }
 
-  function filtrerParDispositifs(
+  function filtrerBeneficiaires(
     beneficiairesAFiltrer: BeneficiaireAvecInfosComplementaires[],
-    dispositifAFiltrer?: string
-  ) {
-    if (!dispositifAFiltrer) return beneficiairesAFiltrer
-    return beneficiairesAFiltrer.filter(
-      ({ dispositif }) => dispositif === dispositifAFiltrer
-    )
-  }
-
-  function filtrerParListe(
-    beneficiairesAFiltrer: BeneficiaireAvecInfosComplementaires[],
+    dispositifAFiltrer?: string,
     listeAFiltrer?: string
   ) {
-    if (!listeAFiltrer || !listes) return beneficiairesAFiltrer
-    const liste = listes.find((l) => l.id === listeAFiltrer)
+    let resultat = beneficiairesAFiltrer
 
-    if (!liste) {
-      return beneficiairesAFiltrer
+    if (dispositifAFiltrer) {
+      resultat = resultat.filter(
+        ({ dispositif }) => dispositif === dispositifAFiltrer
+      )
     }
 
-    const idsBeneficiairesListe = new Set(liste.beneficiaires.map((b) => b.id))
+    if (listeAFiltrer && listes) {
+      const liste = listes.find((l) => l.id === listeAFiltrer)
+      if (liste) {
+        const idsBeneficiairesListe = new Set(
+          liste.beneficiaires.map((b) => b.id)
+        )
+        resultat = resultat.filter((b) => idsBeneficiairesListe.has(b.id))
+      }
+    }
 
-    return beneficiairesAFiltrer.filter((beneficiaire) =>
-      idsBeneficiairesListe.has(beneficiaire.id)
-    )
-  }
-
-  function trierParNom(
-    beneficiairesATrier: BeneficiaireAvecInfosComplementaires[],
-    ordreAlphabetique: boolean
-  ): BeneficiaireAvecInfosComplementaires[] {
-    return [...beneficiairesATrier].sort((a, b) => {
-      const diff = a.nom.localeCompare(b.nom)
-      return ordreAlphabetique ? diff : -diff
-    })
+    return resultat
   }
 
   function trierParHeures(
@@ -234,7 +233,7 @@ function TableauBeneficiaires(
   }
 
   useEffect(() => {
-    setPage(page)
+    setPage(1)
   }, [beneficiaires])
 
   useEffect(() => {
