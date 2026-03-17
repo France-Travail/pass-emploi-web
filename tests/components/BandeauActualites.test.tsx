@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon'
+
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
@@ -256,7 +258,7 @@ describe('BandeauActualites', () => {
       // Given
       ;(
         modifierActualiteMissionLocaleClientSide as jest.Mock
-      ).mockResolvedValue(undefined)
+      ).mockResolvedValue(uneActualiteMilo())
       const actualite = uneActualiteMilo({
         id: 'actualite-42',
         titre: 'Titre original',
@@ -296,7 +298,7 @@ describe('BandeauActualites', () => {
       // Given
       ;(
         modifierActualiteMissionLocaleClientSide as jest.Mock
-      ).mockResolvedValue(undefined)
+      ).mockResolvedValue(uneActualiteMilo())
       const actualite = uneActualiteMilo({ proprietaire: true })
       ;(getActualitesMissionLocaleClientSide as jest.Mock).mockResolvedValue([
         actualite,
@@ -356,7 +358,7 @@ describe('BandeauActualites', () => {
       // Given
       ;(
         modifierActualiteMissionLocaleClientSide as jest.Mock
-      ).mockResolvedValue(undefined)
+      ).mockResolvedValue(uneActualiteMilo())
       const actualite = uneActualiteMilo({
         titre: 'Titre original',
         proprietaire: true,
@@ -481,7 +483,7 @@ describe('BandeauActualites', () => {
       // Given
       ;(
         supprimerActualiteMissionLocaleClientSide as jest.Mock
-      ).mockResolvedValue(undefined)
+      ).mockResolvedValue(DateTime.fromISO('2024-01-20T10:00:00'))
       const actualite = uneActualiteMilo({
         id: 'actualite-42',
         titre: 'Mon actualité',
