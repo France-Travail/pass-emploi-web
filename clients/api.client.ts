@@ -75,6 +75,23 @@ export async function apiPut(
   })
 }
 
+export async function apiPutWithResponse<T>(
+  path: string,
+  payload: { [key: string]: any },
+  accessToken: string
+): Promise<{ content: T; headers: Headers }> {
+  const headers = new Headers({
+    Authorization: `Bearer ${accessToken}`,
+    'content-type': 'application/json',
+  })
+
+  return fetchJson(`${apiPrefix}${path}`, {
+    method: 'PUT',
+    headers,
+    body: JSON.stringify(payload),
+  })
+}
+
 export async function apiPatch(
   path: string,
   payload: { [key: string]: any },
@@ -102,6 +119,21 @@ export async function apiDelete(
   })
 
   await fetchNoContent(`${apiPrefix}${path}`, {
+    method: 'DELETE',
+    headers,
+  })
+}
+
+export async function apiDeleteWithResponse<T>(
+  path: string,
+  accessToken: string
+): Promise<{ content: T; headers: Headers }> {
+  const headers = new Headers({
+    Authorization: `bearer ${accessToken}`,
+    'content-type': 'application/json',
+  })
+
+  return await fetchJson(`${apiPrefix}${path}`, {
     method: 'DELETE',
     headers,
   })

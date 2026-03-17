@@ -43,18 +43,18 @@ export default function BandeauActualites({
   const [actualiteASupprimer, setActualiteASupprimer] = useState<
     ActualiteMessage | undefined
   >(undefined)
-  const [actualites, setActualites] = useState<ActualiteMessage[]>()
+  const [actualites, setActualites] = useState<ActualiteMessage[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   async function rafraichirActualites() {
     const nouvellesActualites = await getActualitesMissionLocaleClientSide()
     setActualites(nouvellesActualites)
+    setIsLoading(false)
   }
 
   useEffect(() => {
     rafraichirActualites()
   }, [])
-
-  const isLoading = actualites === undefined
 
   const actualitesAffichees = actualites?.slice(
     Math.max(0, actualites.length - nombreActualitesAffichees)
@@ -88,14 +88,14 @@ export default function BandeauActualites({
     lien?: string
   ) {
     try {
-      await creerActualiteMissionLocaleClientSide(
+      const actualiteCreee = await creerActualiteMissionLocaleClientSide(
         titre,
         contenu,
         titreLien,
         lien
       )
       fermerModal()
-      await rafraichirActualites() //TODO renvoyer l'objet à la création pour empecher de tout rafraichir
+      setActualites([...actualites, { ...actualiteCreee }])
     } catch {
       setErreurCreation(
         "Une erreur est survenue lors de la diffusion de l'actualité. Veuillez réessayer."
@@ -111,7 +111,7 @@ export default function BandeauActualites({
   ) {
     if (!actualiteAModifier) return
     try {
-      await modifierActualiteMissionLocaleClientSide(
+      const actualiteModifiee = await modifierActualiteMissionLocaleClientSide(
         actualiteAModifier.id,
         titre,
         contenu,
@@ -121,9 +121,7 @@ export default function BandeauActualites({
       fermerModal()
       setActualites((prev) =>
         prev?.map((a) =>
-          a.id === actualiteAModifier.id
-            ? { ...a, titre, contenu, titreLien, lien }
-            : a
+          a.id === actualiteAModifier.id ? actualiteModifiee : a
         )
       )
     } catch {
@@ -143,8 +141,15 @@ export default function BandeauActualites({
     setErreurSuppression(undefined)
     setActualiteASupprimer(undefined)
     try {
-      await supprimerActualiteMissionLocaleClientSide(id)
-      setActualites((prev) => prev?.filter((a) => a.id !== id))
+      const dateSuppression =
+        await supprimerActualiteMissionLocaleClientSide(id)
+      setActualites((prev) =>
+        prev?.map((a) =>
+          a.id === actualiteASupprimer.id
+            ? { ...a, dateSuppression: dateSuppression }
+            : a
+        )
+      )
     } catch {
       setErreurSuppression(
         "Une erreur est survenue lors de la suppression de l'actualité. Veuillez réessayer."

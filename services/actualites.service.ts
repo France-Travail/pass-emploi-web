@@ -2,7 +2,12 @@ import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 import sanitizeHtml from 'sanitize-html'
 
-import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
+import {
+  apiDeleteWithResponse,
+  apiGet,
+  apiPost,
+  apiPutWithResponse,
+} from 'clients/api.client'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import {
   ActualitesRaw,
@@ -115,12 +120,12 @@ export async function creerActualiteMissionLocaleClientSide(
   contenu: string,
   titreLien?: string,
   lien?: string
-): Promise<ActualiteJson> {
+): Promise<ActualiteMessage> {
   const session = await getSession()
   if (!session) throw new Error('Session expirée')
   const { user, accessToken } = session
 
-  return creerActualiteMissionLocale(
+  const actualiteJson = await creerActualiteMissionLocale(
     user.id,
     titre,
     contenu,
@@ -128,6 +133,8 @@ export async function creerActualiteMissionLocaleClientSide(
     titreLien,
     lien
   )
+
+  return mapToActualitesMilo(actualiteJson)
 }
 
 export async function creerActualiteMissionLocale(
@@ -162,10 +169,10 @@ export async function modifierActualiteMissionLocaleClientSide(
   contenu: string,
   titreLien?: string,
   lien?: string
-): Promise<void> {
+): Promise<ActualiteMessage> {
   const session = await getSession()
   if (!session) throw new Error('Session expirée')
-  return modifierActualiteMissionLocale(
+  const actualiteModifiee = await modifierActualiteMissionLocale(
     session.user.id,
     id,
     titre,
@@ -174,6 +181,7 @@ export async function modifierActualiteMissionLocaleClientSide(
     titreLien,
     lien
   )
+  return mapToActualitesMilo(actualiteModifiee)
 }
 
 export async function modifierActualiteMissionLocale(
@@ -184,7 +192,7 @@ export async function modifierActualiteMissionLocale(
   accessToken: string,
   titreLien?: string,
   lien?: string
-): Promise<void> {
+): Promise<ActualiteJson> {
   const payload: {
     titre: string
     contenu: string
@@ -195,34 +203,38 @@ export async function modifierActualiteMissionLocale(
   if (titreLien) payload.titreLien = titreLien
   if (lien) payload.lien = lien
 
-  await apiPut(
+  const { content } = await apiPutWithResponse<ActualiteJson>(
     `/conseillers/milo/${idConseiller}/actualites/${id}`,
     payload,
     accessToken
   )
+  return content
 }
 
 export async function supprimerActualiteMissionLocaleClientSide(
   id: string
-): Promise<void> {
+): Promise<DateTime> {
   const session = await getSession()
   if (!session) throw new Error('Session expirée')
-  return supprimerActualiteMissionLocale(
+  const { dateSuppression } = await supprimerActualiteMissionLocale(
     session.user.id,
     id,
     session.accessToken
   )
+
+  return DateTime.fromISO(dateSuppression)
 }
 
 export async function supprimerActualiteMissionLocale(
   idConseiller: string,
   id: string,
   accessToken: string
-): Promise<void> {
-  await apiDelete(
+): Promise<{ dateSuppression: string }> {
+  const { content } = await apiDeleteWithResponse<{ dateSuppression: string }>(
     `/conseillers/milo/${idConseiller}/actualites/${id}`,
     accessToken
   )
+  return content
 }
 
 function mapToActualitesMilo(actualiteJson: ActualiteJson): ActualiteMessage {

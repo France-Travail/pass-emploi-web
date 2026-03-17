@@ -1,7 +1,12 @@
 import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
 
-import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
+import {
+  apiDeleteWithResponse,
+  apiGet,
+  apiPost,
+  apiPutWithResponse,
+} from 'clients/api.client'
 import { ActualitesRaw, ArticleJson, TagJson } from 'interfaces/actualites'
 import { ActualiteJson } from 'interfaces/json/actualite'
 import {
@@ -445,7 +450,17 @@ describe('ActualitesService', () => {
         { titre: 'Mon titre', contenu: 'Mon contenu' },
         'token-abc'
       )
-      expect(result).toEqual(actualiteCreee)
+      expect(result).toEqual({
+        id: 'nouvelle-actualite',
+        titre: 'Actualité',
+        contenu: 'Mon contenu',
+        dateCreation: DateTime.fromISO('2024-01-15T10:00:00'),
+        dateSuppression: undefined,
+        titreLien: '',
+        lien: '',
+        proprietaire: true,
+        prenomNomConseiller: 'Nils Tavernier',
+      })
     })
   })
 
@@ -457,7 +472,18 @@ describe('ActualitesService', () => {
         accessToken: 'token-abc',
       }
       ;(getSession as jest.Mock).mockResolvedValue(mockSession)
-      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+      ;(apiPutWithResponse as jest.Mock).mockResolvedValue({
+        content: {
+          id: 'actualite-42',
+          titre: 'Titre modifié',
+          contenu: 'Contenu modifié',
+          dateCreation: '2024-01-15T10:00:00',
+          titreLien: '',
+          lien: '',
+          proprietaire: true,
+          prenomNomConseiller: 'Nils Tavernier',
+        },
+      })
 
       // When
       await modifierActualiteMissionLocaleClientSide(
@@ -467,7 +493,7 @@ describe('ActualitesService', () => {
       )
 
       // Then
-      expect(apiPut).toHaveBeenCalledWith(
+      expect(apiPutWithResponse).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites/actualite-42',
         { titre: 'Titre modifié', contenu: 'Contenu modifié' },
         'token-abc'
@@ -481,7 +507,18 @@ describe('ActualitesService', () => {
         accessToken: 'token-abc',
       }
       ;(getSession as jest.Mock).mockResolvedValue(mockSession)
-      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+      ;(apiPutWithResponse as jest.Mock).mockResolvedValue({
+        content: {
+          id: 'actualite-42',
+          titre: 'Titre modifié',
+          contenu: 'Contenu modifié',
+          dateCreation: '2024-01-15T10:00:00',
+          titreLien: '',
+          lien: '',
+          proprietaire: true,
+          prenomNomConseiller: 'Nils Tavernier',
+        },
+      })
 
       // When
       await modifierActualiteMissionLocaleClientSide(
@@ -493,7 +530,7 @@ describe('ActualitesService', () => {
       )
 
       // Then
-      expect(apiPut).toHaveBeenCalledWith(
+      expect(apiPutWithResponse).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites/actualite-42',
         {
           titre: 'Titre',
@@ -517,14 +554,25 @@ describe('ActualitesService', () => {
           'Contenu'
         )
       ).rejects.toThrow('Session expirée')
-      expect(apiPut).not.toHaveBeenCalled()
+      expect(apiPutWithResponse).not.toHaveBeenCalled()
     })
   })
 
   describe('.modifierActualiteMissionLocale', () => {
-    it('appelle apiPut avec les bons paramètres', async () => {
+    it('appelle apiPutWithResponse avec les bons paramètres', async () => {
       // Given
-      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+      ;(apiPutWithResponse as jest.Mock).mockResolvedValue({
+        content: {
+          id: 'actualite-42',
+          titre: 'Titre modifié',
+          contenu: 'Contenu modifié',
+          dateCreation: '2024-01-15T10:00:00',
+          titreLien: '',
+          lien: '',
+          proprietaire: true,
+          prenomNomConseiller: 'Nils Tavernier',
+        },
+      })
 
       // When
       await modifierActualiteMissionLocale(
@@ -536,7 +584,7 @@ describe('ActualitesService', () => {
       )
 
       // Then
-      expect(apiPut).toHaveBeenCalledWith(
+      expect(apiPutWithResponse).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites/actualite-42',
         { titre: 'Titre modifié', contenu: 'Contenu modifié' },
         'token-abc'
@@ -545,7 +593,18 @@ describe('ActualitesService', () => {
 
     it('n inclut pas titreLien et lien si absents', async () => {
       // Given
-      ;(apiPut as jest.Mock).mockResolvedValue(undefined)
+      ;(apiPutWithResponse as jest.Mock).mockResolvedValue({
+        content: {
+          id: 'actualite-42',
+          titre: 'Titre modifié',
+          contenu: 'Contenu modifié',
+          dateCreation: '2024-01-15T10:00:00',
+          titreLien: '',
+          lien: '',
+          proprietaire: true,
+          prenomNomConseiller: 'Nils Tavernier',
+        },
+      })
 
       // When
       await modifierActualiteMissionLocale(
@@ -557,7 +616,7 @@ describe('ActualitesService', () => {
       )
 
       // Then
-      const payload = (apiPut as jest.Mock).mock.calls[0][1]
+      const payload = (apiPutWithResponse as jest.Mock).mock.calls[0][1]
       expect(payload).not.toHaveProperty('titreLien')
       expect(payload).not.toHaveProperty('lien')
     })
@@ -571,13 +630,15 @@ describe('ActualitesService', () => {
         accessToken: 'token-abc',
       }
       ;(getSession as jest.Mock).mockResolvedValue(mockSession)
-      ;(apiDelete as jest.Mock).mockResolvedValue(undefined)
+      ;(apiDeleteWithResponse as jest.Mock).mockResolvedValue({
+        content: { dateSuppression: '2024-01-20T10:00:00' },
+      })
 
       // When
       await supprimerActualiteMissionLocaleClientSide('actualite-42')
 
       // Then
-      expect(apiDelete).toHaveBeenCalledWith(
+      expect(apiDeleteWithResponse).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites/actualite-42',
         'token-abc'
       )
@@ -591,14 +652,16 @@ describe('ActualitesService', () => {
       await expect(
         supprimerActualiteMissionLocaleClientSide('actualite-42')
       ).rejects.toThrow('Session expirée')
-      expect(apiDelete).not.toHaveBeenCalled()
+      expect(apiDeleteWithResponse).not.toHaveBeenCalled()
     })
   })
 
   describe('.supprimerActualiteMissionLocale', () => {
-    it('appelle apiDelete avec les bons paramètres', async () => {
+    it('appelle apiDeleteWithResponse avec les bons paramètres', async () => {
       // Given
-      ;(apiDelete as jest.Mock).mockResolvedValue(undefined)
+      ;(apiDeleteWithResponse as jest.Mock).mockResolvedValue({
+        content: { dateSuppression: '2024-01-20T10:00:00' },
+      })
 
       // When
       await supprimerActualiteMissionLocale(
@@ -608,7 +671,7 @@ describe('ActualitesService', () => {
       )
 
       // Then
-      expect(apiDelete).toHaveBeenCalledWith(
+      expect(apiDeleteWithResponse).toHaveBeenCalledWith(
         '/conseillers/milo/conseiller-123/actualites/actualite-42',
         'token-abc'
       )
