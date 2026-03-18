@@ -87,7 +87,8 @@
   "resolutions": {
     "glob": ">=10.5.0",
     "test-exclude": ">=7.0.0",
-    "tar": ">=7.5.8"
+    "tar": ">=7.5.11",
+    "svgo": ">=3.3.3"
   },
   "comments": {
     "resolutions": {
