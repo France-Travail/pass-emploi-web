@@ -112,6 +112,7 @@ export interface EvenementEmploi {
 export interface SessionMilo {
   id: string
   titre: string
+  motifAnnulation?: string
 }
 
 type BaseCreateFirebaseMessage = {
@@ -837,6 +838,14 @@ function chatFromFirebase(chatId: string, firebaseChat: FirebaseChat): Chat {
   }
 }
 
+export function isSessionMessage(message: Message) {
+  return (
+    message.type === TypeMessage.MESSAGE_SESSION_MILO ||
+    message.type === TypeMessage.AUTO_INSCRIPTION ||
+    message.type === TypeMessage.AUTO_DESINSCRIPTION
+  )
+}
+
 function firebaseMessageToMessage(
   firebaseMessage: FirebaseMessage,
   id: string,
@@ -888,14 +897,11 @@ function firebaseMessageToMessage(
     }
   }
 
-  if (
-    (message.type === TypeMessage.MESSAGE_SESSION_MILO ||
-      message.type === TypeMessage.AUTO_INSCRIPTION) &&
-    firebaseMessage.sessionMilo
-  ) {
+  if (isSessionMessage(message) && firebaseMessage.sessionMilo) {
     message.infoSessionMilo = {
       id: firebaseMessage.sessionMilo.id,
       titre: firebaseMessage.sessionMilo.titre,
+      motifAnnulation: firebaseMessage.sessionMilo.motifAnnulation,
     }
   }
 
@@ -941,6 +947,8 @@ function firebaseToMessageType(type: string | undefined): TypeMessage {
       return TypeMessage.MESSAGE_SESSION_MILO
     case 'AUTO_INSCRIPTION':
       return TypeMessage.AUTO_INSCRIPTION
+    case 'AUTO_DESINSCRIPTION':
+      return TypeMessage.AUTO_DESINSCRIPTION
     case 'MESSAGE':
       return TypeMessage.MESSAGE
     case undefined:

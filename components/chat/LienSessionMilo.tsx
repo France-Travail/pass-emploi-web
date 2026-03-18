@@ -6,11 +6,11 @@ import { InfoSessionMilo } from 'interfaces/message'
 
 export default function LienSessionMilo({
   infoSessionMilo,
-}: {
+}: Readonly<{
   infoSessionMilo: InfoSessionMilo
-}) {
+}>) {
   return (
-    <div className='mt-4 p-4 rounded-base bg-white'>
+    <div className='mt-2 p-4 rounded-base bg-white'>
       <div className='text-base-bold text-content-color'>
         <dl>
           <dt className='sr-only'>Titre de la session :</dt>

@@ -5,6 +5,7 @@ import {
   chatToFirebase,
   docSnapshotToMessage,
   FirebaseMessage,
+  isSessionMessage,
 } from 'clients/firebase.client'
 import { Message, TypeMessage } from 'interfaces/message'
 import { TypeOffre } from 'interfaces/offre'
@@ -331,6 +332,81 @@ describe('FirebaseClient', () => {
       expect(message).toEqual(expectedMessage)
     })
 
+    it('mappe une désinscription automatique à une session Milo', () => {
+      // Given
+      const docSnapshot: QueryDocumentSnapshot<FirebaseMessage> = {
+        id: 'document-id',
+        data: () => ({
+          iv: 'iv',
+          conseillerId: 'conseiller-id',
+          content: 'Vous avez été désinscrit de cette session',
+          creationDate: Timestamp.fromDate(
+            DateTime.local(2022, 1, 17).toJSDate()
+          ),
+          type: 'AUTO_DESINSCRIPTION',
+          sentBy: 'conseiller',
+          sessionMilo: {
+            id: 'id-session-milo',
+            titre: "Le titre d'une session",
+            motifAnnulation: 'Session annulée par le conseiller',
+          },
+        }),
+      } as QueryDocumentSnapshot<FirebaseMessage>
+
+      // When
+      const message = docSnapshotToMessage(docSnapshot, 'idBeneficiaire')
+
+      // Then
+      const expectedMessage: Message = {
+        id: 'document-id',
+        idBeneficiaire: 'idBeneficiaire',
+        content: 'Vous avez été désinscrit de cette session',
+        creationDate: DateTime.local(2022, 1, 17),
+        type: TypeMessage.AUTO_DESINSCRIPTION,
+        sentBy: 'conseiller',
+        iv: 'iv',
+        conseillerId: 'conseiller-id',
+        infoSessionMilo: {
+          id: 'id-session-milo',
+          titre: "Le titre d'une session",
+          motifAnnulation: 'Session annulée par le conseiller',
+        },
+      }
+      expect(message).toEqual(expectedMessage)
+    })
+
+    it("mappe une session Milo avec motif d'annulation", () => {
+      // Given
+      const docSnapshot: QueryDocumentSnapshot<FirebaseMessage> = {
+        id: 'document-id',
+        data: () => ({
+          iv: 'iv',
+          conseillerId: 'conseiller-id',
+          content: 'Session annulée',
+          creationDate: Timestamp.fromDate(
+            DateTime.local(2022, 1, 17).toJSDate()
+          ),
+          type: 'MESSAGE_SESSION_MILO',
+          sentBy: 'conseiller',
+          sessionMilo: {
+            id: 'id-session-milo',
+            titre: "Le titre d'une session",
+            motifAnnulation: "Raison de l'annulation",
+          },
+        }),
+      } as QueryDocumentSnapshot<FirebaseMessage>
+
+      // When
+      const message = docSnapshotToMessage(docSnapshot, 'idBeneficiaire')
+
+      // Then
+      expect(message.infoSessionMilo).toEqual({
+        id: 'id-session-milo',
+        titre: "Le titre d'une session",
+        motifAnnulation: "Raison de l'annulation",
+      })
+    })
+
     it('mappe une autoinscription à une session Milo', () => {
       // Given
       const docSnapshot: QueryDocumentSnapshot<FirebaseMessage> = {
@@ -371,6 +447,25 @@ describe('FirebaseClient', () => {
       }
       expect(message).toEqual(expectedMessage)
     })
+  })
+
+  describe('isSessionMessage', () => {
+    it.each([
+      TypeMessage.MESSAGE_SESSION_MILO,
+      TypeMessage.AUTO_INSCRIPTION,
+      TypeMessage.AUTO_DESINSCRIPTION,
+    ])('retourne true pour le type %s', (type) => {
+      const message = { type } as Message
+      expect(isSessionMessage(message)).toBe(true)
+    })
+
+    it.each([TypeMessage.MESSAGE, TypeMessage.MESSAGE_OFFRE])(
+      'retourne false pour le type %s',
+      (type) => {
+        const message = { type } as Message
+        expect(isSessionMessage(message)).toBe(false)
+      }
+    )
   })
 
   describe('chatToFirebase', () => {
