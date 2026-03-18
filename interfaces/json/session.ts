@@ -49,7 +49,7 @@ export type DetailsSessionJson = {
     nom: string
     dateHeureDebut: string
     dateHeureFin: string
-    dateMaxInscription?: string
+    dateMaxInscription: string
     dateMaxDesinscription: string
     lieu: string
     nbPlacesDisponibles?: number

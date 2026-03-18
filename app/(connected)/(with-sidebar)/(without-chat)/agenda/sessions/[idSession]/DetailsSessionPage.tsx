@@ -101,7 +101,7 @@ function DetailsSessionPage({
   >()
 
   const dateLimiteInscription = DateTime.fromISO(
-    session.session.dateMaxInscription ?? session.session.dateHeureDebut
+    session.session.dateMaxInscription
   ).endOf('day')
   const dateLimiteInscriptionDepassee = DateTime.now() > dateLimiteInscription
 
@@ -450,14 +450,7 @@ function DetailsSessionPage({
               Date limite d&apos;inscription :
             </dt>
             <dd className='ml-2 inline text-base-medium'>
-              {session.session.dateMaxInscription ? (
-                toShortDate(session.session.dateMaxInscription)
-              ) : (
-                <>
-                  <span aria-hidden={true}>--</span>
-                  <span className='sr-only'>information non disponible</span>
-                </>
-              )}
+              {toShortDate(session.session.dateMaxInscription)}
             </dd>
           </div>
 
@@ -466,14 +459,7 @@ function DetailsSessionPage({
               Date limite de désinscription :
             </dt>
             <dd className='ml-2 inline text-base-medium'>
-              {session.session.dateMaxDesinscription ? (
-                toShortDate(session.session.dateMaxDesinscription)
-              ) : (
-                <>
-                  <span aria-hidden={true}>--</span>
-                  <span className='sr-only'>information non disponible</span>
-                </>
-              )}
+              {toShortDate(session.session.dateMaxDesinscription)}
             </dd>
           </div>
 

@@ -4,9 +4,9 @@ import { getSession } from 'next-auth/react'
 import { apiGet, apiPatch, apiPost } from 'clients/api.client'
 import {
   AnimationCollective,
+  EtatVisibilite,
   EvenementListItem,
   EvenementMiloListItem,
-  EtatVisibilite,
 } from 'interfaces/evenement'
 import { sessionMiloJsonToEvenementListItem } from 'interfaces/json/evenement'
 import {
@@ -283,6 +283,7 @@ function jsonToSession(json: DetailsSessionJson): Session {
       estVisible: json.session.estVisible,
       autoinscription: json.session.autoinscription,
       autodesinscription: json.session.autodesinscription,
+      dateMaxInscription: json.session.dateMaxInscription,
       dateMaxDesinscription: json.session.dateMaxDesinscription,
       statut: jsonToStatutSession(json.session.statut),
     },
@@ -300,8 +301,6 @@ function jsonToSession(json: DetailsSessionJson): Session {
   if (json.session.nbPlacesDisponibles !== undefined)
     session.session.nbPlacesDisponibles = json.session.nbPlacesDisponibles
 
-  if (json.session.dateMaxInscription)
-    session.session.dateMaxInscription = json.session.dateMaxInscription
   if (json.session.animateur) session.session.animateur = json.session.animateur
   if (json.session.commentaire)
     session.session.commentaire = json.session.commentaire
