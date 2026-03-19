@@ -65,7 +65,7 @@ export default function OngletAgendaMissionLocale({
     if (recherche) {
       const querySplit = recherche.toLowerCase().split(/-|\s/)
       result = result.filter((evenement) => {
-        const titre = evenement.titre.replace(/'/i, "'").toLowerCase()
+        const titre = evenement.titre.replace(/'/g, "'").toLowerCase()
         return querySplit.some((item) => titre.includes(item))
       })
     }
