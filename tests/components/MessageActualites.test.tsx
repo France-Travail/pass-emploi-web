@@ -279,7 +279,7 @@ describe('MessageActualites', () => {
       expect(boutonsActions).toHaveLength(2)
     })
 
-    it("n affiche pas le bouton d actions pour les actualités dont on n est pas propriétaire", () => {
+    it('n affiche pas le bouton d actions pour les actualités dont on n est pas propriétaire', () => {
       // Given
       const messages = [uneActualiteMilo({ proprietaire: false })]
 
@@ -312,7 +312,7 @@ describe('MessageActualites', () => {
       ).toBeInTheDocument()
     })
 
-    it("appelle onModification avec l actualité au clic sur Modifier", async () => {
+    it('appelle onModification avec l actualité au clic sur Modifier', async () => {
       // Given
       const onModification = jest.fn()
       const actualite = uneActualiteMilo({
@@ -379,7 +379,7 @@ describe('MessageActualites', () => {
       ).toBeInTheDocument()
     })
 
-    it("n affiche pas le bouton Modifier si onModification n est pas fourni", async () => {
+    it('n affiche pas le bouton Modifier si onModification n est pas fourni', async () => {
       // Given
       const messages = [uneActualiteMilo({ proprietaire: true })]
 
@@ -412,7 +412,7 @@ describe('MessageActualites', () => {
       ).toBeInTheDocument()
     })
 
-    it("n affiche pas le bouton d actions si ni onModification ni onSuppression ne sont fournis", () => {
+    it('n affiche pas le bouton d actions si ni onModification ni onSuppression ne sont fournis', () => {
       // Given
       const messages = [uneActualiteMilo({ proprietaire: true })]
 
@@ -425,7 +425,7 @@ describe('MessageActualites', () => {
       ).not.toBeInTheDocument()
     })
 
-    it("appelle onSuppression avec l actualité au clic sur Supprimer", async () => {
+    it('appelle onSuppression avec l actualité au clic sur Supprimer', async () => {
       // Given
       const onSuppression = jest.fn()
       const actualite = uneActualiteMilo({

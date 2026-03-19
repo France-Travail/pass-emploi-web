@@ -22,12 +22,12 @@ function Accueil(): ReactElement {
         Un accès dedié à vos conversations
       </h3>
       <p className='mt-4'>
-        Retrouvez l’ensemble de vos conversations avec les bénéficiaires de
+        Retrouvez l&apos;ensemble de vos conversations avec les bénéficiaires de
         votre portefeuile.
       </p>
       <p className='mt-4'>
-        À ce jour, seul l’accès à la messagerie est disponible sur l’espace
-        mobile.
+        À ce jour, seul l&apos;accès à la messagerie est disponible sur
+        l&apos;espace mobile.
       </p>
     </>
   )
@@ -43,7 +43,7 @@ export default function OnboardingMobileModal({
   return (
     <Modal
       ref={modalRef}
-      title='Bienvenue sur l’espace mobile du conseiller'
+      title="Bienvenue sur l'espace mobile du conseiller"
       onClose={onClose}
     >
       {etape === 1 && <Accueil />}

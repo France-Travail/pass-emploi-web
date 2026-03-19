@@ -187,8 +187,8 @@ export default function TableauActionsAQualifier({
           <FailureAlert label='Qualification impossible.'>
             <p>
               Vous ne pouvez pas qualifier une ou plusieurs actions sans
-              catégorie. Cliquez sur l&apos;action pour pouvoir la modifier et
-              lui ajouter une catégorie.
+              catégorie. Cliquez sur l’action pour pouvoir la modifier et lui
+              ajouter une catégorie.
             </p>
           </FailureAlert>
         )}
@@ -300,8 +300,8 @@ export default function TableauActionsAQualifier({
               <tr>
                 <th scope='col'>Sélection</th>
                 <th scope='col'>Nom et prénom du bénéficiaire</th>
-                <th scope='col'>Catégorie et date de l&apos;action</th>
-                <th scope='col'>Titre et commentaire de l&apos;action</th>
+                <th scope='col'>Catégorie et date de l’action</th>
+                <th scope='col'>Titre et commentaire de l’action</th>
                 <th scope='col'>Voir le détail</th>
               </tr>
             </thead>

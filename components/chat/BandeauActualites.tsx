@@ -46,14 +46,11 @@ export default function BandeauActualites({
   const [actualites, setActualites] = useState<ActualiteMessage[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
-  async function rafraichirActualites() {
-    const nouvellesActualites = await getActualitesMissionLocaleClientSide()
-    setActualites(nouvellesActualites)
-    setIsLoading(false)
-  }
-
   useEffect(() => {
-    rafraichirActualites()
+    getActualitesMissionLocaleClientSide().then((nouvellesActualites) => {
+      setActualites(nouvellesActualites)
+      setIsLoading(false)
+    })
   }, [])
 
   const actualitesAffichees = actualites?.slice(
