@@ -1,12 +1,13 @@
 import React, { ForwardedRef, forwardRef } from 'react'
 
 import { AnimationCollectiveRow } from 'components/rdv/AnimationCollectiveRow'
-import { AnimationCollective } from 'interfaces/evenement'
+import { AnimationCollective, EtatVisibilite } from 'interfaces/evenement'
 
 type TableauAnimationsCollectivesLocaleProps = {
   animationsCollectives: AnimationCollective[]
   labelPeriode: string
   withRecherche: boolean
+  onChangementEtatVisibilite: (nouvelEtat: EtatVisibilite) => void
 }
 
 function TableauAnimationsCollectives(
@@ -14,6 +15,7 @@ function TableauAnimationsCollectives(
     animationsCollectives,
     labelPeriode,
     withRecherche,
+    onChangementEtatVisibilite,
   }: TableauAnimationsCollectivesLocaleProps,
   ref: ForwardedRef<HTMLTableElement>
 ) {
@@ -46,6 +48,7 @@ function TableauAnimationsCollectives(
           <AnimationCollectiveRow
             key={animationCollective.id}
             animationCollective={animationCollective}
+            onChangementEtatVisibilite={onChangementEtatVisibilite}
           />
         ))}
       </tbody>

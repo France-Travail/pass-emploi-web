@@ -99,6 +99,105 @@ describe('<DiplayMessageBeneficiaire />', () => {
     expect(markedElements.length).toEqual(1)
   })
 
+  describe('quand il y a une session Milo', () => {
+    it('affiche le lien de session pour AUTO_DESINSCRIPTION', async () => {
+      // Given
+      const message = unMessage({
+        sentBy: 'jeune',
+        content: 'Vous avez été désinscrit de cette session',
+        type: TypeMessage.AUTO_DESINSCRIPTION,
+        infoSessionMilo: {
+          id: 'id-session',
+          titre: 'Titre de la session',
+        },
+      })
+
+      // When
+      await renderWithContexts(
+        <DisplayMessageBeneficiaire
+          message={message}
+          beneficiaireNomComplet='Père Castor'
+        />
+      )
+
+      // Then
+      expect(screen.getByText('Titre de la session')).toBeInTheDocument()
+    })
+
+    it("affiche le motif d'annulation quand présent", async () => {
+      // Given
+      const message = unMessage({
+        sentBy: 'jeune',
+        content: 'Session annulée',
+        type: TypeMessage.AUTO_DESINSCRIPTION,
+        infoSessionMilo: {
+          id: 'id-session',
+          titre: 'Titre de la session',
+          motifAnnulation: 'Problème logistique',
+        },
+      })
+
+      // When
+      await renderWithContexts(
+        <DisplayMessageBeneficiaire
+          message={message}
+          beneficiaireNomComplet='Père Castor'
+        />
+      )
+
+      // Then
+      expect(screen.getByText(/Problème logistique/)).toBeInTheDocument()
+    })
+
+    it("n'affiche pas de motif d'annulation quand absent", async () => {
+      // Given
+      const message = unMessage({
+        sentBy: 'jeune',
+        content: 'Session Milo',
+        type: TypeMessage.MESSAGE_SESSION_MILO,
+        infoSessionMilo: {
+          id: 'id-session',
+          titre: 'Titre de la session',
+        },
+      })
+
+      // When
+      await renderWithContexts(
+        <DisplayMessageBeneficiaire
+          message={message}
+          beneficiaireNomComplet='Père Castor'
+        />
+      )
+
+      // Then
+      expect(() => screen.getByText("Motif d'annulation :")).toThrow()
+    })
+
+    it("utilise la couleur d'annulation pour AUTO_DESINSCRIPTION", async () => {
+      // Given
+      const message = unMessage({
+        sentBy: 'jeune',
+        content: 'Désinscription',
+        type: TypeMessage.AUTO_DESINSCRIPTION,
+        infoSessionMilo: { id: 'id', titre: 'Titre' },
+      })
+
+      // When
+      const { container } = await renderWithContexts(
+        <DisplayMessageBeneficiaire
+          message={message}
+          beneficiaireNomComplet='Père Castor'
+        />
+      )
+
+      // Then
+      expect(container.querySelector('.bg-cancellation')).toBeInTheDocument()
+      expect(
+        container.querySelector('.bg-primary-darken')
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('quand il y a une pièce jointe', () => {
     it('pas de statut', async () => {
       const beneficiaireNomComplet = 'Père Castor'

@@ -14,6 +14,7 @@ export enum TypeMessage {
   MESSAGE_EVENEMENT_EMPLOI = 'MESSAGE_EVENEMENT_EMPLOI',
   MESSAGE_SESSION_MILO = 'MESSAGE_SESSION_MILO',
   AUTO_INSCRIPTION = 'AUTO_INSCRIPTION',
+  AUTO_DESINSCRIPTION = 'AUTO_DESINSCRIPTION',
 }
 
 export interface Message {
@@ -90,6 +91,7 @@ export interface InfoEvenementEmploi {
 export interface InfoSessionMilo {
   id: string
   titre: string
+  motifAnnulation?: string
 }
 
 export function isDeleted(message: Message): boolean {

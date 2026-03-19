@@ -37,7 +37,7 @@ export async function generateMetadata({
 export default async function DetailsSession({
   params,
   searchParams,
-}: RouteProps) {
+}: Readonly<RouteProps>) {
   const { user, accessToken } = await getMandatorySessionServerSide()
 
   if (!estMilo(user.structure)) notFound()

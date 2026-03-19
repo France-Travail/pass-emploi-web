@@ -36,6 +36,7 @@ export type SessionMiloJson = {
   dateHeureFin: string
   estVisible: boolean
   autoinscription: boolean
+  autodesinscription?: boolean
   type: TypeEvenement
   statut: StatutEvenementJson
   nombreParticipants: number
@@ -48,11 +49,13 @@ export type DetailsSessionJson = {
     nom: string
     dateHeureDebut: string
     dateHeureFin: string
-    dateMaxInscription?: string
+    dateMaxInscription: string
+    dateMaxDesinscription: string
     lieu: string
     nbPlacesDisponibles?: number
     estVisible: boolean
     autoinscription: boolean
+    autodesinscription: boolean
     animateur?: string
     commentaire?: string
     statut: StatutEvenementJson
@@ -153,7 +156,9 @@ export function jsonToTypeSessionMilo(jsonType: TypeEvenement): string {
 function calculerEtatVisibilite({
   estVisible,
   autoinscription,
+  autodesinscription,
 }: SessionMiloJson): EtatVisibilite {
+  if (autodesinscription) return 'auto-desinscription'
   if (autoinscription) return 'auto-inscription'
   if (estVisible) return 'visible'
   return 'non-visible'

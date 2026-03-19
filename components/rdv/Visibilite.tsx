@@ -74,4 +74,8 @@ const etatsVisibilite: {
     label: 'Auto-inscription',
     style: 'text-primary border-primary bg-primary-lighten',
   },
+  'auto-desinscription': {
+    label: 'Auto-inscription et désinscription',
+    style: 'text-primary border-primary bg-primary-lighten',
+  },
 }

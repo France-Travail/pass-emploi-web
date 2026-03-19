@@ -14,9 +14,9 @@ import {
   SessionMiloJson,
 } from 'interfaces/json/session'
 import {
-  configurerSession,
   changerInscriptionsSession,
   cloreSession,
+  configurerSession,
   getDetailsSession,
   getSessionsBeneficiaires,
   getSessionsMiloBeneficiaire,
@@ -277,12 +277,13 @@ describe('SessionsApiService', () => {
       await configurerSession('idSession', {
         estVisible: true,
         autoinscription: false,
+        autodesinscription: false,
       })
 
       // Then
       expect(apiPatch).toHaveBeenCalledWith(
         '/conseillers/milo/id-conseiller-1/sessions/idSession',
-        { autoinscription: false, estVisible: true },
+        { autodesinscription: false, autoinscription: false, estVisible: true },
         'accessToken'
       )
     })

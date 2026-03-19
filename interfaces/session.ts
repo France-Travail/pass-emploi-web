@@ -6,11 +6,13 @@ export type Session = {
     nom: string
     dateHeureDebut: string
     dateHeureFin: string
-    dateMaxInscription?: string
+    dateMaxInscription: string
+    dateMaxDesinscription: string
     lieu: string
     nbPlacesDisponibles?: number
     estVisible: boolean
     autoinscription: boolean
+    autodesinscription: boolean
     animateur?: string
     commentaire?: string
     statut: StatutEvenement

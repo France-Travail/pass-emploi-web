@@ -19,6 +19,8 @@ import { estAvenirPro } from 'interfaces/structure'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { toFrenchTime, toLongMonthDate, toShortDate } from 'utils/date'
 
+import { isSessionMessage } from '../../clients/firebase.client'
+
 type MessageBeneficiaireProps = {
   message: Message
   beneficiaireNomComplet: string
@@ -41,6 +43,10 @@ export default function DisplayMessageBeneficiaire(
   const [conseiller] = useConseiller()
   const estConseillerAvenirPro = estAvenirPro(conseiller.structure)
 
+  const couleurMessageNonSupprime =
+    message.type === 'AUTO_DESINSCRIPTION'
+      ? 'bg-cancellation'
+      : 'bg-primary-darken'
   return (
     <li className='mb-5' id={'message-' + message.id} data-testid={message.id}>
       {isDeleted(message) && (
@@ -51,12 +57,12 @@ export default function DisplayMessageBeneficiaire(
 
       {!isDeleted(message) && (
         <>
-          <div className='text-base-regular break-words max-w-[90%] p-4 rounded-base w-max text-left text-white bg-primary-darken mb-1'>
+          <div
+            className={`text-base-regular break-words max-w-[90%] p-4 rounded-base w-max text-left text-white ${couleurMessageNonSupprime} mb-1`}
+          >
             <span className='sr-only'>{beneficiaireNomComplet} :</span>
-
             {message.type === TypeMessage.MESSAGE_PJ &&
-              message.infoPiecesJointes &&
-              message.infoPiecesJointes.map((pj, key) => {
+              message.infoPiecesJointes?.map((pj, key) => {
                 return (
                   <MessagePJ
                     key={key}
@@ -66,7 +72,6 @@ export default function DisplayMessageBeneficiaire(
                   />
                 )
               })}
-
             {message.type !== TypeMessage.MESSAGE_PJ && (
               <p className='whitespace-pre-wrap'>
                 <TexteAvecLien
@@ -80,7 +85,6 @@ export default function DisplayMessageBeneficiaire(
                 />
               </p>
             )}
-
             {message.type === TypeMessage.MESSAGE_OFFRE &&
               message.infoOffre && (
                 <LienOffre
@@ -88,25 +92,27 @@ export default function DisplayMessageBeneficiaire(
                   isSentByConseiller={false}
                 />
               )}
-
-            {(message.type === TypeMessage.MESSAGE_SESSION_MILO ||
-              message.type === TypeMessage.AUTO_INSCRIPTION) &&
-              message.infoSessionMilo && (
+            {isSessionMessage(message) && message.infoSessionMilo && (
+              <>
                 <LienSessionMilo infoSessionMilo={message.infoSessionMilo} />
-              )}
-
+                {message.infoSessionMilo.motifAnnulation && (
+                  <p className='mt-2'>
+                    Motif d&#39;annulation :<br />
+                    {message.infoSessionMilo.motifAnnulation}
+                  </p>
+                )}
+              </>
+            )}
             {message.type === TypeMessage.MESSAGE_EVENEMENT &&
               message.infoEvenement && (
                 <LienEvenement infoEvenement={message.infoEvenement} />
               )}
-
             {message.type === TypeMessage.MESSAGE_EVENEMENT_EMPLOI &&
               message.infoEvenementEmploi && (
                 <LienEvenementEmploi
                   infoEvenementEmploi={message.infoEvenementEmploi}
                 />
               )}
-
             {isResultatRecherche(props) && (
               <button
                 className='underline pt-4 text-base-medium'
@@ -150,11 +156,11 @@ function MessagePJ({
   infoFichier,
   highlight,
   estConseillerAvenirPro,
-}: {
+}: Readonly<{
   infoFichier: InfoFichier
   highlight?: MessageRechercheMatch
   estConseillerAvenirPro: boolean
-}) {
+}>) {
   const wordingPJTransmiseParBeneficiaire = `Votre bénéficiaire vous a transmis une nouvelle pièce jointe. Celle-ci sera conservée 4 mois. ${
     estConseillerAvenirPro
       ? ''

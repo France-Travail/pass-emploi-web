@@ -4,6 +4,7 @@ import { getSession } from 'next-auth/react'
 import { apiGet, apiPatch, apiPost } from 'clients/api.client'
 import {
   AnimationCollective,
+  EtatVisibilite,
   EvenementListItem,
   EvenementMiloListItem,
 } from 'interfaces/evenement'
@@ -21,6 +22,32 @@ import { InformationBeneficiaireSession, Session } from 'interfaces/session'
 import { Periode } from 'types/dates'
 import { minutesEntreDeuxDates, toLongMonthDate } from 'utils/date'
 import { ApiError } from 'utils/httpClient'
+
+export const configurationParEtatVisibilite: Record<
+  EtatVisibilite,
+  { estVisible: boolean; autoinscription: boolean; autodesinscription: boolean }
+> = {
+  'non-visible': {
+    estVisible: false,
+    autoinscription: false,
+    autodesinscription: false,
+  },
+  visible: {
+    estVisible: true,
+    autoinscription: false,
+    autodesinscription: false,
+  },
+  'auto-inscription': {
+    estVisible: true,
+    autoinscription: true,
+    autodesinscription: false,
+  },
+  'auto-desinscription': {
+    estVisible: true,
+    autoinscription: true,
+    autodesinscription: true,
+  },
+}
 
 export type SessionsAClore = {
   id: string
@@ -118,7 +145,11 @@ export async function changerInscriptionsSession(
 
 export async function configurerSession(
   idSession: string,
-  configuration: { estVisible: boolean; autoinscription: boolean }
+  configuration: {
+    estVisible: boolean
+    autoinscription: boolean
+    autodesinscription: boolean
+  }
 ): Promise<void> {
   const session = await getSession()
   const accessToken = session!.accessToken
@@ -197,6 +228,7 @@ async function modifierInformationsSession(
   payload: {
     estVisible?: boolean
     autoinscription?: boolean
+    autodesinscription?: boolean
     inscriptions?: InformationBeneficiaireSession[]
   },
   accessToken: string
@@ -250,6 +282,9 @@ function jsonToSession(json: DetailsSessionJson): Session {
       lieu: json.session.lieu,
       estVisible: json.session.estVisible,
       autoinscription: json.session.autoinscription,
+      autodesinscription: json.session.autodesinscription,
+      dateMaxInscription: json.session.dateMaxInscription,
+      dateMaxDesinscription: json.session.dateMaxDesinscription,
       statut: jsonToStatutSession(json.session.statut),
     },
     offre: {
@@ -266,8 +301,6 @@ function jsonToSession(json: DetailsSessionJson): Session {
   if (json.session.nbPlacesDisponibles !== undefined)
     session.session.nbPlacesDisponibles = json.session.nbPlacesDisponibles
 
-  if (json.session.dateMaxInscription)
-    session.session.dateMaxInscription = json.session.dateMaxInscription
   if (json.session.animateur) session.session.animateur = json.session.animateur
   if (json.session.commentaire)
     session.session.commentaire = json.session.commentaire
