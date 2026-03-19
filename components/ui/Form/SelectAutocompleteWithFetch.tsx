@@ -30,7 +30,7 @@ export default function SelectAutocompleteWithFetch<T>({
   defaultValue,
   required,
   disabled = false,
-}: SelectAutocompleteWithFetchProps<T>) {
+}: Readonly<SelectAutocompleteWithFetchProps<T>>) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const [entites, setEntites] = useState<WithSimplifiedLabel<T>[]>([])
@@ -44,32 +44,34 @@ export default function SelectAutocompleteWithFetch<T>({
     value: defaultValue && toUpperCaseAlpha(defaultValue),
   })
 
+  function fetchAndUpdateEntites(searchStr: string) {
+    if (searchStr) {
+      fetch(searchStr).then((newEntites) => {
+        const simplifiedEntities: WithSimplifiedLabel<T>[] = newEntites.map(
+          (e) => ({
+            ...e,
+            upperCaseAlphaLabel: toUpperCaseAlpha(
+              e[fieldNames.value] as string
+            ),
+          })
+        )
+        setEntites(simplifiedEntities)
+        const entite = findEntiteInListe(searchStr, simplifiedEntities)
+        onUpdateSelected({ selected: entite, hasError: !entite })
+      })
+    } else {
+      setEntites([])
+      onUpdateSelected({ hasError: Boolean(required) })
+    }
+  }
+
   function handleInputChange(str: string) {
     const upperStr = toUpperCaseAlpha(str)
     setInput({ value: upperStr })
     onUpdateSelected({ hasError: Boolean(str || required) })
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => {
-      if (upperStr) {
-        fetch(upperStr).then((newEntites) => {
-          const simplifiedEntities: WithSimplifiedLabel<T>[] = newEntites.map(
-            (e) => ({
-              ...e,
-              upperCaseAlphaLabel: toUpperCaseAlpha(
-                e[fieldNames.value] as string
-              ),
-            })
-          )
-          setEntites(simplifiedEntities)
-          const entite = findEntiteInListe(upperStr, simplifiedEntities)
-          onUpdateSelected({ selected: entite, hasError: !entite })
-        })
-      } else {
-        setEntites([])
-        onUpdateSelected({ hasError: Boolean(required) })
-      }
-    }, 500)
+    debounceRef.current = setTimeout(() => fetchAndUpdateEntites(upperStr), 500)
   }
 
   function validateSelected() {

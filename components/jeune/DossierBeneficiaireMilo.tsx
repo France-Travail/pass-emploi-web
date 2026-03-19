@@ -61,12 +61,17 @@ function DossierBeneficiaireMilo(
     focusRetour: () => retourButtonRef.current!.focus(),
   }))
 
-  const tracking =
-    erreurMessageCreationCompte || beneficiaireExisteDejaMilo
-      ? 'Création jeune SIMILO – Etape 2 - information du dossier jeune - création de compte en erreur'
-      : dossier.email
-        ? 'Création jeune SIMILO - Étape 2 - information du dossier jeune avec email'
-        : 'Création jeune SIMILO - Étape 2 - information du dossier jeune sans email'
+  let tracking: string
+  if (erreurMessageCreationCompte || beneficiaireExisteDejaMilo) {
+    tracking =
+      'Création jeune SIMILO – Etape 2 - information du dossier jeune - création de compte en erreur'
+  } else if (dossier.email) {
+    tracking =
+      'Création jeune SIMILO - Étape 2 - information du dossier jeune avec email'
+  } else {
+    tracking =
+      'Création jeune SIMILO - Étape 2 - information du dossier jeune sans email'
+  }
   const aDesBeneficiaires = portefeuille.length > 0
 
   function choisirDispositif(dispositifChoisi: DispositifMilo) {

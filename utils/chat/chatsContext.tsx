@@ -39,7 +39,7 @@ export function ChatsProvider({
 
   const [titleBackup, setTitleBackup] = useState<string | undefined>()
   const [audio] = useState<HTMLAudioElement | null>(() =>
-    typeof window !== 'undefined' ? new Audio(CHEMIN_DU_SON) : null
+    globalThis.window === undefined ? null : new Audio(CHEMIN_DU_SON)
   )
 
   const [chats, setChats] = useState<BeneficiaireEtChat[]>()

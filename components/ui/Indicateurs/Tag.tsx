@@ -26,10 +26,10 @@ interface TagTypeProps {
 function TagIcon({
   iconName,
   iconLabel,
-}: {
+}: Readonly<{
   iconName: IconName
   iconLabel?: string
-}) {
+}>) {
   const iconStyle = 'h-5 w-5 mr-1 fill-current'
   if (iconLabel) {
     const labelId = 'tag-icon-' + unsafeRandomId()

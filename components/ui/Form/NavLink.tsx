@@ -15,7 +15,7 @@ type NavLinkProps = {
   onClick?: () => void
 }
 
-type LinkContentProps = {
+type LinkContentProps = Readonly<{
   iconName: IconName
   showLabelOnSmallScreen: boolean
   isActive?: boolean
@@ -23,7 +23,7 @@ type LinkContentProps = {
   className?: string
   badgeLabel?: string
   badgeCount?: number
-}
+}>
 
 function LinkContent({
   iconName,

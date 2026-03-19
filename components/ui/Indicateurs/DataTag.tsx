@@ -56,10 +56,10 @@ export function DataTag({
 function TagIcon({
   iconName,
   iconLabel,
-}: {
+}: Readonly<{
   iconName: IconName
   iconLabel?: string
-}) {
+}>) {
   const iconStyle = 'inline w-4 h-4 fill-current mr-1'
 
   if (iconLabel) {
