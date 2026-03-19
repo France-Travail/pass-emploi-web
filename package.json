@@ -78,7 +78,7 @@
     "prettier": "^3.8.1",
     "source-map-explorer": "^2.5.3",
     "style-loader": "^4.0.0",
-    "tailwindcss": "^4.2.1",
+    "tailwindcss": "^4.2.2",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
