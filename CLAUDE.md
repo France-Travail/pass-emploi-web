@@ -218,6 +218,13 @@ export async function getConseillerServerSide(
 - **Types :** PascalCase pour interfaces/types
 - **Constantes :** UPPER_SNAKE_CASE pour constantes globales
 
+### Apostrophes
+
+- **Règle générale :** Utiliser l'apostrophe typographique française `'` (U+2019) dans tous les textes affichés à l'utilisateur
+- **Dans le code de prod (JSX) :** Utiliser `&apos;` ou `'` directement dans le texte JSX pour produire l'apostrophe française
+- **Dans les tests :** Utiliser `"texte avec l'apostrophe"` (double quotes + apostrophe française `'` à l'intérieur)
+- **Strings sans apostrophe :** Utiliser les single quotes `'texte'` (convention Prettier)
+
 ---
 
 ## Authentification & Sécurité

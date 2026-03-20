@@ -1,5 +1,4 @@
 import { apm as rum, init } from '@elastic/apm-rum'
-import apm from 'elastic-apm-node'
 
 export function initRum() {
   const appName = process.env.APP || 'pa-front-local'
@@ -16,9 +15,5 @@ export function initRum() {
 }
 
 export function captureError(error: Error | string) {
-  if (typeof window !== 'undefined') {
-    rum.captureError(error)
-  } else {
-    apm.captureError(error)
-  }
+  rum.captureError(error)
 }

@@ -15,6 +15,48 @@ type NavLinkProps = {
   onClick?: () => void
 }
 
+type LinkContentProps = Readonly<{
+  iconName: IconName
+  showLabelOnSmallScreen: boolean
+  isActive?: boolean
+  label: string | null
+  className?: string
+  badgeLabel?: string
+  badgeCount?: number
+}>
+
+function LinkContent({
+  iconName,
+  showLabelOnSmallScreen,
+  isActive,
+  label,
+  className,
+  badgeLabel,
+  badgeCount,
+}: LinkContentProps): ReactElement {
+  return (
+    <>
+      <IconComponent
+        focusable={false}
+        aria-hidden={true}
+        className={`w-6 h-6 ${showLabelOnSmallScreen ? 'mr-2' : 'mr-0 layout-l:mr-2'} ${
+          isActive ? 'fill-primary' : 'fill-white'
+        }`}
+        name={iconName}
+      />
+      <span
+        className={`${showLabelOnSmallScreen ? '' : 'sr-only layout-l:not-sr-only'} text-left break-words ${className ?? ''} ${
+          isActive ? 'text-primary' : 'text-white'
+        }`}
+      >
+        {label}
+      </span>
+
+      {badgeLabel && <BadgeNavLink label={badgeLabel} count={badgeCount} />}
+    </>
+  )
+}
+
 export default function NavLink({
   isActive,
   label,
@@ -32,30 +74,6 @@ export default function NavLink({
       : 'border-primary hover:border-white text-base-medium'
   }`
 
-  function LinkContent(): ReactElement {
-    return (
-      <>
-        <IconComponent
-          focusable={false}
-          aria-hidden={true}
-          className={`w-6 h-6 ${showLabelOnSmallScreen ? 'mr-2' : 'mr-0 layout-l:mr-2'} ${
-            isActive ? 'fill-primary' : 'fill-white'
-          }`}
-          name={iconName}
-        />
-        <span
-          className={`${showLabelOnSmallScreen ? '' : 'sr-only layout-l:not-sr-only'} text-left break-words ${className ?? ''} ${
-            isActive ? 'text-primary' : 'text-white'
-          }`}
-        >
-          {label}
-        </span>
-
-        {badgeLabel && <BadgeNavLink label={badgeLabel} count={badgeCount} />}
-      </>
-    )
-  }
-
   return (
     <li>
       {href && (
@@ -65,13 +83,29 @@ export default function NavLink({
           className={linkStyle}
           onClick={onClick}
         >
-          <LinkContent />
+          <LinkContent
+            iconName={iconName}
+            showLabelOnSmallScreen={showLabelOnSmallScreen}
+            isActive={isActive}
+            label={label}
+            className={className}
+            badgeLabel={badgeLabel}
+            badgeCount={badgeCount}
+          />
         </Link>
       )}
 
       {!href && onClick && (
         <button type='button' className={linkStyle} onClick={onClick}>
-          <LinkContent />
+          <LinkContent
+            iconName={iconName}
+            showLabelOnSmallScreen={showLabelOnSmallScreen}
+            isActive={isActive}
+            label={label}
+            className={className}
+            badgeLabel={badgeLabel}
+            badgeCount={badgeCount}
+          />
         </button>
       )}
     </li>

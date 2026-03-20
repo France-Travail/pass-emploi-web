@@ -1,8 +1,8 @@
 import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import MessagesListe from 'components/chat/MessagesListe'
 import React from 'react'
 
+import MessagesListe from 'components/chat/MessagesListe'
 import { uneListe } from 'fixtures/listes'
 import { desMessagesListeParJour } from 'fixtures/message'
 import { Liste } from 'interfaces/liste'

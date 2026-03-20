@@ -14,7 +14,6 @@ import { unEvenementListItem } from 'fixtures/evenement'
 import { uneListeDOffres } from 'fixtures/favoris'
 import { structureFTCej, structureMilo } from 'interfaces/structure'
 import {
-  getComptageHeuresFicheBeneficiaire,
   getConseillersDuJeuneServerSide,
   getDemarchesBeneficiaire,
   getJeuneDetails,

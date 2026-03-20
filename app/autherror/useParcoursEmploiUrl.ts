@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const URLS = {
   ios: 'https://apps.apple.com/app/apple-store/id563863597?pt=1432235&ct=migration-cej&mt=8',
@@ -20,14 +20,11 @@ function detectPlatform(ua: string): Platform {
 }
 
 export function useParcoursEmploiUrl(): string {
-  const [platform, setPlatform] = useState<Platform>('desktop')
+  const platform = useSyncExternalStore(
+    () => () => {},
+    () => detectPlatform(navigator.userAgent),
+    () => 'desktop' as Platform
+  )
 
-  useEffect(() => {
-    if (typeof navigator !== 'undefined') {
-      const platform = detectPlatform(navigator.userAgent)
-      setPlatform(platform)
-    }
-  }, [])
-
-  return useMemo(() => URLS[platform], [platform])
+  return URLS[platform]
 }

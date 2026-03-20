@@ -55,7 +55,7 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
 
   const [portefeuille] = usePortefeuille()
   const chats = useChats()
-  const [chatIsLoaded, setChatIsLoaded] = useState<boolean>(Boolean(chats))
+  const chatIsLoaded = Boolean(chats)
   const [_, setCurrentConversation] = useCurrentConversation()
   const [alerte] = useAlerte()
 
@@ -129,15 +129,11 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
   }, [])
 
   useEffect(() => {
-    if (!chatIsLoaded && chats) setChatIsLoaded(true)
-  }, [chats])
-
-  useEffect(() => {
     if (chatIsLoaded && !lectureSeule) {
       const conversation = chats!.find(({ id }) => id === beneficiaire.id)
-      setCurrentConversation(conversation)
+      setTimeout(() => setCurrentConversation(conversation), 0)
     }
-  }, [chatIsLoaded])
+  }, [chats])
 
   return (
     <>

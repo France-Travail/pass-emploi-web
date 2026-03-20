@@ -1,8 +1,7 @@
-import { DateTime } from 'luxon'
-
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
+import { DateTime } from 'luxon'
 
 import BandeauActualites from 'components/chat/BandeauActualites'
 import { desActualitesMilo, uneActualiteMilo } from 'fixtures/actualiteMilo'

@@ -4,7 +4,6 @@ import React, {
   ForwardedRef,
   forwardRef,
   ReactElement,
-  useEffect,
   useState,
 } from 'react'
 
@@ -60,17 +59,16 @@ function FiltresListes(
     setAfficherFiltres(false)
   }
 
-  useEffect(() => {
-    setListeSelectionnee(defaultValue)
-  }, [afficherFiltres])
-
   return (
     <div className={'relative ' + (className ?? '')}>
       <button
         ref={ref}
         aria-controls='filtres-listes'
         aria-expanded={afficherFiltres}
-        onClick={() => setAfficherFiltres(!afficherFiltres)}
+        onClick={() => {
+          if (!afficherFiltres) setListeSelectionnee(defaultValue)
+          setAfficherFiltres(!afficherFiltres)
+        }}
         title='Filtrer par Listes'
         aria-label='Filtrer par listes'
         className='flex items-center text-s-regular w-full h-full gap-2'

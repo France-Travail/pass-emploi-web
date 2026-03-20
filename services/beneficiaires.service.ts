@@ -43,7 +43,7 @@ import { Periode } from 'types/dates'
 import { MetadonneesPagination } from 'types/pagination'
 import { ApiError } from 'utils/httpClient'
 
-import { captureError } from '../utils/monitoring/elastic'
+import { captureError } from '../utils/monitoring/elasticApm'
 
 export async function getIdentitesBeneficiairesServerSide(
   idsBeneficiaires: string[],

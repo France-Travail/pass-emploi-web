@@ -25,12 +25,19 @@ describe('LoginLayout client side', () => {
 
   describe('render', () => {
     beforeEach(async () => {
+      jest.useFakeTimers()
       ;(getSession as jest.Mock).mockResolvedValue(null)
-      ;({ container } = render(
-        <LayoutLoginClient>
-          <p></p>
-        </LayoutLoginClient>
-      ))
+      await act(async () => {
+        ;({ container } = render(
+          <LayoutLoginClient>
+            <p></p>
+          </LayoutLoginClient>
+        ))
+      })
+      await act(async () => {
+        jest.runAllTimers()
+      })
+      jest.useRealTimers()
     })
 
     it('a11y', async () => {
@@ -41,14 +48,15 @@ describe('LoginLayout client side', () => {
     it("n'affiche pas de modale d'onboarding mobile", () => {
       // Then
       expect(() =>
-        screen.getByText('Bienvenue sur l’espace mobile du conseiller')
+        screen.getByText("Bienvenue sur l'espace mobile du conseiller")
       ).toThrow()
     })
   })
 
-  describe('quand l’utilisateur est déjà connecté', () => {
+  describe("quand l'utilisateur est déjà connecté", () => {
     it('redirige la page à laquelle il voulait accéder', async () => {
       // When
+      jest.useFakeTimers()
       ;(getSession as jest.Mock).mockResolvedValue('session')
 
       // When
@@ -59,6 +67,10 @@ describe('LoginLayout client side', () => {
           </LayoutLoginClient>
         )
       })
+      await act(async () => {
+        jest.runAllTimers()
+      })
+      jest.useRealTimers()
 
       // Then
       expect(routerReplace).toHaveBeenCalledWith('redirectUrl')
@@ -68,6 +80,7 @@ describe('LoginLayout client side', () => {
   describe("quand l'utilisateur est sur mobile", () => {
     let originalInnerWidth: PropertyDescriptor
     beforeEach(async () => {
+      jest.useFakeTimers()
       originalInnerWidth = Object.getOwnPropertyDescriptor(
         window,
         'innerWidth'
@@ -91,6 +104,10 @@ describe('LoginLayout client side', () => {
           </>
         ))
       })
+      await act(async () => {
+        jest.runAllTimers()
+      })
+      jest.useRealTimers()
     })
 
     afterEach(() => {
@@ -105,22 +122,22 @@ describe('LoginLayout client side', () => {
     it("affiche une modale d'onboarding", async () => {
       // Then
       expect(
-        screen.getByRole('heading', {
+        await screen.findByRole('heading', {
           level: 2,
-          name: 'Bienvenue sur l’espace mobile du conseiller',
+          name: "Bienvenue sur l'espace mobile du conseiller",
         })
       ).toBeInTheDocument()
-      expect(screen.getByRole('heading', { level: 3 })).toHaveAccessibleName(
-        'Un accès dedié à vos conversations'
-      )
       expect(
-        screen.getByText(
-          'Retrouvez l’ensemble de vos conversations avec les bénéficiaires de votre portefeuile.'
+        await screen.findByRole('heading', { level: 3 })
+      ).toHaveAccessibleName('Un accès dedié à vos conversations')
+      expect(
+        await screen.findByText(
+          "Retrouvez l'ensemble de vos conversations avec les bénéficiaires de votre portefeuile."
         )
       ).toBeInTheDocument()
       expect(
-        screen.getByText(
-          'À ce jour, seul l’accès à la messagerie est disponible sur l’espace mobile.'
+        await screen.findByText(
+          "À ce jour, seul l'accès à la messagerie est disponible sur l'espace mobile."
         )
       ).toBeInTheDocument()
     })

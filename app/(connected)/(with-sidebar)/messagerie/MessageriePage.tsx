@@ -59,7 +59,7 @@ function MessageriePage() {
     if (messageSelectionne) detailMessageRef.current!.focusRetour()
     if (!messageSelectionne && idMessageAFocus) {
       messagesListeRef.current!.focusMessage(idMessageAFocus)
-      setIdMessageAFocus(undefined)
+      setTimeout(() => setIdMessageAFocus(undefined), 0)
     }
   }, [messageSelectionne])
 

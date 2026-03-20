@@ -49,7 +49,7 @@ export default function OngletsBeneficiairePasMilo({
 }) {
   const [conseiller] = useConseiller()
 
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [demarches, setDemarches] = useState<Demarche[] | undefined>(undefined)
   const [offres, setOffres] = useState<Offre[]>([])
 
@@ -72,29 +72,25 @@ export default function OngletsBeneficiairePasMilo({
     })
   )
   const [shouldFocus, setShouldFocus] = useState<boolean>(false)
-  const [
-    periodePermetDAfficherLesDemarches,
-    setPeriodePermetDAfficherLesDemarches,
-  ] = useState<boolean>(true)
+  const periodePermetDAfficherLesDemarches = semaine.fin >= trenteJoursAvant
 
   async function chargerNouvelleSemaine(
     nouvellePeriode: Periode,
     opts: { shouldFocus: boolean }
   ) {
+    setIsLoading(true)
     setSemaine(nouvellePeriode)
     setShouldFocus(opts.shouldFocus)
     onChangementSemaine(currentTab, nouvellePeriode.debut)
   }
 
   async function switchTab(tab: OngletPasMilo) {
+    setIsLoading(true)
     setCurrentTab(tab)
     onSwitchTab(tab)
   }
 
   useEffect(() => {
-    setPeriodePermetDAfficherLesDemarches(semaine.fin >= trenteJoursAvant)
-    setIsLoading(true)
-
     switch (currentTab) {
       case 'demarches':
         getDemarchesBeneficiaireClientSide(
@@ -113,7 +109,7 @@ export default function OngletsBeneficiairePasMilo({
           .finally(() => setIsLoading(false))
         break
       default:
-        setIsLoading(false)
+        setTimeout(() => setIsLoading(false), 0)
     }
   }, [semaine, currentTab])
 

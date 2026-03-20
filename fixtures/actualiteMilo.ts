@@ -24,7 +24,8 @@ export function desActualitesMilo(): ActualiteMessage[] {
     uneActualiteMilo({
       id: 'actualite-1',
       titre: 'Atelier découverte des métiers',
-      contenu: 'Rejoignez-nous le 20 janvier pour découvrir les métiers du numérique',
+      contenu:
+        'Rejoignez-nous le 20 janvier pour découvrir les métiers du numérique',
       dateCreation: DateTime.fromISO('2024-01-15T10:00:00'),
       titreLien: 'S inscrire',
       lien: 'https://example.com/atelier',

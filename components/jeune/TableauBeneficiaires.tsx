@@ -54,7 +54,12 @@ function TableauBeneficiaires(
 
   const estConseillerAvenirPro = estAvenirPro(conseiller.structure)
 
+  const [prevBeneficiaires, setPrevBeneficiaires] = useState(beneficiaires)
   const [page, setPage] = useState<number>(pageInitiale)
+  if (prevBeneficiaires !== beneficiaires) {
+    setPrevBeneficiaires(beneficiaires)
+    setPage(pageInitiale)
+  }
 
   const DEBUT_PERIODE = DateTime.now().startOf('week')
   const FIN_PERIODE = DateTime.now().endOf('week')
@@ -231,10 +236,6 @@ function TableauBeneficiaires(
 
     return result.trim()
   }
-
-  useEffect(() => {
-    setPage(pageInitiale)
-  }, [beneficiaires])
 
   useEffect(() => {
     if (estMilo(conseiller.structure)) {

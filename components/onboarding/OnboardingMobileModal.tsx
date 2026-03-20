@@ -9,6 +9,30 @@ interface OnboardingMobileModalProps {
   onClose: () => void
 }
 
+function Accueil(): ReactElement {
+  return (
+    <>
+      <h3 className='flex text-base-bold'>
+        <IconComponent
+          name={IconName.ChatFill}
+          focusable={false}
+          aria-hidden={true}
+          className='shrink-0 w-5 h-5 fill-primary mr-3'
+        />
+        Un accès dedié à vos conversations
+      </h3>
+      <p className='mt-4'>
+        Retrouvez l&apos;ensemble de vos conversations avec les bénéficiaires de
+        votre portefeuile.
+      </p>
+      <p className='mt-4'>
+        À ce jour, seul l&apos;accès à la messagerie est disponible sur
+        l&apos;espace mobile.
+      </p>
+    </>
+  )
+}
+
 export default function OnboardingMobileModal({
   onClose,
 }: OnboardingMobileModalProps) {
@@ -16,34 +40,10 @@ export default function OnboardingMobileModal({
 
   const [etape, setEtape] = useState<number>(1)
 
-  function Accueil(): ReactElement {
-    return (
-      <>
-        <h3 className='flex text-base-bold'>
-          <IconComponent
-            name={IconName.ChatFill}
-            focusable={false}
-            aria-hidden={true}
-            className='shrink-0 w-5 h-5 fill-primary mr-3'
-          />
-          Un accès dedié à vos conversations
-        </h3>
-        <p className='mt-4'>
-          Retrouvez l’ensemble de vos conversations avec les bénéficiaires de
-          votre portefeuile.
-        </p>
-        <p className='mt-4'>
-          À ce jour, seul l’accès à la messagerie est disponible sur l’espace
-          mobile.
-        </p>
-      </>
-    )
-  }
-
   return (
     <Modal
       ref={modalRef}
-      title='Bienvenue sur l’espace mobile du conseiller'
+      title="Bienvenue sur l'espace mobile du conseiller"
       onClose={onClose}
     >
       {etape === 1 && <Accueil />}

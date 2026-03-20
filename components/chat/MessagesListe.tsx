@@ -42,11 +42,6 @@ function MessagesListe(
     focusMessage: (id: string) => void
   }>
 ) {
-  useImperativeHandle(ref, () => ({
-    focusRetour: () => headerRef.current!.focusRetour(),
-    focusMessage: setIdMessageAFocus,
-  }))
-
   const chatCredentials = useChatCredentials()
 
   const isFirstRender = useRef<boolean>(true)
@@ -57,6 +52,11 @@ function MessagesListe(
   const [messagerieEstVisible, setMessagerieEstVisible] =
     useState<boolean>(true)
   const [idMessageAFocus, setIdMessageAFocus] = useState<string | undefined>()
+
+  useImperativeHandle(ref, () => ({
+    focusRetour: () => headerRef.current!.focusRetour(),
+    focusMessage: setIdMessageAFocus,
+  }))
 
   function displayDate(date: DateTime) {
     return dateIsToday(date) ? "Aujourd'hui" : `Le ${toShortDate(date)}`
@@ -80,7 +80,7 @@ function MessagesListe(
         `#message-${idMessageAFocus} button`
       )
       buttonAFocus?.focus()
-      setIdMessageAFocus(undefined)
+      setTimeout(() => setIdMessageAFocus(undefined), 0)
     }
   }, [messagerieEstVisible, messages, idMessageAFocus])
 
