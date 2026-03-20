@@ -9,6 +9,7 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   productionBrowserSourceMaps: true,
+  serverExternalPackages: ['elastic-apm-node'],
 
   env: {
     APP: process.env.APP, // NEXT_PUBLIC_APP=$APP not working client side
