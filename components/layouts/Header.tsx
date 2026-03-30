@@ -1,12 +1,15 @@
+'use client'
+
 import React from 'react'
 
-import {
-  ID_CONTENU,
-  PAGE_ACTIONS_ROOT_ID,
-  PAGE_NAVIGATION_ROOT_ID,
-} from 'components/globals'
+import { ID_CONTENU } from 'components/globals'
 
-export default function Header() {
+type HeaderProps = {
+  onNavigationRef: (el: HTMLDivElement | null) => void
+  onActionsRef: (el: HTMLDivElement | null) => void
+}
+
+export default function Header({ onNavigationRef, onActionsRef }: HeaderProps) {
   return (
     <header
       id={ID_CONTENU}
@@ -14,8 +17,8 @@ export default function Header() {
       role='banner'
       className='flex justify-between items-center px-12 py-8 border-b border-solid border-primary-lighten'
     >
-      <div id={PAGE_NAVIGATION_ROOT_ID} />
-      <div id={PAGE_ACTIONS_ROOT_ID} className='flex gap-6' />
+      <div ref={onNavigationRef} />
+      <div ref={onActionsRef} className='flex gap-6' />
     </header>
   )
 }

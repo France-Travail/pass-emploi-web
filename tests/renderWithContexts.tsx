@@ -1,5 +1,5 @@
 import { act, render, RenderResult } from '@testing-library/react'
-import { Dispatch, ReactNode, SetStateAction } from 'react'
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
 
 import { desActualitesRaw } from 'fixtures/actualites'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
@@ -22,6 +22,7 @@ import {
 } from 'utils/chat/listeSelectionneeContext'
 import { ShowRubriqueListeProvider } from 'utils/chat/showRubriqueListeContext'
 import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
+import { HeaderPortalsProvider } from 'utils/headerPortalsContext'
 import { PortefeuilleProvider } from 'utils/portefeuilleContext'
 
 jest.mock('services/actualites.service', () => ({
@@ -129,44 +130,60 @@ function provideContexts(
   }>
 ) {
   return (
-    <ConseillerProvider conseiller={conseiller}>
-      <PortefeuilleProvider
-        portefeuille={portefeuille.value ?? []}
-        setterForTests={portefeuille.setter}
-      >
-        <ActualitesProvider>
-          <ChatCredentialsProvider
-            credentials={{
-              token: 'firebaseToken',
-              cleChiffrement: 'cleChiffrement',
-            }}
-          >
-            <ChatsProvider chatsForTests={chats ?? []}>
-              <CurrentConversationProvider
-                stateForTests={currentConversation.value}
-                setterForTests={currentConversation.setter}
-              >
-                <AlerteProvider
-                  alerteForTests={alerte.value}
-                  setterForTests={alerte.setter}
+    <PortalWrapper>
+      <ConseillerProvider conseiller={conseiller}>
+        <PortefeuilleProvider
+          portefeuille={portefeuille.value ?? []}
+          setterForTests={portefeuille.setter}
+        >
+          <ActualitesProvider>
+            <ChatCredentialsProvider
+              credentials={{
+                token: 'firebaseToken',
+                cleChiffrement: 'cleChiffrement',
+              }}
+            >
+              <ChatsProvider chatsForTests={chats ?? []}>
+                <CurrentConversationProvider
+                  stateForTests={currentConversation.value}
+                  setterForTests={currentConversation.setter}
                 >
-                  <ShowRubriqueListeProvider
-                    valueForTests={showRubriqueListe.value}
-                    setterForTests={showRubriqueListe.setter}
+                  <AlerteProvider
+                    alerteForTests={alerte.value}
+                    setterForTests={alerte.setter}
                   >
-                    <ListeSelectionneeProvider
-                      setterForTests={listeSelectionnee.setter}
-                      valueForTests={listeSelectionnee.value}
+                    <ShowRubriqueListeProvider
+                      valueForTests={showRubriqueListe.value}
+                      setterForTests={showRubriqueListe.setter}
                     >
-                      {children}
-                    </ListeSelectionneeProvider>
-                  </ShowRubriqueListeProvider>
-                </AlerteProvider>
-              </CurrentConversationProvider>
-            </ChatsProvider>
-          </ChatCredentialsProvider>
-        </ActualitesProvider>
-      </PortefeuilleProvider>
-    </ConseillerProvider>
+                      <ListeSelectionneeProvider
+                        setterForTests={listeSelectionnee.setter}
+                        valueForTests={listeSelectionnee.value}
+                      >
+                        {children}
+                      </ListeSelectionneeProvider>
+                    </ShowRubriqueListeProvider>
+                  </AlerteProvider>
+                </CurrentConversationProvider>
+              </ChatsProvider>
+            </ChatCredentialsProvider>
+          </ActualitesProvider>
+        </PortefeuilleProvider>
+      </ConseillerProvider>
+    </PortalWrapper>
+  )
+}
+
+function PortalWrapper({ children }: { children: ReactNode }) {
+  const [actionsRoot, setActionsRoot] = useState<HTMLDivElement | null>(null)
+  const [navigationRoot, setNavigationRoot] = useState<HTMLDivElement | null>(
+    null
+  )
+  return (
+    <HeaderPortalsProvider value={{ actionsRoot, navigationRoot }}>
+      <div ref={setNavigationRoot} />
+      <div ref={setActionsRoot} />
+      {children}
+    </HeaderPortalsProvider>
   )
 }

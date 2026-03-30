@@ -1,12 +1,13 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 
 import layout from 'app/(connected)/(with-sidebar)/PageLayout.module.css'
 import AlerteDisplayer from 'components/layouts/AlerteDisplayer'
 import Footer from 'components/layouts/Footer'
 import Header from 'components/layouts/Header'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
+import { HeaderPortalsProvider } from 'utils/headerPortalsContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 export default function PageLayout({
@@ -18,26 +19,35 @@ export default function PageLayout({
 }) {
   const [conseiller] = useConseiller()
   const [portefeuille] = usePortefeuille()
+  const [actionsRoot, setActionsRoot] = useState<HTMLDivElement | null>(null)
+  const [navigationRoot, setNavigationRoot] = useState<HTMLDivElement | null>(
+    null
+  )
 
   return (
-    <div className={layout.page}>
-      <Header />
+    <HeaderPortalsProvider value={{ actionsRoot, navigationRoot }}>
+      <div className={layout.page}>
+        <Header
+          onNavigationRef={setNavigationRoot}
+          onActionsRef={setActionsRoot}
+        />
 
-      <main
-        role='main'
-        className={`${layout.content} ${
-          fullWidth ? layout.content_fullWidth : layout.content_centered
-        }`}
-      >
-        <AlerteDisplayer />
-        {children}
-      </main>
+        <main
+          role='main'
+          className={`${layout.content} ${
+            fullWidth ? layout.content_fullWidth : layout.content_centered
+          }`}
+        >
+          <AlerteDisplayer />
+          {children}
+        </main>
 
-      <Footer
-        conseiller={conseiller}
-        aDesBeneficiaires={portefeuille.length > 0}
-        withPlanDuSite={true}
-      />
-    </div>
+        <Footer
+          conseiller={conseiller}
+          aDesBeneficiaires={portefeuille.length > 0}
+          withPlanDuSite={true}
+        />
+      </div>
+    </HeaderPortalsProvider>
   )
 }

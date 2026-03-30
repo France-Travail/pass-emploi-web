@@ -1,64 +1,34 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import React, { useSyncExternalStore } from 'react'
+import React from 'react'
 import { createPortal } from 'react-dom'
 
 import FilAriane from 'components/FilAriane'
-import { PAGE_NAVIGATION_ROOT_ID } from 'components/globals'
 import LienRetour from 'components/LienRetour'
-
-function useIsBrowser() {
-  return useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  )
-}
+import { useHeaderPortals } from 'utils/headerPortalsContext'
 
 export function PageRetourPortal({ lien }: { lien: string }) {
-  const isBrowser = useIsBrowser()
+  const { navigationRoot } = useHeaderPortals()
 
-  const pageRetourContainer = <LienRetour returnUrlOrPath={lien} />
-
-  if (isBrowser) {
-    const pageRetourRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
-    return pageRetourRoot
-      ? createPortal(pageRetourContainer, pageRetourRoot)
-      : null
-  } else {
-    return null
-  }
+  if (!navigationRoot) return null
+  return createPortal(<LienRetour returnUrlOrPath={lien} />, navigationRoot)
 }
 
 export function PageFilArianePortal() {
-  const isBrowser = useIsBrowser()
+  const pathname = usePathname()
+  const { navigationRoot } = useHeaderPortals()
 
-  const pageFilArianeContainer = <FilAriane path={usePathname()} />
-
-  if (isBrowser) {
-    const pageRetourRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
-    return pageRetourRoot
-      ? createPortal(pageFilArianeContainer, pageRetourRoot)
-      : null
-  } else {
-    return null
-  }
+  if (!navigationRoot) return null
+  return createPortal(<FilAriane path={pathname} />, navigationRoot)
 }
 
 export function PageHeaderPortal({ header }: { header: string }) {
-  const isBrowser = useIsBrowser()
+  const { navigationRoot } = useHeaderPortals()
 
-  const pageHeaderContainer = (
-    <h1 className='text-l-bold text-primary'>{header}</h1>
+  if (!navigationRoot) return null
+  return createPortal(
+    <h1 className='text-l-bold text-primary'>{header}</h1>,
+    navigationRoot
   )
-
-  if (isBrowser) {
-    const pageHeaderRoot = document.getElementById(PAGE_NAVIGATION_ROOT_ID)
-    return pageHeaderRoot
-      ? createPortal(pageHeaderContainer, pageHeaderRoot)
-      : null
-  } else {
-    return null
-  }
 }
