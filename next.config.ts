@@ -64,6 +64,20 @@ const nextConfig: NextConfig = {
     reactRemoveProperties: true,
   },
 
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: [
+          {
+            loader: '@svgr/webpack',
+            options: { titleProp: true },
+          },
+        ],
+        as: '*.js',
+      },
+    },
+  },
+
   webpack(config: any) {
     // https://react-svgr.com/docs/next/
     config.module.rules.push({

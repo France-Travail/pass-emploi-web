@@ -15,5 +15,9 @@ export function initRum() {
 }
 
 export function captureError(error: Error | string) {
-  rum.captureError(error)
+  if (globalThis.window === undefined) {
+    import('elastic-apm-node').then((apm) => apm.default.captureError(error))
+  } else {
+    rum.captureError(error)
+  }
 }
