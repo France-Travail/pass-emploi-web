@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 
-import { captureError } from 'utils/monitoring/elasticApm'
+import { captureError } from 'utils/monitoring/elastic'
 
 export async function fetchJson(
   path: string,
