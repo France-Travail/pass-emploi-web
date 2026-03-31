@@ -15,6 +15,7 @@ import {
   DetailBeneficiaire,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
+import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { estMilo, structureFTCej } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
@@ -44,7 +45,8 @@ export default function DetailsBeneficiaire({
   onSupprimerBeneficiaire,
   className,
 }: Readonly<DetailsBeneficiaireProps>) {
-  const { id, idPartenaire, dispositif, situationCourante } = beneficiaire
+  const { id, idPartenaire, dispositif, situationCourante, lastActivity } =
+    beneficiaire
   const [conseiller] = useConseiller()
   const [_, setAlerte] = useAlerte()
 
@@ -52,6 +54,9 @@ export default function DetailsBeneficiaire({
   const [identifiantPartenaire, setIdentifiantPartenaire] = useState<
     string | undefined
   >(idPartenaire)
+  const [motifsSuppression, setMotifsSuppression] = useState<
+    MotifSuppressionBeneficiaire[]
+  >([])
 
   const modalDispositifRef = useRef<ModalHandles>(null)
   const [showChangementDispositif, setShowChangementDispositif] =
@@ -88,11 +93,42 @@ export default function DetailsBeneficiaire({
     }
   }
 
+  async function ouvrirModalChangementDispositif(): Promise<void> {
+    if (motifsSuppression.length === 0) {
+      const { getMotifsSuppression } =
+        await import('services/beneficiaires.service')
+      const motifs = await getMotifsSuppression()
+      setMotifsSuppression(motifs)
+    }
+    setShowChangementDispositif(true)
+  }
+
   async function changerDispositif(nouveauDispositif: string): Promise<void> {
     const { modifierDispositif } =
       await import('services/beneficiaires.service')
     try {
       await modifierDispositif(id, nouveauDispositif)
+      setDispositifActuel(nouveauDispositif)
+      router.refresh()
+    } finally {
+      modalDispositifRef.current!.closeModal()
+    }
+  }
+
+  async function changerDispositifFinAccompagnement(
+    nouveauDispositif: string,
+    motif: string,
+    dateFinAccompagnement: string
+  ): Promise<void> {
+    const { changerDispositifAvecMotif } =
+      await import('services/beneficiaires.service')
+    try {
+      await changerDispositifAvecMotif(
+        id,
+        nouveauDispositif,
+        motif,
+        dateFinAccompagnement
+      )
       setDispositifActuel(nouveauDispositif)
       router.refresh()
     } finally {
@@ -142,21 +178,12 @@ export default function DetailsBeneficiaire({
             onHistoriqueConseillers={() => setShowHistoriqueConseillers(true)}
             onChangementDispositif={
               estMilo(conseiller.structure)
-                ? () => setShowChangementDispositif(true)
+                ? ouvrirModalChangementDispositif
                 : undefined
             }
           />
         </div>
       </div>
-
-      {showChangementDispositif && (
-        <ChangementDispositifBeneficiaireModal
-          ref={modalDispositifRef}
-          dispositif={dispositifActuel}
-          onConfirm={changerDispositif}
-          onCancel={() => setShowChangementDispositif(false)}
-        />
-      )}
 
       {showIdentifiantPartenaireModal && (
         <UpdateIdentifiantPartenaireModal
@@ -171,6 +198,18 @@ export default function DetailsBeneficiaire({
         <HistoriqueConseillersModal
           conseillers={historiqueConseillers}
           onClose={() => setShowHistoriqueConseillers(false)}
+        />
+      )}
+
+      {showChangementDispositif && (
+        <ChangementDispositifBeneficiaireModal
+          ref={modalDispositifRef}
+          dispositif={dispositifActuel}
+          lastActivity={lastActivity}
+          motifsSuppression={motifsSuppression}
+          onConfirm={changerDispositif}
+          onConfirmFinAccompagnement={changerDispositifFinAccompagnement}
+          onCancel={() => setShowChangementDispositif(false)}
         />
       )}
     </>

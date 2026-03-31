@@ -246,6 +246,22 @@ export async function modifierDispositif(
   )
 }
 
+export async function changerDispositifAvecMotif(
+  idJeune: string,
+  dispositif: string,
+  motif: string,
+  dateFinAccompagnement: DateTime
+): Promise<{ content: void; headers: Headers }> {
+  const session = await getSession()
+  const idConseiller = session?.user.id
+
+  return apiPost(
+    `/conseillers/${idConseiller}/jeunes/${idJeune}/changer-dispositif`,
+    { dispositif, motif, dateFinAccompagnement },
+    session!.accessToken
+  )
+}
+
 export async function changerVisibiliteComptageHeures(
   idBeneficiaire: string,
   peutVoirLeComptageDesHeures: boolean

@@ -1,5 +1,6 @@
 import React from 'react'
 
+import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
 import { estFranceTravail, estMilo } from 'interfaces/structure'
@@ -33,7 +34,7 @@ export default function BlocInformationBeneficiaire({
     <>
       <div className='grow shrink-0 px-6'>
         <h2 className='text-base-bold text-content-color mb-4'>Informations</h2>
-        <dl className='flex flex-col gap-1 mb-4'>
+        <dl className='flex flex-col gap-1'>
           {conseillerEstMilo && (
             <div className='w-fit rounded-full flex items-center gap-1 text-s-medium px-3 bg-primary-lighten text-primary'>
               <dt>Date de fin du CEJ :</dt>
@@ -74,17 +75,26 @@ export default function BlocInformationBeneficiaire({
           {aIdentifiantFT && <IdentifiantFT {...identifiantPartenaire} />}
         </dl>
 
-        {onChangementDispositif && (
-          <UnderlinedButton
-            label='Changer le bénéficiaire de dispositif'
-            onClick={onChangementDispositif}
-          />
-        )}
-
         <UnderlinedButton
           label='Consulter l’historique des conseillers'
           onClick={onHistoriqueConseillers}
         />
+
+        {onChangementDispositif && (
+          <Button
+            style={ButtonStyle.SECONDARY}
+            onClick={onChangementDispositif}
+            className='mb-1 mt-4'
+          >
+            <IconComponent
+              name={IconName.SwapVert}
+              className='inline-block w-4 h-5 fill-current mr-2'
+              aria-hidden={true}
+              focusable={false}
+            />
+            Changer le bénéficiaire de dispositif
+          </Button>
+        )}
       </div>
     </>
   )
