@@ -250,12 +250,12 @@ export async function changerDispositifAvecMotif(
   idJeune: string,
   dispositif: string,
   motif: string,
-  dateFinAccompagnement: DateTime
-): Promise<{ content: void; headers: Headers }> {
+  dateFinAccompagnement: string
+): Promise<void> {
   const session = await getSession()
   const idConseiller = session?.user.id
 
-  return apiPost(
+  await apiPost(
     `/conseillers/${idConseiller}/jeunes/${idJeune}/changer-dispositif`,
     { dispositif, motif, dateFinAccompagnement },
     session!.accessToken

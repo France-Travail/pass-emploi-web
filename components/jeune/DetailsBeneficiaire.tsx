@@ -9,6 +9,7 @@ import HeaderDetailBeneficiaire from 'components/jeune/HeaderDetailBeneficiaire'
 import IndicateursBeneficiaire from 'components/jeune/IndicateursBeneficiaire'
 import UpdateIdentifiantPartenaireModal from 'components/jeune/UpdateIdentifiantPartenaireModal' // FIXME should use dynamic(() => import() but issue with jest
 import { ModalHandles } from 'components/ModalContainer'
+import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import {
   ConseillerHistorique,
   Demarche,
@@ -54,9 +55,11 @@ export default function DetailsBeneficiaire({
   const [identifiantPartenaire, setIdentifiantPartenaire] = useState<
     string | undefined
   >(idPartenaire)
-  const [motifsSuppression, setMotifsSuppression] = useState<
+  const [motifsFinAccompagnement, setMotifsFinAccompagnement] = useState<
     MotifSuppressionBeneficiaire[]
   >([])
+  const [erreurChargementMotifs, setErreurChargementMotifs] =
+    useState<boolean>(false)
 
   const modalDispositifRef = useRef<ModalHandles>(null)
   const [showChangementDispositif, setShowChangementDispositif] =
@@ -94,13 +97,17 @@ export default function DetailsBeneficiaire({
   }
 
   async function ouvrirModalChangementDispositif(): Promise<void> {
-    if (motifsSuppression.length === 0) {
-      const { getMotifsSuppression } =
-        await import('services/beneficiaires.service')
-      const motifs = await getMotifsSuppression()
-      setMotifsSuppression(motifs)
+    try {
+      if (motifsFinAccompagnement.length === 0) {
+        const { getMotifsSuppression } =
+          await import('services/beneficiaires.service')
+        const motifs = await getMotifsSuppression()
+        setMotifsFinAccompagnement(motifs)
+      }
+      setShowChangementDispositif(true)
+    } catch {
+      setErreurChargementMotifs(true)
     }
-    setShowChangementDispositif(true)
   }
 
   async function changerDispositif(nouveauDispositif: string): Promise<void> {
@@ -201,12 +208,19 @@ export default function DetailsBeneficiaire({
         />
       )}
 
+      {erreurChargementMotifs && (
+        <FailureAlert
+          label='Une erreur est survenue lors du chargement des motifs. Veuillez réessayer.'
+          onAcknowledge={() => setErreurChargementMotifs(false)}
+        />
+      )}
+
       {showChangementDispositif && (
         <ChangementDispositifBeneficiaireModal
           ref={modalDispositifRef}
           dispositif={dispositifActuel}
           lastActivity={lastActivity}
-          motifsSuppression={motifsSuppression}
+          motifsFinAccompagnement={motifsFinAccompagnement}
           onConfirm={changerDispositif}
           onConfirmFinAccompagnement={changerDispositifFinAccompagnement}
           onCancel={() => setShowChangementDispositif(false)}

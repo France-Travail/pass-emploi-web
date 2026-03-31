@@ -12,13 +12,13 @@ import { toShortDate } from 'utils/date'
 type ChangementDispositifBeneficiaireModalProps = {
   dispositif: string
   lastActivity?: string
-  motifsSuppression: MotifSuppressionBeneficiaire[]
-  onConfirm: (nouveauDispositif: string) => void
+  motifsFinAccompagnement: MotifSuppressionBeneficiaire[]
+  onConfirm: (nouveauDispositif: string) => Promise<void>
   onConfirmFinAccompagnement: (
     nouveauDispositif: string,
     motif: string,
     dateFinAccompagnement: string
-  ) => void
+  ) => Promise<void>
   onCancel: () => void
 }
 
@@ -26,7 +26,7 @@ function ChangementDispositifBeneficiaireModal(
   {
     dispositif,
     lastActivity,
-    motifsSuppression,
+    motifsFinAccompagnement,
     onConfirm,
     onConfirmFinAccompagnement,
     onCancel,
@@ -40,14 +40,26 @@ function ChangementDispositifBeneficiaireModal(
 
   const nouveauDispositif = dispositif === 'CEJ' ? 'PACEA' : 'CEJ'
 
-  function handleConfirmerErreur() {
+  async function handleConfirmerErreur() {
     setLoading(true)
-    onConfirm(nouveauDispositif)
+    try {
+      await onConfirm(nouveauDispositif)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  function handleConfirmerFinAccompagnement() {
+  async function handleConfirmerFinAccompagnement() {
     setLoading(true)
-    onConfirmFinAccompagnement(nouveauDispositif, motif, dateFinAccompagnement)
+    try {
+      await onConfirmFinAccompagnement(
+        nouveauDispositif,
+        motif,
+        dateFinAccompagnement
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -110,7 +122,7 @@ function ChangementDispositifBeneficiaireModal(
                 required
                 onChange={setMotif}
               >
-                {motifsSuppression.map(({ motif: m }) => (
+                {motifsFinAccompagnement.map(({ motif: m }) => (
                   <option key={m} value={m}>
                     {m}
                   </option>
