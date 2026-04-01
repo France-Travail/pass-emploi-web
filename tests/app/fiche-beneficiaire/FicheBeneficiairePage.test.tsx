@@ -297,7 +297,7 @@ describe('FicheBeneficiairePage client side', () => {
         // Then
         expect(
           screen.getByText(
-            'Confirmation du changement de dispositif — Passage en PACEA sans perte de données'
+            'Confirmation du changement de dispositif Passage en PACEA sans perte de données'
           )
         ).toBeInTheDocument()
         expect(
