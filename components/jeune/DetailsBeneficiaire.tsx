@@ -9,12 +9,14 @@ import HeaderDetailBeneficiaire from 'components/jeune/HeaderDetailBeneficiaire'
 import IndicateursBeneficiaire from 'components/jeune/IndicateursBeneficiaire'
 import UpdateIdentifiantPartenaireModal from 'components/jeune/UpdateIdentifiantPartenaireModal' // FIXME should use dynamic(() => import() but issue with jest
 import { ModalHandles } from 'components/ModalContainer'
+import FailureAlert from 'components/ui/Notifications/FailureAlert'
 import {
   ConseillerHistorique,
   Demarche,
   DetailBeneficiaire,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
+import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { estMilo, structureFTCej } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
@@ -44,7 +46,8 @@ export default function DetailsBeneficiaire({
   onSupprimerBeneficiaire,
   className,
 }: Readonly<DetailsBeneficiaireProps>) {
-  const { id, idPartenaire, dispositif, situationCourante } = beneficiaire
+  const { id, idPartenaire, dispositif, situationCourante, lastActivity } =
+    beneficiaire
   const [conseiller] = useConseiller()
   const [_, setAlerte] = useAlerte()
 
@@ -52,6 +55,11 @@ export default function DetailsBeneficiaire({
   const [identifiantPartenaire, setIdentifiantPartenaire] = useState<
     string | undefined
   >(idPartenaire)
+  const [motifsFinAccompagnement, setMotifsFinAccompagnement] = useState<
+    MotifSuppressionBeneficiaire[]
+  >([])
+  const [erreurChargementMotifs, setErreurChargementMotifs] =
+    useState<boolean>(false)
 
   const modalDispositifRef = useRef<ModalHandles>(null)
   const [showChangementDispositif, setShowChangementDispositif] =
@@ -88,11 +96,46 @@ export default function DetailsBeneficiaire({
     }
   }
 
+  async function ouvrirModalChangementDispositif(): Promise<void> {
+    try {
+      if (motifsFinAccompagnement.length === 0) {
+        const { getMotifsSuppression } =
+          await import('services/beneficiaires.service')
+        const motifs = await getMotifsSuppression()
+        setMotifsFinAccompagnement(motifs)
+      }
+      setShowChangementDispositif(true)
+    } catch {
+      setErreurChargementMotifs(true)
+    }
+  }
+
   async function changerDispositif(nouveauDispositif: string): Promise<void> {
     const { modifierDispositif } =
       await import('services/beneficiaires.service')
     try {
       await modifierDispositif(id, nouveauDispositif)
+      setDispositifActuel(nouveauDispositif)
+      router.refresh()
+    } finally {
+      modalDispositifRef.current!.closeModal()
+    }
+  }
+
+  async function changerDispositifFinAccompagnement(
+    nouveauDispositif: string,
+    motif: string,
+    dateFinAccompagnement: string
+  ): Promise<void> {
+    const { changerDispositifAvecMotif } =
+      await import('services/beneficiaires.service')
+    try {
+      await changerDispositifAvecMotif(
+        id,
+        nouveauDispositif,
+        motif,
+        dateFinAccompagnement
+      )
       setDispositifActuel(nouveauDispositif)
       router.refresh()
     } finally {
@@ -142,21 +185,12 @@ export default function DetailsBeneficiaire({
             onHistoriqueConseillers={() => setShowHistoriqueConseillers(true)}
             onChangementDispositif={
               estMilo(conseiller.structure)
-                ? () => setShowChangementDispositif(true)
+                ? ouvrirModalChangementDispositif
                 : undefined
             }
           />
         </div>
       </div>
-
-      {showChangementDispositif && (
-        <ChangementDispositifBeneficiaireModal
-          ref={modalDispositifRef}
-          dispositif={dispositifActuel}
-          onConfirm={changerDispositif}
-          onCancel={() => setShowChangementDispositif(false)}
-        />
-      )}
 
       {showIdentifiantPartenaireModal && (
         <UpdateIdentifiantPartenaireModal
@@ -171,6 +205,25 @@ export default function DetailsBeneficiaire({
         <HistoriqueConseillersModal
           conseillers={historiqueConseillers}
           onClose={() => setShowHistoriqueConseillers(false)}
+        />
+      )}
+
+      {erreurChargementMotifs && (
+        <FailureAlert
+          label='Une erreur est survenue lors du chargement des motifs. Veuillez réessayer.'
+          onAcknowledge={() => setErreurChargementMotifs(false)}
+        />
+      )}
+
+      {showChangementDispositif && (
+        <ChangementDispositifBeneficiaireModal
+          ref={modalDispositifRef}
+          dispositif={dispositifActuel}
+          lastActivity={lastActivity}
+          motifsFinAccompagnement={motifsFinAccompagnement}
+          onConfirm={changerDispositif}
+          onConfirmFinAccompagnement={changerDispositifFinAccompagnement}
+          onCancel={() => setShowChangementDispositif(false)}
         />
       )}
     </>

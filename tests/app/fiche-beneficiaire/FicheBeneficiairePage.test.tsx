@@ -17,6 +17,7 @@ import {
 } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
 import { uneListeDOffres } from 'fixtures/favoris'
+import { desMotifsDeSuppression } from 'fixtures/referentiel'
 import {
   BeneficiaireEtChat,
   CategorieSituation,
@@ -25,10 +26,12 @@ import {
 import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
 import { getActionsBeneficiaire } from 'services/actions.service'
 import {
+  changerDispositifAvecMotif,
   changerVisibiliteComptageHeures,
   getComptageHeuresFicheBeneficiaire,
   getDemarchesBeneficiaireClientSide,
   getIndicateursBeneficiaire,
+  getMotifsSuppression,
   modifierDispositif,
   renvoyerEmailActivation,
 } from 'services/beneficiaires.service'
@@ -123,7 +126,7 @@ describe('FicheBeneficiairePage client side', () => {
       expect(setCurrentConversation).not.toHaveBeenCalled()
     })
 
-    it('restreint l‘accès aux boutons', async () => {
+    it("restreint l'accès aux boutons", async () => {
       //Then
       expect(
         screen.queryByRole('button', { name: 'Supprimer ce compte' })
@@ -276,6 +279,10 @@ describe('FicheBeneficiairePage client side', () => {
           refresh: mockRefresh,
         })
         ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(changerDispositifAvecMotif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
         await renderFicheJeuneMilo()
 
         // When
@@ -286,41 +293,40 @@ describe('FicheBeneficiairePage client side', () => {
         )
       })
 
-      it('informe de l’usage attendu', async () => {
+      it('affiche le titre et les deux options', async () => {
         // Then
         expect(
           screen.getByText(
-            'Confirmation du changement de dispositif (passage en PACEA)'
+            'Confirmation du changement de dispositif Passage en PACEA sans perte de données'
           )
         ).toBeInTheDocument()
         expect(
-          screen.getByText(
-            'Attention, cette modification ne doit être utilisée que pour corriger une erreur dans le choix du dispositif lors de la création du compte.'
-          )
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en PACEA",
+          })
         ).toBeInTheDocument()
       })
 
-      it('oblige la validation de l’usage', async () => {
-        // When
-        await userEvent.click(
-          screen.getByRole('button', {
+      it("n'ffiche pas le bouton de confirmation avant la sélection d'une raison", async () => {
+        // Then
+        expect(
+          screen.queryByRole('button', {
             name: 'Confirmer le passage du bénéficiaire en PACEA',
           })
-        )
-
-        // Then
-        expect(
-          screen.getByText('Cet élément est obligatoire.')
-        ).toBeInTheDocument()
+        ).not.toBeInTheDocument()
         expect(modifierDispositif).not.toHaveBeenCalled()
-        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
       })
 
-      it('permet de changer le dispositif du bénéficiaire', async () => {
+      it('permet de changer le dispositif du bénéficiaire (erreur de sélection)', async () => {
         // When
         await userEvent.click(
-          screen.getByRole('checkbox', {
-            name: 'Je confirme que le passage en PACEA de ce bénéficiaire est lié à une erreur lors de la création du compte (obligatoire)',
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
           })
         )
         await userEvent.click(
@@ -338,6 +344,40 @@ describe('FicheBeneficiairePage client side', () => {
         expect(() =>
           screen.getByText(/Confirmation du changement de dispositif/)
         ).toThrow()
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+      })
+
+      it("permet de changer le dispositif du bénéficiaire (fin d'accompagnement)", async () => {
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en PACEA",
+          })
+        )
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', {
+            name: /Motif de fin d'accompagnement/,
+          }),
+          'Emploi durable (plus de 6 mois)'
+        )
+        await userEvent.type(
+          screen.getByLabelText(/Date de fin d'accompagnement/),
+          '2024-06-01'
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(changerDispositifAvecMotif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'PACEA',
+          'Emploi durable (plus de 6 mois)',
+          '2024-06-01'
+        )
+        expect(mockRefresh).toHaveBeenCalled()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
       })
     })
@@ -363,7 +403,9 @@ describe('FicheBeneficiairePage client side', () => {
           name: /Afficher le compteur à votre bénéficiaire/,
         })
         expect(switchElement).toBeChecked()
-
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
         await userEvent.click(
           screen.getByRole('button', {
             name: 'Changer le bénéficiaire de dispositif',
@@ -372,8 +414,8 @@ describe('FicheBeneficiairePage client side', () => {
 
         // When
         await userEvent.click(
-          screen.getByRole('checkbox', {
-            name: 'Je confirme que le passage en PACEA de ce bénéficiaire est lié à une erreur lors de la création du compte (obligatoire)',
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
           })
         )
         await userEvent.click(
@@ -400,7 +442,7 @@ describe('FicheBeneficiairePage client side', () => {
       })
     })
 
-    describe('quand le compte du bénéficiaire n’est pas activé', () => {
+    describe("quand le compte du bénéficiaire n'est pas activé", () => {
       it('affiche un message', async () => {
         // When
         await renderFicheJeuneMilo({ lastActivity: undefined })
@@ -408,7 +450,7 @@ describe('FicheBeneficiairePage client side', () => {
         // Then
         expect(
           screen.getByText(
-            /Ce bénéficiaire ne s’est pas encore connecté à l’application/
+            /Ce bénéficiaire ne s’est pas encore connecté à l’application et ne pourra pas échanger de messages avec vous./
           )
         ).toBeInTheDocument()
         expect(
@@ -426,7 +468,7 @@ describe('FicheBeneficiairePage client side', () => {
         ).toBeInTheDocument()
       })
 
-      describe('quand l’envoi de l’email d’activation échoue', () => {
+      describe("quand l'envoi de l'email d'activation échoue", () => {
         it('affiche une erreur', async () => {
           // Given
           ;(renvoyerEmailActivation as jest.Mock).mockRejectedValue({
@@ -457,7 +499,7 @@ describe('FicheBeneficiairePage client side', () => {
         })
       })
 
-      it('permet de renvoyer l’email d’activation', async () => {
+      it("permet de renvoyer l'email d'activation", async () => {
         // Given
         await renderFicheJeuneMilo({ lastActivity: undefined })
 
@@ -571,7 +613,7 @@ describe('FicheBeneficiairePage client side', () => {
         ).toBeInTheDocument()
         expect(() =>
           screen.getByText(
-            /Le lien d’activation envoyé par i-milo sur l‘adresse e-mail du jeune n’est valable que 24h/
+            /Le lien d’activation envoyé par i-milo sur l'adresse e-mail du jeune n’est valable que 24h/
           )
         ).toThrow()
       })
