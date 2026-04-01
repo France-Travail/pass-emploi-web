@@ -1,5 +1,4 @@
-import { isTag } from 'domhandler'
-import { Node } from 'domhandler/lib/node'
+import { isTag, Node } from 'domhandler'
 import parse, {
   DOMNode,
   domToReact,
