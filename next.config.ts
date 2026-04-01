@@ -91,6 +91,7 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: (process.env.LOGO_AUTHORIZED_URL ?? '')
       .split(',')
+      .filter(Boolean)
       .map((authorizedUrl) => ({
         protocol: 'https',
         hostname: authorizedUrl,
