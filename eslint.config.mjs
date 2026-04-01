@@ -3,6 +3,7 @@ import prettierConfigRecommended from 'eslint-plugin-prettier/recommended'
 import reactCompiler from 'eslint-plugin-react-compiler'
 
 const eslintConfig = [
+  { ignores: ['dist/**', 'nodes_modules/**'] },
   ...nextConfig,
   prettierConfigRecommended,
   {
