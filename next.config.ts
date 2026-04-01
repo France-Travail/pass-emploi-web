@@ -89,15 +89,14 @@ const nextConfig: NextConfig = {
   },
 
   images: {
-    remotePatterns: (process.env.LOGO_AUTHORIZED_URL ?? '')
-      .split(',')
-      .filter(Boolean)
-      .map((authorizedUrl) => ({
-        protocol: 'https',
-        hostname: authorizedUrl,
-        port: '',
-        search: '',
-      })),
+    remotePatterns: process.env.LOGO_AUTHORIZED_URL
+      ? process.env.LOGO_AUTHORIZED_URL.split(',').map((authorizedUrl) => ({
+          protocol: 'https',
+          hostname: authorizedUrl,
+          port: '',
+          search: '',
+        }))
+      : [],
   },
 }
 
