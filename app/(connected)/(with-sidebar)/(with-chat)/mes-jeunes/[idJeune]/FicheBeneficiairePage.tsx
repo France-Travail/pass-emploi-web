@@ -4,7 +4,7 @@ import { withTransaction } from '@elastic/apm-rum-react'
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useRef, useState } from 'react'
 
 import {
   estFicheMilo,
@@ -56,6 +56,7 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
   const [portefeuille] = usePortefeuille()
   const chats = useChats()
   const chatIsLoaded = Boolean(chats)
+  const conversationInitialized = useRef(false)
   const [_, setCurrentConversation] = useCurrentConversation()
   const [alerte] = useAlerte()
 
@@ -129,7 +130,8 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
   }, [])
 
   useEffect(() => {
-    if (chatIsLoaded && !lectureSeule) {
+    if (!conversationInitialized.current && chatIsLoaded && !lectureSeule) {
+      conversationInitialized.current = true
       const conversation = chats!.find(({ id }) => id === beneficiaire.id)
       setTimeout(() => setCurrentConversation(conversation), 0)
     }
@@ -153,9 +155,7 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
         indicateursSemaine={indicateursSemaine}
         withCreations={!lectureSeule && estBeneficiaireMilo}
         onSupprimerBeneficiaire={
-          !lectureSeule
-            ? () => setShowModaleDeleteBeneficiaire(true)
-            : undefined
+          lectureSeule ? undefined : () => setShowModaleDeleteBeneficiaire(true)
         }
         className='mb-8'
       />
