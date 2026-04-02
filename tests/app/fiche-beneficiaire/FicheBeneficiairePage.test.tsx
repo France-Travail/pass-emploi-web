@@ -24,6 +24,7 @@ import {
   Demarche,
 } from 'interfaces/beneficiaire'
 import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
+import { AlerteParam } from 'referentiel/alerteParam'
 import { getActionsBeneficiaire } from 'services/actions.service'
 import {
   changerDispositifAvecMotif,
@@ -38,7 +39,6 @@ import {
 import { getOffres } from 'services/favoris.service'
 import getByDescriptionTerm from 'tests/querySelector'
 import renderWithContexts from 'tests/renderWithContexts'
-import { AlerteParam } from 'referentiel/alerteParam'
 
 jest.mock('services/beneficiaires.service')
 jest.mock('services/actions.service')
