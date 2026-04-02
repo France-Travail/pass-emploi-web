@@ -38,6 +38,7 @@ import {
 import { getOffres } from 'services/favoris.service'
 import getByDescriptionTerm from 'tests/querySelector'
 import renderWithContexts from 'tests/renderWithContexts'
+import { AlerteParam } from 'referentiel/alerteParam'
 
 jest.mock('services/beneficiaires.service')
 jest.mock('services/actions.service')
@@ -270,10 +271,12 @@ describe('FicheBeneficiairePage client side', () => {
 
     describe('changement de dispositif', () => {
       let mockRefresh: jest.Mock
+      let alerteSetter: jest.Mock
 
       beforeEach(async () => {
         // Given
         mockRefresh = jest.fn()
+        alerteSetter = jest.fn()
         ;(useRouter as jest.Mock).mockReturnValue({
           replace: jest.fn(),
           refresh: mockRefresh,
@@ -283,7 +286,7 @@ describe('FicheBeneficiairePage client side', () => {
         ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
           desMotifsDeSuppression()
         )
-        await renderFicheJeuneMilo()
+        await renderFicheJeuneMilo({ alerteSetter })
 
         // When
         await userEvent.click(
@@ -379,6 +382,58 @@ describe('FicheBeneficiairePage client side', () => {
         )
         expect(mockRefresh).toHaveBeenCalled()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+      })
+
+      describe('bandeau de succès', () => {
+        it('affiche un bandeau de succès PACEA après un changement CEJ -> PACEA (erreur)', async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('radio', {
+              name: 'Le dispositif CEJ a été sélectionné par erreur',
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Confirmer le passage du bénéficiaire en PACEA',
+            })
+          )
+
+          // Then
+          expect(alerteSetter).toHaveBeenCalledWith(
+            AlerteParam.changementDispositif,
+            'PACEA'
+          )
+        })
+
+        it("affiche un bandeau de succès PACEA après un changement CEJ -> PACEA (fin d'accompagnement)", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('radio', {
+              name: "Fin d'un accompagnement CEJ et poursuite en PACEA",
+            })
+          )
+          await userEvent.selectOptions(
+            screen.getByRole('combobox', {
+              name: /Motif de fin d'accompagnement/,
+            }),
+            'Emploi durable (plus de 6 mois)'
+          )
+          await userEvent.type(
+            screen.getByLabelText(/Date de fin d'accompagnement/),
+            '2024-06-01'
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Confirmer le passage du bénéficiaire en PACEA',
+            })
+          )
+
+          // Then
+          expect(alerteSetter).toHaveBeenCalledWith(
+            AlerteParam.changementDispositif,
+            'PACEA'
+          )
+        })
       })
     })
 
@@ -697,12 +752,14 @@ async function renderFicheJeuneMilo({
   situation,
   peuVoirLeComptageDesHeures,
   dispositif,
+  alerteSetter,
 }: {
   lastActivity?: string
   structureDifferente?: boolean
   situation?: CategorieSituation
   peuVoirLeComptageDesHeures?: boolean
   dispositif?: string
+  alerteSetter?: jest.Mock
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
     lastActivity,
@@ -733,6 +790,7 @@ async function renderFicheJeuneMilo({
             }
           : undefined,
       },
+      ...(alerteSetter && { customAlerte: { setter: alerteSetter } }),
     }
   )
 
