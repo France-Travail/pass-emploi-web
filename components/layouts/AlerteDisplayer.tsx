@@ -32,7 +32,14 @@ export default function AlerteDisplayer({
   return (
     <div className={hideOnLargeScreen ? 'layout-s:hidden' : ''}>
       {alerte && alerteAAfficher && (
-        <SuccessAlert label={alerteAAfficher.title} onAcknowledge={closeAlerte}>
+        <SuccessAlert
+          label={
+            typeof alerteAAfficher.title === 'function'
+              ? alerteAAfficher.title(alerte.target)
+              : alerteAAfficher.title
+          }
+          onAcknowledge={closeAlerte}
+        >
           <>
             <p className='whitespace-pre-line'>{alerteAAfficher.sub}</p>
 
@@ -51,7 +58,7 @@ export default function AlerteDisplayer({
 }
 
 type AlerteAffichee = {
-  title: string
+  title: string | ((target?: string) => string)
   sub?: string
   link?: {
     label: string
@@ -99,6 +106,10 @@ const ALERTES: DictAlertes = {
   envoiMessage: {
     title:
       'Votre message multi-destinataires a été envoyé en tant que message individuel à chacun des bénéficiaires',
+  },
+  changementDispositif: {
+    title: (target?: string) =>
+      `Ce bénéficiaire est bien passé en accompagnement ${target}`,
   },
   modificationIdentifiantPartenaire: {
     title: 'L’identifiant France Travail a bien été mis à jour',

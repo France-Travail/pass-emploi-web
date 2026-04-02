@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import React, { Dispatch, SetStateAction } from 'react'
 
 import FicheBeneficiairePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/FicheBeneficiairePage'
+import AlerteDisplayer from 'components/layouts/AlerteDisplayer'
 import { desCategories } from 'fixtures/action'
 import {
   desIndicateursSemaine,
@@ -24,6 +25,7 @@ import {
   Demarche,
 } from 'interfaces/beneficiaire'
 import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
+import { AlerteParam } from 'referentiel/alerteParam'
 import { getActionsBeneficiaire } from 'services/actions.service'
 import {
   changerDispositifAvecMotif,
@@ -270,10 +272,12 @@ describe('FicheBeneficiairePage client side', () => {
 
     describe('changement de dispositif', () => {
       let mockRefresh: jest.Mock
+      let alerteSetter: jest.Mock
 
       beforeEach(async () => {
         // Given
         mockRefresh = jest.fn()
+        alerteSetter = jest.fn()
         ;(useRouter as jest.Mock).mockReturnValue({
           replace: jest.fn(),
           refresh: mockRefresh,
@@ -283,7 +287,7 @@ describe('FicheBeneficiairePage client side', () => {
         ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
           desMotifsDeSuppression()
         )
-        await renderFicheJeuneMilo()
+        await renderFicheJeuneMilo({ alerteSetter })
 
         // When
         await userEvent.click(
@@ -380,6 +384,144 @@ describe('FicheBeneficiairePage client side', () => {
         expect(mockRefresh).toHaveBeenCalled()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
       })
+
+      describe('bandeau de succès', () => {
+        it('affiche un bandeau de succès PACEA après un changement CEJ -> PACEA (erreur)', async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('radio', {
+              name: 'Le dispositif CEJ a été sélectionné par erreur',
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Confirmer le passage du bénéficiaire en PACEA',
+            })
+          )
+
+          // Then
+          expect(alerteSetter).toHaveBeenCalledWith(
+            AlerteParam.changementDispositif,
+            'PACEA'
+          )
+        })
+
+        it("affiche un bandeau de succès PACEA après un changement CEJ -> PACEA (fin d'accompagnement)", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('radio', {
+              name: "Fin d'un accompagnement CEJ et poursuite en PACEA",
+            })
+          )
+          await userEvent.selectOptions(
+            screen.getByRole('combobox', {
+              name: /Motif de fin d'accompagnement/,
+            }),
+            'Emploi durable (plus de 6 mois)'
+          )
+          await userEvent.type(
+            screen.getByLabelText(/Date de fin d'accompagnement/),
+            '2024-06-01'
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Confirmer le passage du bénéficiaire en PACEA',
+            })
+          )
+
+          // Then
+          expect(alerteSetter).toHaveBeenCalledWith(
+            AlerteParam.changementDispositif,
+            'PACEA'
+          )
+        })
+      })
+    })
+
+    describe('texte du bandeau dans le DOM', () => {
+      it('affiche le texte du bandeau après un changement CEJ -> PACEA', async () => {
+        // Given
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
+        await renderFicheJeuneMilo({
+          dispositif: 'CEJ',
+          withAlerteDisplayer: true,
+        })
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        await waitFor(() =>
+          expect(
+            screen.getByText(
+              /Ce bénéficiaire est bien passé en accompagnement PACEA/
+            )
+          ).toBeInTheDocument()
+        )
+      })
+
+      it('affiche le texte du bandeau après un changement PACEA -> CEJ', async () => {
+        // Given
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
+        await renderFicheJeuneMilo({
+          dispositif: 'PACEA',
+          withAlerteDisplayer: true,
+        })
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif PACEA a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en CEJ',
+          })
+        )
+
+        // Then
+        await waitFor(() =>
+          expect(
+            screen.getByText(
+              /Ce bénéficiaire est bien passé en accompagnement CEJ/
+            )
+          ).toBeInTheDocument()
+        )
+      })
     })
 
     describe('rechargement du dispositif', () => {
@@ -396,6 +538,7 @@ describe('FicheBeneficiairePage client side', () => {
           peuVoirLeComptageDesHeures: true,
           dispositif: 'CEJ',
           lastActivity: '2023-04-12T05:42:07.756Z',
+          withAlerteDisplayer: true,
         })
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
 
@@ -439,6 +582,11 @@ describe('FicheBeneficiairePage client side', () => {
             })
           ).not.toBeInTheDocument()
         )
+        expect(
+          screen.getByText(
+            /Ce bénéficiaire est bien passé en accompagnement PACEA/
+          )
+        ).toBeInTheDocument()
       })
     })
 
@@ -697,12 +845,16 @@ async function renderFicheJeuneMilo({
   situation,
   peuVoirLeComptageDesHeures,
   dispositif,
+  alerteSetter,
+  withAlerteDisplayer,
 }: {
   lastActivity?: string
   structureDifferente?: boolean
   situation?: CategorieSituation
   peuVoirLeComptageDesHeures?: boolean
   dispositif?: string
+  alerteSetter?: jest.Mock
+  withAlerteDisplayer?: boolean
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
     lastActivity,
@@ -713,7 +865,7 @@ async function renderFicheJeuneMilo({
     ...(dispositif !== undefined && { dispositif }),
   })
 
-  const { container } = await renderWithContexts(
+  const page = (
     <FicheBeneficiairePage
       estMilo={true}
       beneficiaire={beneficiaire}
@@ -721,7 +873,18 @@ async function renderFicheJeuneMilo({
       rdvs={[]}
       categoriesActions={desCategories()}
       ongletInitial='actions'
-    />,
+    />
+  )
+
+  const { container } = await renderWithContexts(
+    withAlerteDisplayer ? (
+      <>
+        <AlerteDisplayer />
+        {page}
+      </>
+    ) : (
+      page
+    ),
     {
       customConseiller: {
         agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
@@ -733,6 +896,7 @@ async function renderFicheJeuneMilo({
             }
           : undefined,
       },
+      ...(alerteSetter && { customAlerte: { setter: alerteSetter } }),
     }
   )
 

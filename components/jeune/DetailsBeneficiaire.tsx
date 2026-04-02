@@ -116,6 +116,7 @@ export default function DetailsBeneficiaire({
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)
+      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
       router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
@@ -137,6 +138,7 @@ export default function DetailsBeneficiaire({
         dateFinAccompagnement
       )
       setDispositifActuel(nouveauDispositif)
+      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
       router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
