@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import React, { Dispatch, SetStateAction } from 'react'
 
 import FicheBeneficiairePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/FicheBeneficiairePage'
+import AlerteDisplayer from 'components/layouts/AlerteDisplayer'
 import { desCategories } from 'fixtures/action'
 import {
   desIndicateursSemaine,
@@ -437,6 +438,92 @@ describe('FicheBeneficiairePage client side', () => {
       })
     })
 
+    describe('texte du bandeau dans le DOM', () => {
+      it('affiche le texte du bandeau après un changement CEJ -> PACEA', async () => {
+        // Given
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
+        await renderFicheJeuneMilo({
+          dispositif: 'CEJ',
+          withAlerteDisplayer: true,
+        })
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        await waitFor(() =>
+          expect(
+            screen.getByText(
+              /Ce bénéficiaire est bien passé en accompagnement PACEA/
+            )
+          ).toBeInTheDocument()
+        )
+      })
+
+      it('affiche le texte du bandeau après un changement PACEA -> CEJ', async () => {
+        // Given
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
+        await renderFicheJeuneMilo({
+          dispositif: 'PACEA',
+          withAlerteDisplayer: true,
+        })
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif PACEA a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en CEJ',
+          })
+        )
+
+        // Then
+        await waitFor(() =>
+          expect(
+            screen.getByText(
+              /Ce bénéficiaire est bien passé en accompagnement CEJ/
+            )
+          ).toBeInTheDocument()
+        )
+      })
+    })
+
     describe('rechargement du dispositif', () => {
       it('change le dispositif de CEJ vers PACEA et voir que le compteur de heure est desactivé', async () => {
         // Given
@@ -451,6 +538,7 @@ describe('FicheBeneficiairePage client side', () => {
           peuVoirLeComptageDesHeures: true,
           dispositif: 'CEJ',
           lastActivity: '2023-04-12T05:42:07.756Z',
+          withAlerteDisplayer: true,
         })
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
 
@@ -494,6 +582,11 @@ describe('FicheBeneficiairePage client side', () => {
             })
           ).not.toBeInTheDocument()
         )
+        expect(
+          screen.getByText(
+            /Ce bénéficiaire est bien passé en accompagnement PACEA/
+          )
+        ).toBeInTheDocument()
       })
     })
 
@@ -753,6 +846,7 @@ async function renderFicheJeuneMilo({
   peuVoirLeComptageDesHeures,
   dispositif,
   alerteSetter,
+  withAlerteDisplayer,
 }: {
   lastActivity?: string
   structureDifferente?: boolean
@@ -760,6 +854,7 @@ async function renderFicheJeuneMilo({
   peuVoirLeComptageDesHeures?: boolean
   dispositif?: string
   alerteSetter?: jest.Mock
+  withAlerteDisplayer?: boolean
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
     lastActivity,
@@ -770,7 +865,7 @@ async function renderFicheJeuneMilo({
     ...(dispositif !== undefined && { dispositif }),
   })
 
-  const { container } = await renderWithContexts(
+  const page = (
     <FicheBeneficiairePage
       estMilo={true}
       beneficiaire={beneficiaire}
@@ -778,7 +873,18 @@ async function renderFicheJeuneMilo({
       rdvs={[]}
       categoriesActions={desCategories()}
       ongletInitial='actions'
-    />,
+    />
+  )
+
+  const { container } = await renderWithContexts(
+    withAlerteDisplayer ? (
+      <>
+        <AlerteDisplayer />
+        {page}
+      </>
+    ) : (
+      page
+    ),
     {
       customConseiller: {
         agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
