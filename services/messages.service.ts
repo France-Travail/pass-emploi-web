@@ -342,8 +342,6 @@ export async function sendNouveauMessage({
       lastMessageSentAt: now,
       lastMessageSentBy: UserType.CONSEILLER.toLowerCase(),
       newConseillerMessageCount: beneficiaireChat.newConseillerMessageCount + 1,
-      seenByConseiller: true,
-      lastConseillerReading: now,
     }),
   ])
 
