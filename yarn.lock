@@ -2844,12 +2844,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/bundle-analyzer@npm:^16.2.3":
-  version: 16.2.3
-  resolution: "@next/bundle-analyzer@npm:16.2.3"
+"@next/bundle-analyzer@npm:^16.2.4":
+  version: 16.2.4
+  resolution: "@next/bundle-analyzer@npm:16.2.4"
   dependencies:
     webpack-bundle-analyzer: "npm:4.10.1"
-  checksum: 10c0/c8712e7f8cd0210f2f4b3c185e1d894dd3f23a521d79055b592398a9cdf38ea07039284171537c643ed65654a13bb207e63d7af3bb1115ee5691e21933dea502
+  checksum: 10c0/04fb5188f7539d09e35d58e4d4f35cedef31465144401e038ab5be362ba2d70e5681d5e0fd0ce94f3ac2a9c37795ca34710e712b4bdfabb5494bd415177f918f
   languageName: node
   linkType: hard
 
@@ -9878,7 +9878,7 @@ __metadata:
     "@elastic/apm-rum-react": "npm:2.0.10"
     "@eslint/eslintrc": "npm:^3.3.5"
     "@eslint/js": "npm:^9.39.2"
-    "@next/bundle-analyzer": "npm:^16.2.3"
+    "@next/bundle-analyzer": "npm:^16.2.4"
     "@svgr/webpack": "npm:^8.1.0"
     "@tailwindcss/postcss": "npm:^4.2.2"
     "@testing-library/dom": "npm:^10.4.1"
@@ -9926,7 +9926,7 @@ __metadata:
     react: "npm:^19.2.5"
     react-dom: "npm:^19.2.5"
     react-router-dom: "npm:^6.30.3"
-    sanitize-html: "npm:2.17.2"
+    sanitize-html: "npm:2.17.3"
     sharp: "npm:0.34.5"
     source-map-explorer: "npm:^2.5.3"
     style-loader: "npm:^4.0.0"
@@ -10839,9 +10839,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sanitize-html@npm:2.17.2":
-  version: 2.17.2
-  resolution: "sanitize-html@npm:2.17.2"
+"sanitize-html@npm:2.17.3":
+  version: 2.17.3
+  resolution: "sanitize-html@npm:2.17.3"
   dependencies:
     deepmerge: "npm:^4.2.2"
     escape-string-regexp: "npm:^4.0.0"
@@ -10849,7 +10849,7 @@ __metadata:
     is-plain-object: "npm:^5.0.0"
     parse-srcset: "npm:^1.0.2"
     postcss: "npm:^8.3.11"
-  checksum: 10c0/8c4607bbdbb806928686dd000e1e0928397040f5602a55d26b7bb67f600816c1628a2a2ced261426aa823beae23a4d1b5547c1b814aeb9e15959b3819bd96a66
+  checksum: 10c0/8afa59bed125b38bf4b437f9b5a3289a4307f42d720e45105de5a0b3d665be70e27d1722d223121993be2e54a2b99304cd9c54317fb2d251fd7f4abf06b68d27
   languageName: node
   linkType: hard
 
