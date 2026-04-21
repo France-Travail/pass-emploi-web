@@ -70,17 +70,58 @@ export type DetailServiceCivique = BaseServiceCivique & {
   codePostal?: string
 }
 
+const IMMERSION_ID_SEPARATOR = '~'
+
+export function buildImmersionId(
+  siret: string,
+  appellationCode: string,
+  locationId: string
+): string {
+  return [siret, appellationCode, locationId].join(IMMERSION_ID_SEPARATOR)
+}
+
+export function parseImmersionId(id: string): {
+  siret: string
+  appellationCode: string
+  locationId: string
+} {
+  const [siret, appellationCode, locationId] = id.split(IMMERSION_ID_SEPARATOR)
+  return { siret, appellationCode, locationId }
+}
+
 export type BaseImmersion = {
   type: TypeOffre.IMMERSION
   id: string
   titre: string
   nomEtablissement: string
-  ville: string
   secteurActivite: string
+  ville: string
 }
 
 export type DetailImmersion = BaseImmersion & {
   contact: {
     adresse: string
+    mode: ImmersionModeContact
   }
+  informationsComplementaires?: string
+  siteWeb?: string
+  modeDistanciel?: ImmersionModeDistanciel
+  accessibleTravailleurHandicape?: ImmersionAccessibleTravailleurHandicape
+}
+
+export enum ImmersionModeContact {
+  INCONNU = 'INCONNU',
+  EMAIL = 'EMAIL',
+  TELEPHONE = 'TELEPHONE',
+  PRESENTIEL = 'PRESENTIEL',
+}
+export enum ImmersionModeDistanciel {
+  FULL_REMOTE = 'FULL_REMOTE',
+  HYBRID = 'HYBRID',
+  ON_SITE = 'ON_SITE',
+}
+export enum ImmersionAccessibleTravailleurHandicape {
+  YES_FT_CERTIFIED = 'yes-ft-certified',
+  YES_DECLARED_ONLY = 'yes-declared-only',
+  NO = 'no',
 }

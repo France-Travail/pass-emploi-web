@@ -23,11 +23,14 @@ describe('ImmersionsApiService', () => {
       })
 
       // When
-      const actual = await getImmersionServerSide('ID_IMMERSION', 'accessToken')
+      const actual = await getImmersionServerSide(
+        '89081896600016~M1805~loc-1',
+        'accessToken'
+      )
 
       // Then
       expect(apiGet).toHaveBeenCalledWith(
-        '/offres-immersion/ID_IMMERSION',
+        '/offres-immersion/v3/89081896600016/M1805/loc-1',
         'accessToken'
       )
       expect(actual).toStrictEqual(unDetailImmersion())
@@ -40,7 +43,10 @@ describe('ImmersionsApiService', () => {
       )
 
       // When
-      const actual = await getImmersionServerSide('ID_IMMERSION', 'accessToken')
+      const actual = await getImmersionServerSide(
+        '89081896600016~M1805~loc-1',
+        'accessToken'
+      )
 
       // Then
       expect(actual).toStrictEqual(undefined)
@@ -72,7 +78,7 @@ describe('ImmersionsApiService', () => {
 
       // Then
       expect(apiGet).toHaveBeenCalledWith(
-        '/offres-immersion?lat=48.830108&lon=2.323026&distance=52&rome=M1805',
+        '/offres-immersion/v3?lat=48.830108&lon=2.323026&distance=52&rome=M1805',
         'accessToken'
       )
 
