@@ -77,20 +77,12 @@ export async function searchImmersions(
     metadonnees,
     offres: immersionsJson
       .slice(LIMIT * (page - 1), page * LIMIT)
-      .map(
-        ({
-          metier,
-          siret,
-          appellationCode,
-          locationId,
-          ...rest
-        }) => ({
-          type: TypeOffre.IMMERSION,
-          titre: metier,
-          id: buildImmersionId(siret, appellationCode, locationId),
-          ...rest,
-        })
-      ),
+      .map(({ metier, siret, appellationCode, locationId, ...rest }) => ({
+        type: TypeOffre.IMMERSION,
+        titre: metier,
+        id: buildImmersionId(siret, appellationCode, locationId),
+        ...rest,
+      })),
   }
 }
 

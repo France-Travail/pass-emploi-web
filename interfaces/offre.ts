@@ -96,6 +96,7 @@ export type BaseImmersion = {
   nomEtablissement: string
   secteurActivite: string
   ville: string
+  accessibleTravailleurHandicape?: ImmersionAccessibleTravailleurHandicape
 }
 
 export type DetailImmersion = BaseImmersion & {
@@ -106,7 +107,6 @@ export type DetailImmersion = BaseImmersion & {
   informationsComplementaires?: string
   siteWeb?: string
   modeDistanciel?: ImmersionModeDistanciel
-  accessibleTravailleurHandicape?: ImmersionAccessibleTravailleurHandicape
 }
 
 export enum ImmersionModeContact {
