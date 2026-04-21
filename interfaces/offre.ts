@@ -106,11 +106,10 @@ export type DetailImmersion = BaseImmersion & {
   }
   informationsComplementaires?: string
   siteWeb?: string
-  modeDistanciel?: ImmersionModeDistanciel
+  modeDistanciel: ImmersionModeDistanciel
 }
 
 export enum ImmersionModeContact {
-  INCONNU = 'INCONNU',
   EMAIL = 'EMAIL',
   TELEPHONE = 'TELEPHONE',
   PRESENTIEL = 'PRESENTIEL',

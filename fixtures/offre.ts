@@ -12,12 +12,13 @@ import {
   BaseImmersion,
   BaseOffreEmploi,
   BaseServiceCivique,
+  buildImmersionId,
   DetailImmersion,
   DetailOffreEmploi,
   DetailServiceCivique,
   ImmersionModeContact,
+  ImmersionModeDistanciel,
   TypeOffre,
-  buildImmersionId,
 } from 'interfaces/offre'
 
 export function uneBaseOffreEmploi(
@@ -431,7 +432,7 @@ export function unDetailImmersion(
     },
     informationsComplementaires: undefined,
     siteWeb: undefined,
-    modeDistanciel: undefined,
+    modeDistanciel: ImmersionModeDistanciel.HYBRID,
     accessibleTravailleurHandicape: undefined,
   }
 
@@ -452,6 +453,7 @@ export function unDetailImmersionJson(
     ville: 'Paris',
     adresse: '33 Rue Claude Lorrain 75016 Paris',
     contact: ImmersionModeContact.PRESENTIEL,
+    modeDistanciel: ImmersionModeDistanciel.HYBRID,
   }
   return { ...defaults, ...overrides }
 }

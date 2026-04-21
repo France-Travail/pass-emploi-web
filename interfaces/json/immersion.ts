@@ -23,7 +23,7 @@ export type DetailImmersionJson = ImmersionItemJson & {
   contact: ImmersionModeContact
   informationsComplementaires?: string
   siteWeb?: string
-  modeDistanciel?: ImmersionModeDistanciel
+  modeDistanciel: ImmersionModeDistanciel
 }
 
 export function jsonToDetailImmersion(
