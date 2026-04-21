@@ -1606,9 +1606,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@firebase/ai@npm:2.11.0":
-  version: 2.11.0
-  resolution: "@firebase/ai@npm:2.11.0"
+"@firebase/ai@npm:2.11.1":
+  version: 2.11.1
+  resolution: "@firebase/ai@npm:2.11.1"
   dependencies:
     "@firebase/app-check-interop-types": "npm:0.3.3"
     "@firebase/component": "npm:0.7.2"
@@ -1618,7 +1618,7 @@ __metadata:
   peerDependencies:
     "@firebase/app": 0.x
     "@firebase/app-types": 0.x
-  checksum: 10c0/81e0b25f1ce8ad5546c0c80e165b9245009b4d66958c79afd9512dc70da7f51474c94db15d691222b0abc03a49b4e44ba1f1bb3fa9ae56280775867144c61be8
+  checksum: 10c0/ddbaa8b95644698b180942e799023e3153b4ea64d049bc0f6e0f2e8b5d33e398e63fd175a700c6b0760ac000163626766a816fd85c815d7b19cc2d8d2e3fed61
   languageName: node
   linkType: hard
 
@@ -6679,11 +6679,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firebase@npm:12.12.0":
-  version: 12.12.0
-  resolution: "firebase@npm:12.12.0"
+"firebase@npm:12.12.1":
+  version: 12.12.1
+  resolution: "firebase@npm:12.12.1"
   dependencies:
-    "@firebase/ai": "npm:2.11.0"
+    "@firebase/ai": "npm:2.11.1"
     "@firebase/analytics": "npm:0.10.21"
     "@firebase/analytics-compat": "npm:0.2.27"
     "@firebase/app": "npm:0.14.11"
@@ -6711,7 +6711,7 @@ __metadata:
     "@firebase/storage": "npm:0.14.2"
     "@firebase/storage-compat": "npm:0.4.2"
     "@firebase/util": "npm:1.15.0"
-  checksum: 10c0/a34d84ac813d9ff50ded22249abf8c723af7ceb161fc926ee4b41ecc7ce7e70d272c8a5315d2789b545e2bfc39d6a57d2b30b109084d2414947c2d973dde10d0
+  checksum: 10c0/f55e101875dcf68f715d5e1f143713bb0d98112d9b5e171797853f92fe603882c7f441520253b7d6aec6f3a020f802decc433f09803d1a9b22a27efb5c8ac5da
   languageName: node
   linkType: hard
 
@@ -9905,7 +9905,7 @@ __metadata:
     eslint-config-prettier: "npm:^10.1.8"
     eslint-plugin-prettier: "npm:^5.5.5"
     eslint-plugin-react-compiler: "npm:19.1.0-rc.2"
-    firebase: "npm:12.12.0"
+    firebase: "npm:12.12.1"
     html-react-parser: "npm:5.2.17"
     jest: "npm:^29.7.0"
     jest-axe: "npm:^10.0.0"
