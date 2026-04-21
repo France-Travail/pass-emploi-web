@@ -15,6 +15,7 @@ export type ImmersionItemJson = {
   nomEtablissement: string
   secteurActivite: string
   ville: string
+  accessibleTravailleurHandicape?: ImmersionAccessibleTravailleurHandicape
 }
 
 export type DetailImmersionJson = ImmersionItemJson & {
@@ -23,7 +24,6 @@ export type DetailImmersionJson = ImmersionItemJson & {
   informationsComplementaires?: string
   siteWeb?: string
   modeDistanciel?: ImmersionModeDistanciel
-  accessibleTravailleurHandicape?: ImmersionAccessibleTravailleurHandicape
 }
 
 export function jsonToDetailImmersion(

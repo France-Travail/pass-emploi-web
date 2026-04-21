@@ -3,8 +3,11 @@ import React from 'react'
 import OffreCard from 'components/offres/OffreCard'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { DataTag } from 'components/ui/Indicateurs/DataTag'
-import { TagMetier } from 'components/ui/Indicateurs/Tag'
-import { BaseImmersion } from 'interfaces/offre'
+import { Tag, TagMetier } from 'components/ui/Indicateurs/Tag'
+import {
+  BaseImmersion,
+  ImmersionAccessibleTravailleurHandicape,
+} from 'interfaces/offre'
 
 interface ImmersionCardProps {
   offre: BaseImmersion
@@ -14,17 +17,26 @@ interface ImmersionCardProps {
 export default function ImmersionCard({
   offre,
   withPartage = false,
-}: ImmersionCardProps) {
+}: Readonly<ImmersionCardProps>) {
   return (
     <OffreCard
       offrePath={'immersion/' + offre.id}
       titreLien={'chez ' + offre.nomEtablissement}
       withPartage={withPartage}
     >
-      <TagMetier
-        label='Immersion'
-        className='text-content-color bg-additional-1-lighten text-s-regular mb-4'
-      />
+      <div className='flex gap-2'>
+        <TagMetier
+          label='Immersion'
+          className='text-content-color bg-additional-1-lighten text-s-regular mb-4'
+        />
+        {offre.accessibleTravailleurHandicape !==
+          ImmersionAccessibleTravailleurHandicape.NO && (
+          <Tag
+            label='Personnes en situation de handicap bienvenues'
+            className='rounded-base text-content-color bg-additional-5-lighten text-s-regular mb-4'
+          />
+        )}
+      </div>
 
       <h3 className='text-base-bold mb-2'>{offre.titre}</h3>
       <dl>
