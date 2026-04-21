@@ -7,7 +7,13 @@ import {
   ImmersionItemJson,
   jsonToDetailImmersion,
 } from 'interfaces/json/immersion'
-import { BaseImmersion, DetailImmersion, TypeOffre } from 'interfaces/offre'
+import {
+  BaseImmersion,
+  DetailImmersion,
+  TypeOffre,
+  buildImmersionId,
+  parseImmersionId,
+} from 'interfaces/offre'
 import { Commune, Metier } from 'interfaces/referentiel'
 import { MetadonneesPagination } from 'types/pagination'
 import { ApiError } from 'utils/httpClient'
@@ -27,9 +33,10 @@ export async function getImmersionServerSide(
   idImmersion: string,
   accessToken: string
 ): Promise<DetailImmersion | undefined> {
+  const { siret, appellationCode, locationId } = parseImmersionId(idImmersion)
   try {
     const { content: immersionJson } = await apiGet<DetailImmersionJson>(
-      `/offres-immersion/${idImmersion}`,
+      `/offres-immersion/v3/${siret}/${appellationCode}/${locationId}`,
       accessToken
     )
     return jsonToDetailImmersion(immersionJson)
@@ -51,7 +58,7 @@ export async function searchImmersions(
   } else {
     const session = await getSession()
 
-    const path = '/offres-immersion?'
+    const path = '/offres-immersion/v3?'
     const searchParams = buildSearchParams(query)
     const result = await apiGet<ImmersionItemJson[]>(
       path + searchParams,
@@ -70,11 +77,20 @@ export async function searchImmersions(
     metadonnees,
     offres: immersionsJson
       .slice(LIMIT * (page - 1), page * LIMIT)
-      .map(({ metier, ...immersion }) => ({
-        type: TypeOffre.IMMERSION,
-        titre: metier,
-        ...immersion,
-      })),
+      .map(
+        ({
+          metier,
+          siret,
+          appellationCode,
+          locationId,
+          ...rest
+        }) => ({
+          type: TypeOffre.IMMERSION,
+          titre: metier,
+          id: buildImmersionId(siret, appellationCode, locationId),
+          ...rest,
+        })
+      ),
   }
 }
 

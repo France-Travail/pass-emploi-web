@@ -15,7 +15,9 @@ import {
   DetailImmersion,
   DetailOffreEmploi,
   DetailServiceCivique,
+  ImmersionModeContact,
   TypeOffre,
+  buildImmersionId,
 } from 'interfaces/offre'
 
 export function uneBaseOffreEmploi(
@@ -417,7 +419,7 @@ export function unDetailImmersion(
 ): DetailImmersion {
   const defaults: DetailImmersion = {
     type: TypeOffre.IMMERSION,
-    id: '89081896600016-M1805',
+    id: buildImmersionId('89081896600016', 'M1805', 'loc-1'),
     titre: 'Études et développement informatique',
     nomEtablissement: 'MADO XR',
     secteurActivite:
@@ -425,7 +427,12 @@ export function unDetailImmersion(
     ville: 'Paris',
     contact: {
       adresse: '33 Rue Claude Lorrain 75016 Paris',
+      mode: ImmersionModeContact.PRESENTIEL,
     },
+    informationsComplementaires: undefined,
+    siteWeb: undefined,
+    modeDistanciel: undefined,
+    accessibleTravailleurHandicape: undefined,
   }
 
   return { ...defaults, ...overrides }
@@ -435,13 +442,16 @@ export function unDetailImmersionJson(
   overrides: Partial<DetailImmersionJson> = {}
 ): DetailImmersionJson {
   const defaults: DetailImmersionJson = {
-    id: '89081896600016-M1805',
+    siret: '89081896600016',
+    appellationCode: 'M1805',
+    locationId: 'loc-1',
     metier: 'Études et développement informatique',
     nomEtablissement: 'MADO XR',
     secteurActivite:
       'Production de films cinématographiques, de vidéo et de programmes de télévision',
     ville: 'Paris',
     adresse: '33 Rue Claude Lorrain 75016 Paris',
+    contact: ImmersionModeContact.PRESENTIEL,
   }
   return { ...defaults, ...overrides }
 }
@@ -451,7 +461,7 @@ export function uneBaseImmersion(
 ): BaseImmersion {
   const defaults: BaseImmersion = {
     type: TypeOffre.IMMERSION,
-    id: '89081896600016-M1805',
+    id: buildImmersionId('89081896600016', 'M1805', 'loc-1'),
     titre: 'Études et développement informatique - MADO XR',
     nomEtablissement: 'MADO XR',
     secteurActivite:
@@ -466,10 +476,11 @@ export function listeBaseImmersions({
 }: {
   page?: number
 } = {}): BaseImmersion[] {
+  const pageSuffix = page ? `-page-${page}` : ''
   return [
     {
       type: TypeOffre.IMMERSION,
-      id: '89081896600016-M1805' + (page ? '-page-' + page : ''),
+      id: buildImmersionId('89081896600016', 'M1805', `loc-1${pageSuffix}`),
       titre: 'Études et développement informatique - MADO XR',
       nomEtablissement: 'MADO XR',
       secteurActivite:
@@ -478,7 +489,7 @@ export function listeBaseImmersions({
     },
     {
       type: TypeOffre.IMMERSION,
-      id: '91401957500010-M1805' + (page ? '-page-' + page : ''),
+      id: buildImmersionId('91401957500010', 'M1805', `loc-2${pageSuffix}`),
       titre: 'Études et développement informatique - ESIFLY',
       nomEtablissement: 'ESIFLY',
       secteurActivite:
@@ -487,7 +498,7 @@ export function listeBaseImmersions({
     },
     {
       type: TypeOffre.IMMERSION,
-      id: '88842904000015-M1805' + (page ? '-page-' + page : ''),
+      id: buildImmersionId('88842904000015', 'M1805', `loc-3${pageSuffix}`),
       titre: 'Études et développement informatique - AFNETWORK-FRANCE',
       nomEtablissement:
         'AFRICAN FILMMAKERS NETWORK ASSOCIATION - (AFNETWORK-FRANCE)',
@@ -496,7 +507,7 @@ export function listeBaseImmersions({
     },
     {
       type: TypeOffre.IMMERSION,
-      id: '82987789300026-M1805' + (page ? '-page-' + page : ''),
+      id: buildImmersionId('82987789300026', 'M1805', `loc-4${pageSuffix}`),
       titre: 'Études et développement informatique - EURONIXA',
       nomEtablissement: 'EURONIXA STUDIOS VR',
       secteurActivite:
@@ -505,7 +516,7 @@ export function listeBaseImmersions({
     },
     {
       type: TypeOffre.IMMERSION,
-      id: '38953391000045-M1805' + (page ? '-page-' + page : ''),
+      id: buildImmersionId('38953391000045', 'M1805', `loc-5${pageSuffix}`),
       titre: 'Études et développement informatique - PARIS LOG',
       nomEtablissement: 'PARIS LOG',
       secteurActivite: 'Programmation informatique',
@@ -517,9 +528,12 @@ export function listeBaseImmersions({
 export function listeImmersionsJson({
   page,
 }: { page?: number } = {}): ImmersionItemJson[] {
+  const pageSuffix = page ? `-page-${page}` : ''
   return [
     {
-      id: '89081896600016-M1805' + (page ? '-page-' + page : ''),
+      siret: '89081896600016',
+      appellationCode: 'M1805',
+      locationId: `loc-1${pageSuffix}`,
       metier: 'Études et développement informatique - MADO XR',
       nomEtablissement: 'MADO XR',
       secteurActivite:
@@ -527,7 +541,9 @@ export function listeImmersionsJson({
       ville: 'Paris',
     },
     {
-      id: '91401957500010-M1805' + (page ? '-page-' + page : ''),
+      siret: '91401957500010',
+      appellationCode: 'M1805',
+      locationId: `loc-2${pageSuffix}`,
       metier: 'Études et développement informatique - ESIFLY',
       nomEtablissement: 'ESIFLY',
       secteurActivite:
@@ -535,7 +551,9 @@ export function listeImmersionsJson({
       ville: 'Paris',
     },
     {
-      id: '88842904000015-M1805' + (page ? '-page-' + page : ''),
+      siret: '88842904000015',
+      appellationCode: 'M1805',
+      locationId: `loc-3${pageSuffix}`,
       metier: 'Études et développement informatique - AFNETWORK-FRANCE',
       nomEtablissement:
         'AFRICAN FILMMAKERS NETWORK ASSOCIATION - (AFNETWORK-FRANCE)',
@@ -543,7 +561,9 @@ export function listeImmersionsJson({
       ville: 'Paris',
     },
     {
-      id: '82987789300026-M1805' + (page ? '-page-' + page : ''),
+      siret: '82987789300026',
+      appellationCode: 'M1805',
+      locationId: `loc-4${pageSuffix}`,
       metier: 'Études et développement informatique - EURONIXA',
       nomEtablissement: 'EURONIXA STUDIOS VR',
       secteurActivite:
@@ -551,7 +571,9 @@ export function listeImmersionsJson({
       ville: 'PARIS 8',
     },
     {
-      id: '38953391000045-M1805' + (page ? '-page-' + page : ''),
+      siret: '38953391000045',
+      appellationCode: 'M1805',
+      locationId: `loc-5${pageSuffix}`,
       metier: 'Études et développement informatique - PARIS LOG',
       nomEtablissement: 'PARIS LOG',
       secteurActivite: 'Programmation informatique',
