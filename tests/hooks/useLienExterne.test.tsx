@@ -18,11 +18,7 @@ function ComposantTest({ lien }: { lien: string }) {
   const { confirmer, modal } = useLienExterne()
   return (
     <>
-      <a
-        href={lien}
-        onClick={(e) => confirmer(e, lien)}
-        data-testid='lien'
-      >
+      <a href={lien} onClick={(e) => confirmer(e, lien)} data-testid='lien'>
         Ouvrir
       </a>
       {modal}
@@ -73,5 +69,4 @@ describe('useLienExterne', () => {
     expect(window.open).not.toHaveBeenCalled()
     expect(screen.queryByTestId('modal-lien')).not.toBeInTheDocument()
   })
-
 })
