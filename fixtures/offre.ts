@@ -1,6 +1,7 @@
 import {
   DetailImmersionJson,
   ImmersionItemJson,
+  SearchImmersionsResultJson,
 } from 'interfaces/json/immersion'
 import {
   DataDetailOffreEmploiJson,
@@ -525,6 +526,22 @@ export function listeBaseImmersions({
       ville: 'Torcy',
     },
   ]
+}
+
+export function searchImmersionsResultJson({
+  page,
+  nombrePages = 3,
+  nombreTotal = 15,
+}: {
+  page?: number
+  nombrePages?: number
+  nombreTotal?: number
+} = {}): SearchImmersionsResultJson {
+  return {
+    offres: listeImmersionsJson({ page }),
+    nombrePages,
+    nombreTotal,
+  }
 }
 
 export function listeImmersionsJson({

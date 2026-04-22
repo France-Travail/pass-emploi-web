@@ -7,6 +7,12 @@ import {
   buildImmersionId,
 } from 'interfaces/offre'
 
+export type SearchImmersionsResultJson = {
+  offres: ImmersionItemJson[]
+  nombrePages: number
+  nombreTotal: number
+}
+
 export type ImmersionItemJson = {
   siret: string
   appellationCode: string

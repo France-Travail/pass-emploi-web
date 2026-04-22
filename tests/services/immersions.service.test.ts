@@ -1,7 +1,7 @@
 import { apiGet } from 'clients/api.client'
 import {
   listeBaseImmersions,
-  listeImmersionsJson,
+  searchImmersionsResultJson,
   unDetailImmersion,
   unDetailImmersionJson,
 } from 'fixtures/offre'
@@ -36,7 +36,7 @@ describe('ImmersionsApiService', () => {
       expect(actual).toStrictEqual(unDetailImmersion())
     })
 
-    it('renvoie undefined si l’immersion n’est pas trouvée en base', async () => {
+    it("renvoie undefined si l'immersion n'est pas trouvée en base", async () => {
       // Given
       ;(apiGet as jest.Mock).mockRejectedValue(
         new ApiError(404, 'immersion non trouvée')
@@ -57,15 +57,11 @@ describe('ImmersionsApiService', () => {
     beforeEach(() => {
       // Given
       ;(apiGet as jest.Mock).mockResolvedValue({
-        content: [
-          ...listeImmersionsJson({ page: 1 }),
-          ...listeImmersionsJson({ page: 2 }),
-          ...listeImmersionsJson({ page: 3 }),
-        ],
+        content: searchImmersionsResultJson({ page: 1 }),
       })
     })
 
-    it('renvoie une liste des 10 premieres immersions', async () => {
+    it('renvoie les immersions de la page demandée', async () => {
       // When
       const actual = await searchImmersions(
         {
@@ -78,86 +74,18 @@ describe('ImmersionsApiService', () => {
 
       // Then
       expect(apiGet).toHaveBeenCalledWith(
-        '/offres-immersion/v3?lat=48.830108&lon=2.323026&distance=52&rome=M1805',
+        '/offres-immersion/v3?lat=48.830108&lon=2.323026&distance=52&rome=M1805&page=1&limit=10',
         'accessToken'
       )
-
       expect(actual).toEqual({
-        offres: [
-          ...listeBaseImmersions({ page: 1 }),
-          ...listeBaseImmersions({ page: 2 }),
-        ],
-        metadonnees: { nombreTotal: 15, nombrePages: 2 },
+        offres: listeBaseImmersions({ page: 1 }),
+        metadonnees: { nombreTotal: 15, nombrePages: 3 },
       })
     })
 
-    it('cache les données pour la pagination', async () => {
-      // Given
+    it("passe le numéro de page à l'API", async () => {
+      // When
       await searchImmersions(
-        {
-          commune: { value: uneCommune() },
-          metier: { value: unMetier() },
-          rayon: 35,
-        },
-        1
-      )
-
-      // When
-      const actual = await searchImmersions(
-        {
-          commune: { value: uneCommune() },
-          metier: { value: unMetier() },
-          rayon: 35,
-        },
-        1
-      )
-
-      // Then
-      expect(apiGet).toHaveBeenCalledTimes(1)
-      expect(actual).toEqual({
-        offres: [
-          ...listeBaseImmersions({ page: 1 }),
-          ...listeBaseImmersions({ page: 2 }),
-        ],
-        metadonnees: { nombreTotal: 15, nombrePages: 2 },
-      })
-    })
-
-    it('met à jour le cache si la requête change', async () => {
-      // Given
-      await searchImmersions(
-        {
-          commune: { value: uneCommune() },
-          metier: { value: unMetier() },
-          rayon: 52,
-        },
-        1
-      )
-
-      // When
-      const actual = await searchImmersions(
-        {
-          commune: { value: uneCommune() },
-          metier: { value: unMetier() },
-          rayon: 27,
-        },
-        1
-      )
-
-      // Then
-      expect(apiGet).toHaveBeenCalledTimes(2)
-      expect(actual).toEqual({
-        offres: [
-          ...listeBaseImmersions({ page: 1 }),
-          ...listeBaseImmersions({ page: 2 }),
-        ],
-        metadonnees: { nombreTotal: 15, nombrePages: 2 },
-      })
-    })
-
-    it('renvoie la page demandée', async () => {
-      // When
-      const actual = await searchImmersions(
         {
           commune: { value: uneCommune() },
           metier: { value: unMetier() },
@@ -167,11 +95,10 @@ describe('ImmersionsApiService', () => {
       )
 
       // Then
-      expect(apiGet).toHaveBeenCalledTimes(1)
-      expect(actual).toEqual({
-        offres: [...listeBaseImmersions({ page: 3 })],
-        metadonnees: { nombreTotal: 15, nombrePages: 2 },
-      })
+      expect(apiGet).toHaveBeenCalledWith(
+        '/offres-immersion/v3?lat=48.830108&lon=2.323026&distance=52&rome=M1805&page=2&limit=10',
+        'accessToken'
+      )
     })
   })
 })
