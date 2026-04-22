@@ -4,7 +4,7 @@ import { apiGet } from 'clients/api.client'
 import { ValueWithError } from 'components/ValueWithError'
 import {
   DetailImmersionJson,
-  ImmersionItemJson,
+  SearchImmersionsResultJson,
   jsonToDetailImmersion,
 } from 'interfaces/json/immersion'
 import {
@@ -24,9 +24,6 @@ export type SearchImmersionsQuery = {
   rayon: number
 }
 
-let cache:
-  | { query: SearchImmersionsQuery; resultsJson: ImmersionItemJson[] }
-  | undefined
 const LIMIT = 10
 
 export async function getImmersionServerSide(
@@ -52,56 +49,40 @@ export async function searchImmersions(
   query: SearchImmersionsQuery,
   page: number
 ): Promise<{ offres: BaseImmersion[]; metadonnees: MetadonneesPagination }> {
-  let immersionsJson: ImmersionItemJson[]
-  if (cache && areSameQueries(cache.query, query)) {
-    immersionsJson = cache.resultsJson
-  } else {
-    const session = await getSession()
-
-    const path = '/offres-immersion/v3?'
-    const searchParams = buildSearchParams(query)
-    const result = await apiGet<ImmersionItemJson[]>(
-      path + searchParams,
-      session!.accessToken
-    )
-    immersionsJson = result.content
-    cache = { query, resultsJson: immersionsJson }
-  }
-
-  const metadonnees: MetadonneesPagination = {
-    nombreTotal: immersionsJson.length,
-    nombrePages: Math.ceil(immersionsJson.length / LIMIT),
-  }
+  const session = await getSession()
+  const path = '/offres-immersion/v3?'
+  const searchParams = buildSearchParams(query, page)
+  const { content } = await apiGet<SearchImmersionsResultJson>(
+    path + searchParams,
+    session!.accessToken
+  )
 
   return {
-    metadonnees,
-    offres: immersionsJson
-      .slice(LIMIT * (page - 1), page * LIMIT)
-      .map(({ metier, siret, appellationCode, locationId, ...rest }) => ({
+    metadonnees: {
+      nombreTotal: content.nombreTotal,
+      nombrePages: content.nombrePages,
+    },
+    offres: content.offres.map(
+      ({ metier, siret, appellationCode, locationId, ...rest }) => ({
         type: TypeOffre.IMMERSION,
         titre: metier,
         id: buildImmersionId(siret, appellationCode, locationId),
         ...rest,
-      })),
+      })
+    ),
   }
 }
 
-function buildSearchParams(recherche: SearchImmersionsQuery): URLSearchParams {
+function buildSearchParams(
+  recherche: SearchImmersionsQuery,
+  page: number
+): URLSearchParams {
   return new URLSearchParams({
-    lat: recherche.commune.value!.latitude.toString(10),
-    lon: recherche.commune.value!.longitude.toString(10),
-    distance: recherche.rayon.toString(10),
+    lat: recherche.commune.value!.latitude.toString(),
+    lon: recherche.commune.value!.longitude.toString(),
+    distance: recherche.rayon.toString(),
     rome: recherche.metier.value!.code,
+    page: page.toString(),
+    limit: LIMIT.toString(),
   })
-}
-
-function areSameQueries(
-  query1: SearchImmersionsQuery,
-  query2: SearchImmersionsQuery
-): boolean {
-  return (
-    query1.metier.value?.code === query2.metier.value?.code &&
-    query1.commune.value?.code === query2.commune.value?.code &&
-    query1.rayon === query2.rayon
-  )
 }
