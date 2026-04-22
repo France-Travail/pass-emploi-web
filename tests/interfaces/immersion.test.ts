@@ -28,7 +28,9 @@ describe('buildImmersionId / parseImmersionId', () => {
     const siret = '89081896600016'
     const appellationCode = 'M1805'
     const locationId = 'loc-abc'
-    expect(parseImmersionId(buildImmersionId(siret, appellationCode, locationId))).toEqual({
+    expect(
+      parseImmersionId(buildImmersionId(siret, appellationCode, locationId))
+    ).toEqual({
       siret,
       appellationCode,
       locationId,
@@ -42,7 +44,9 @@ describe('jsonToDetailImmersion', () => {
     const result = jsonToDetailImmersion(json)
 
     expect(result.type).toBe(TypeOffre.IMMERSION)
-    expect(result.id).toBe(buildImmersionId(json.siret, json.appellationCode, json.locationId))
+    expect(result.id).toBe(
+      buildImmersionId(json.siret, json.appellationCode, json.locationId)
+    )
     expect(result.titre).toBe(json.metier)
     expect(result.nomEtablissement).toBe(json.nomEtablissement)
     expect(result.ville).toBe(json.ville)
