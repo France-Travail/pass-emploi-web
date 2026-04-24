@@ -14,7 +14,7 @@ interface OffreEmploiCardProps {
 export default function OffreEmploiCard({
   offre,
   withPartage = false,
-}: OffreEmploiCardProps) {
+}: Readonly<OffreEmploiCardProps>) {
   const typeOffre =
     offre.type === TypeOffre.ALTERNANCE ? 'alternance' : 'emploi'
 

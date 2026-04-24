@@ -17,7 +17,7 @@ export default function OffreCard({
   titreLien,
   children,
   withPartage = false,
-}: OffreCardProps) {
+}: Readonly<OffreCardProps>) {
   const hrefDetail = '/offres/' + offrePath
 
   return (
@@ -29,6 +29,7 @@ export default function OffreCard({
 
       <Link
         href={hrefDetail}
+        prefetch={false}
         className='absolute right-6 bottom-6 flex items-center text-s-regular underline hover:text-primary before:fixed before:inset-0 before:z-10'
         onClick={(e) => e.stopPropagation()}
       >

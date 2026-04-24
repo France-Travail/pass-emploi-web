@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 
 import PartageOffrePage from 'app/(connected)/(with-sidebar)/(without-chat)/offres/[typeOffre]/[idOffre]/partage/PartageOffrePage'
 import {
@@ -51,7 +52,7 @@ export default async function PartageOffre({
   )
 }
 
-async function fetchOffre(
+const fetchOffre = cache(async function fetchOffre(
   params: PartageOffreParams,
   accessToken?: string
 ): Promise<DetailOffre> {
@@ -77,4 +78,4 @@ async function fetchOffre(
 
   if (!offre) notFound()
   return offre
-}
+})
