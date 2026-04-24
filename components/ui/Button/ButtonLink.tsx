@@ -13,6 +13,7 @@ interface Props {
   style?: ButtonStyle
   className?: string
   onClick?: () => void
+  prefetch?: boolean
 }
 
 export default function ButtonLink({
@@ -23,12 +24,14 @@ export default function ButtonLink({
   label,
   style = ButtonStyle.PRIMARY,
   onClick = () => {},
+  prefetch,
 }: Props) {
   return (
     <>
       {!externalIcon && (
         <Link
           href={href}
+          prefetch={prefetch}
           className={`${
             className ? className : ''
           } flex items-center justify-center text-s-bold ${

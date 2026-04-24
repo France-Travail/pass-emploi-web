@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import React from 'react'
+import React, { cache } from 'react'
 
 import OffrePage from 'app/(connected)/(with-sidebar)/(with-chat)/offres/[typeOffre]/[idOffre]/OffrePage'
 import {
@@ -37,7 +37,7 @@ export default async function Offre({ params }: { params: OffreParams }) {
   )
 }
 
-async function fetchOffre(
+const fetchOffre = cache(async function fetchOffre(
   params: OffreParams
 ): Promise<{ offre: DetailOffre; header: string }> {
   const { accessToken } = await getMandatorySessionServerSide()
@@ -68,4 +68,4 @@ async function fetchOffre(
 
   if (!offre) notFound()
   return { offre, header }
-}
+})
