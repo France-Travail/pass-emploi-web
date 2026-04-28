@@ -123,9 +123,7 @@ export function Conversation({
 
           setLoadingMoreMessages(false)
 
-          if (document.activeElement === inputRef.current) {
-            setReadByConseiller(beneficiaireEtChat.chatId)
-          }
+          setReadByConseiller(beneficiaireEtChat.chatId)
         }
       )
     },
