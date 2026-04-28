@@ -14,7 +14,7 @@ export default function LienPartageOffre({
   style: ButtonStyle
 }) {
   return (
-    <ButtonLink href={href} style={style}>
+    <ButtonLink href={href} style={style} prefetch={false}>
       <IconComponent
         name={IconName.Share}
         className='w-4 h-4 mr-3'

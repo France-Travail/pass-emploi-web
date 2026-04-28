@@ -28,6 +28,7 @@ import ArrowCircleRightFillIcon from 'assets/icons/informations/arrow_circle_rig
 import ArrowCircleRightOutlineIcon from 'assets/icons/informations/arrow_circle_right_outline.svg'
 import BarChartIcon from 'assets/icons/informations/bar_chart.svg'
 import BoltIcon from 'assets/icons/informations/bolt.svg'
+import CallIcon from 'assets/icons/informations/call.svg'
 import CancelIcon from 'assets/icons/informations/cancel.svg'
 import CelebrationIcon from 'assets/icons/informations/celebration.svg'
 import ChatFillIcon from 'assets/icons/informations/chat_fill.svg'
@@ -51,6 +52,7 @@ import LeaderboardFillIcon from 'assets/icons/informations/leaderboard_fill.svg'
 import LeaderboardOutlineIcon from 'assets/icons/informations/leaderboard_outline.svg'
 import LocationOnIcon from 'assets/icons/informations/location_on.svg'
 import LockIcon from 'assets/icons/informations/lock.svg'
+import MailIcon from 'assets/icons/informations/mail.svg'
 import NotificationIcon from 'assets/icons/informations/notification.svg'
 import PageViewFillIcon from 'assets/icons/informations/page_view_fill.svg'
 import PageViewOutlineIcon from 'assets/icons/informations/page_view_outline.svg'
@@ -137,6 +139,8 @@ export enum IconName {
   LocationOn = 'LocationOn',
   Lock = 'Lock',
   Logout = 'Logout',
+  Mail = 'Mail',
+  Call = 'Call',
   Menu = 'Menu',
   More = 'More',
   Note = 'Note',
@@ -217,6 +221,8 @@ const iconsByName: { [key in IconName]: FC<SVGProps<SVGElement>> } = {
   [IconName.LocationOn]: LocationOnIcon,
   [IconName.Lock]: LockIcon,
   [IconName.Logout]: LogoutIcon,
+  [IconName.Mail]: MailIcon,
+  [IconName.Call]: CallIcon,
   [IconName.Menu]: MenuIcon,
   [IconName.More]: MoreIcon,
   [IconName.NumberCircleOne]: NumberCircleOneIcon,

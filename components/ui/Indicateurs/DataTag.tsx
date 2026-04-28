@@ -7,6 +7,7 @@ interface DataTagProps {
   text: string
   style?: 'primary' | 'secondary' | 'additional'
   iconName?: IconName
+  compact?: boolean
   className?: string
   iconLabel?: string
 }
@@ -15,6 +16,7 @@ export function DataTag({
   text,
   style = 'primary',
   iconName,
+  compact = false,
   className,
   iconLabel,
 }: DataTagProps) {
@@ -42,7 +44,7 @@ export function DataTag({
   return (
     <span
       className={`inline-flex items-center rounded-base ${
-        iconName ? 'px-2' : 'px-4'
+        iconName || compact ? 'px-2' : 'px-4'
       } py-1 text-s-medium ${getTextColor()} ${getBackground()} whitespace-nowrap ${
         className ?? ''
       }`}
