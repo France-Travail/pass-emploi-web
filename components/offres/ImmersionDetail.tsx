@@ -24,11 +24,11 @@ export default function ImmersionDetail({
   const texteModeDistanciel = (() => {
     switch (offre.modeDistanciel) {
       case ImmersionModeDistanciel.FULL_REMOTE:
-        return '100% distanciel'
+        return 'Télétravail'
       case ImmersionModeDistanciel.HYBRID:
-        return 'Présentiel et/ou Distanciel'
+        return 'Présentiel et à distance'
       case ImmersionModeDistanciel.ON_SITE:
-        return '100% présentiel'
+        return 'Présentiel'
     }
   })()
 
