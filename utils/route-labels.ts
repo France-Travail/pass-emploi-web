@@ -35,7 +35,7 @@ const mapRoutesToLabels: Map<RegExp, string> = new Map<RegExp, string>([
   // Offres
   [/\/recherche-offres$/, 'Offres'],
   [/\/offres$/, 'Offres'],
-  [/\/offres\/[\w-]+\/[\w-]+$/, 'Détail offre'],
+  [/\/offres\/[\w-]+\/[\w~-]+$/, "Détail de l'offre"],
 
   [/\/reaffectation$/, 'Réaffectation'],
   [/\/pilotage$/, 'Pilotage'],

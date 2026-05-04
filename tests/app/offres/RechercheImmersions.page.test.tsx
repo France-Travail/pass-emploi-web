@@ -91,7 +91,7 @@ describe('Page Recherche Immersions', () => {
       expect(getMetiers).toHaveBeenCalledTimes(1)
       expect(getMetiers).toHaveBeenCalledWith('DEVELOPPEUSE')
       expect(screen.getAllByRole('option', { hidden: true })).toHaveLength(
-        metiers.length
+        metiers.length + 2
       )
       metiers.forEach((metier) => {
         expect(
@@ -148,7 +148,7 @@ describe('Page Recherche Immersions', () => {
       expect(getCommunes).toHaveBeenCalledTimes(1)
       expect(getCommunes).toHaveBeenCalledWith('PARIS')
       expect(screen.getAllByRole('option', { hidden: true })).toHaveLength(
-        communes.length
+        communes.length + 2
       )
       communes.forEach((commune) => {
         expect(
@@ -180,30 +180,19 @@ describe('Page Recherche Immersions', () => {
     })
   })
 
-  describe('permet d’affiner la recherche par des filtres', () => {
-    it('permet d’ajouter plus de filtre à la recherche', async () => {
+  describe("permet d'affiner la recherche par des filtres", () => {
+    it('affiche directement les critères de distance', () => {
       // Then
-      expect(() =>
-        screen.getByRole('group', { name: 'Étape 3: Plus de critères' })
-      ).toThrow()
       expect(
-        screen.getByRole('button', { name: 'Voir plus de critères' })
+        screen.getByRole('group', { name: 'Étape 3: Plus de critères' })
       ).toBeInTheDocument()
-
-      // When
-      await userEvent.click(screen.getByText('Voir plus de critères'))
-
-      // Then
-      const etape3 = screen.getByRole('group', {
-        name: 'Étape 3: Plus de critères',
-      })
-      expect(etape3).toBeInTheDocument()
-      expect(screen.getByText('Voir moins de critères')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /Voir .* de critères/ })
+      ).not.toBeInTheDocument()
     })
 
     it('permet de définir un rayon de recherche si une commune est sélectionnée', async () => {
       // Given
-      await userEvent.click(screen.getByText('Voir plus de critères'))
       const etape3 = screen.getByRole('group', {
         name: 'Étape 3: Plus de critères',
       })
@@ -222,28 +211,20 @@ describe('Page Recherche Immersions', () => {
     })
 
     it("retiens les critères d'affinage saisie", async () => {
-      // Given
-      await userEvent.click(screen.getByText('Voir plus de critères'))
-
-      // When-Then
+      // When
       await saisirCommune('paris 14 (75)')
       fireEvent.change(screen.getByLabelText(/Dans un rayon de/), {
         target: { value: 43 },
       })
-      expect(getByTextContent('Dans un rayon de : 43km')).toBeInTheDocument()
-      expect(screen.getByText('[1] filtre sélectionné')).toBeInTheDocument()
-
-      // When
-      await userEvent.click(screen.getByText('Voir moins de critères'))
-      await userEvent.click(screen.getByText('Voir plus de critères'))
 
       // Then
+      expect(getByTextContent('Dans un rayon de : 43km')).toBeInTheDocument()
       expect(screen.getByLabelText(/rayon/)).toHaveValue('43')
     })
   })
 
   describe('partage des critères de recherche', () => {
-    it('ne permet pas de partager s’il n’y a ni métier ni commune renseignés', async () => {
+    it("ne permet pas de partager s'il n'y a ni métier ni commune renseignés", async () => {
       await userEvent.click(
         screen.getByRole('button', {
           name: `Partager les critères de recherche`,
@@ -257,7 +238,7 @@ describe('Page Recherche Immersions', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche le bouton de partage de critère s’il y a un métier et une commune renseignés', async () => {
+    it("affiche le bouton de partage de critère s'il y a un métier et une commune renseignés", async () => {
       // When
       await saisirMetier('développeur / développeuse web')
       await saisirCommune('paris 14 (75)')
@@ -356,7 +337,7 @@ describe('Page Recherche Immersions', () => {
       )
     })
 
-    it('vide les critères lorsqu’on change le type d’offre', async () => {
+    it("vide les critères lorsqu'on change le type d'offre", async () => {
       // Given
       await saisirMetier('développeur / développeuse web')
       await saisirMetier('paris 14')
@@ -537,11 +518,10 @@ describe('Page Recherche Immersions', () => {
   })
 
   describe('sauvegarde', () => {
-    it('retient l’état de la recherche', async () => {
+    it("retient l'état de la recherche", async () => {
       // Given
       await saisirMetier('développeur / développeuse web')
       await saisirCommune('paris 14 (75)')
-      await userEvent.click(screen.getByText('Voir plus de critères'))
       fireEvent.change(screen.getByLabelText(/Dans un rayon de/), {
         target: { value: 43 },
       })
@@ -558,8 +538,6 @@ describe('Page Recherche Immersions', () => {
         'DEVELOPPEUR / DEVELOPPEUSE WEB'
       )
       expect(screen.getByLabelText(/Localisation/)).toHaveValue('PARIS 14 (75)')
-      expect(screen.getByText('[1] filtre sélectionné')).toBeInTheDocument()
-      await userEvent.click(screen.getByText('Voir plus de critères'))
       expect(screen.getByLabelText(/rayon/)).toHaveValue('43')
       const offresList = screen.getByRole('list', {
         description: 'Liste des résultats (37 offres)',
