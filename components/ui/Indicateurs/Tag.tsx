@@ -59,7 +59,7 @@ function TagIcon({
     )
 }
 
-function Tag({
+export function Tag({
   label,
   className,
   iconName,

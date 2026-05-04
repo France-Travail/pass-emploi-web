@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon'
 import React, { useEffect, useRef, useState } from 'react'
 
-import ConfirmationRedirectionModal from 'components/ConfirmationRedirectionModal'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { ActualiteMessage } from 'interfaces/actualiteMilo'
 import { toFrenchDateTime, toFrenchTime } from 'utils/date'
+import { useLienExterne } from 'utils/hooks/useLienExterne'
 
 import DateMessage from './DateMessage'
 
@@ -30,22 +30,7 @@ export default function MessageActualites({
   onModification,
   onSuppression,
 }: BlocMessageProps) {
-  const [lienAOuvrir, setLienAOuvrir] = useState<string | null>(null)
-
-  function confirmerRedirectionLienExterne(
-    e: React.MouseEvent<HTMLAnchorElement>,
-    lien: string
-  ) {
-    e.preventDefault()
-    setLienAOuvrir(lien)
-  }
-
-  function ouvrirLienExterne() {
-    if (lienAOuvrir) {
-      window.open(lienAOuvrir, '_blank', 'noopener,noreferrer')
-      setLienAOuvrir(null)
-    }
-  }
+  const { confirmer, modal } = useLienExterne()
 
   const dernierMessageRef = useRef<HTMLLIElement>(null)
   const idDernierMessage = messages.at(-1)?.id ?? null
@@ -118,9 +103,7 @@ export default function MessageActualites({
                                 target='_blank'
                                 rel='noreferrer noopener'
                                 className='underline text-base text-primary-darken'
-                                onClick={(e) =>
-                                  confirmerRedirectionLienExterne(e, m.lien!)
-                                }
+                                onClick={(e) => confirmer(e, m.lien!)}
                               >
                                 <IconComponent
                                   name={IconName.OpenInNew}
@@ -150,13 +133,7 @@ export default function MessageActualites({
         )}
       </ul>
 
-      {lienAOuvrir && (
-        <ConfirmationRedirectionModal
-          lien={lienAOuvrir}
-          onConfirmation={ouvrirLienExterne}
-          onCancel={() => setLienAOuvrir(null)}
-        />
-      )}
+      {modal}
     </>
   )
 }

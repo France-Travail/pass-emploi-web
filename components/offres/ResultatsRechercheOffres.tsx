@@ -24,7 +24,7 @@ export default function ResultatsRechercheOffre({
   pageCourante,
   nbPages,
   onChangerPage,
-}: ResultatsRechercheOffreProps) {
+}: Readonly<ResultatsRechercheOffreProps>) {
   const ulRef = useRef<HTMLUListElement>(null)
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function ResultatsRechercheOffre({
         </>
       )}
 
-      {offres && offres.length === 0 && (
+      {offres?.length === 0 && (
         <>
           <ResultTitle total={nbTotal} />
           <EmptyState
@@ -84,7 +84,7 @@ export default function ResultatsRechercheOffre({
   )
 }
 
-function ResultTitle({ total }: { total: number | undefined }) {
+function ResultTitle({ total }: Readonly<{ total: number | undefined }>) {
   return (
     <h2 id='result-title' className='text-m-medium text-primary mb-5'>
       Liste des résultats
