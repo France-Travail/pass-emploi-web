@@ -1,7 +1,7 @@
 import React, { ForwardedRef, forwardRef, ReactNode } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
-import { twMerge } from 'tailwind-merge'
 
 export type NumeroEtape = 1 | 2 | 3 | 4 | 5
 type EtapeProps = {

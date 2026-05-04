@@ -35,26 +35,24 @@ export default function ImmersionCard({
 
       <h3 className='text-base-bold mb-2'>{offre.titre}</h3>
       <dl>
-        <dt className='sr-only'>Établissement</dt>
-        <dd className='text-s-bold mb-2'>{offre.nomEtablissement}</dd>
+        <div>
+          <dt className='sr-only'>Établissement</dt>
+          <dd className='text-s-bold mb-2'>{offre.nomEtablissement}</dd>
+        </div>
 
         <div className='flex gap-2 mb-5'>
-          <div>
-            <dt className='sr-only'>Ville</dt>
-            <dd>
-              <DataTag
-                text={offre.ville}
-                iconName={IconName.LocationOn}
-                iconLabel='Ville'
-              />
-            </dd>
-          </div>
-          <div>
-            <dt className='sr-only'>Secteur</dt>
-            <dd>
-              <DataTag text={offre.secteurActivite} />
-            </dd>
-          </div>
+          <dt className='sr-only'>Ville</dt>
+          <dd>
+            <DataTag
+              text={offre.ville}
+              iconName={IconName.LocationOn}
+              iconLabel='Ville'
+            />
+          </dd>
+          <dt className='sr-only'>Secteur</dt>
+          <dd>
+            <DataTag text={offre.secteurActivite} />
+          </dd>
         </div>
       </dl>
     </OffreCard>
