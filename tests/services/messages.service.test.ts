@@ -361,8 +361,6 @@ describe('MessagesFirebaseAndApiService', () => {
           lastMessageSentBy: 'conseiller',
           newConseillerMessageCount:
             beneficiaireChat.newConseillerMessageCount + 1,
-          seenByConseiller: true,
-          lastConseillerReading: now,
         })
       })
 
