@@ -73,7 +73,7 @@ describe('OffrePage client side - Immersion', () => {
       offre.ville
     )
     expect(getByDescriptionTerm('Mode de travail', section)).toHaveTextContent(
-      'Présentiel et/ou Distanciel'
+      'Présentiel et à distance'
     )
   })
 
@@ -135,16 +135,16 @@ describe('OffrePage client side - Immersion', () => {
   })
 
   it('affiche le mode distanciel', () => {
-    // HYBRID → 'Présentiel et/ou Distanciel' (vérifié dans les infos principales)
+    // HYBRID → 'Présentiel et à distance' (vérifié dans les infos principales)
     const section = screen.getByRole('region', {
       name: "Informations de l'offre",
     })
     expect(getByDescriptionTerm('Mode de travail', section)).toHaveTextContent(
-      'Présentiel et/ou Distanciel'
+      'Présentiel et à distance'
     )
   })
 
-  it('affiche 100% distanciel', async () => {
+  it('affiche le télétravail', async () => {
     // Given
     const offreDistanciel = unDetailImmersion({
       modeDistanciel: ImmersionModeDistanciel.FULL_REMOTE,
@@ -154,10 +154,10 @@ describe('OffrePage client side - Immersion', () => {
     await renderWithContexts(<OffrePage offre={offreDistanciel} />)
 
     // Then
-    expect(screen.getAllByText('100% distanciel')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Télétravail')[0]).toBeInTheDocument()
   })
 
-  it('affiche 100% présentiel', async () => {
+  it('affiche le présentiel', async () => {
     // Given
     const offrePresentiel = unDetailImmersion({
       modeDistanciel: ImmersionModeDistanciel.ON_SITE,
@@ -167,7 +167,7 @@ describe('OffrePage client side - Immersion', () => {
     await renderWithContexts(<OffrePage offre={offrePresentiel} />)
 
     // Then
-    expect(screen.getAllByText('100% présentiel')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Présentiel')[0]).toBeInTheDocument()
   })
 
   it('affiche le mode de contact email', async () => {
