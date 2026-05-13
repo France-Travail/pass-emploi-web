@@ -184,7 +184,7 @@ describe('Page Recherche Immersions', () => {
     it('affiche directement les critères de distance', () => {
       // Then
       expect(
-        screen.getByRole('group', { name: 'Étape 3: Plus de critères' })
+        screen.getByRole('group', { name: 'Étape 3: Portée de la recherche' })
       ).toBeInTheDocument()
       expect(
         screen.queryByRole('button', { name: /Voir .* de critères/ })
@@ -194,7 +194,7 @@ describe('Page Recherche Immersions', () => {
     it('permet de définir un rayon de recherche si une commune est sélectionnée', async () => {
       // Given
       const etape3 = screen.getByRole('group', {
-        name: 'Étape 3: Plus de critères',
+        name: 'Étape 3: Portée de la recherche',
       })
 
       // Then
