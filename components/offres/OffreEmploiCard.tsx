@@ -46,7 +46,7 @@ export default function OffreEmploiCard({
         )}
         <div className='flex gap-2 mb-5'>
           {offre.localisation && (
-            <div className='mb-5'>
+            <>
               <dt className='sr-only'>Localité</dt>
               <dd>
                 <DataTag
@@ -55,7 +55,7 @@ export default function OffreEmploiCard({
                   iconLabel='Localité'
                 />
               </dd>
-            </div>
+            </>
           )}
           <dt className='sr-only'>Contrat</dt>
           <dd className='inline'>

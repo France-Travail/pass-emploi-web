@@ -43,7 +43,7 @@ export default function ServiceCiviqueCard({
 
         <div className='flex gap-2 mb-5'>
           {offre.ville && (
-            <div className='mb-5'>
+            <>
               <dt className='sr-only'>Ville</dt>
               <dd>
                 <DataTag
@@ -52,7 +52,7 @@ export default function ServiceCiviqueCard({
                   iconLabel='Ville'
                 />
               </dd>
-            </div>
+            </>
           )}
 
           {offre.dateDeDebut && (
