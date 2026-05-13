@@ -1,7 +1,7 @@
 import React from 'react'
 
 import OffreCard from 'components/offres/OffreCard'
-import IconComponent, { IconName } from 'components/ui/IconComponent'
+import { IconName } from 'components/ui/IconComponent'
 import { DataTag } from 'components/ui/Indicateurs/DataTag'
 import { TagMetier } from 'components/ui/Indicateurs/Tag'
 import { BaseServiceCivique } from 'interfaces/offre'
@@ -41,29 +41,31 @@ export default function ServiceCiviqueCard({
           </>
         )}
 
-        {offre.ville && (
-          <>
-            <dt className='sr-only'>Ville</dt>
-            <dd className='flex items-center text-s-regular text-grey-800 mb-5'>
-              <IconComponent
-                name={IconName.LocationOn}
-                className='w-4 h-4 mr-3 fill-primary'
-                focusable={false}
-                aria-hidden={true}
-              />
-              {offre.ville}
-            </dd>
-          </>
-        )}
+        <div className='flex gap-2 mb-5'>
+          {offre.ville && (
+            <div className='mb-5'>
+              <dt className='sr-only'>Ville</dt>
+              <dd>
+                <DataTag
+                  text={offre.ville}
+                  iconName={IconName.LocationOn}
+                  iconLabel='Ville'
+                />
+              </dd>
+            </div>
+          )}
 
-        {offre.dateDeDebut && (
-          <>
-            <dt className='sr-only'>Date de début</dt>
-            <dd>
-              <DataTag text={'Dès le ' + toLongMonthDate(offre.dateDeDebut)} />
-            </dd>
-          </>
-        )}
+          {offre.dateDeDebut && (
+            <>
+              <dt className='sr-only'>Date de début</dt>
+              <dd>
+                <DataTag
+                  text={'Dès le ' + toLongMonthDate(offre.dateDeDebut)}
+                />
+              </dd>
+            </>
+          )}
+        </div>
       </dl>
     </OffreCard>
   )

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import OffreCard from 'components/offres/OffreCard'
-import IconComponent, { IconName } from 'components/ui/IconComponent'
+import { IconName } from 'components/ui/IconComponent'
 import { DataTag } from 'components/ui/Indicateurs/DataTag'
 import { TagMetier } from 'components/ui/Indicateurs/Tag'
 import { BaseOffreEmploi, TypeOffre } from 'interfaces/offre'
@@ -44,33 +44,32 @@ export default function OffreEmploiCard({
             <dd className='text-s-bold mb-2'>{offre.nomEntreprise}</dd>
           </>
         )}
-
-        {offre.localisation && (
-          <>
-            <dt className='sr-only'>Localité</dt>
-            <dd className='flex items-center text-s-regular text-grey-800 mb-5'>
-              <IconComponent
-                name={IconName.LocationOn}
-                className='w-4 h-4 mr-3 fill-primary'
-                focusable={false}
-                aria-hidden={true}
-              />
-              {offre.localisation}
-            </dd>
-          </>
-        )}
-        <dt className='sr-only'>Contrat</dt>
-        <dd className='inline'>
-          <DataTag text={offre.typeContrat} className='mr-6' />
-        </dd>
-        {offre.duree && (
-          <>
-            <dt className='sr-only'>Durée</dt>
-            <dd className='inline'>
-              <DataTag text={offre.duree} />
-            </dd>
-          </>
-        )}
+        <div className='flex gap-2 mb-5'>
+          {offre.localisation && (
+            <div className='mb-5'>
+              <dt className='sr-only'>Localité</dt>
+              <dd>
+                <DataTag
+                  text={offre.localisation}
+                  iconName={IconName.LocationOn}
+                  iconLabel='Localité'
+                />
+              </dd>
+            </div>
+          )}
+          <dt className='sr-only'>Contrat</dt>
+          <dd className='inline'>
+            <DataTag text={offre.typeContrat} />
+          </dd>
+          {offre.duree && (
+            <>
+              <dt className='sr-only'>Durée</dt>
+              <dd className='inline'>
+                <DataTag text={offre.duree} />
+              </dd>
+            </>
+          )}
+        </div>
       </dl>
     </OffreCard>
   )
