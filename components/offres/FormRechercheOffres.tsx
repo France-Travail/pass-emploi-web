@@ -213,36 +213,45 @@ export default function FormRechercheOffres({
 
             {showFilters && (
               <>
-                <div className='flex justify-end mb-6'>
-                  <button
-                    type='button'
-                    onClick={() => setShowMoreFilters(!showMoreFilters)}
-                    className='mr-12'
-                  >
-                    Voir {showMoreFilters ? 'moins' : 'plus'} de critères
-                    <IconComponent
-                      name={
-                        showMoreFilters
-                          ? IconName.ChevronUp
-                          : IconName.ChevronDown
-                      }
-                      className='h-4 w-4 fill-primary inline ml-2'
-                      aria-hidden={true}
-                      focusable={false}
-                    ></IconComponent>
-                  </button>
-                </div>
+                {typeOffre !== TypeOffre.IMMERSION && (
+                  <div className='flex justify-end mb-6'>
+                    <button
+                      type='button'
+                      onClick={() => setShowMoreFilters(!showMoreFilters)}
+                      className='mr-12'
+                    >
+                      Voir {showMoreFilters ? 'moins' : 'plus'} de critères
+                      <IconComponent
+                        name={
+                          showMoreFilters
+                            ? IconName.ChevronUp
+                            : IconName.ChevronDown
+                        }
+                        className='h-4 w-4 fill-primary inline ml-2'
+                        aria-hidden={true}
+                        focusable={false}
+                      ></IconComponent>
+                    </button>
+                  </div>
+                )}
 
-                {showMoreFilters && getRechercheSecondary(typeOffre)}
+                {(typeOffre === TypeOffre.IMMERSION || showMoreFilters) &&
+                  getRechercheSecondary(typeOffre)}
               </>
             )}
 
-            <p className='mt-5 mb-4 text-center'>
-              [{countCriteres}] filtre{countCriteres > 1 && 's'} sélectionné
-              {countCriteres > 1 && 's'}
-            </p>
+            {typeOffre !== TypeOffre.IMMERSION && (
+              <p className='mt-5 mb-4 text-center'>
+                [{countCriteres}] filtre{countCriteres > 1 && 's'} sélectionné
+                {countCriteres > 1 && 's'}
+              </p>
+            )}
 
-            <Button type='submit' className='mx-auto' isLoading={isSearching}>
+            <Button
+              type='submit'
+              className='w-full mt-8'
+              isLoading={isSearching}
+            >
               <IconComponent
                 name={IconName.Search}
                 focusable={false}

@@ -26,11 +26,11 @@ export default function RechercheImmersionsSecondaire({
   }, [onCriteresChange, query])
 
   return (
-    <fieldset className='w-1/2 min-w-[300px]'>
-      <legend className='sr-only'>Étape 3: Plus de critères</legend>
+    <fieldset className='min-w-[300px]'>
+      <legend className='sr-only'>Étape 3: Portée de la recherche</legend>
 
       {query.rayon !== undefined && (
-        <fieldset className='mt-8 w-full'>
+        <fieldset className='w-full'>
           <legend className='text-base-bold mb-4'>Distance</legend>
           <DistanceRange
             value={query.rayon}

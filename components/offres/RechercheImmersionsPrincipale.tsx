@@ -40,7 +40,7 @@ export default function RechercheImmersionsPrincipale({
   }
 
   return (
-    <Etape numero={2} titre='Critères de recherche'>
+    <Etape numero={2} className={'mb-0'} titre='Critères de recherche'>
       <Label htmlFor='metier' inputRequired={true}>
         Métier
       </Label>

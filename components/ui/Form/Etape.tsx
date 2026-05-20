@@ -1,4 +1,5 @@
 import React, { ForwardedRef, forwardRef, ReactNode } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 
@@ -7,15 +8,16 @@ type EtapeProps = {
   numero: NumeroEtape
   titre: string
   children: Exclude<ReactNode, string | number | boolean | null | undefined>
+  className?: string
 }
 
 function Etape(
-  { numero, titre, children }: EtapeProps,
+  { numero, titre, children, className }: EtapeProps,
   ref: ForwardedRef<HTMLFieldSetElement>
 ) {
   return (
     <fieldset
-      className='flex flex-col mb-7'
+      className={twMerge('flex flex-col mb-7 ', className)}
       ref={ref}
       tabIndex={ref ? -1 : undefined}
     >
