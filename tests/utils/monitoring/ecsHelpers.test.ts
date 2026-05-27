@@ -4,6 +4,7 @@
 import {
   isSensitiveKey,
   mixinMergeStrategy,
+  pinoSerializers,
   redactDeep,
   serializeBodyForLog,
   toEcsError,
@@ -181,5 +182,37 @@ describe('mixinMergeStrategy', () => {
     const result = mixinMergeStrategy(mergeObject, mixinObject)
     expect((result.user as any).id).toBe('user-1')
     expect((result.user as any).structure).toBe('MILO')
+  })
+})
+
+describe('pinoSerializers', () => {
+  it('sérialise req avec method, url, remoteAddress', () => {
+    const req = {
+      method: 'GET',
+      url: '/jeunes',
+      remoteAddress: '127.0.0.1',
+      extra: 'ignored',
+    }
+    expect(pinoSerializers.req(req)).toEqual({
+      method: 'GET',
+      url: '/jeunes',
+      remoteAddress: '127.0.0.1',
+    })
+  })
+
+  it('sérialise res avec statusCode', () => {
+    const res = { statusCode: 200, extra: 'ignored' }
+    expect(pinoSerializers.res(res)).toEqual({ statusCode: 200 })
+  })
+
+  it('sérialise err via toEcsError (Error JS)', () => {
+    const err = new Error('boom')
+    err.name = 'RangeError'
+    const result = pinoSerializers.err(err)
+    expect(result).toEqual({
+      type: 'RangeError',
+      message: 'boom',
+      stack_trace: expect.stringContaining('RangeError'),
+    })
   })
 })

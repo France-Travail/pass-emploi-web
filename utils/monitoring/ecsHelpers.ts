@@ -69,7 +69,7 @@ export function redactDeep(obj: unknown): unknown {
 
 // ── serializeBodyForLog ──────────────────────────────────────────────────────
 
-const MAX_BODY_BYTES = 4096
+const MAX_BODY_CHARS = 4096
 
 export function serializeBodyForLog(body: unknown): string {
   if (body === null || body === undefined) return ''
@@ -85,6 +85,8 @@ export function serializeBodyForLog(body: unknown): string {
         const parsed = JSON.parse(body)
         str = JSON.stringify(redactDeep(parsed))
       } catch {
+        // Non-JSON string (e.g. raw form-urlencoded text): logged as-is without redaction.
+        // In practice, form-encoded bodies are passed as URLSearchParams (handled above).
         str = body
       }
     } else if (typeof body === 'object') {
@@ -93,15 +95,15 @@ export function serializeBodyForLog(body: unknown): string {
       str = String(body)
     }
 
-    return truncate(str, MAX_BODY_BYTES)
+    return truncate(str, MAX_BODY_CHARS)
   } catch {
     return '[binary]'
   }
 }
 
-function truncate(s: string, maxBytes: number): string {
-  if (s.length <= maxBytes) return s
-  return s.slice(0, maxBytes) + '...[truncated]'
+function truncate(s: string, maxChars: number): string {
+  if (s.length <= maxChars) return s
+  return s.slice(0, maxChars) + '...[truncated]'
 }
 
 // ── mixinMergeStrategy ───────────────────────────────────────────────────────
