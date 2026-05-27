@@ -1,3 +1,13 @@
+jest.mock('utils/monitoring/logger', () => ({
+  rootLogger: {
+    info: jest.fn(),
+    error: jest.fn(),
+  },
+}))
+jest.mock('utils/monitoring/ecsHelpers', () => ({
+  toEcsError: jest.fn((e) => ({ type: (e as any).name, message: (e as any).message })),
+}))
+
 import {
   ApiError,
   fetchJson,
@@ -147,6 +157,122 @@ describe('HttpClient', () => {
     describe('when authorization is expired', () => {
       it('forces reauthentication', async () => {
         // TODO
+      })
+    })
+
+    describe('logs ECS', () => {
+      let rootLogger: { info: jest.Mock; error: jest.Mock }
+
+      beforeEach(() => {
+        rootLogger = require('utils/monitoring/logger').rootLogger
+        jest.clearAllMocks()
+      })
+
+      it('émet external_api_call outcome:success sur 200', async () => {
+        ;(fetch as jest.Mock).mockResolvedValue({
+          ok: true,
+          status: 200,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: jest.fn(async () => ({})),
+        })
+
+        await fetchJson('https://api.pass-emploi.beta.gouv.fr/jeunes', {
+          method: 'GET',
+        })
+
+        expect(rootLogger.info).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event: expect.objectContaining({
+              action: 'external_api_call',
+              outcome: 'success',
+            }),
+            'log.logger': 'ApiClient',
+            http: expect.objectContaining({
+              request: { method: 'GET' },
+              response: { status_code: 200 },
+            }),
+            url: expect.objectContaining({
+              domain: 'api.pass-emploi.beta.gouv.fr',
+              path: '/jeunes',
+            }),
+          }),
+          'external_api_call'
+        )
+      })
+
+      it('émet external_api_call level:info outcome:failure sur 403', async () => {
+        ;(fetch as jest.Mock).mockResolvedValue({
+          ok: false,
+          status: 403,
+          json: jest.fn(async () => ({ message: 'Interdit' })),
+        })
+
+        try {
+          await fetchJson('https://api.pass-emploi.beta.gouv.fr/jeunes')
+        } catch {
+          // expected throw
+        }
+
+        expect(rootLogger.info).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event: expect.objectContaining({
+              action: 'external_api_call',
+              outcome: 'failure',
+            }),
+            http: expect.objectContaining({
+              response: { status_code: 403 },
+            }),
+          }),
+          'external_api_call'
+        )
+        expect(rootLogger.error).not.toHaveBeenCalled()
+      })
+
+      it('émet external_api_call level:error outcome:failure sur 500', async () => {
+        ;(fetch as jest.Mock).mockResolvedValue({
+          ok: false,
+          status: 500,
+          json: jest.fn(async () => ({ message: 'Internal Server Error' })),
+        })
+
+        try {
+          await fetchJson('https://api.pass-emploi.beta.gouv.fr/jeunes')
+        } catch {
+          // expected throw
+        }
+
+        expect(rootLogger.error).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event: expect.objectContaining({
+              action: 'external_api_call',
+              outcome: 'failure',
+            }),
+            http: expect.objectContaining({
+              response: { status_code: 500 },
+            }),
+          }),
+          'external_api_call'
+        )
+      })
+
+      it('émet external_api_call level:error sur exception réseau', async () => {
+        ;(fetch as jest.Mock).mockRejectedValue(new Error('réseau coupé'))
+
+        try {
+          await fetchJson('https://api.pass-emploi.beta.gouv.fr/jeunes')
+        } catch {
+          // expected throw
+        }
+
+        expect(rootLogger.error).toHaveBeenCalledWith(
+          expect.objectContaining({
+            event: expect.objectContaining({
+              action: 'external_api_call',
+              outcome: 'failure',
+            }),
+          }),
+          'external_api_call'
+        )
       })
     })
   })
