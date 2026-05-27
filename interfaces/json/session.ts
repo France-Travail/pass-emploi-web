@@ -10,6 +10,16 @@ import {
 import { StatutEvenementJson } from 'interfaces/json/evenement'
 import { structureMilo } from 'interfaces/structure'
 import { minutesEntreDeuxDates, toFrenchTime } from 'utils/date'
+import { rootLogger } from 'utils/monitoring/logger'
+
+function logMappingWarning(message: string): void {
+  if (typeof window === 'undefined') {
+    rootLogger.info(
+      { event: { action: 'data_mapping_warning', outcome: 'failure' } },
+      message
+    )
+  }
+}
 
 type InscriptionSessionJson = {
   idJeune: string
@@ -139,7 +149,7 @@ export function jsonToStatutSession(
       return StatutEvenement.Close
 
     default:
-      console.warn(
+      logMappingWarning(
         `Statut de session ${jsonStatus} incorrect, traité comme AVenir`
       )
       return StatutEvenement.AVenir
