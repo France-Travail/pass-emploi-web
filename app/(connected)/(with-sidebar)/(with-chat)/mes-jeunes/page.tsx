@@ -19,6 +19,8 @@ import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export const metadata: Metadata = { title: 'Portefeuille' }
 
@@ -71,7 +73,10 @@ export default async function Portefeuille({
     try {
       listes = await getListesServerSide(user.id, accessToken)
     } catch (error) {
-      console.error('Erreur lors de la récupération des listes:', error)
+      rootLogger.error(
+        { error: toEcsError(error) },
+        'Erreur lors de la récupération des listes'
+      )
     }
   }
 
