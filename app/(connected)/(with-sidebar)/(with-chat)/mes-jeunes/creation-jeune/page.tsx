@@ -37,7 +37,10 @@ export default async function CreationBeneficiaire() {
       listes = await getListesServerSide(user.id, accessToken)
     } catch (error) {
       rootLogger.error(
-        { error: toEcsError(error) },
+        {
+          event: { action: 'request_failed', outcome: 'failure' },
+          error: toEcsError(error),
+        },
         'Erreur lors de la récupération des listes'
       )
     }

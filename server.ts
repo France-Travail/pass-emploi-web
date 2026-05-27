@@ -20,10 +20,9 @@ const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()
 
 const pinoMiddleware = pinoHttp({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logger: rootLogger as any,
-  genReqId: (req) =>
-    (req.headers['x-request-id'] as string | undefined) ?? randomUUID(),
+  // request-id is set on req.headers before pinoMiddleware is invoked
+  genReqId: (req) => req.headers['x-request-id'] as string,
   customLogLevel: (_req, res, err) => {
     if (err || res.statusCode >= 500) return 'error'
     return 'info'
@@ -47,18 +46,21 @@ app.prepare().then(() => {
     const parsedUrl = parse(req.url!, true)
     apm.setTransactionName(`${req.method} ${parsedUrl.pathname}`)
 
-    const store = new Map<string, unknown>()
-    store.set(
-      'HTTP_REQUEST_ID',
+    // Compute request ID once — reused by genReqId and HTTP_REQUEST_ID store
+    const requestId =
       (req.headers['x-request-id'] as string | undefined) ?? randomUUID()
-    )
-    const traceIds = apm.currentTraceIds
-    if (traceIds['trace.id']) store.set('TRACE_ID', traceIds['trace.id'])
+    req.headers['x-request-id'] = requestId
+
+    const store = new Map<string, unknown>()
+    store.set('HTTP_REQUEST_ID', requestId)
 
     requestContext.run(store, () => {
       pinoMiddleware(req, res, () => handle(req, res, parsedUrl))
     })
   }).listen(port)
 
-  rootLogger.info({}, `> Ready on http://${hostname}:${port} as ${process.env.NODE_ENV}`)
+  rootLogger.info(
+    {},
+    `> Ready on http://${hostname}:${port} as ${process.env.NODE_ENV}`
+  )
 })

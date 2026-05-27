@@ -18,7 +18,13 @@ export async function GET(
   } catch (error) {
     if ((error as Error)?.message.startsWith('NEXT_REDIRECT')) throw error
 
-    rootLogger.error({ error: toEcsError(error) }, 'request_failed')
+    rootLogger.error(
+      {
+        event: { action: 'request_failed', outcome: 'failure' },
+        error: toEcsError(error),
+      },
+      'request_failed'
+    )
     redirect(process.env.NEXTAUTH_URL ?? '')
   }
 }
