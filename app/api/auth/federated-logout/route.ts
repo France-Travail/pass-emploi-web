@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
 
 import { getSessionServerSide } from 'utils/auth/auth'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 const rootUrl: string | undefined = process.env.NEXTAUTH_URL
 
@@ -19,7 +21,7 @@ export async function GET() {
   } catch (error) {
     if ((error as Error)?.message.startsWith('NEXT_REDIRECT')) throw error
 
-    console.error(error)
+    rootLogger.error({ error: toEcsError(error) }, 'request_failed')
     redirect(rootUrl ?? '')
   }
 }
