@@ -5,6 +5,8 @@ import { HydratedJWT, JWT } from 'next-auth/jwt'
 
 import { UserRole, UserType } from 'interfaces/conseiller'
 import { fetchJson } from 'utils/httpClient'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 function secondsToMilliseconds(seconds: number): number {
   return seconds * 1000
@@ -51,6 +53,15 @@ async function hydrateJwtAtFirstSignin(
     <string>access_token
   ) as JwtPayload
 
+  rootLogger.info(
+    {
+      event: { action: 'auth_succeeded', outcome: 'success' },
+      'log.logger': 'Authenticator',
+      user: { id: userId, type: userType, structure: userStructure },
+    },
+    'auth_succeeded'
+  )
+
   const expiresAt = expires_at ? secondsToMilliseconds(expires_at) : undefined
 
   return {
@@ -65,7 +76,7 @@ async function hydrateJwtAtFirstSignin(
   }
 }
 
-async function refreshAccessToken(jwt: HydratedJWT) {
+async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
   try {
     const refreshedTokens = await fetchRefreshedTokens(jwt.refreshToken)
 
@@ -73,13 +84,30 @@ async function refreshAccessToken(jwt: HydratedJWT) {
       ? DateTime.now().plus({ second: refreshedTokens.expires_in }).toMillis()
       : jwt.expiresAtTimestamp
 
+    rootLogger.info(
+      {
+        event: { action: 'token_refreshed', outcome: 'success' },
+        'log.logger': 'Authenticator',
+      },
+      'token_refreshed'
+    )
+
     return {
       ...jwt,
       accessToken: refreshedTokens.access_token,
-      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken, // Garde l'ancien refresh_token
+      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken,
       expiresAtTimestamp: expiresAtMs,
     }
-  } catch (_error) {
+  } catch (error) {
+    rootLogger.info(
+      {
+        event: { action: 'token_refresh_failed', outcome: 'failure' },
+        'log.logger': 'Authenticator',
+        error: toEcsError(error),
+      },
+      'token_refresh_failed'
+    )
+
     return {
       ...jwt,
       error: RefreshAccessTokenError,
