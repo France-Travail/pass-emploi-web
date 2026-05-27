@@ -111,10 +111,13 @@ function truncate(s: string, maxChars: number): string {
 // blocs ECS nested (ex : { user: { id } } + { user: { structure } } → perd id)
 
 export function mixinMergeStrategy(
-  mergeObject: Record<string, unknown>,
-  mixinObject: Record<string, unknown>
-): Record<string, unknown> {
-  return deepMerge(mergeObject, mixinObject)
+  mergeObject: object,
+  mixinObject: object
+): object {
+  return deepMerge(
+    mergeObject as Record<string, unknown>,
+    mixinObject as Record<string, unknown>
+  )
 }
 
 function deepMerge(

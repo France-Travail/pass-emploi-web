@@ -179,9 +179,9 @@ describe('mixinMergeStrategy', () => {
   it('un shallow merge écraserait user — deep merge préserve user.id', () => {
     const mergeObject = { user: { id: 'user-1', type: 'CONSEILLER' } }
     const mixinObject = { user: { structure: 'MILO' } }
-    const result = mixinMergeStrategy(mergeObject, mixinObject)
-    expect((result.user as any).id).toBe('user-1')
-    expect((result.user as any).structure).toBe('MILO')
+    const result = mixinMergeStrategy(mergeObject, mixinObject) as Record<string, any>
+    expect(result.user.id).toBe('user-1')
+    expect(result.user.structure).toBe('MILO')
   })
 })
 
