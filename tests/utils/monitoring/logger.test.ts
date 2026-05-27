@@ -2,18 +2,21 @@
  * @jest-environment node
  */
 jest.mock('elastic-apm-node', () => ({
-  currentTraceIds: { 'trace.id': 'mock-trace-id', 'transaction.id': 'mock-tx-id' },
+  currentTraceIds: {
+    'trace.id': 'mock-trace-id',
+    'transaction.id': 'mock-tx-id',
+  },
 }))
 
 import { Writable } from 'stream'
+
 import pino from 'pino'
-import { requestContext } from 'utils/monitoring/requestContext'
+
 import { mixinMergeStrategy } from 'utils/monitoring/ecsHelpers'
 
 // Helper : crée un logger avec la même config que rootLogger mais écrit dans
 // un buffer pour pouvoir inspecter la sortie JSON.
 function makeTestLogger(store: Map<string, unknown>) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const apm = require('elastic-apm-node')
 
   const lines: string[] = []
@@ -33,7 +36,10 @@ function makeTestLogger(store: Map<string, unknown>) {
         const traceIds: Record<string, string> = apm?.currentTraceIds ?? {}
         return {
           ...(Object.keys(traceIds).length > 0
-            ? { 'trace.id': traceIds['trace.id'], 'transaction.id': traceIds['transaction.id'] }
+            ? {
+                'trace.id': traceIds['trace.id'],
+                'transaction.id': traceIds['transaction.id'],
+              }
             : {}),
           ...(store.get('HTTP_REQUEST_ID')
             ? { 'http.request.id': store.get('HTTP_REQUEST_ID') }
@@ -59,7 +65,9 @@ describe('rootLogger config', () => {
   })
 
   it('injecte http.request.id depuis le store', () => {
-    const store = new Map<string, unknown>([['HTTP_REQUEST_ID', 'req-uuid-abc']])
+    const store = new Map<string, unknown>([
+      ['HTTP_REQUEST_ID', 'req-uuid-abc'],
+    ])
     const { logger, lines } = makeTestLogger(store)
     logger.info({}, 'test')
     const parsed = JSON.parse(lines[0])

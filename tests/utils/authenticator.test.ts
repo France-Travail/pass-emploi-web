@@ -10,7 +10,10 @@ jest.mock('utils/monitoring/logger', () => ({
   rootLogger: { info: jest.fn(), error: jest.fn() },
 }))
 jest.mock('utils/monitoring/ecsHelpers', () => ({
-  toEcsError: jest.fn((e) => ({ type: (e as any).name, message: (e as any).message })),
+  toEcsError: jest.fn((e) => ({
+    type: (e as any).name,
+    message: (e as any).message,
+  })),
 }))
 jest.mock('utils/httpClient')
 
@@ -165,7 +168,6 @@ describe('Authenticator', () => {
     })
 
     it('émet token_refreshed sur refresh réussi', async () => {
-      const expiresAtInSeconds = Math.floor(Date.now() / 1000) - 100
       ;(fetchJson as jest.Mock).mockResolvedValue({
         content: {
           access_token: 'new-access',
