@@ -5,6 +5,7 @@ import { Session } from 'next-auth'
 
 import { getSessionServerSide } from 'utils/auth/auth'
 import { RefreshAccessTokenError } from 'utils/auth/authenticator'
+import { requestContext } from 'utils/monitoring/requestContext'
 
 export default async function getMandatorySessionServerSide(): Promise<Session> {
   const session = await getSessionServerSide()
@@ -29,5 +30,16 @@ export default async function getMandatorySessionServerSide(): Promise<Session> 
     email: user.email ?? '',
   }
   apm.setUserContext(userAPM)
+
+  // Enrichissement RequestContext pour le mixin pino (nouveau)
+  const store = requestContext.getStore()
+  if (store && !store.has('USER')) {
+    store.set('USER', {
+      id: user.id,
+      type: user.estConseiller ? 'CONSEILLER' : 'SUPERVISEUR',
+      structure: user.structure,
+    })
+  }
+
   return session
 }
