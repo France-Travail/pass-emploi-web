@@ -11,13 +11,13 @@ const logger = (defaultConfig) =>
     messageKey: 'message',
     formatters: {
       level(label) {
-        return { level: label }
+        return { 'log.level': label }
       },
     },
     mixin: () => {
       if (!apm) return {}
       const currentTraceIds = apm.currentTraceIds
-      return Object.keys(currentTraceIds).length ? { currentTraceIds } : {}
+      return Object.keys(currentTraceIds).length ? currentTraceIds : {}
     },
   })
 
