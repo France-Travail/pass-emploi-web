@@ -169,7 +169,9 @@ export function jsonToActionStatus({ status, etat }: ActionJson): StatutAction {
     case 'canceled':
       return StatutAction.Annulee
     default:
-      logMappingWarning(`Statut d'action ${status} incorrect, traité comme EnCours`)
+      logMappingWarning(
+        `Statut d'action ${status} incorrect, traité comme EnCours`
+      )
       return StatutAction.AFaire
   }
 }

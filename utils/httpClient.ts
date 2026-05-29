@@ -64,7 +64,9 @@ async function callFetch(
   try {
     response = await fetch(path, reqInit)
   } catch (e) {
-    const error = new UnexpectedError((e as Error).message || 'Unexpected error')
+    const error = new UnexpectedError(
+      (e as Error).message || 'Unexpected error'
+    )
     rootLogger.error(
       {
         event: {
@@ -75,7 +77,13 @@ async function callFetch(
         'log.logger': 'ApiClient',
         http: { request: { method } },
         ...(parsedUrl
-          ? { url: { full: parsedUrl.href, path: parsedUrl.pathname, domain: parsedUrl.hostname } }
+          ? {
+              url: {
+                full: parsedUrl.href,
+                path: parsedUrl.pathname,
+                domain: parsedUrl.hostname,
+              },
+            }
           : {}),
         error: toEcsError(error),
       },
@@ -99,7 +107,13 @@ async function callFetch(
           response: { status_code: response.status },
         },
         ...(parsedUrl
-          ? { url: { full: parsedUrl.href, path: parsedUrl.pathname, domain: parsedUrl.hostname } }
+          ? {
+              url: {
+                full: parsedUrl.href,
+                path: parsedUrl.pathname,
+                domain: parsedUrl.hostname,
+              },
+            }
           : {}),
       },
       'external_api_call'
@@ -140,7 +154,13 @@ async function handleHttpError(
         response: { status_code: response.status },
       },
       ...(parsedUrl
-        ? { url: { full: parsedUrl.href, path: parsedUrl.pathname, domain: parsedUrl.hostname } }
+        ? {
+            url: {
+              full: parsedUrl.href,
+              path: parsedUrl.pathname,
+              domain: parsedUrl.hostname,
+            },
+          }
         : {}),
       error: toEcsError(error),
     },

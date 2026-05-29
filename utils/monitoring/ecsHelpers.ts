@@ -148,7 +148,6 @@ function deepMerge(
 // ── pinoSerializers ──────────────────────────────────────────────────────────
 
 export const pinoSerializers = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   req(req: any) {
     return {
       method: req.method,
@@ -156,11 +155,11 @@ export const pinoSerializers = {
       remoteAddress: req.remoteAddress,
     }
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   res(res: any) {
     return { statusCode: res.statusCode }
   },
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   err(err: any) {
     return toEcsError(err)
   },

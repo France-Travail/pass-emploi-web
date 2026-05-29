@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import { ApiError, UnexpectedError } from 'utils/httpClient'
 import {
   isSensitiveKey,
   mixinMergeStrategy,
@@ -9,7 +10,6 @@ import {
   serializeBodyForLog,
   toEcsError,
 } from 'utils/monitoring/ecsHelpers'
-import { ApiError, UnexpectedError } from 'utils/httpClient'
 
 describe('toEcsError', () => {
   it('convertit une Error JS standard', () => {
@@ -24,11 +24,11 @@ describe('toEcsError', () => {
   })
 
   it('convertit une ApiError (implements Error, pas extends)', () => {
-    const error = new ApiError(403, 'Vous n\'avez pas le droit')
+    const error = new ApiError(403, "Vous n'avez pas le droit")
     const result = toEcsError(error)
     expect(result).toEqual({
       type: 'API_ERROR',
-      message: 'Vous n\'avez pas le droit',
+      message: "Vous n'avez pas le droit",
     })
   })
 
@@ -179,7 +179,10 @@ describe('mixinMergeStrategy', () => {
   it('un shallow merge écraserait user — deep merge préserve user.id', () => {
     const mergeObject = { user: { id: 'user-1', type: 'CONSEILLER' } }
     const mixinObject = { user: { structure: 'MILO' } }
-    const result = mixinMergeStrategy(mergeObject, mixinObject) as Record<string, any>
+    const result = mixinMergeStrategy(mergeObject, mixinObject) as Record<
+      string,
+      any
+    >
     expect(result.user.id).toBe('user-1')
     expect(result.user.structure).toBe('MILO')
   })

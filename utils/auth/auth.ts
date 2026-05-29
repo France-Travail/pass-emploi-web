@@ -64,10 +64,7 @@ export async function signin(
       : '/'
     await signIn('keycloak', { callbackUrl }, { kc_idp_hint: provider })
   } catch (error) {
-    rootLogger.error(
-      { error: toEcsError(error) },
-      'auth_failed'
-    )
+    rootLogger.error({ error: toEcsError(error) }, 'auth_failed')
     onError("une erreur est survenue lors de l'authentification")
   }
 }

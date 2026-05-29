@@ -3,10 +3,8 @@ import pino from 'pino'
 import { mixinMergeStrategy } from 'utils/monitoring/ecsHelpers'
 import { requestContext } from 'utils/monitoring/requestContext'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let apm: any
 if (typeof window === 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   apm = require('elastic-apm-node')
 }
 

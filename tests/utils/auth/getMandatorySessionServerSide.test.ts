@@ -20,8 +20,8 @@ jest.mock('elastic-apm-node', () => ({
 }))
 
 import { getSessionServerSide } from 'utils/auth/auth'
-import { requestContext } from 'utils/monitoring/requestContext'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
+import { requestContext } from 'utils/monitoring/requestContext'
 
 const mockGetSessionServerSide = getSessionServerSide as jest.Mock
 
@@ -66,7 +66,9 @@ describe('getMandatorySessionServerSide', () => {
       await getMandatorySessionServerSide()
       store.set('USER', { id: 'already-set' }) // simule 2e appel
       await getMandatorySessionServerSide()
-      expect((store.get('USER') as Record<string, unknown>).id).toBe('already-set')
+      expect((store.get('USER') as Record<string, unknown>).id).toBe(
+        'already-set'
+      )
     })
   })
 })

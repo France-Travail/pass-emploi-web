@@ -5,7 +5,10 @@ jest.mock('utils/monitoring/logger', () => ({
   },
 }))
 jest.mock('utils/monitoring/ecsHelpers', () => ({
-  toEcsError: jest.fn((e) => ({ type: (e as any).name, message: (e as any).message })),
+  toEcsError: jest.fn((e) => ({
+    type: (e as any).name,
+    message: (e as any).message,
+  })),
 }))
 
 import {
