@@ -78,12 +78,19 @@ const nextConfig: NextConfig = {
     },
   },
 
-  webpack(config: any) {
+  webpack(config: any, { isServer }: { isServer: boolean }) {
     // https://react-svgr.com/docs/next/
     config.module.rules.push({
       test: /\.svg$/i,
       use: [{ loader: '@svgr/webpack', options: { titleProp: true } }],
     })
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        async_hooks: false,
+      }
+    }
 
     return config
   },

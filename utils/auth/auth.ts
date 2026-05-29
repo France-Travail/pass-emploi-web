@@ -6,7 +6,6 @@ import { signIn } from 'next-auth/react'
 
 import { handleJWTAndRefresh } from 'utils/auth/authenticator'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
-import { rootLogger } from 'utils/monitoring/logger'
 
 export const config = {
   providers: [
@@ -64,7 +63,7 @@ export async function signin(
       : '/'
     await signIn('keycloak', { callbackUrl }, { kc_idp_hint: provider })
   } catch (error) {
-    rootLogger.error({ error: toEcsError(error) }, 'auth_failed')
+    console.error({ error: toEcsError(error) }, 'auth_failed')
     onError("une erreur est survenue lors de l'authentification")
   }
 }
