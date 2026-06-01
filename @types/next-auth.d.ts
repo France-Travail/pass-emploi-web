@@ -9,6 +9,7 @@ declare module 'next-auth' {
     user: Session.HydratedUser
     accessToken: string
     error?: string
+    expiresAtTimestamp?: number
   }
 
   namespace Session {

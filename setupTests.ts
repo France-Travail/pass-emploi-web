@@ -43,6 +43,8 @@ jest.mock('next-auth/react', () => ({
     },
     accessToken: 'accessToken',
   })),
+  SessionProvider: ({ children }: { children: unknown }) => children,
+  useSession: () => ({ data: null, update: jest.fn() }),
 }))
 
 afterEach(() => {

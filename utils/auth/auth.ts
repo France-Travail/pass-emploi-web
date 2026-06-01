@@ -41,6 +41,7 @@ export const config = {
       session.user.estSuperviseur = token.estSuperviseur ?? false
       session.accessToken = token.accessToken ?? ''
       session.error = (token.error as string) ?? ''
+      session.expiresAtTimestamp = token.expiresAtTimestamp
       return session
     },
   },

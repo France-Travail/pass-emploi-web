@@ -1,10 +1,12 @@
 'use client'
 
 import { apm } from '@elastic/apm-rum'
+import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from 'next-themes'
 import React, { ReactNode } from 'react'
 
 import ClientOnlyContainer from 'components/ClientOnlyContainer'
+import SessionKeepAlive from 'components/SessionKeepAlive'
 import {
   BeneficiaireFromListe,
   compareBeneficiairesByNom,
@@ -45,34 +47,37 @@ export default function AppContextProviders({
   })
 
   return (
-    <MobileViewportProvider>
-      <ConseillerProvider conseiller={conseiller}>
-        <PortefeuilleProvider portefeuille={portefeuilleTrie}>
-          <ActualitesProvider>
-            <ChatCredentialsProvider>
-              <ChatsProvider>
-                <CurrentConversationProvider>
-                  <ShowRubriqueListeProvider>
-                    <ListeSelectionneeProvider>
-                      <AlerteProvider>
-                        <ClientOnlyContainer>
-                          <ThemeProvider
-                            defaultTheme={'neutral'}
-                            themes={['neutral', 'darker']}
-                            forcedTheme={theme}
-                          >
-                            {children}
-                          </ThemeProvider>
-                        </ClientOnlyContainer>
-                      </AlerteProvider>
-                    </ListeSelectionneeProvider>
-                  </ShowRubriqueListeProvider>
-                </CurrentConversationProvider>
-              </ChatsProvider>
-            </ChatCredentialsProvider>
-          </ActualitesProvider>
-        </PortefeuilleProvider>
-      </ConseillerProvider>
-    </MobileViewportProvider>
+    <SessionProvider refetchOnWindowFocus={false}>
+      <SessionKeepAlive />
+      <MobileViewportProvider>
+        <ConseillerProvider conseiller={conseiller}>
+          <PortefeuilleProvider portefeuille={portefeuilleTrie}>
+            <ActualitesProvider>
+              <ChatCredentialsProvider>
+                <ChatsProvider>
+                  <CurrentConversationProvider>
+                    <ShowRubriqueListeProvider>
+                      <ListeSelectionneeProvider>
+                        <AlerteProvider>
+                          <ClientOnlyContainer>
+                            <ThemeProvider
+                              defaultTheme={'neutral'}
+                              themes={['neutral', 'darker']}
+                              forcedTheme={theme}
+                            >
+                              {children}
+                            </ThemeProvider>
+                          </ClientOnlyContainer>
+                        </AlerteProvider>
+                      </ListeSelectionneeProvider>
+                    </ShowRubriqueListeProvider>
+                  </CurrentConversationProvider>
+                </ChatsProvider>
+              </ChatCredentialsProvider>
+            </ActualitesProvider>
+          </PortefeuilleProvider>
+        </ConseillerProvider>
+      </MobileViewportProvider>
+    </SessionProvider>
   )
 }
