@@ -84,7 +84,7 @@ describe('PilotagePage client side - Archivage des bénéficiaires', () => {
         '2 À archiver'
       )
       expect(screen.getByRole('tab', { selected: true })).toHaveAccessibleName(
-        'Archivage des comptes'
+        'Archivage des comptes 2 éléments'
       )
     })
 

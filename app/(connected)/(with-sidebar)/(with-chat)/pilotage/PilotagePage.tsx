@@ -310,6 +310,7 @@ function PilotagePage({
           controls='liste-beneficiaires-a-archiver'
           onSelectTab={() => switchTab('ARCHIVAGE')}
           iconName={IconName.Delete}
+          count={nbBeneficiairesAArchiver || undefined}
           important={true}
         />
       </TabList>
