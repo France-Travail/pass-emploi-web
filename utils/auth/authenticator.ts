@@ -20,6 +20,8 @@ export const RefreshAccessTokenError = 'RefreshAccessTokenError'
 
 const issuerPrefix = process.env.KEYCLOAK_ISSUER
 
+const pendingRefreshes = new Map<string, Promise<HydratedJWT>>()
+
 export async function handleJWTAndRefresh({
   jwt,
   account,
@@ -37,10 +39,18 @@ export async function handleJWTAndRefresh({
       })
     : false
 
-  if (tokenIsExpired) {
-    return refreshAccessToken(hydratedJWT)
+  if (!tokenIsExpired) return hydratedJWT
+
+  const key = hydratedJWT.refreshToken
+  if (!key) return refreshAccessToken(hydratedJWT)
+
+  if (!pendingRefreshes.has(key)) {
+    const promise = refreshAccessToken(hydratedJWT).finally(() =>
+      pendingRefreshes.delete(key)
+    )
+    pendingRefreshes.set(key, promise)
   }
-  return hydratedJWT
+  return pendingRefreshes.get(key)!
 }
 
 async function hydrateJwtAtFirstSignin(
@@ -65,7 +75,7 @@ async function hydrateJwtAtFirstSignin(
   }
 }
 
-async function refreshAccessToken(jwt: HydratedJWT) {
+async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
   try {
     const refreshedTokens = await fetchRefreshedTokens(jwt.refreshToken)
 
@@ -76,7 +86,7 @@ async function refreshAccessToken(jwt: HydratedJWT) {
     return {
       ...jwt,
       accessToken: refreshedTokens.access_token,
-      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken, // Garde l'ancien refresh_token
+      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken,
       expiresAtTimestamp: expiresAtMs,
     }
   } catch (_error) {
