@@ -1,7 +1,7 @@
 import pino from 'pino'
 
-import { mixinMergeStrategy } from 'utils/monitoring/ecsHelpers'
-import { requestContext } from 'utils/monitoring/requestContext'
+import { mixinMergeStrategy } from './ecsHelpers'
+import { requestContext } from './requestContext'
 
 let apm: any
 if (typeof window === 'undefined') {

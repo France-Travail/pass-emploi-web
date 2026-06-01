@@ -8,9 +8,9 @@ import pinoHttp from 'pino-http'
 
 import 'next-logger'
 
-import { pinoSerializers } from 'utils/monitoring/ecsHelpers'
-import { rootLogger } from 'utils/monitoring/logger'
-import { requestContext } from 'utils/monitoring/requestContext'
+import { pinoSerializers } from './utils/monitoring/ecsHelpers'
+import { rootLogger } from './utils/monitoring/logger'
+import { requestContext } from './utils/monitoring/requestContext'
 
 const dev = process.env.NODE_ENV !== 'production'
 const hostname = 'localhost'
