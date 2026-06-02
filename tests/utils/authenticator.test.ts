@@ -150,6 +150,38 @@ describe('Authenticator', () => {
     })
   })
 
+  describe('déduplication des refreshes concurrents', () => {
+    beforeEach(() => jest.clearAllMocks())
+
+    it("ne fait qu'un seul appel Keycloak pour N requêtes parallèles avec le même token", async () => {
+      // Given
+      const jwt = {
+        ...jwtFixture(),
+        refreshToken: 'refresh-concurrent',
+        expiresAtTimestamp: DateTime.now().minus({ second: 60 }).toMillis(),
+      }
+      ;(fetchJson as jest.Mock).mockResolvedValue({
+        content: {
+          access_token: 'new-access',
+          refresh_token: 'new-refresh',
+          expires_in: 300,
+        },
+      })
+
+      // When — 3 appels parallèles avec le même refreshToken
+      const [r1, r2, r3] = await Promise.all([
+        handleJWTAndRefresh({ jwt }),
+        handleJWTAndRefresh({ jwt }),
+        handleJWTAndRefresh({ jwt }),
+      ])
+
+      // Then — un seul appel HTTP et résultats identiques
+      expect(fetchJson).toHaveBeenCalledTimes(1)
+      expect(r1).toEqual(r2)
+      expect(r2).toEqual(r3)
+    })
+  })
+
   describe('conseiller autre', () => {
     let accessToken: string
     let refreshToken: string
@@ -335,10 +367,11 @@ const accountFixture = (params: {
   scope: 'openid email profile',
 })
 
-const jwtFixture = (): JWT => ({
+const jwtFixture = (overrides?: Partial<JWT>): JWT => ({
   name: 'toto tata',
   sub: '448092da-4ad7-4fcf-8ff5-a303f30ea109',
   iat: 1638434437,
   exp: 1641026437,
   jti: 'efe3dae2-c2a1-4ac7-a0a2-1fe6cd0c8723',
+  ...overrides,
 })
