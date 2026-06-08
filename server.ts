@@ -33,9 +33,12 @@ const pinoMiddleware = pinoHttp({
     ignore: (req) => req.url === '/api/health',
   },
   serializers: pinoSerializers,
-  customSuccessObject: (_req, _res, val) => ({
+  customSuccessObject: (_req, res, val) => ({
     ...val,
-    event: { action: 'request_completed', outcome: 'success' },
+    event: {
+      action: res.statusCode >= 400 ? 'request_failed' : 'request_completed',
+      outcome: res.statusCode >= 400 ? 'failure' : 'success',
+    },
   }),
   customErrorObject: (_req, res, _err, val) => ({
     ...val,
