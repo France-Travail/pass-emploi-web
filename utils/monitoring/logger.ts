@@ -2,6 +2,7 @@ import pino from 'pino'
 
 import { mixinMergeStrategy } from './ecsHelpers'
 import { requestContext } from './requestContext'
+import { getPerRequestId } from './requestStore'
 
 let apm: any
 if (typeof window === 'undefined') {
@@ -19,6 +20,8 @@ export const rootLogger = pino({
   mixin() {
     const store = requestContext.getStore()
     const traceIds: Record<string, string> = apm?.currentTraceIds ?? {}
+    const requestId =
+      (store?.get('HTTP_REQUEST_ID') as string | undefined) ?? getPerRequestId()
 
     return {
       ...(Object.keys(traceIds).length > 0
@@ -27,9 +30,7 @@ export const rootLogger = pino({
             'transaction.id': traceIds['transaction.id'],
           }
         : {}),
-      ...(store?.get('HTTP_REQUEST_ID')
-        ? { 'http.request.id': store.get('HTTP_REQUEST_ID') }
-        : {}),
+      ...(requestId ? { 'http.request.id': requestId } : {}),
       ...(store?.get('USER') ? { user: store.get('USER') } : {}),
     }
   },

@@ -92,4 +92,46 @@ describe('rootLogger config', () => {
     expect(parsed.user.id).toBe('conseiller-1')
     expect(parsed.user.extra).toBe('field')
   })
+
+  it('injecte http.request.id depuis getPerRequestId quand AsyncLocalStorage est vide', () => {
+    const lines: string[] = []
+    const stream = new Writable({
+      write(chunk, _enc, cb) {
+        lines.push(chunk.toString().trim())
+        cb()
+      },
+    })
+
+    const mockGetPerRequestId = jest.fn(() => 'react-cache-id-xyz')
+    const logger = pino(
+      {
+        level: 'info',
+        messageKey: 'message',
+        formatters: { level: (label: string) => ({ 'log.level': label }) },
+        mixin() {
+          const emptyStore = new Map<string, unknown>()
+          const traceIds: Record<string, string> = {}
+          const requestId =
+            (emptyStore.get('HTTP_REQUEST_ID') as string | undefined) ??
+            mockGetPerRequestId()
+          return {
+            ...(Object.keys(traceIds).length > 0
+              ? {
+                  'trace.id': traceIds['trace.id'],
+                  'transaction.id': traceIds['transaction.id'],
+                }
+              : {}),
+            ...(requestId ? { 'http.request.id': requestId } : {}),
+          }
+        },
+        mixinMergeStrategy,
+      },
+      stream
+    )
+
+    logger.info({}, 'test')
+    const parsed = JSON.parse(lines[0])
+    expect(parsed['http.request.id']).toBe('react-cache-id-xyz')
+    expect(mockGetPerRequestId).toHaveBeenCalled()
+  })
 })
