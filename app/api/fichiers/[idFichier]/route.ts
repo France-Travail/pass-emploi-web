@@ -1,13 +1,18 @@
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { rootLogger } from 'utils/monitoring/logger'
+import { initRequestId } from 'utils/monitoring/requestStore'
 
 export async function GET(
   _: Request,
   { params }: { params: Promise<{ idFichier: string }> }
 ) {
+  const requestId = (await headers()).get('x-request-id')
+  if (requestId) initRequestId(requestId)
+
   const { accessToken } = await getMandatorySessionServerSide()
 
   try {
