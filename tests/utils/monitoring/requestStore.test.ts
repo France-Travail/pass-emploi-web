@@ -42,4 +42,17 @@ describe('requestStore', () => {
       expect(getPerRequestId()).toBeUndefined()
     })
   })
+
+  it('initRequestId ne jette pas quand React.cache lève une erreur (hors RSC)', () => {
+    jest.isolateModules(() => {
+      jest.mock('react', () => ({
+        cache: () => () => {
+          throw new Error('Cannot use cache outside RSC')
+        },
+      }))
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { initRequestId } = require('utils/monitoring/requestStore')
+      expect(() => initRequestId('req-abc-123')).not.toThrow()
+    })
+  })
 })

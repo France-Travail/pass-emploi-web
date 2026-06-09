@@ -5,7 +5,11 @@ const getStore = cache((): { requestId: string | undefined } => ({
 }))
 
 export function initRequestId(id: string): void {
-  getStore().requestId = id
+  try {
+    getStore().requestId = id
+  } catch {
+    // outside RSC context — no per-request store available
+  }
 }
 
 export function getPerRequestId(): string | undefined {
