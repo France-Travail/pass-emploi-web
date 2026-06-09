@@ -4,21 +4,14 @@ const getStore = cache((): { requestId: string | undefined } => ({
   requestId: undefined,
 }))
 
-let fallbackRequestId: string | undefined
-
 export function initRequestId(id: string): void {
-  fallbackRequestId = id
-  try {
-    getStore().requestId = id
-  } catch {
-    // outside RSC context, fallback is used
-  }
+  getStore().requestId = id
 }
 
 export function getPerRequestId(): string | undefined {
   try {
-    return getStore().requestId ?? fallbackRequestId
+    return getStore().requestId
   } catch {
-    return fallbackRequestId
+    return undefined
   }
 }

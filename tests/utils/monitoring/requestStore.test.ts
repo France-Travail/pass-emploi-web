@@ -13,8 +13,17 @@ describe('requestStore', () => {
 
   it('getPerRequestId retourne l’id après initRequestId', () => {
     jest.isolateModules(() => {
+      jest.mock('react', () => ({
+        cache: (fn: () => unknown) => {
+          const result = fn()
+          return () => result
+        },
+      }))
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { initRequestId, getPerRequestId } = require('utils/monitoring/requestStore')
+      const {
+        initRequestId,
+        getPerRequestId,
+      } = require('utils/monitoring/requestStore')
       initRequestId('req-abc-123')
       expect(getPerRequestId()).toBe('req-abc-123')
     })
