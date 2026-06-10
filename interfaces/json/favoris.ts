@@ -1,10 +1,20 @@
 import { Offre } from 'interfaces/favoris'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export type TypeOffreJson =
   | 'OFFRE_EMPLOI'
   | 'OFFRE_ALTERNANCE'
   | 'OFFRE_IMMERSION'
   | 'OFFRE_SERVICE_CIVIQUE'
+
+function logMappingWarning(message: string): void {
+  if (typeof window === 'undefined') {
+    rootLogger.info(
+      { event: { action: 'data_mapping_warning', outcome: 'failure' } },
+      message
+    )
+  }
+}
 
 export interface OffreJson {
   idOffre: string
@@ -43,7 +53,7 @@ export function jsonToLabelTypeOffre(type: TypeOffreJson): string {
     case 'OFFRE_SERVICE_CIVIQUE':
       return 'Service civique'
     default:
-      console.warn(`Type offre ${type} inconnu`)
+      logMappingWarning(`Type offre ${type} inconnu`)
       return ''
   }
 }

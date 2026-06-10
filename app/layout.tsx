@@ -1,6 +1,7 @@
 import { Settings } from 'luxon'
 import { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
+import { headers } from 'next/headers'
 import { ReactNode } from 'react'
 
 import Analytics from 'components/global/Analytics'
@@ -8,6 +9,7 @@ import DateSettings from 'components/global/DateSettings'
 import ProgressBar from 'components/global/ProgressBar'
 import RealUserMonitoring from 'components/global/RealUserMonitoring'
 import WebVitals from 'components/global/WebVitals'
+import { initRequestId } from 'utils/monitoring/requestStore'
 
 import 'styles/globals.css'
 import 'styles/typography.css'
@@ -47,7 +49,14 @@ export const viewport: Viewport = {
 
 Settings.throwOnInvalid = true
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode
+}) {
+  const requestId = (await headers()).get('x-request-id')
+  if (requestId) initRequestId(requestId)
+
   return (
     <html lang='fr' className={marianne.className}>
       <body>

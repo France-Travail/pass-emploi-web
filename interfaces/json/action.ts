@@ -8,6 +8,7 @@ import {
   StatutAction,
 } from 'interfaces/action'
 import { EntreeAgenda } from 'interfaces/agenda'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export interface ActionJson {
   id: string
@@ -67,6 +68,15 @@ export type ActionFormData = {
   statut: StatutAction
   description?: string
   dateFinReelle?: string
+}
+
+function logMappingWarning(message: string): void {
+  if (typeof window === 'undefined') {
+    rootLogger.info(
+      { event: { action: 'data_mapping_warning', outcome: 'failure' } },
+      message
+    )
+  }
 }
 
 export const CODE_QUALIFICATION_NON_SNP = 'NON_SNP'
@@ -159,7 +169,9 @@ export function jsonToActionStatus({ status, etat }: ActionJson): StatutAction {
     case 'canceled':
       return StatutAction.Annulee
     default:
-      console.warn(`Statut d'action ${status} incorrect, traité comme EnCours`)
+      logMappingWarning(
+        `Statut d'action ${status} incorrect, traité comme EnCours`
+      )
       return StatutAction.AFaire
   }
 }

@@ -15,6 +15,8 @@ import {
 } from 'interfaces/structure'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export const metadata: Metadata = {
   title: 'Créer compte bénéficiaire - Portefeuille',
@@ -34,7 +36,13 @@ export default async function CreationBeneficiaire() {
     try {
       listes = await getListesServerSide(user.id, accessToken)
     } catch (error) {
-      console.error('Erreur lors de la récupération des listes:', error)
+      rootLogger.error(
+        {
+          event: { action: 'request_failed', outcome: 'failure' },
+          error: toEcsError(error),
+        },
+        'Erreur lors de la récupération des listes'
+      )
     }
   }
   return (

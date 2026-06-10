@@ -6,6 +6,15 @@ import { structureMilo } from 'interfaces/structure'
 import { handleJWTAndRefresh } from 'utils/auth/authenticator'
 import { fetchJson } from 'utils/httpClient'
 
+jest.mock('utils/monitoring/logger', () => ({
+  rootLogger: { info: jest.fn(), error: jest.fn() },
+}))
+jest.mock('utils/monitoring/ecsHelpers', () => ({
+  toEcsError: jest.fn((e) => ({
+    type: (e as any).name,
+    message: (e as any).message,
+  })),
+}))
 jest.mock('utils/httpClient')
 
 describe('Authenticator', () => {
@@ -147,6 +156,85 @@ describe('Authenticator', () => {
           expect(actual).toEqual(jwtMisAjour)
         })
       })
+    })
+  })
+
+  describe('déduplication des refreshes concurrents', () => {
+    beforeEach(() => jest.clearAllMocks())
+
+    it("ne fait qu'un seul appel Keycloak pour N requêtes parallèles avec le même token", async () => {
+      // Given
+      const jwt = {
+        ...jwtFixture(),
+        refreshToken: 'refresh-concurrent',
+        expiresAtTimestamp: DateTime.now().minus({ second: 60 }).toMillis(),
+      }
+      ;(fetchJson as jest.Mock).mockResolvedValue({
+        content: {
+          access_token: 'new-access',
+          refresh_token: 'new-refresh',
+          expires_in: 300,
+        },
+      })
+
+      // When — 3 appels parallèles avec le même refreshToken
+      const [r1, r2, r3] = await Promise.all([
+        handleJWTAndRefresh({ jwt }),
+        handleJWTAndRefresh({ jwt }),
+        handleJWTAndRefresh({ jwt }),
+      ])
+
+      // Then — un seul appel HTTP et résultats identiques
+      expect(fetchJson).toHaveBeenCalledTimes(1)
+      expect(r1).toEqual(r2)
+      expect(r2).toEqual(r3)
+    })
+  })
+
+  describe('logs ECS — token refresh', () => {
+    let rootLogger: { info: jest.Mock; error: jest.Mock }
+
+    beforeEach(() => {
+      rootLogger = require('utils/monitoring/logger').rootLogger
+      jest.clearAllMocks()
+    })
+
+    it('émet token_refreshed sur refresh réussi', async () => {
+      ;(fetchJson as jest.Mock).mockResolvedValue({
+        content: {
+          access_token: 'new-access',
+          refresh_token: 'new-refresh',
+          expires_in: 300,
+        },
+      })
+
+      await handleJWTAndRefresh({
+        jwt: jwtFixture({ expiresAtTimestamp: Date.now() - 1000 }),
+      })
+
+      expect(rootLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: { action: 'token_refreshed', outcome: 'success' },
+          context: 'Authenticator',
+        }),
+        'token_refreshed'
+      )
+    })
+
+    it('émet token_refresh_failed sur refresh échoué', async () => {
+      ;(fetchJson as jest.Mock).mockRejectedValue(new Error('400 Bad Request'))
+
+      await handleJWTAndRefresh({
+        jwt: jwtFixture({ expiresAtTimestamp: Date.now() - 1000 }),
+      })
+
+      expect(rootLogger.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event: { action: 'token_refresh_failed', outcome: 'failure' },
+          context: 'Authenticator',
+        }),
+        'token_refresh_failed'
+      )
     })
   })
 
@@ -335,10 +423,11 @@ const accountFixture = (params: {
   scope: 'openid email profile',
 })
 
-const jwtFixture = (): JWT => ({
+const jwtFixture = (overrides?: Partial<JWT>): JWT => ({
   name: 'toto tata',
   sub: '448092da-4ad7-4fcf-8ff5-a303f30ea109',
   iat: 1638434437,
   exp: 1641026437,
   jti: 'efe3dae2-c2a1-4ac7-a0a2-1fe6cd0c8723',
+  ...overrides,
 })

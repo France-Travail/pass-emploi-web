@@ -5,6 +5,8 @@ import { HydratedJWT, JWT } from 'next-auth/jwt'
 
 import { UserRole, UserType } from 'interfaces/conseiller'
 import { fetchJson } from 'utils/httpClient'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 function secondsToMilliseconds(seconds: number): number {
   return seconds * 1000
@@ -19,6 +21,8 @@ interface RefreshedTokens {
 export const RefreshAccessTokenError = 'RefreshAccessTokenError'
 
 const issuerPrefix = process.env.KEYCLOAK_ISSUER
+
+const pendingRefreshes = new Map<string, Promise<HydratedJWT>>()
 
 export async function handleJWTAndRefresh({
   jwt,
@@ -37,10 +41,18 @@ export async function handleJWTAndRefresh({
       })
     : false
 
-  if (tokenIsExpired) {
-    return refreshAccessToken(hydratedJWT)
+  if (!tokenIsExpired) return hydratedJWT
+
+  const key = hydratedJWT.refreshToken
+  if (!key) return refreshAccessToken(hydratedJWT)
+
+  if (!pendingRefreshes.has(key)) {
+    const promise = refreshAccessToken(hydratedJWT).finally(() =>
+      pendingRefreshes.delete(key)
+    )
+    pendingRefreshes.set(key, promise)
   }
-  return hydratedJWT
+  return pendingRefreshes.get(key)!
 }
 
 async function hydrateJwtAtFirstSignin(
@@ -50,6 +62,15 @@ async function hydrateJwtAtFirstSignin(
   const { userId, userStructure, userRoles, userType } = decode(
     <string>access_token
   ) as JwtPayload
+
+  rootLogger.info(
+    {
+      event: { action: 'auth_succeeded', outcome: 'success' },
+      context: 'Authenticator',
+      user: { id: userId, type: userType, structure: userStructure },
+    },
+    'auth_succeeded'
+  )
 
   const expiresAt = expires_at ? secondsToMilliseconds(expires_at) : undefined
 
@@ -65,7 +86,7 @@ async function hydrateJwtAtFirstSignin(
   }
 }
 
-async function refreshAccessToken(jwt: HydratedJWT) {
+async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
   try {
     const refreshedTokens = await fetchRefreshedTokens(jwt.refreshToken)
 
@@ -73,13 +94,30 @@ async function refreshAccessToken(jwt: HydratedJWT) {
       ? DateTime.now().plus({ second: refreshedTokens.expires_in }).toMillis()
       : jwt.expiresAtTimestamp
 
+    rootLogger.info(
+      {
+        event: { action: 'token_refreshed', outcome: 'success' },
+        context: 'Authenticator',
+      },
+      'token_refreshed'
+    )
+
     return {
       ...jwt,
       accessToken: refreshedTokens.access_token,
-      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken, // Garde l'ancien refresh_token
+      refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken,
       expiresAtTimestamp: expiresAtMs,
     }
-  } catch (_error) {
+  } catch (error) {
+    rootLogger.info(
+      {
+        event: { action: 'token_refresh_failed', outcome: 'failure' },
+        context: 'Authenticator',
+        error: toEcsError(error),
+      },
+      'token_refresh_failed'
+    )
+
     return {
       ...jwt,
       error: RefreshAccessTokenError,

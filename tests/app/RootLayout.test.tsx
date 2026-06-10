@@ -6,14 +6,20 @@ import { init as initMatomo } from 'utils/analytics/matomo'
 
 jest.mock('utils/analytics/matomo')
 jest.mock('@elastic/apm-rum')
+jest.mock('next/headers', () => ({
+  headers: jest.fn(async () => ({ get: jest.fn().mockReturnValue(null) })),
+}))
+jest.mock('utils/monitoring/requestStore', () => ({
+  initRequestId: jest.fn(),
+}))
 
 describe('RootLayout', () => {
   beforeEach(async () => {
     // When
     render(
-      <RootLayout>
-        <div>Composant whatever</div>
-      </RootLayout>
+      await RootLayout({
+        children: <div>Composant whatever</div>,
+      })
     )
   })
 

@@ -19,6 +19,16 @@ import {
 import { structureMilo } from 'interfaces/structure'
 import { minutesEntreDeuxDates } from 'utils/date'
 import { filtrerUndefinedNullEtChaineVide } from 'utils/helpers'
+import { rootLogger } from 'utils/monitoring/logger'
+
+function logMappingWarning(message: string): void {
+  if (typeof window === 'undefined') {
+    rootLogger.info(
+      { event: { action: 'data_mapping_warning', outcome: 'failure' } },
+      message
+    )
+  }
+}
 
 type Auteur = { id: string; nom: string; prenom: string }
 
@@ -228,7 +238,7 @@ function jsonToStatutEvenement(
       return StatutEvenement.Close
 
     default:
-      console.warn(
+      logMappingWarning(
         `Statut d'évènement ${jsonStatus} incorrect, traité comme AVenir`
       )
       return StatutEvenement.AVenir

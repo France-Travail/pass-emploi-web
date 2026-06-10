@@ -1,6 +1,27 @@
 import { redirect } from 'next/navigation'
 
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { captureError } from 'utils/monitoring/elastic'
+import { rootLogger } from 'utils/monitoring/logger'
+
+// ── Types publics ────────────────────────────────────────────────────────────
+
+export class ApiError implements Error {
+  name = 'API_ERROR'
+
+  constructor(
+    readonly statusCode: number,
+    readonly message: string
+  ) {}
+}
+
+export class UnexpectedError implements Error {
+  name = 'UNEXPECTED_ERROR'
+
+  constructor(readonly message: string) {}
+}
+
+// ── API publique ─────────────────────────────────────────────────────────────
 
 export async function fetchJson(
   path: string,
@@ -22,32 +43,93 @@ export async function fetchNoContent(
   await callFetch(path, reqInit)
 }
 
+// ── Implémentation ───────────────────────────────────────────────────────────
+
 async function callFetch(
   path: string,
   reqInit?: RequestInit
 ): Promise<Response> {
-  let reponse: Response
+  const method = reqInit?.method ?? 'GET'
+  const startTime = Date.now()
+
+  // Parse URL best-effort (path may be relative in some call sites)
+  let parsedUrl: URL | undefined
   try {
-    reponse = await fetch(path, reqInit)
+    parsedUrl = new URL(path)
+  } catch {
+    // relative URL — skip domain/path extraction
+  }
+
+  let response: Response
+  try {
+    response = await fetch(path, reqInit)
   } catch (e) {
-    const error: UnexpectedError = new UnexpectedError(
+    const error = new UnexpectedError(
       (e as Error).message || 'Unexpected error'
     )
-    console.error(`fetchJson exception at ${path}`, error)
+    rootLogger.error(
+      {
+        event: {
+          action: 'external_api_call',
+          outcome: 'failure',
+          duration: nsFrom(startTime),
+        },
+        context: 'ApiClient',
+        http: { request: { method } },
+        ...(parsedUrl
+          ? {
+              url: {
+                full: parsedUrl.href,
+                path: parsedUrl.pathname,
+                domain: parsedUrl.hostname,
+              },
+            }
+          : {}),
+        error: toEcsError(error),
+      },
+      'external_api_call'
+    )
     captureError(error)
     throw error
   }
 
-  if (!reponse.ok) {
-    await handleHttpError(reponse, path)
+  const duration = nsFrom(startTime)
+
+  if (!response.ok) {
+    await handleHttpError(response, { method, parsedUrl, duration })
+  } else {
+    rootLogger.info(
+      {
+        event: { action: 'external_api_call', outcome: 'success', duration },
+        context: 'ApiClient',
+        http: {
+          request: { method },
+          response: { status_code: response.status },
+        },
+        ...(parsedUrl
+          ? {
+              url: {
+                full: parsedUrl.href,
+                path: parsedUrl.pathname,
+                domain: parsedUrl.hostname,
+              },
+            }
+          : {}),
+      },
+      'external_api_call'
+    )
   }
 
-  return reponse
+  return response
 }
 
 async function handleHttpError(
   response: Response,
-  path: string
+  {
+    method,
+    parsedUrl,
+    duration,
+  }: { method: string; parsedUrl: URL | undefined; duration: number }
 ): Promise<void> {
   if (response.status === 401) {
     const logoutUrl = '/api/auth/federated-logout'
@@ -61,22 +143,34 @@ async function handleHttpError(
   const json: any = await response.json()
   const message = json?.message || response.statusText
   const error = new ApiError(response.status, message)
-  console.error(`fetchJson error at ${path}`, error)
+  const level = response.status >= 500 ? 'error' : 'info'
+
+  rootLogger[level](
+    {
+      event: { action: 'external_api_call', outcome: 'failure', duration },
+      context: 'ApiClient',
+      http: {
+        request: { method },
+        response: { status_code: response.status },
+      },
+      ...(parsedUrl
+        ? {
+            url: {
+              full: parsedUrl.href,
+              path: parsedUrl.pathname,
+              domain: parsedUrl.hostname,
+            },
+          }
+        : {}),
+      error: toEcsError(error),
+    },
+    'external_api_call'
+  )
+
   captureError(error)
   throw error
 }
 
-export class ApiError implements Error {
-  name = 'API_ERROR'
-
-  constructor(
-    readonly statusCode: number,
-    readonly message: string
-  ) {}
-}
-
-export class UnexpectedError implements Error {
-  name = 'UNEXPECTED_ERROR'
-
-  constructor(readonly message: string) {}
+function nsFrom(startMs: number): number {
+  return (Date.now() - startMs) * 1_000_000
 }
