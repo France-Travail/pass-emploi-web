@@ -74,7 +74,7 @@ async function callFetch(
           outcome: 'failure',
           duration: nsFrom(startTime),
         },
-        'log.logger': 'ApiClient',
+        context: 'ApiClient',
         http: { request: { method } },
         ...(parsedUrl
           ? {
@@ -101,7 +101,7 @@ async function callFetch(
     rootLogger.info(
       {
         event: { action: 'external_api_call', outcome: 'success', duration },
-        'log.logger': 'ApiClient',
+        context: 'ApiClient',
         http: {
           request: { method },
           response: { status_code: response.status },
@@ -148,7 +148,7 @@ async function handleHttpError(
   rootLogger[level](
     {
       event: { action: 'external_api_call', outcome: 'failure', duration },
-      'log.logger': 'ApiClient',
+      context: 'ApiClient',
       http: {
         request: { method },
         response: { status_code: response.status },

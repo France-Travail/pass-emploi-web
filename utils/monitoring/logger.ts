@@ -11,10 +11,9 @@ if (typeof window === 'undefined') {
 
 export const rootLogger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
-  messageKey: 'message',
   formatters: {
     level(label: string) {
-      return { 'log.level': label }
+      return { level: label }
     },
   },
   mixin() {
@@ -30,7 +29,7 @@ export const rootLogger = pino({
             'transaction.id': traceIds['transaction.id'],
           }
         : {}),
-      ...(requestId ? { 'http.request.id': requestId } : {}),
+      ...(requestId ? { http: { request: { id: requestId } } } : {}),
       ...(store?.get('USER') ? { user: store.get('USER') } : {}),
     }
   },

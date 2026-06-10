@@ -215,7 +215,7 @@ describe('Authenticator', () => {
       expect(rootLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           event: { action: 'token_refreshed', outcome: 'success' },
-          'log.logger': 'Authenticator',
+          context: 'Authenticator',
         }),
         'token_refreshed'
       )
@@ -231,7 +231,7 @@ describe('Authenticator', () => {
       expect(rootLogger.info).toHaveBeenCalledWith(
         expect.objectContaining({
           event: { action: 'token_refresh_failed', outcome: 'failure' },
-          'log.logger': 'Authenticator',
+          context: 'Authenticator',
         }),
         'token_refresh_failed'
       )

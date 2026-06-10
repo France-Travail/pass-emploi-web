@@ -30,8 +30,7 @@ function makeTestLogger(store: Map<string, unknown>) {
   const logger = pino(
     {
       level: 'info',
-      messageKey: 'message',
-      formatters: { level: (label) => ({ 'log.level': label }) },
+      formatters: { level: (label) => ({ level: label }) },
       mixin() {
         const traceIds: Record<string, string> = apm?.currentTraceIds ?? {}
         return {
@@ -42,7 +41,11 @@ function makeTestLogger(store: Map<string, unknown>) {
               }
             : {}),
           ...(store.get('HTTP_REQUEST_ID')
-            ? { 'http.request.id': store.get('HTTP_REQUEST_ID') }
+            ? {
+                http: {
+                  request: { id: store.get('HTTP_REQUEST_ID') },
+                },
+              }
             : {}),
           ...(store.get('USER') ? { user: store.get('USER') } : {}),
         }
@@ -55,13 +58,13 @@ function makeTestLogger(store: Map<string, unknown>) {
 }
 
 describe('rootLogger config', () => {
-  it('formate log.level en ECS (pas "level")', () => {
+  it('formate level en ECS (pas "log.level")', () => {
     const store = new Map<string, unknown>()
     const { logger, lines } = makeTestLogger(store)
     logger.info({}, 'test')
     const parsed = JSON.parse(lines[0])
-    expect(parsed['log.level']).toBe('info')
-    expect(parsed.level).toBeUndefined()
+    expect(parsed.level).toBe('info')
+    expect(parsed['log.level']).toBeUndefined()
   })
 
   it('injecte http.request.id depuis le store', () => {
@@ -71,7 +74,7 @@ describe('rootLogger config', () => {
     const { logger, lines } = makeTestLogger(store)
     logger.info({}, 'test')
     const parsed = JSON.parse(lines[0])
-    expect(parsed['http.request.id']).toBe('req-uuid-abc')
+    expect(parsed.http.request.id).toBe('req-uuid-abc')
   })
 
   it('injecte trace.id depuis APM', () => {
@@ -106,8 +109,7 @@ describe('rootLogger config', () => {
     const logger = pino(
       {
         level: 'info',
-        messageKey: 'message',
-        formatters: { level: (label: string) => ({ 'log.level': label }) },
+        formatters: { level: (label: string) => ({ level: label }) },
         mixin() {
           const emptyStore = new Map<string, unknown>()
           const traceIds: Record<string, string> = {}
@@ -121,7 +123,7 @@ describe('rootLogger config', () => {
                   'transaction.id': traceIds['transaction.id'],
                 }
               : {}),
-            ...(requestId ? { 'http.request.id': requestId } : {}),
+            ...(requestId ? { http: { request: { id: requestId } } } : {}),
           }
         },
         mixinMergeStrategy,
@@ -131,7 +133,7 @@ describe('rootLogger config', () => {
 
     logger.info({}, 'test')
     const parsed = JSON.parse(lines[0])
-    expect(parsed['http.request.id']).toBe('react-cache-id-xyz')
+    expect(parsed.http.request.id).toBe('react-cache-id-xyz')
     expect(mockGetPerRequestId).toHaveBeenCalled()
   })
 })

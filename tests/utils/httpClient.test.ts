@@ -189,7 +189,7 @@ describe('HttpClient', () => {
               action: 'external_api_call',
               outcome: 'success',
             }),
-            'log.logger': 'ApiClient',
+            context: 'ApiClient',
             http: expect.objectContaining({
               request: { method: 'GET' },
               response: { status_code: 200 },

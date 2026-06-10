@@ -66,7 +66,7 @@ async function hydrateJwtAtFirstSignin(
   rootLogger.info(
     {
       event: { action: 'auth_succeeded', outcome: 'success' },
-      'log.logger': 'Authenticator',
+      context: 'Authenticator',
       user: { id: userId, type: userType, structure: userStructure },
     },
     'auth_succeeded'
@@ -97,7 +97,7 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
     rootLogger.info(
       {
         event: { action: 'token_refreshed', outcome: 'success' },
-        'log.logger': 'Authenticator',
+        context: 'Authenticator',
       },
       'token_refreshed'
     )
@@ -112,7 +112,7 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
     rootLogger.info(
       {
         event: { action: 'token_refresh_failed', outcome: 'failure' },
-        'log.logger': 'Authenticator',
+        context: 'Authenticator',
         error: toEcsError(error),
       },
       'token_refresh_failed'
