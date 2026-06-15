@@ -122,9 +122,12 @@ export default function OngletActionsPilotage({
       const nouvellesActions = actions.filter(
         (action) => !actionsQualifiees.some((a) => a.idAction === action.id)
       )
-
       setActions(nouvellesActions)
-      setActionsFitrees(nouvellesActions)
+
+      const update = await getActions({ page, tri, filtres })
+      setActionsFitrees(update.actions)
+      setMetadonnees(update.metadonnees)
+
       router.refresh()
     } catch (error) {
       setErreurQualification(

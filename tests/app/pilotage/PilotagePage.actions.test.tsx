@@ -49,6 +49,7 @@ describe('PilotagePage client side - Actions', () => {
                 prenom: 'Hermione',
               },
               dateFinReelle: '2022-12-18',
+              categorie: { code: 'EMPLOI', libelle: 'Emploi' },
             },
           ],
           metadonnees: {
@@ -62,7 +63,10 @@ describe('PilotagePage client side - Actions', () => {
       ;(qualifierActions as jest.Mock).mockResolvedValue({
         idsActionsEnErreur: [],
       })
-      ;(useRouter as jest.Mock).mockReturnValue({ replace: jest.fn() })
+      ;(useRouter as jest.Mock).mockReturnValue({
+        replace: jest.fn(),
+        refresh: jest.fn(),
+      })
       ;({ container } = await renderWithContexts(
         <Pilotage
           onglet='ACTIONS'
@@ -623,6 +627,37 @@ describe('PilotagePage client side - Actions', () => {
             )
           ).toBeInTheDocument()
         })
+      })
+    })
+
+    describe('quand le conseiller qualifie une action alors qu’il n’est pas sur la première page', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('reste sur la page courante et affiche ses actions', () => {
+        // Then
+        expect(getActionsAQualifierClientSide).toHaveBeenLastCalledWith(
+          'id-conseiller-1',
+          { page: 2, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+        )
+        expect(
+          screen.getByText('Action page 2 REALISATION_CHRONOLOGIQUE 0filtres')
+        ).toBeInTheDocument()
       })
     })
   })
