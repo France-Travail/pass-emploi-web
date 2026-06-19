@@ -660,6 +660,68 @@ describe('PilotagePage client side - Actions', () => {
         ).toBeInTheDocument()
       })
     })
+
+    describe('quand la qualification fait tomber le nombre total d’actions à zéro alors qu’il n’est pas sur la première page', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 0, nombreTotal: 0 },
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('affiche le message indiquant qu’il n’y a plus aucune action à qualifier', () => {
+        // Then
+        expect(
+          screen.getByText('Vous n’avez pas d’action à qualifier.')
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('quand un filtre par catégorie ne retourne aucun résultat', () => {
+      beforeEach(async () => {
+        // Given
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 0, nombreTotal: 0 },
+          })
+        )
+
+        // When
+        await userEvent.click(screen.getByText('Catégorie'))
+        await userEvent.click(screen.getByLabelText('SNP 1'))
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Valider la sélection des catégories',
+          })
+        )
+      })
+
+      it('affiche le message invitant à modifier les filtres plutôt que le message global', () => {
+        // Then
+        expect(screen.getByText('Aucun résultat.')).toBeInTheDocument()
+        expect(
+          screen.queryByText('Vous n’avez pas d’action à qualifier.')
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe("quand le conseiller n'a pas d'action à qualifier", () => {

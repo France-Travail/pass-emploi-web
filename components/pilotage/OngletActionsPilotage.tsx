@@ -39,8 +39,6 @@ export default function OngletActionsPilotage({
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
   const [actions, setActions] = useState<ActionPilotage[]>(actionsInitiales)
-  const [actionsFiltrees, setActionsFitrees] =
-    useState<ActionPilotage[]>(actionsInitiales)
   const [metadonnees, setMetadonnees] =
     useState<MetadonneesPagination>(metadonneesInitiales)
 
@@ -53,10 +51,13 @@ export default function OngletActionsPilotage({
     string | undefined
   >()
 
+  const aucuneActionAQualifier =
+    filtres.length === 0 && metadonnees.nombreTotal === 0
+
   async function trierActions(nouveauTri: TriActionsAQualifier) {
     setTri(nouveauTri)
     const update = await getActions({ page, tri: nouveauTri, filtres })
-    setActionsFitrees(update.actions)
+    setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
 
@@ -68,7 +69,7 @@ export default function OngletActionsPilotage({
     })
     setPage(1)
     setFiltres(categoriesSelectionnees)
-    setActionsFitrees(update.actions)
+    setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
 
@@ -76,7 +77,7 @@ export default function OngletActionsPilotage({
     if (nouvellePage < 1 || nouvellePage > metadonnees.nombrePages) return
     setPage(nouvellePage)
     const update = await getActions({ page: nouvellePage, tri, filtres })
-    setActionsFitrees(update.actions)
+    setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
 
@@ -103,14 +104,9 @@ export default function OngletActionsPilotage({
         qualificationSNP
       )
 
-      let actionsQualifiees = actionsSelectionnees
-
       if (idsActionsEnErreur.length) {
         setErreurQualification(
           'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
-        )
-        actionsQualifiees = actionsSelectionnees.filter(
-          (action) => !idsActionsEnErreur.some((id) => id === action.idAction)
         )
       } else
         setAlerte(
@@ -119,13 +115,8 @@ export default function OngletActionsPilotage({
             : AlerteParam.multiQualificationNonSNP
         )
 
-      const nouvellesActions = actions.filter(
-        (action) => !actionsQualifiees.some((a) => a.idAction === action.id)
-      )
-      setActions(nouvellesActions)
-
       const update = await getActions({ page, tri, filtres })
-      setActionsFitrees(update.actions)
+      setActions(update.actions)
       setMetadonnees(update.metadonnees)
 
       router.refresh()
@@ -148,18 +139,18 @@ export default function OngletActionsPilotage({
         />
       )}
 
-      {actions.length === 0 && (
+      {aucuneActionAQualifier && (
         <EmptyState
           illustrationName={IllustrationName.Event}
           titre='Vous n’avez pas d’action à qualifier.'
         />
       )}
 
-      {actions.length > 0 && (
+      {!aucuneActionAQualifier && (
         <>
           <TableauActionsAQualifier
             categories={categories}
-            actionsFiltrees={actionsFiltrees}
+            actionsFiltrees={actions}
             tri={tri}
             onTri={trierActions}
             onFiltres={filtrerActions}
