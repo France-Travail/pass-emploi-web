@@ -1,7 +1,8 @@
 # Pass Emploi Web - Contexte Technique
 
 > Application web pour les conseillers
-> Voir le contexte global Pass Emploi dans `pass-emploi-api/CLAUDE.md` (section "Contexte Global")
+
+@../pass-emploi-tools/docs/CONTEXTE-TRANSVERSE.md
 
 ---
 
