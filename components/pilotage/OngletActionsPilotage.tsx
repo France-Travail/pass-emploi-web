@@ -54,31 +54,31 @@ export default function OngletActionsPilotage({
   const aucuneActionAQualifier =
     filtres.length === 0 && metadonnees.nombreTotal === 0
 
-  async function trierActions(nouveauTri: TriActionsAQualifier) {
-    setTri(nouveauTri)
-    const update = await getActions({ page, tri: nouveauTri, filtres })
+  async function rafraichirActions(options: {
+    page: number
+    tri: TriActionsAQualifier
+    filtres: string[]
+  }) {
+    const update = await getActions(options)
     setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
 
+  async function trierActions(nouveauTri: TriActionsAQualifier) {
+    setTri(nouveauTri)
+    await rafraichirActions({ page, tri: nouveauTri, filtres })
+  }
+
   async function filtrerActions(categoriesSelectionnees: string[]) {
-    const update = await getActions({
-      page: 1,
-      tri,
-      filtres: categoriesSelectionnees,
-    })
     setPage(1)
     setFiltres(categoriesSelectionnees)
-    setActions(update.actions)
-    setMetadonnees(update.metadonnees)
+    await rafraichirActions({ page: 1, tri, filtres: categoriesSelectionnees })
   }
 
   async function changerPage(nouvellePage: number) {
     if (nouvellePage < 1 || nouvellePage > metadonnees.nombrePages) return
     setPage(nouvellePage)
-    const update = await getActions({ page: nouvellePage, tri, filtres })
-    setActions(update.actions)
-    setMetadonnees(update.metadonnees)
+    await rafraichirActions({ page: nouvellePage, tri, filtres })
   }
 
   async function qualifierActions(
@@ -115,9 +115,7 @@ export default function OngletActionsPilotage({
             : AlerteParam.multiQualificationNonSNP
         )
 
-      const update = await getActions({ page, tri, filtres })
-      setActions(update.actions)
-      setMetadonnees(update.metadonnees)
+      await rafraichirActions({ page, tri, filtres })
 
       router.refresh()
     } catch (error) {
