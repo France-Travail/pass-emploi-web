@@ -661,6 +661,41 @@ describe('PilotagePage client side - Actions', () => {
       })
     })
 
+    describe('quand la qualification vide la page courante mais qu’il reste des actions sur une page précédente', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+        // Le total chute : il ne reste plus qu’une page, la page 2 n’existe plus.
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 1, nombreTotal: 10 },
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('se resynchronise sur la dernière page valide', () => {
+        // Then
+        expect(getActionsAQualifierClientSide).toHaveBeenLastCalledWith(
+          'id-conseiller-1',
+          { page: 1, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+        )
+      })
+    })
+
     describe('quand la qualification fait tomber le nombre total d’actions à zéro alors qu’il n’est pas sur la première page', () => {
       beforeEach(async () => {
         // Given

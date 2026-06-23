@@ -60,6 +60,18 @@ export default function OngletActionsPilotage({
     filtres: string[]
   }) {
     const update = await getActions(options)
+
+    // Le total peut chuter sous la page courante (ex : qualification des
+    // dernières actions d'une page). Tant qu'il reste des pages, on se
+    // resynchronise sur la dernière page valide pour éviter d'afficher une
+    // page vide avec un indicateur de page incohérent. S'il n'y a plus rien
+    // à qualifier (nombrePages 0), on laisse passer pour afficher l'état vide.
+    const { nombrePages } = update.metadonnees
+    if (nombrePages >= 1 && options.page > nombrePages) {
+      setPage(nombrePages)
+      return rafraichirActions({ ...options, page: nombrePages })
+    }
+
     setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
