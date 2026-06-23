@@ -456,6 +456,42 @@ describe('PilotagePage client side - Actions', () => {
               true
             )
           })
+
+          it('rafraîchit la page courante après la qualification', async () => {
+            //Given
+            ;(getActionsAQualifierClientSide as jest.Mock).mockResolvedValue({
+              actions: [
+                {
+                  id: 'action-remontee-de-la-page-2',
+                  titre: 'Action remontée de la page 2',
+                  beneficiaire: {
+                    id: 'hermione',
+                    nom: 'Granger',
+                    prenom: 'Hermione',
+                  },
+                  dateFinReelle: '2022-12-18T14:03:56.395Z',
+                  categorie: { code: 'EMPLOI', libelle: 'Emploi' },
+                },
+              ],
+              metadonnees: { nombrePages: 2, nombreTotal: 24 },
+            })
+
+            //When
+            await userEvent.click(
+              screen.getByRole('button', {
+                name: 'Qualifier et envoyer à i-milo',
+              })
+            )
+
+            //Then
+            expect(getActionsAQualifierClientSide).toHaveBeenCalledWith(
+              'id-conseiller-1',
+              { page: 1, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+            )
+            expect(
+              screen.getByText('Action remontée de la page 2')
+            ).toBeInTheDocument()
+          })
         })
 
         describe('quand le conseiller enregisre en non SNP', () => {
