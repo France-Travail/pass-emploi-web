@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json server.ts | pino-pretty",
     "watch": "yarn dev",
-    "build": "NODE_ENV=production; next build --webpack && tsc --project tsconfig.server.json",
+    "build": "NODE_ENV=production; next build --webpack && tsc --project tsconfig.server.json && rm -rf .next/cache",
     "build-source-map": "NODE_ENV=production next build --webpack && source-map-explorer .next/static/**/*.js",
     "start": "NODE_ENV=production node dist/server.js",
     "lint": "eslint .",
