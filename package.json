@@ -93,16 +93,18 @@
     "test-exclude": ">=7.0.0",
     "tar": ">=7.5.11",
     "svgo": ">=3.3.3",
-    "protobufjs": "^7.5.6",
-    "@grpc/grpc-js": ">=1.9.16"
+    "protobufjs": "^7.6.1",
+    "@grpc/grpc-js": ">=1.9.16",
+    "webpack-bundle-analyzer/ws": "^7.5.11"
   },
   "comments": {
     "resolutions": {
       "glob": "CVE-2025-64756 - À retirer quand glob (transitif) >= 10.5.0",
       "test-exclude": "Pour compatibilité glob 10.5.0 - À retirer quand glob (transitif) >= 10.5.0",
       "tar": "CVE-2026-23745 - À retirer quand tar (transitif) >= 7.5.4",
-      "protobufjs": "GHSA-xq3m-2v4x-88gg / GHSA-66ff-xgx4-vchm / GHSA-75px-5xx7-5xc7 / GHSA-jvwf-75h9-cwgg / GHSA-685m-2w69-288q - À retirer quand @grpc/proto-loader (transitif) dépend de protobufjs >= 7.5.6",
-      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - À retirer quand @firebase/firestore (transitif via firebase) dépend de @grpc/grpc-js >= 1.9.16"
+      "protobufjs": "GHSA-xq3m-2v4x-88gg / GHSA-66ff-xgx4-vchm / GHSA-75px-5xx7-5xc7 / GHSA-jvwf-75h9-cwgg / GHSA-685m-2w69-288q / GHSA-wcpc-wj8m-hjx6 - À retirer quand @grpc/proto-loader (transitif) dépend de protobufjs >= 7.6.1",
+      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - À retirer quand @firebase/firestore (transitif via firebase) dépend de @grpc/grpc-js >= 1.9.16",
+      "webpack-bundle-analyzer/ws": "GHSA-96hv-2xvq-fx4p - À retirer quand webpack-bundle-analyzer (transitif) dépend de ws >= 7.5.11"
     }
   },
   "browser": {
