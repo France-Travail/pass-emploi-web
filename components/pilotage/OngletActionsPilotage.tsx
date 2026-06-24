@@ -39,8 +39,6 @@ export default function OngletActionsPilotage({
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
   const [actions, setActions] = useState<ActionPilotage[]>(actionsInitiales)
-  const [actionsFiltrees, setActionsFitrees] =
-    useState<ActionPilotage[]>(actionsInitiales)
   const [metadonnees, setMetadonnees] =
     useState<MetadonneesPagination>(metadonneesInitiales)
 
@@ -53,31 +51,46 @@ export default function OngletActionsPilotage({
     string | undefined
   >()
 
-  async function trierActions(nouveauTri: TriActionsAQualifier) {
-    setTri(nouveauTri)
-    const update = await getActions({ page, tri: nouveauTri, filtres })
-    setActionsFitrees(update.actions)
+  const aucuneActionAQualifier =
+    filtres.length === 0 && metadonnees.nombreTotal === 0
+
+  async function rafraichirActions(options: {
+    page: number
+    tri: TriActionsAQualifier
+    filtres: string[]
+  }) {
+    const update = await getActions(options)
+
+    // Le total peut chuter sous la page courante (ex : qualification des
+    // dernières actions d'une page). Tant qu'il reste des pages, on se
+    // resynchronise sur la dernière page valide pour éviter d'afficher une
+    // page vide avec un indicateur de page incohérent. S'il n'y a plus rien
+    // à qualifier (nombrePages 0), on laisse passer pour afficher l'état vide.
+    const { nombrePages } = update.metadonnees
+    if (nombrePages >= 1 && options.page > nombrePages) {
+      setPage(nombrePages)
+      return rafraichirActions({ ...options, page: nombrePages })
+    }
+
+    setActions(update.actions)
     setMetadonnees(update.metadonnees)
   }
 
+  async function trierActions(nouveauTri: TriActionsAQualifier) {
+    setTri(nouveauTri)
+    await rafraichirActions({ page, tri: nouveauTri, filtres })
+  }
+
   async function filtrerActions(categoriesSelectionnees: string[]) {
-    const update = await getActions({
-      page: 1,
-      tri,
-      filtres: categoriesSelectionnees,
-    })
     setPage(1)
     setFiltres(categoriesSelectionnees)
-    setActionsFitrees(update.actions)
-    setMetadonnees(update.metadonnees)
+    await rafraichirActions({ page: 1, tri, filtres: categoriesSelectionnees })
   }
 
   async function changerPage(nouvellePage: number) {
     if (nouvellePage < 1 || nouvellePage > metadonnees.nombrePages) return
     setPage(nouvellePage)
-    const update = await getActions({ page: nouvellePage, tri, filtres })
-    setActionsFitrees(update.actions)
-    setMetadonnees(update.metadonnees)
+    await rafraichirActions({ page: nouvellePage, tri, filtres })
   }
 
   async function qualifierActions(
@@ -103,14 +116,9 @@ export default function OngletActionsPilotage({
         qualificationSNP
       )
 
-      let actionsQualifiees = actionsSelectionnees
-
       if (idsActionsEnErreur.length) {
         setErreurQualification(
           'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
-        )
-        actionsQualifiees = actionsSelectionnees.filter(
-          (action) => !idsActionsEnErreur.some((id) => id === action.idAction)
         )
       } else
         setAlerte(
@@ -119,12 +127,8 @@ export default function OngletActionsPilotage({
             : AlerteParam.multiQualificationNonSNP
         )
 
-      const nouvellesActions = actions.filter(
-        (action) => !actionsQualifiees.some((a) => a.idAction === action.id)
-      )
+      await rafraichirActions({ page, tri, filtres })
 
-      setActions(nouvellesActions)
-      setActionsFitrees(nouvellesActions)
       router.refresh()
     } catch (error) {
       setErreurQualification(
@@ -145,18 +149,18 @@ export default function OngletActionsPilotage({
         />
       )}
 
-      {actions.length === 0 && (
+      {aucuneActionAQualifier && (
         <EmptyState
           illustrationName={IllustrationName.Event}
           titre='Vous n’avez pas d’action à qualifier.'
         />
       )}
 
-      {actions.length > 0 && (
+      {!aucuneActionAQualifier && (
         <>
           <TableauActionsAQualifier
             categories={categories}
-            actionsFiltrees={actionsFiltrees}
+            actionsFiltrees={actions}
             tri={tri}
             onTri={trierActions}
             onFiltres={filtrerActions}

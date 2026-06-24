@@ -49,6 +49,7 @@ describe('PilotagePage client side - Actions', () => {
                 prenom: 'Hermione',
               },
               dateFinReelle: '2022-12-18',
+              categorie: { code: 'EMPLOI', libelle: 'Emploi' },
             },
           ],
           metadonnees: {
@@ -62,7 +63,10 @@ describe('PilotagePage client side - Actions', () => {
       ;(qualifierActions as jest.Mock).mockResolvedValue({
         idsActionsEnErreur: [],
       })
-      ;(useRouter as jest.Mock).mockReturnValue({ replace: jest.fn() })
+      ;(useRouter as jest.Mock).mockReturnValue({
+        replace: jest.fn(),
+        refresh: jest.fn(),
+      })
       ;({ container } = await renderWithContexts(
         <Pilotage
           onglet='ACTIONS'
@@ -623,6 +627,134 @@ describe('PilotagePage client side - Actions', () => {
             )
           ).toBeInTheDocument()
         })
+      })
+    })
+
+    describe('quand le conseiller qualifie une action alors qu’il n’est pas sur la première page', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('reste sur la page courante et affiche ses actions', () => {
+        // Then
+        expect(getActionsAQualifierClientSide).toHaveBeenLastCalledWith(
+          'id-conseiller-1',
+          { page: 2, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+        )
+        expect(
+          screen.getByText('Action page 2 REALISATION_CHRONOLOGIQUE 0filtres')
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('quand la qualification vide la page courante mais qu’il reste des actions sur une page précédente', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+        // Le total chute : il ne reste plus qu’une page, la page 2 n’existe plus.
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 1, nombreTotal: 10 },
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('se resynchronise sur la dernière page valide', () => {
+        // Then
+        expect(getActionsAQualifierClientSide).toHaveBeenLastCalledWith(
+          'id-conseiller-1',
+          { page: 1, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+        )
+      })
+    })
+
+    describe('quand la qualification fait tomber le nombre total d’actions à zéro alors qu’il n’est pas sur la première page', () => {
+      beforeEach(async () => {
+        // Given
+        await userEvent.click(screen.getByLabelText('Page 2'))
+        await userEvent.click(
+          screen.getByRole('checkbox', {
+            name: 'Sélection Action page 2 REALISATION_CHRONOLOGIQUE 0filtres Emploi',
+          })
+        )
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 0, nombreTotal: 0 },
+          })
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier les actions en SNP' })
+        )
+        await userEvent.click(
+          screen.getByRole('button', { name: 'Qualifier et envoyer à i-milo' })
+        )
+      })
+
+      it('affiche le message indiquant qu’il n’y a plus aucune action à qualifier', () => {
+        // Then
+        expect(
+          screen.getByText('Vous n’avez pas d’action à qualifier.')
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('quand un filtre par catégorie ne retourne aucun résultat', () => {
+      beforeEach(async () => {
+        // Given
+        ;(getActionsAQualifierClientSide as jest.Mock).mockImplementationOnce(
+          async () => ({
+            actions: [],
+            metadonnees: { nombrePages: 0, nombreTotal: 0 },
+          })
+        )
+
+        // When
+        await userEvent.click(screen.getByText('Catégorie'))
+        await userEvent.click(screen.getByLabelText('SNP 1'))
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Valider la sélection des catégories',
+          })
+        )
+      })
+
+      it('affiche le message invitant à modifier les filtres plutôt que le message global', () => {
+        // Then
+        expect(screen.getByText('Aucun résultat.')).toBeInTheDocument()
+        expect(
+          screen.queryByText('Vous n’avez pas d’action à qualifier.')
+        ).not.toBeInTheDocument()
       })
     })
   })
