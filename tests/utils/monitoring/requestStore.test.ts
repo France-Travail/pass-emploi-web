@@ -5,7 +5,6 @@
 describe('requestStore', () => {
   it('getPerRequestId retourne undefined si rien n’a été initialisé', () => {
     jest.isolateModules(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { getPerRequestId } = require('utils/monitoring/requestStore')
       expect(getPerRequestId()).toBeUndefined()
     })
@@ -19,7 +18,7 @@ describe('requestStore', () => {
           return () => result
         },
       }))
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+
       const {
         initRequestId,
         getPerRequestId,
@@ -36,7 +35,7 @@ describe('requestStore', () => {
           throw new Error('Cannot use cache outside RSC')
         },
       }))
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+
       const { getPerRequestId } = require('utils/monitoring/requestStore')
       expect(() => getPerRequestId()).not.toThrow()
       expect(getPerRequestId()).toBeUndefined()
@@ -50,7 +49,7 @@ describe('requestStore', () => {
           throw new Error('Cannot use cache outside RSC')
         },
       }))
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+
       const { initRequestId } = require('utils/monitoring/requestStore')
       expect(() => initRequestId('req-abc-123')).not.toThrow()
     })
