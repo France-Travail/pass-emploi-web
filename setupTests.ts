@@ -1,9 +1,18 @@
+import { TextDecoder, TextEncoder } from 'node:util'
+
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { toHaveNoViolations } from 'jest-axe'
 import { Settings } from 'luxon'
 
 Settings.throwOnInvalid = true
+
+// react-router-dom v7 (peer dep de @elastic/apm-rum-react) référence TextEncoder/TextDecoder
+// au chargement du module, absents du global jsdom (https://github.com/jsdom/jsdom/issues/2524)
+if (global.TextEncoder === undefined) {
+  global.TextEncoder = TextEncoder
+  global.TextDecoder = TextDecoder
+}
 
 expect.extend(toHaveNoViolations)
 
