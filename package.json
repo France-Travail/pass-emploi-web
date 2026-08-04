@@ -91,25 +91,21 @@
   "resolutions": {
     "glob": ">=10.5.0",
     "test-exclude": ">=7.0.0",
-    "tar": ">=7.5.11",
-    "svgo": ">=3.3.3",
-    "protobufjs": ">=7.6.5",
     "@grpc/grpc-js": ">=1.9.16",
-    "webpack-bundle-analyzer/ws": "^7.5.11",
-    "websocket-driver": ">=0.7.5",
     "postcss": ">=8.5.18",
     "sharp": ">=0.35.0",
-    "joi": ">=17.13.4"
+    "react-router": ">=8.3.0"
   },
   "comments": {
     "resolutions": {
-      "glob": "CVE-2025-64756 - À retirer quand glob (transitif) >= 10.5.0",
-      "test-exclude": "Pour compatibilité glob 10.5.0 - À retirer quand glob (transitif) >= 10.5.0",
-      "tar": "CVE-2026-23745 - À retirer quand tar (transitif) >= 7.5.4",
-      "protobufjs": "GHSA-xq3m-2v4x-88gg / GHSA-66ff-xgx4-vchm / GHSA-75px-5xx7-5xc7 / GHSA-jvwf-75h9-cwgg / GHSA-685m-2w69-288q / GHSA-wcpc-wj8m-hjx6 - À retirer quand @grpc/proto-loader (transitif) dépend de protobufjs >= 7.6.1",
-      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - À retirer quand @firebase/firestore (transitif via firebase) dépend de @grpc/grpc-js >= 1.9.16",
-      "webpack-bundle-analyzer/ws": "GHSA-96hv-2xvq-fx4p - À retirer quand webpack-bundle-analyzer (transitif) dépend de ws >= 7.5.11",
-      "websocket-driver": "GHSA-xv26-6w52-cph6 - À retirer quand faye-websocket (transitif via @firebase/database) dépend de websocket-driver >= 0.7.5"
+      "glob": "CVE-2025-64756 - Sans cette entrée, un consommateur transitif réintroduit glob 7.2.3. À retirer quand tous les consommateurs transitifs dépendent de glob >= 10.5.0",
+      "test-exclude": "Pour compatibilité glob 10.5.0 - Sans cette entrée, test-exclude retombe en 6.0.0. À retirer en même temps que la résolution glob",
+      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - Plancher de sécurité : @firebase/firestore (transitif via firebase) demande ~1.9.0, qui résout aujourd'hui exactement 1.9.16. À retirer quand il demandera >= 1.9.16 explicitement",
+      "postcss": "GHSA-qx2v-qp2m-jg93 / GHSA-6g55-p6wh-862q / GHSA-r28c-9q8g-f849 - Sans cette entrée, l'arbre retombe en postcss 8.4.31 (vulnérable). À retirer quand les consommateurs transitifs dépendent de postcss >= 8.5.18",
+      "sharp": "GHSA-f88m-g3jw-g9cj - Sharp est aussi une dépendance directe (0.35.3), mais sans cette entrée un consommateur transitif réintroduit sharp 0.34.5 (vulnérable). À retirer quand ce consommateur dépend de sharp >= 0.35.0"
+    },
+    "cvesAcceptees": {
+      "react-router": "GHSA-qwww-vcr4-c8h2 (high) - Risque accepté, non atteignable ici. Corrigé dans react-router 8.3.0 uniquement : react-router-dom s'arrête à 7.18.2 (shim qui épingle react-router en exact 7.18.2), aucun bump ne corrige. On ne déclare react-router-dom que pour la peer dep de @elastic/apm-rum-react, qui code en dur `import ... from 'react-router-dom'` (dist/es/get-apm-routes.js) et bloque la migration vers react-router v8. L'avis ne concerne que les API RSC instables : zéro import de react-router dans le code applicatif (Next.js App Router), et seul withTransaction est utilisé, jamais ApmRoutes. À revoir quand elastic/apm-agent-rum-js#1655 sera mergé et publié."
     }
   },
   "browser": {

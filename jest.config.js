@@ -10,6 +10,7 @@ const customJestConfig = {
   moduleNameMapper: {
     // https://github.com/vercel/next.js/pull/36787
     '^.+\\.(svg)$': '<rootDir>/assets/__mocks__/SvgrMock.jsx',
+    '^react-router-dom$': '<rootDir>/assets/__mocks__/ReactRouterDomMock.js',
   },
   restoreMocks: true,
   setupFilesAfterEnv: ['./setupTests.ts'],
