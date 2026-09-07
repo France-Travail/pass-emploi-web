@@ -1,3 +1,4 @@
+import { unProfilMilo } from 'fixtures/profil'
 import { Conseiller } from 'interfaces/conseiller'
 import {
   SimpleConseillerJson,
@@ -16,6 +17,7 @@ export const unConseiller = (
     aDesBeneficiairesARecuperer: false,
     estSuperviseur: false,
     structure: structureMilo,
+    profil: unProfilMilo(),
     dateSignatureCGU: '2023-10-03T00:00:00.000+02:00',
   }
   return { ...defaults, ...overrides }

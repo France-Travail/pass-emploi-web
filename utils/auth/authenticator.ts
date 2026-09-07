@@ -4,6 +4,12 @@ import { Account } from 'next-auth'
 import { HydratedJWT, JWT } from 'next-auth/jwt'
 
 import { UserRole, UserType } from 'interfaces/conseiller'
+import {
+  estProfil,
+  Profil,
+  profilVersStructureLegacy,
+  structureLegacyVersProfil,
+} from 'interfaces/profil'
 import { fetchJson } from 'utils/httpClient'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { rootLogger } from 'utils/monitoring/logger'
@@ -59,15 +65,26 @@ async function hydrateJwtAtFirstSignin(
   { access_token, expires_at, refresh_token }: Account,
   jwt: JWT
 ): Promise<HydratedJWT> {
-  const { userId, userStructure, userRoles, userType } = decode(
+  const { userId, userStructure, userProfile, userRoles, userType } = decode(
     <string>access_token
   ) as JwtPayload
+
+  // Cible : le claim `userProfile` ; repli sur `userStructure` (legacy) tant
+  // que connect ne l'émet pas.
+  const profil: Profil = estProfil(userProfile)
+    ? userProfile
+    : structureLegacyVersProfil(userStructure)
 
   rootLogger.info(
     {
       event: { action: 'auth_succeeded', outcome: 'success' },
       context: 'Authenticator',
-      user: { id: userId, type: userType, structure: userStructure },
+      user: {
+        id: userId,
+        type: userType,
+        structure: profil.structure,
+        dispositif: profil.dispositif,
+      },
     },
     'auth_succeeded'
   )
@@ -79,7 +96,8 @@ async function hydrateJwtAtFirstSignin(
     accessToken: access_token,
     refreshToken: refresh_token,
     idConseiller: userId,
-    structureConseiller: userStructure,
+    profilConseiller: profil,
+    structureConseiller: profilVersStructureLegacy(profil),
     estConseiller: userType === UserType.CONSEILLER,
     estSuperviseur: Boolean(userRoles?.includes(UserRole.SUPERVISEUR)),
     expiresAtTimestamp: expiresAt,

@@ -9,6 +9,7 @@ import {
   unConseillerJson,
 } from 'fixtures/conseiller'
 import { unDossierMilo } from 'fixtures/milo'
+import { unProfilMilo } from 'fixtures/profil'
 import { Dispositif } from 'interfaces/beneficiaire'
 import { structureMilo } from 'interfaces/structure'
 import {
@@ -38,6 +39,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
@@ -76,6 +78,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
@@ -101,6 +104,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,

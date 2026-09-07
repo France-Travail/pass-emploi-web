@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
+import { Profil } from 'interfaces/profil'
 import { MissionLocale } from 'interfaces/referentiel'
 import { estMilo, estPassEmploi, Structure } from 'interfaces/structure'
 import { dateIsFuture } from 'utils/date'
@@ -28,6 +29,7 @@ export type Conseiller = BaseConseiller & {
   notificationsSonores: boolean
   aDesBeneficiairesARecuperer: boolean
   structure: Structure
+  profil: Profil
   estSuperviseur: boolean
   agence?: { nom: string; id?: string }
   structureMilo?: MissionLocale

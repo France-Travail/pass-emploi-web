@@ -4,6 +4,7 @@ import { HydratedJWT, JWT } from 'next-auth/jwt'
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import { signIn } from 'next-auth/react'
 
+import { structureLegacyVersProfil } from 'interfaces/profil'
 import { handleJWTAndRefresh } from 'utils/auth/authenticator'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 
@@ -37,6 +38,10 @@ export const config = {
       token: HydratedJWT
     }) {
       session.user.id = token.idConseiller ?? ''
+      // Sessions ouvertes avant le claim `userProfile` : profil recalculé du legacy.
+      session.user.profil =
+        token.profilConseiller ??
+        structureLegacyVersProfil(token.structureConseiller ?? '')
       session.user.structure = token.structureConseiller ?? ''
       session.user.estConseiller = token.estConseiller ?? false
       session.user.estSuperviseur = token.estSuperviseur ?? false

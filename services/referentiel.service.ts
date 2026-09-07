@@ -2,11 +2,12 @@ import { getSession } from 'next-auth/react'
 
 import { apiGet } from 'clients/api.client'
 import { ActionPredefinie } from 'interfaces/action'
+import { StructureProfil } from 'interfaces/profil'
 import { Agence, Commune, Localite, Metier } from 'interfaces/referentiel'
 import { structureMilo } from 'interfaces/structure'
 
 export function getAgencesServerSide(
-  structure: string,
+  structure: StructureProfil,
   accessToken: string
 ): Promise<Agence[]> {
   return getAgences(structure, accessToken)
@@ -48,7 +49,7 @@ export async function getActionsPredefinies(
 }
 
 async function getAgences(
-  structure: string,
+  structure: StructureProfil,
   accessToken: string
 ): Promise<Agence[]> {
   const { content: agences } = await apiGet<Agence[]>(

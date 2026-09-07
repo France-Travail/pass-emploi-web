@@ -40,7 +40,7 @@ export default async function Home({
   let referentielAgences = undefined
   if (!estMilo(conseiller.structure)) {
     referentielAgences = await getAgencesServerSide(
-      conseiller.structure,
+      conseiller.profil.structure,
       accessToken
     )
   }

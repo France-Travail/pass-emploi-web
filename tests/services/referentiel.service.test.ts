@@ -8,7 +8,8 @@ import {
   uneListeDAgencesFranceTravail,
   uneListeDAgencesMILO,
 } from 'fixtures/referentiel'
-import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
+import { StructureProfil } from 'interfaces/profil'
+import { structureMilo } from 'interfaces/structure'
 import {
   getActionsPredefinies,
   getAgencesServerSide,
@@ -22,12 +23,12 @@ jest.mock('clients/api.client')
 
 describe('ReferentielApiService', () => {
   describe('.getAgencesServerSide', () => {
-    let structure: Structure
+    let structure: StructureProfil
     beforeEach(() => {
       ;(apiGet as jest.Mock).mockImplementation((url: string) => {
         if (url === `/referentiels/agences?structure=MILO`)
           return { content: uneListeDAgencesMILO() }
-        if (url === `/referentiels/agences?structure=POLE_EMPLOI`)
+        if (url === `/referentiels/agences?structure=FRANCE_TRAVAIL`)
           return { content: uneListeDAgencesFranceTravail() }
       })
     })
@@ -44,7 +45,7 @@ describe('ReferentielApiService', () => {
 
     it('renvoie le référentiel des agences France Travail', async () => {
       // Given
-      structure = structureFTCej
+      structure = 'FRANCE_TRAVAIL'
       // WHEN
       const actual = await getAgencesServerSide(structure, 'accessToken')
 

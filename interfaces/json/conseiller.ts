@@ -69,13 +69,14 @@ export function jsonToSimpleConseiller(
 
 export function jsonToConseiller(
   conseillerJson: ConseillerJson,
-  { structure, estSuperviseur }: Session.HydratedUser
+  { structure, profil, estSuperviseur }: Session.HydratedUser
 ): Conseiller {
   const { agence, dateSignatureCGU, dateVisionnageActus, ...json } =
     conseillerJson
   const conseiller: Conseiller = {
     ...json,
     structure: structure as Structure,
+    profil,
     estSuperviseur,
     dateDeMigration: toDateDeMigration(conseillerJson.dateDeMigration),
   }
