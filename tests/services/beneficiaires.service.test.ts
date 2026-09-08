@@ -52,7 +52,7 @@ import {
   rechercheBeneficiairesDeLEtablissement,
   renvoyerEmailActivation,
   supprimerJeuneInactif,
-  verifierEmailExistantBeneficiaireFranceTravail,
+  verifierEmailExistantBeneficiaire,
 } from 'services/beneficiaires.service'
 import { Periode } from 'types/dates'
 import { ApiError } from 'utils/httpClient'
@@ -864,7 +864,7 @@ describe('JeunesApiService', () => {
     })
   })
 
-  describe('.verifierEmailExistantBeneficiaireFranceTravail', () => {
+  describe('.verifierEmailExistantBeneficiaire', () => {
     it("retourne true si l'email existe déjà", async () => {
       // Given
       const email = 'test@example.com'
@@ -877,11 +877,11 @@ describe('JeunesApiService', () => {
       })
 
       // When
-      const actual = await verifierEmailExistantBeneficiaireFranceTravail(email)
+      const actual = await verifierEmailExistantBeneficiaire(email)
 
       // Then
       expect(apiPost).toHaveBeenCalledWith(
-        '/conseillers/pole-emploi/verifier-email-beneficiaire',
+        '/conseillers/verifier-email-jeune',
         { email },
         'accessToken'
       )
@@ -900,11 +900,11 @@ describe('JeunesApiService', () => {
       })
 
       // When
-      const actual = await verifierEmailExistantBeneficiaireFranceTravail(email)
+      const actual = await verifierEmailExistantBeneficiaire(email)
 
       // Then
       expect(apiPost).toHaveBeenCalledWith(
-        '/conseillers/pole-emploi/verifier-email-beneficiaire',
+        '/conseillers/verifier-email-jeune',
         { email },
         'accessToken'
       )

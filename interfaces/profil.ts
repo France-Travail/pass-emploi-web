@@ -21,18 +21,19 @@ export type Profil = {
   dispositif: DispositifProfil | null
 }
 
-const structuresProfil: StructureProfil[] = [
+const structuresProfil: ReadonlySet<string> = new Set<StructureProfil>([
   'MILO',
   'FRANCE_TRAVAIL',
   'CONSEIL_DEPARTEMENTAL',
   'INVITE',
-]
+])
 
 export function estProfil(valeur: unknown): valeur is Profil {
   if (!valeur || typeof valeur !== 'object') return false
   const { structure, dispositif } = valeur as Record<string, unknown>
   return (
-    structuresProfil.includes(structure as StructureProfil) &&
+    typeof structure === 'string' &&
+    structuresProfil.has(structure) &&
     (dispositif === null || typeof dispositif === 'string')
   )
 }

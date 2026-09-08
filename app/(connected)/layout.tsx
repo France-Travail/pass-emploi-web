@@ -15,7 +15,7 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 
 // Les pages accessibles à un conseiller France Travail sans dispositif :
 // l'accueil (qui impose la modale de choix) et la signature des CGU.
-const PAGES_SANS_DISPOSITIF = ['/', '/consentement-cgu']
+const PAGES_SANS_DISPOSITIF = new Set(['/', '/consentement-cgu'])
 
 export async function generateMetadata(): Promise<Metadata> {
   const { user, accessToken } = await getMandatorySessionServerSide()
@@ -51,7 +51,7 @@ export default async function LayoutWhenConnected({
 
   if (doitChoisirSonDispositif(conseiller)) {
     const cheminCourant = (await headers()).get('x-current-path') ?? '/'
-    if (!PAGES_SANS_DISPOSITIF.includes(cheminCourant))
+    if (!PAGES_SANS_DISPOSITIF.has(cheminCourant))
       redirect(`/?${new URLSearchParams({ redirectUrl: cheminCourant })}`)
   }
 

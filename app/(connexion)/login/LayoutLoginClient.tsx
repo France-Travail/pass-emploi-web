@@ -1,9 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import {
   ReadonlyURLSearchParams,
-  usePathname,
   useRouter,
   useSearchParams,
 } from 'next/navigation'
@@ -13,7 +11,6 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import { MIN_DESKTOP_WIDTH } from 'components/globals'
 import Footer from 'components/layouts/Footer'
 import OnboardingMobileModal from 'components/onboarding/OnboardingMobileModal'
-import IconComponent, { IconName } from 'components/ui/IconComponent'
 import { trackPage } from 'utils/analytics/matomo'
 import { signin } from 'utils/auth/auth'
 import { LoginErrorMessageProvider } from 'utils/auth/loginErrorMessageContext'
@@ -25,14 +22,11 @@ export default function LayoutLoginClient({
   children: ReactNode
 }) {
   const router = useRouter()
-  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [errorMsg, setErrorMsg] = useState<string>()
   const [afficherOnboarding, setAfficherOnboarding] = useState<boolean>(false)
 
   const isFromEmail = getIsFromEmail(searchParams)
-
-  const pageEstHubLogin = pathname === '/login'
 
   useEffect(() => {
     trackPage({
@@ -71,21 +65,6 @@ export default function LayoutLoginClient({
         <div className='flex flex-col h-screen w-screen overflow-y-auto'>
           <div className='grow flex flex-col justify-center items-center bg-primary-lighten'>
             <div className='max-w-[1020px] w-full bg-white rounded-large p-16'>
-              {!pageEstHubLogin && (
-                <Link
-                  href='/login'
-                  className='flex items-center text-s-regular text-content-color underline hover:text-primary'
-                >
-                  <IconComponent
-                    name={IconName.ArrowBackward}
-                    aria-hidden={true}
-                    focusable={false}
-                    className='w-4 h-4 fill-current mr-3'
-                  />
-                  Retour
-                </Link>
-              )}
-
               {children}
             </div>
           </div>

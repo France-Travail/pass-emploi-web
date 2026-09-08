@@ -24,7 +24,7 @@ export default function RenseignementDispositifModal({
   onDispositifChoisi,
   dispositifActuel,
   onClose,
-}: RenseignementDispositifModalProps) {
+}: Readonly<RenseignementDispositifModalProps>) {
   const modalRef = useRef<ModalHandles>(null)
   const fermable = Boolean(onClose)
 

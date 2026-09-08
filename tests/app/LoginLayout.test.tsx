@@ -1,6 +1,6 @@
 import { act, render, screen } from '@testing-library/react'
 import { axe } from 'jest-axe'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getSession } from 'next-auth/react'
 import React from 'react'
 
@@ -13,7 +13,6 @@ describe('LoginLayout client side', () => {
   let container: HTMLElement
   let routerReplace: () => void
   beforeEach(async () => {
-    ;(usePathname as jest.Mock).mockReturnValue('/login')
     ;(useSearchParams as jest.Mock).mockReturnValue({
       get: (param: string) => param,
       has: () => true,

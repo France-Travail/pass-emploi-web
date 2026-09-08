@@ -46,7 +46,7 @@ function LoginHubPage() {
           <li>
             <LoginButton
               label='France Travail'
-              href='/login/france-travail'
+              onClick={() => handleSignin('ft-conseiller')}
               Illustration={IllustrationLogoFT}
             />
           </li>

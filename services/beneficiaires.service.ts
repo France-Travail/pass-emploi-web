@@ -139,12 +139,12 @@ export async function createCompteJeuneFranceTravail(newJeune: {
   return jsonToBaseBeneficiaire(content)
 }
 
-export async function verifierEmailExistantBeneficiaireFranceTravail(
+export async function verifierEmailExistantBeneficiaire(
   email: string
 ): Promise<boolean> {
   const session = await getSession()
   const { content } = await apiPost<{ emailExistant: boolean }>(
-    `/conseillers/pole-emploi/verifier-email-beneficiaire`,
+    `/conseillers/verifier-email-jeune`,
     { email },
     session!.accessToken
   )
