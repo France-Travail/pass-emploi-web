@@ -9,6 +9,7 @@ import {
   unConseillerJson,
 } from 'fixtures/conseiller'
 import { unDossierMilo } from 'fixtures/milo'
+import { unProfilMilo } from 'fixtures/profil'
 import { Dispositif } from 'interfaces/beneficiaire'
 import { structureMilo } from 'interfaces/structure'
 import {
@@ -18,6 +19,7 @@ import {
   getDossierJeune,
   modifierAgence,
   modifierDateSignatureCGU,
+  modifierDispositif,
   modifierNotificationsSonores,
   recupererBeneficiaires,
   supprimerConseiller,
@@ -38,6 +40,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
@@ -76,6 +79,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
@@ -101,6 +105,7 @@ describe('ConseillerApiService', () => {
         id: 'id-user',
         name: 'Albert Durant',
         structure: structureMilo,
+        profil: unProfilMilo(),
         email: 'albert.durant@gmail.com',
         estConseiller: true,
         estSuperviseur: false,
@@ -208,6 +213,20 @@ describe('ConseillerApiService', () => {
       expect(apiPut).toHaveBeenCalledWith(
         '/conseillers/id-conseiller-1',
         { agence: { nom: 'Agence libre' } },
+        'accessToken'
+      )
+    })
+  })
+
+  describe('.modifierDispositif', () => {
+    it('modifie le dispositif du conseiller', async () => {
+      // When
+      await modifierDispositif(Dispositif.BRSA)
+
+      // Then
+      expect(apiPut).toHaveBeenCalledWith(
+        '/conseillers/id-conseiller-1',
+        { dispositif: 'BRSA' },
         'accessToken'
       )
     })

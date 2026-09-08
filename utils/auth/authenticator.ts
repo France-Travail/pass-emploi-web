@@ -4,6 +4,12 @@ import { Account } from 'next-auth'
 import { HydratedJWT, JWT } from 'next-auth/jwt'
 
 import { UserRole, UserType } from 'interfaces/conseiller'
+import {
+  estProfil,
+  Profil,
+  profilVersStructureLegacy,
+  structureLegacyVersProfil,
+} from 'interfaces/profil'
 import { fetchJson } from 'utils/httpClient'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { rootLogger } from 'utils/monitoring/logger'
@@ -59,15 +65,22 @@ async function hydrateJwtAtFirstSignin(
   { access_token, expires_at, refresh_token }: Account,
   jwt: JWT
 ): Promise<HydratedJWT> {
-  const { userId, userStructure, userRoles, userType } = decode(
+  const { userId, userRoles, userType } = decode(
     <string>access_token
   ) as JwtPayload
+  const profil =
+    profilDuAccessToken(access_token) ?? structureLegacyVersProfil('')
 
   rootLogger.info(
     {
       event: { action: 'auth_succeeded', outcome: 'success' },
       context: 'Authenticator',
-      user: { id: userId, type: userType, structure: userStructure },
+      user: {
+        id: userId,
+        type: userType,
+        structure: profil.structure,
+        dispositif: profil.dispositif,
+      },
     },
     'auth_succeeded'
   )
@@ -79,7 +92,8 @@ async function hydrateJwtAtFirstSignin(
     accessToken: access_token,
     refreshToken: refresh_token,
     idConseiller: userId,
-    structureConseiller: userStructure,
+    profilConseiller: profil,
+    structureConseiller: profilVersStructureLegacy(profil),
     estConseiller: userType === UserType.CONSEILLER,
     estSuperviseur: Boolean(userRoles?.includes(UserRole.SUPERVISEUR)),
     expiresAtTimestamp: expiresAt,
@@ -102,11 +116,19 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
       'token_refreshed'
     )
 
+    // Le dispositif d'un conseiller FT peut changer : le profil suit le token rafraîchi.
+    const profil =
+      profilDuAccessToken(refreshedTokens.access_token) ?? jwt.profilConseiller
+
     return {
       ...jwt,
       accessToken: refreshedTokens.access_token,
       refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken,
       expiresAtTimestamp: expiresAtMs,
+      profilConseiller: profil,
+      structureConseiller: profil
+        ? profilVersStructureLegacy(profil)
+        : jwt.structureConseiller,
     }
   } catch (error) {
     rootLogger.info(
@@ -123,6 +145,17 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
       error: RefreshAccessTokenError,
     }
   }
+}
+
+// Cible : le claim `userProfile` ; repli sur `userStructure` (legacy).
+function profilDuAccessToken(accessToken?: string): Profil | undefined {
+  const payload = accessToken ? decode(accessToken) : undefined
+  if (!payload || typeof payload === 'string') return undefined
+
+  const { userProfile, userStructure } = payload
+  if (estProfil(userProfile)) return userProfile
+  if (userStructure) return structureLegacyVersProfil(userStructure)
+  return undefined
 }
 
 async function fetchRefreshedTokens(

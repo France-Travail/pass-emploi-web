@@ -3,7 +3,7 @@ import { Session } from 'next-auth'
 
 import { ConseillerHistorique } from 'interfaces/beneficiaire'
 import { Conseiller, SimpleConseiller } from 'interfaces/conseiller'
-import { Structure } from 'interfaces/structure'
+import { Profil, profilVersStructureLegacy } from 'interfaces/profil'
 import { logger } from 'next-logger.config'
 const log = logger()
 
@@ -38,6 +38,7 @@ export interface ConseillerJson {
   firstName: string
   lastName: string
   email?: string
+  profil: Profil
   agence?: {
     id?: string
     nom: string
@@ -67,15 +68,18 @@ export function jsonToSimpleConseiller(
   return conseiller
 }
 
+// Le profil (structure × dispositif) vient de l'API : le dispositif d'un
+// conseiller FT peut changer en cours de session, la session n'en est pas la source.
 export function jsonToConseiller(
   conseillerJson: ConseillerJson,
-  { structure, estSuperviseur }: Session.HydratedUser
+  { estSuperviseur }: Pick<Session.HydratedUser, 'estSuperviseur'>
 ): Conseiller {
-  const { agence, dateSignatureCGU, dateVisionnageActus, ...json } =
+  const { agence, dateSignatureCGU, dateVisionnageActus, profil, ...json } =
     conseillerJson
   const conseiller: Conseiller = {
     ...json,
-    structure: structure as Structure,
+    structure: profilVersStructureLegacy(profil),
+    profil,
     estSuperviseur,
     dateDeMigration: toDateDeMigration(conseillerJson.dateDeMigration),
   }

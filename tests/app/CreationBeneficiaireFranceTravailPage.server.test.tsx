@@ -5,12 +5,14 @@ import CreationBeneficiaireMiloPage from 'app/(connected)/(with-sidebar)/(with-c
 import CreationBeneficiaire, {
   metadata,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/creation-jeune/page'
+import { unConseiller } from 'fixtures/conseiller'
 import { desListes } from 'fixtures/listes'
 import {
   structureAvenirPro,
   structureFTCej,
   structureMilo,
 } from 'interfaces/structure'
+import { getConseillerServerSide } from 'services/conseiller.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
@@ -31,6 +33,9 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       user: { structure: structureMilo },
       accessToken: 'accessToken',
     })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: structureMilo })
+    )
 
     // When
     render(await CreationBeneficiaire())
@@ -48,6 +53,9 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       user: { structure: structureFTCej },
       accessToken: 'accessToken',
     })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: structureFTCej })
+    )
 
     // When
     render(await CreationBeneficiaire())
@@ -69,6 +77,9 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
       user: { structure: structureAvenirPro },
       accessToken: 'accessToken',
     })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: structureAvenirPro })
+    )
     ;(getListesServerSide as jest.Mock).mockResolvedValue(listes)
 
     // When

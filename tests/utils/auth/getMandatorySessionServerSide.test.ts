@@ -30,6 +30,7 @@ function makeSession(overrides: Partial<Session['user']> = {}): Session {
     user: {
       id: 'conseiller-uuid',
       structure: 'MILO',
+      profil: { structure: 'MILO', dispositif: null },
       estConseiller: true,
       estSuperviseur: false,
       name: 'Jean Dupont',

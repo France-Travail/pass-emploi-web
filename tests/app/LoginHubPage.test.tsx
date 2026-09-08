@@ -1,10 +1,12 @@
 import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
 import LoginHubPage from 'app/(connexion)/login/LoginHubPage'
+import { signin } from 'utils/auth/auth'
 import { LoginErrorMessageProvider } from 'utils/auth/loginErrorMessageContext'
 
 jest.mock('utils/auth/auth', () => ({
@@ -20,9 +22,10 @@ describe('LoginHubPage client side', () => {
   })
 
   describe('render', () => {
+    const setErrorMsg = jest.fn()
     beforeEach(async () => {
       ;({ container } = render(
-        <LoginErrorMessageProvider state={[undefined, jest.fn()]}>
+        <LoginErrorMessageProvider state={[undefined, setErrorMsg]}>
           <LoginHubPage />
         </LoginErrorMessageProvider>
       ))
@@ -47,7 +50,7 @@ describe('LoginHubPage client side', () => {
       ).toBeInTheDocument()
     })
 
-    it('a 2 boutons et un lien', () => {
+    it('a 3 boutons de connexion', () => {
       expect(
         screen.getByRole('button', {
           name: 'Connexion Mission locale',
@@ -55,14 +58,29 @@ describe('LoginHubPage client side', () => {
       ).toBeInTheDocument()
       expect(
         screen.getByRole('button', {
-          name: 'Connexion Conseil départemental',
+          name: 'Connexion France Travail',
         })
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('link', {
-          name: 'Connexion France Travail',
+        screen.getByRole('button', {
+          name: 'Connexion Conseil départemental',
         })
-      ).toHaveAttribute('href', '/login/france-travail')
+      ).toBeInTheDocument()
+      expect(() => screen.getByRole('link')).toThrow()
+    })
+
+    it("permet de s'identifier directement en tant que conseiller FT, le dispositif se choisit ensuite", async () => {
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Connexion France Travail' })
+      )
+
+      // Then
+      expect(signin).toHaveBeenCalledWith(
+        'ft-conseiller',
+        setErrorMsg,
+        'redirectUrl'
+      )
     })
   })
 })

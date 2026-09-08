@@ -111,10 +111,9 @@ function CreationBeneficiaireFranceTravailPage({
     }
 
     try {
-      const { verifierEmailExistantBeneficiaireFranceTravail } =
+      const { verifierEmailExistantBeneficiaire } =
         await import('services/beneficiaires.service')
-      const emailExistant =
-        await verifierEmailExistantBeneficiaireFranceTravail(email)
+      const emailExistant = await verifierEmailExistantBeneficiaire(email)
 
       if (emailExistant) {
         setEmailExistantError({

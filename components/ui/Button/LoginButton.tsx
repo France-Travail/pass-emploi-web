@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import React, { FC, SVGProps, useState } from 'react'
 
 import IconComponent, { IconName } from 'components/ui/IconComponent'
@@ -11,11 +10,8 @@ type BaseProps = {
 type LoginButtonProps = BaseProps & {
   onClick: () => void
 }
-type LoginLinkProps = BaseProps & {
-  href: string
-}
 
-export default function LoginButton(props: LoginButtonProps | LoginLinkProps) {
+export default function LoginButton(props: Readonly<LoginButtonProps>) {
   const [isLoading, setisLoading] = useState<boolean>(false)
 
   const ariaLabel = ['Connexion', props.prefix, props.label].join(' ')
@@ -25,19 +21,6 @@ export default function LoginButton(props: LoginButtonProps | LoginLinkProps) {
     'text-base-bold whitespace-pre-wrap ' +
     'hover:bg-primary-lighten hover:shadow-m' +
     (isLoading ? ' cursor-not-allowed opacity-50' : '')
-
-  if (isLink(props)) {
-    return (
-      <Link
-        aria-label={ariaLabel}
-        href={props.href}
-        className={style}
-        onClick={() => setisLoading(true)}
-      >
-        <Content {...props} isLoading={isLoading} />
-      </Link>
-    )
-  }
 
   return (
     <button
@@ -102,10 +85,4 @@ function LoadingZone({ isLoading }: { isLoading: boolean }) {
       )}
     </span>
   )
-}
-
-function isLink(
-  props: LoginButtonProps | LoginLinkProps
-): props is LoginLinkProps {
-  return Object.prototype.hasOwnProperty.call(props, 'href')
 }

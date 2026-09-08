@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
+import { Profil } from 'interfaces/profil'
 import { MissionLocale } from 'interfaces/referentiel'
 import { estMilo, estPassEmploi, Structure } from 'interfaces/structure'
 import { dateIsFuture } from 'utils/date'
@@ -28,6 +29,7 @@ export type Conseiller = BaseConseiller & {
   notificationsSonores: boolean
   aDesBeneficiairesARecuperer: boolean
   structure: Structure
+  profil: Profil
   estSuperviseur: boolean
   agence?: { nom: string; id?: string }
   structureMilo?: MissionLocale
@@ -44,6 +46,14 @@ export function aEtablissement(conseiller: Conseiller): boolean {
   return estMilo(conseiller.structure)
     ? Boolean(conseiller.structureMilo)
     : Boolean(conseiller.agence)
+}
+
+// Seul un conseiller France Travail choisit son dispositif (Milo et CD n'en ont pas).
+export function doitChoisirSonDispositif(conseiller: Conseiller): boolean {
+  return (
+    conseiller.profil.structure === 'FRANCE_TRAVAIL' &&
+    !conseiller.profil.dispositif
+  )
 }
 
 export function peutAccederAuxSessions(conseiller: Conseiller): boolean {

@@ -1,3 +1,4 @@
+import { sign } from 'jsonwebtoken'
 import { DateTime } from 'luxon'
 import { Account } from 'next-auth'
 import { JWT } from 'next-auth/jwt'
@@ -61,7 +62,41 @@ describe('Authenticator', () => {
           estSuperviseur: true,
           estConseiller: true,
           structureConseiller: structureMilo,
+          profilConseiller: { structure: 'MILO', dispositif: null },
         })
+      })
+    })
+
+    describe('Quand le token porte le claim userProfile', () => {
+      it('lit le profil du claim au lieu de userStructure', async () => {
+        // Given
+        const accessTokenAvecProfil = sign(
+          {
+            userId: '972d013d-3781-418a-9b8d-1e288f346b45',
+            userType: 'CONSEILLER',
+            userRoles: [],
+            userStructure: 'POLE_EMPLOI',
+            userProfile: { structure: 'FRANCE_TRAVAIL', dispositif: 'BRSA' },
+          },
+          'secret'
+        )
+
+        // When
+        const actual = await handleJWTAndRefresh({
+          jwt: jwtFixture(),
+          account: accountFixture({
+            accessToken: accessTokenAvecProfil,
+            refreshToken,
+            expiresAtInSeconds: 1638434737,
+          }),
+        })
+
+        // Then
+        expect(actual.profilConseiller).toEqual({
+          structure: 'FRANCE_TRAVAIL',
+          dispositif: 'BRSA',
+        })
+        expect(actual.structureConseiller).toEqual('POLE_EMPLOI_BRSA')
       })
     })
 
@@ -116,6 +151,49 @@ describe('Authenticator', () => {
             expiresAtTimestamp: now.plus({ minute: 5 }).toMillis(),
           }
           expect(actual).toEqual(jwtMisAjour)
+        })
+      })
+
+      describe("Quand l'accessToken rafraîchi porte un profil", () => {
+        it('met à jour le profil du conseiller depuis le nouveau token', async () => {
+          // Given
+          const jwt = {
+            ...jwtFixture(),
+            accessToken: 'accessToken',
+            refreshToken: 'refreshToken',
+            expiresAtTimestamp: now.minus({ second: cinqMnEnS }).toMillis(),
+            profilConseiller: { structure: 'FRANCE_TRAVAIL', dispositif: null },
+            structureConseiller: 'POLE_EMPLOI',
+          }
+          const nouvelAccessToken = sign(
+            {
+              userProfile: { structure: 'FRANCE_TRAVAIL', dispositif: 'BRSA' },
+            },
+            'secret'
+          )
+          ;(fetchJson as jest.Mock).mockResolvedValueOnce({
+            content: {
+              access_token: nouvelAccessToken,
+              refresh_token: 'nouveauRefreshToken',
+              expires_in: cinqMnEnS,
+            },
+          })
+
+          // When
+          const actual = await handleJWTAndRefresh({ jwt })
+
+          // Then
+          expect(actual).toEqual({
+            ...jwt,
+            accessToken: nouvelAccessToken,
+            refreshToken: 'nouveauRefreshToken',
+            expiresAtTimestamp: now.plus({ minute: 5 }).toMillis(),
+            profilConseiller: {
+              structure: 'FRANCE_TRAVAIL',
+              dispositif: 'BRSA',
+            },
+            structureConseiller: 'POLE_EMPLOI_BRSA',
+          })
         })
       })
 
@@ -280,6 +358,10 @@ describe('Authenticator', () => {
             estSuperviseur: true,
             estConseiller: true,
             structureConseiller: 'POLE_EMPLOI_AIJ',
+            profilConseiller: {
+              structure: 'FRANCE_TRAVAIL',
+              dispositif: 'AIJ',
+            },
           })
         })
 
@@ -308,6 +390,10 @@ describe('Authenticator', () => {
             estSuperviseur: true,
             estConseiller: true,
             structureConseiller: 'POLE_EMPLOI_AIJ',
+            profilConseiller: {
+              structure: 'FRANCE_TRAVAIL',
+              dispositif: 'AIJ',
+            },
           })
         })
       })
