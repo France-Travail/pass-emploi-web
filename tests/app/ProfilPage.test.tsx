@@ -377,11 +377,13 @@ describe('ProfilPage client side', () => {
       expect(
         screen.getByRole('heading', {
           level: 2,
-          name: 'Modifiez votre dispositif',
+          name: 'Modifier mon dispositif',
         })
       ).toBeInTheDocument()
       expect(
-        screen.getByRole('combobox', { name: /Votre dispositif/ })
+        screen.getByRole('combobox', {
+          name: /Sélectionner le nouveau dispositif dans la liste suivante/,
+        })
       ).toHaveValue(structureFTCej)
       expect(
         screen.getByRole('button', { name: 'Annuler' })
@@ -391,7 +393,9 @@ describe('ProfilPage client side', () => {
     it('modifie le conseiller avec le nouveau dispositif', async () => {
       // When
       await userEvent.selectOptions(
-        screen.getByRole('combobox', { name: /Votre dispositif/ }),
+        screen.getByRole('combobox', {
+          name: /Sélectionner le nouveau dispositif/,
+        }),
         'RSA rénové'
       )
       await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))

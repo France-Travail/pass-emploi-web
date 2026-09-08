@@ -15,14 +15,16 @@ type HeaderDetailBeneficiaireProps = {
   withCreations: boolean
   situation: CategorieSituation
   onSupprimerBeneficiaire?: () => void
+  onChangementDispositif?: () => void
 }
 export default function HeaderDetailBeneficiaire({
   beneficiaire,
   dispositif,
   onSupprimerBeneficiaire,
+  onChangementDispositif,
   situation,
   withCreations,
-}: HeaderDetailBeneficiaireProps) {
+}: Readonly<HeaderDetailBeneficiaireProps>) {
   const [conseiller] = useConseiller()
 
   return (
@@ -34,8 +36,24 @@ export default function HeaderDetailBeneficiaire({
           estFranceTravail(conseiller.structure)) && (
           <dl className='mt-3 flex flex-row gap-1'>
             <dt className='sr-only'>Dispositif</dt>
-            <dd>
+            <dd className='flex items-center gap-2'>
               <DispositifTag dispositif={dispositif} onWhite={true} />
+              {onChangementDispositif && (
+                <button
+                  type='button'
+                  className='inline-flex items-center text-s-regular text-content-color underline hover:text-primary'
+                  aria-label='Modifier le dispositif du bénéficiaire'
+                  onClick={onChangementDispositif}
+                >
+                  <IconComponent
+                    name={IconName.Edit}
+                    aria-hidden={true}
+                    focusable={false}
+                    className='w-4 h-4 mr-1 fill-current'
+                  />
+                  Modifier
+                </button>
+              )}
             </dd>
 
             {estMilo(conseiller.structure) && (

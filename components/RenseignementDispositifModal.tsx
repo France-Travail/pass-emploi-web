@@ -6,7 +6,10 @@ import Label from 'components/ui/Form/Label'
 import Select from 'components/ui/Form/Select'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { Dispositif } from 'interfaces/beneficiaire'
-import { structureLegacyVersProfil } from 'interfaces/profil'
+import {
+  dispositifDeLaStructureFT,
+  structureFTDuDispositif,
+} from 'interfaces/profil'
 import {
   labelStructure,
   Structure,
@@ -29,7 +32,7 @@ export default function RenseignementDispositifModal({
   const fermable = Boolean(onClose)
 
   const [structureChoisie, setStructureChoisie] = useState<Structure | ''>(
-    dispositifActuel ? structureDuDispositif(dispositifActuel) : ''
+    dispositifActuel ? (structureFTDuDispositif(dispositifActuel) ?? '') : ''
   )
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -39,7 +42,7 @@ export default function RenseignementDispositifModal({
 
     setLoading(true)
     try {
-      await onDispositifChoisi(dispositifDeLaStructure(structureChoisie))
+      await onDispositifChoisi(dispositifDeLaStructureFT(structureChoisie))
     } finally {
       setLoading(false)
     }
@@ -50,8 +53,8 @@ export default function RenseignementDispositifModal({
       ref={modalRef}
       title={
         dispositifActuel
-          ? 'Modifiez votre dispositif'
-          : 'Ajoutez votre dispositif à votre profil'
+          ? 'Modifier mon dispositif'
+          : 'Choisissez votre dispositif'
       }
       onClose={() => onClose?.()}
       fermable={fermable}
@@ -60,12 +63,14 @@ export default function RenseignementDispositifModal({
         <InformationMessage label='Une fois votre dispositif renseigné, ce message n’apparaîtra plus.' />
       )}
       <div className='mt-2'>
-        <InformationMessage label='Vos bénéficiaires sont rattachés au dispositif de votre profil.' />
+        <InformationMessage label='Vos bénéficiaires seront rattachés au nouveau dispositif. Les réaffectations temporaires gardent leur dispositif actuel.' />
       </div>
 
       <form onSubmit={submitDispositif} className='px-10 pt-6'>
         <Label htmlFor='dispositif' inputRequired={true}>
-          Votre dispositif
+          {dispositifActuel
+            ? 'Sélectionner le nouveau dispositif dans la liste suivante'
+            : 'Votre dispositif'}
         </Label>
         <Select
           id='dispositif'
@@ -101,17 +106,5 @@ export default function RenseignementDispositifModal({
         </div>
       </form>
     </Modal>
-  )
-}
-
-function dispositifDeLaStructure(structure: Structure): Dispositif {
-  return structureLegacyVersProfil(structure).dispositif as Dispositif
-}
-
-function structureDuDispositif(dispositif: Dispositif): Structure | '' {
-  return (
-    structuresFranceTravail.find(
-      (structure) => dispositifDeLaStructure(structure) === dispositif
-    ) ?? ''
   )
 }

@@ -278,7 +278,7 @@ describe('HomePage client side', () => {
       expect(
         screen.getByRole('heading', {
           level: 2,
-          name: 'Ajoutez votre dispositif à votre profil',
+          name: 'Choisissez votre dispositif',
         })
       ).toBeInTheDocument()
       expect(

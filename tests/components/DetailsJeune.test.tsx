@@ -1,13 +1,21 @@
-import { screen } from '@testing-library/dom'
+import { screen, within } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { usePathname, useRouter } from 'next/navigation'
 
 import DetailsBeneficiaire from 'components/jeune/DetailsBeneficiaire'
 import { unDetailBeneficiaire } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
-import { structureFTCej, structureMilo } from 'interfaces/structure'
+import {
+  labelStructure,
+  structureFTCej,
+  structureMilo,
+  structuresFranceTravail,
+} from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
-import { modifierIdentifiantPartenaire } from 'services/beneficiaires.service'
+import {
+  modifierDispositif,
+  modifierIdentifiantPartenaire,
+} from 'services/beneficiaires.service'
 import renderWithContexts from 'tests/renderWithContexts'
 
 jest.mock('services/beneficiaires.service')
@@ -303,5 +311,125 @@ describe('<DetailsJeune>', () => {
         })
       ).toThrow()
     })
+  })
+
+  describe('dispositif d’un bénéficiaire France Travail', () => {
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    beforeEach(async () => {
+      alerteSetter = jest.fn()
+      ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+
+      await renderWithContexts(
+        <DetailsBeneficiaire
+          beneficiaire={unDetailBeneficiaire()}
+          historiqueConseillers={[]}
+          withCreations={false}
+        />,
+        {
+          customConseiller: unConseiller({ structure: structureFTCej }),
+          customAlerte: { setter: alerteSetter },
+        }
+      )
+    })
+
+    it('permet de modifier le dispositif à côté de la pastille', () => {
+      // Then
+      expect(
+        screen.getByRole('button', {
+          name: 'Modifier le dispositif du bénéficiaire',
+        })
+      ).toBeInTheDocument()
+    })
+
+    describe('au clic sur le bouton Modifier', () => {
+      beforeEach(async () => {
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Modifier le dispositif du bénéficiaire',
+          })
+        )
+      })
+
+      it('affiche une pop-in avec la liste des dispositifs France Travail', () => {
+        // Then
+        expect(
+          screen.getByRole('heading', {
+            level: 2,
+            name: 'Modifier le dispositif du bénéficiaire',
+          })
+        ).toBeInTheDocument()
+        const selectDispositif = screen.getByRole('combobox', {
+          name: /Sélectionner le nouveau dispositif dans la liste suivante/,
+        })
+        expect(selectDispositif).toHaveValue(structureFTCej)
+        structuresFranceTravail.forEach((structure) =>
+          expect(
+            within(selectDispositif).getByRole('option', {
+              name: labelStructure(structure),
+            })
+          ).toBeInTheDocument()
+        )
+        expect(screen.getByRole('button', { name: 'Modifier' })).toBeDisabled()
+      })
+
+      it('modifie le dispositif du bénéficiaire sans transition', async () => {
+        // When
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', {
+            name: /Sélectionner le nouveau dispositif/,
+          }),
+          'RSA rénové'
+        )
+        await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'BRSA'
+        )
+        expect(alerteSetter).toHaveBeenCalledWith(
+          'changementDispositif',
+          'RSA rénové'
+        )
+      })
+    })
+  })
+
+  it('ne propose pas de modifier le dispositif d’un bénéficiaire en réaffectation temporaire', async () => {
+    // When
+    await renderWithContexts(
+      <DetailsBeneficiaire
+        beneficiaire={unDetailBeneficiaire({ isReaffectationTemporaire: true })}
+        historiqueConseillers={[]}
+        withCreations={false}
+      />,
+      { customConseiller: unConseiller({ structure: structureFTCej }) }
+    )
+
+    // Then
+    expect(() =>
+      screen.getByRole('button', {
+        name: 'Modifier le dispositif du bénéficiaire',
+      })
+    ).toThrow()
+  })
+
+  it('ne propose pas ce bouton pour un conseiller Mission Locale', async () => {
+    // When
+    await renderWithContexts(
+      <DetailsBeneficiaire
+        beneficiaire={unDetailBeneficiaire()}
+        historiqueConseillers={[]}
+        withCreations={false}
+      />,
+      { customConseiller: unConseiller({ structure: structureMilo }) }
+    )
+
+    // Then
+    expect(() =>
+      screen.getByRole('button', {
+        name: 'Modifier le dispositif du bénéficiaire',
+      })
+    ).toThrow()
   })
 })

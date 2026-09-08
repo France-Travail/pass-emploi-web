@@ -14,10 +14,12 @@ import {
   ConseillerHistorique,
   Demarche,
   DetailBeneficiaire,
+  Dispositif,
+  getLabelDispositif,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
 import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
-import { estMilo, structureFTCej } from 'interfaces/structure'
+import { estFranceTravail, estMilo, structureFTCej } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
 import { trackEvent } from 'utils/analytics/matomo'
@@ -25,6 +27,9 @@ import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 const HistoriqueConseillersModal = dynamic(
   () => import('components/jeune/HistoriqueConseillersModal')
+)
+const ChangementDispositifBeneficiaireFTModal = dynamic(
+  () => import('components/jeune/ChangementDispositifBeneficiaireFTModal')
 )
 
 interface DetailsBeneficiaireProps {
@@ -63,6 +68,8 @@ export default function DetailsBeneficiaire({
 
   const modalDispositifRef = useRef<ModalHandles>(null)
   const [showChangementDispositif, setShowChangementDispositif] =
+    useState<boolean>(false)
+  const [showChangementDispositifFT, setShowChangementDispositifFT] =
     useState<boolean>(false)
   const modalIdentifiantPartenaireRef = useRef<ModalHandles>(null)
   const [showIdentifiantPartenaireModal, setShowIdentifiantPartenaireModal] =
@@ -123,6 +130,26 @@ export default function DetailsBeneficiaire({
     }
   }
 
+  // Un bénéficiaire en réaffectation temporaire garde le dispositif de son conseiller initial
+  const peutModifierDispositifFT =
+    estFranceTravail(conseiller.structure) &&
+    !beneficiaire.isReaffectationTemporaire
+
+  async function changerDispositifFT(
+    nouveauDispositif: Dispositif
+  ): Promise<void> {
+    const { modifierDispositif } =
+      await import('services/beneficiaires.service')
+    await modifierDispositif(id, nouveauDispositif)
+    setDispositifActuel(nouveauDispositif)
+    setAlerte(
+      AlerteParam.changementDispositif,
+      getLabelDispositif(nouveauDispositif)
+    )
+    setShowChangementDispositifFT(false)
+    router.refresh()
+  }
+
   async function changerDispositifFinAccompagnement(
     nouveauDispositif: string,
     motif: string,
@@ -167,6 +194,11 @@ export default function DetailsBeneficiaire({
           situation={situationCourante}
           withCreations={withCreations}
           onSupprimerBeneficiaire={onSupprimerBeneficiaire}
+          onChangementDispositif={
+            peutModifierDispositifFT
+              ? () => setShowChangementDispositifFT(true)
+              : undefined
+          }
         />
 
         <div className='rounded-b-[inherit] border border-t-0 border-grey-500 py-4 flex flex-wrap gap-4'>
@@ -226,6 +258,14 @@ export default function DetailsBeneficiaire({
           onConfirm={changerDispositif}
           onConfirmFinAccompagnement={changerDispositifFinAccompagnement}
           onCancel={() => setShowChangementDispositif(false)}
+        />
+      )}
+
+      {showChangementDispositifFT && (
+        <ChangementDispositifBeneficiaireFTModal
+          dispositif={dispositifActuel}
+          onConfirm={changerDispositifFT}
+          onCancel={() => setShowChangementDispositifFT(false)}
         />
       )}
     </>

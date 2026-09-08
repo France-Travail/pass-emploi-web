@@ -237,7 +237,7 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
                 />
                 <button
                   type='button'
-                  className='inline-flex items-center text-primary'
+                  className='inline-flex items-center text-s-regular text-content-color underline hover:text-primary'
                   aria-label='Modifier votre dispositif'
                   onClick={() => setShowModaleDispositif(true)}
                 >
@@ -245,7 +245,7 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
                     name={IconName.Edit}
                     aria-hidden={true}
                     focusable={false}
-                    className='w-4 h-4 mr-1 fill-primary'
+                    className='w-4 h-4 mr-1 fill-current'
                   />
                   Modifier
                 </button>

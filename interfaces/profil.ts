@@ -1,5 +1,5 @@
 import { Dispositif } from 'interfaces/beneficiaire'
-import { Structure } from 'interfaces/structure'
+import { Structure, structuresFranceTravail } from 'interfaces/structure'
 
 // Profil (structure × dispositif) porté par le claim `userProfile` : la cible.
 // Le vocabulaire legacy (`Structure`, 9 valeurs) reste celui du code web ; il
@@ -75,6 +75,20 @@ export function structureLegacyVersProfil(structure: string): Profil {
     default:
       return { structure: 'FRANCE_TRAVAIL', dispositif: Dispositif.CEJ }
   }
+}
+
+// Une structure legacy France Travail porte un dispositif accompagné : le
+// vocabulaire des listes de choix (libellés) reste celui des structures.
+export function dispositifDeLaStructureFT(structure: Structure): Dispositif {
+  return structureLegacyVersProfil(structure).dispositif as Dispositif
+}
+
+export function structureFTDuDispositif(
+  dispositif: string
+): Structure | undefined {
+  return structuresFranceTravail.find(
+    (structure) => dispositifDeLaStructureFT(structure) === dispositif
+  )
 }
 
 export function profilVersStructureLegacy(profil: Profil): Structure {
