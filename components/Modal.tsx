@@ -20,7 +20,7 @@ import IllustrationComponent, {
 } from 'components/ui/IllustrationComponent'
 
 export type ModalHandles = _ModalHandles
-type ModalProps = Pick<ModalContainerProps, 'onClose'> & {
+type ModalProps = Pick<ModalContainerProps, 'onClose' | 'fermable'> & {
   title: string
   children: ReactNode
   titleIcon?: IconName
@@ -40,6 +40,7 @@ function Modal(
     titleIllustration,
     titleImageSrc,
     containerClassName,
+    fermable = true,
   }: ModalProps,
   ref: ForwardedRef<ModalHandles>
 ) {
@@ -52,21 +53,23 @@ function Modal(
 
   const modalTemplate = (
     <div className={finalClassName}>
-      <div className='flex justify-end'>
-        <button
-          type='button'
-          onClick={(e) => modalContainerRef.current!.closeModal(e)}
-          className='p-2 border-none hover:bg-primary-lighten hover:rounded-full'
-        >
-          <IconComponent
-            name={IconName.Close}
-            role='img'
-            focusable={false}
-            aria-label='Fermer la fenêtre'
-            className='w-6 h-6 fill-content-color'
-          />
-        </button>
-      </div>
+      {fermable && (
+        <div className='flex justify-end'>
+          <button
+            type='button'
+            onClick={(e) => modalContainerRef.current!.closeModal(e)}
+            className='p-2 border-none hover:bg-primary-lighten hover:rounded-full'
+          >
+            <IconComponent
+              name={IconName.Close}
+              role='img'
+              focusable={false}
+              aria-label='Fermer la fenêtre'
+              className='w-6 h-6 fill-content-color'
+            />
+          </button>
+        </div>
+      )}
 
       <div className='px-6 pb-6'>
         {titleIcon && (
@@ -123,6 +126,7 @@ function Modal(
     <ModalContainer
       ref={modalContainerRef}
       onClose={onClose}
+      fermable={fermable}
       label={{ id: 'modal-title' }}
     >
       {modalTemplate}

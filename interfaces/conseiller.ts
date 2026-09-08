@@ -48,6 +48,14 @@ export function aEtablissement(conseiller: Conseiller): boolean {
     : Boolean(conseiller.agence)
 }
 
+// Seul un conseiller France Travail choisit son dispositif (Milo et CD n'en ont pas).
+export function doitChoisirSonDispositif(conseiller: Conseiller): boolean {
+  return (
+    conseiller.profil.structure === 'FRANCE_TRAVAIL' &&
+    !conseiller.profil.dispositif
+  )
+}
+
 export function peutAccederAuxSessions(conseiller: Conseiller): boolean {
   return estMilo(conseiller.structure) && Boolean(conseiller.structureMilo)
 }

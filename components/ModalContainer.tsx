@@ -21,11 +21,12 @@ export type ModalContainerProps = {
   onClose: () => void
   children: ReactNode
   label: { id: string } | { value: string }
+  fermable?: boolean
 }
 
 // TODO handle click outside modal
 function ModalContainer(
-  { children, onClose, label }: ModalContainerProps,
+  { children, onClose, label, fermable = true }: ModalContainerProps,
   ref: ForwardedRef<ModalHandles>
 ) {
   const modalContainerRef = useRef<HTMLDivElement>(null)
@@ -40,9 +41,14 @@ function ModalContainer(
     if (!previousFocusedElement.current)
       previousFocusedElement.current = document.activeElement as HTMLElement
 
-    modalContainerRef
-      .current!.querySelector<HTMLButtonElement>('button:first-child')!
-      .focus()
+    const premierElementFocusable =
+      modalContainerRef.current!.querySelector<HTMLElement>(
+        'button:first-child'
+      ) ??
+      modalContainerRef.current!.querySelector<HTMLElement>(
+        '[href], button, textarea, input, select'
+      )
+    premierElementFocusable?.focus()
   }
 
   function handleTabKey(e: KeyboardEvent) {
@@ -79,7 +85,11 @@ function ModalContainer(
 
   const keyListeners = useRef<{
     [key: string]: (e: KeyboardEvent) => void
-  }>({ Tab: handleTabKey, Escape: handleClose })
+  }>(
+    fermable
+      ? { Tab: handleTabKey, Escape: handleClose }
+      : { Tab: handleTabKey }
+  )
 
   useImperativeHandle(ref, () => ({
     focusClose,

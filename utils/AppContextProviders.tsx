@@ -19,7 +19,10 @@ import { ChatsProvider } from 'utils/chat/chatsContext'
 import { CurrentConversationProvider } from 'utils/chat/currentConversationContext'
 import { ListeSelectionneeProvider } from 'utils/chat/listeSelectionneeContext'
 import { ShowRubriqueListeProvider } from 'utils/chat/showRubriqueListeContext'
-import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
+import {
+  ConseillerProvider,
+  useConseiller,
+} from 'utils/conseiller/conseillerContext'
 import { MobileViewportProvider } from 'utils/mobileViewportContext'
 import { PortefeuilleProvider } from 'utils/portefeuilleContext'
 
@@ -35,8 +38,6 @@ export default function AppContextProviders({
   const portefeuilleTrie = portefeuille
     .map(extractBeneficiaireWithActivity)
     .sort(compareBeneficiairesByNom)
-
-  const theme = estPassEmploi(conseiller.structure) ? 'darker' : 'neutral'
 
   apm.setUserContext({
     id: conseiller.id,
@@ -56,13 +57,7 @@ export default function AppContextProviders({
                     <ListeSelectionneeProvider>
                       <AlerteProvider>
                         <ClientOnlyContainer>
-                          <ThemeProvider
-                            defaultTheme={'neutral'}
-                            themes={['neutral', 'darker']}
-                            forcedTheme={theme}
-                          >
-                            {children}
-                          </ThemeProvider>
+                          <ThemeDuConseiller>{children}</ThemeDuConseiller>
                         </ClientOnlyContainer>
                       </AlerteProvider>
                     </ListeSelectionneeProvider>
@@ -74,5 +69,22 @@ export default function AppContextProviders({
         </PortefeuilleProvider>
       </ConseillerProvider>
     </MobileViewportProvider>
+  )
+}
+
+// Lit le conseiller du contexte : l'habillage suit un changement de dispositif
+// sans rechargement.
+function ThemeDuConseiller({ children }: { children: ReactNode }) {
+  const [conseiller] = useConseiller()
+  const theme = estPassEmploi(conseiller.structure) ? 'darker' : 'neutral'
+
+  return (
+    <ThemeProvider
+      defaultTheme={'neutral'}
+      themes={['neutral', 'darker']}
+      forcedTheme={theme}
+    >
+      {children}
+    </ThemeProvider>
   )
 }

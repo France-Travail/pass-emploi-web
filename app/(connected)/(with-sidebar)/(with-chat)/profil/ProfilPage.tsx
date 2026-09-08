@@ -9,8 +9,11 @@ import { RenseignementMissionLocaleForm } from 'components/RenseignementMissionL
 import Button, { ButtonStyle } from 'components/ui/Button/Button'
 import { Switch } from 'components/ui/Form/Switch'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
+import { TagMetier } from 'components/ui/Indicateurs/Tag'
 import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
+import { Dispositif } from 'interfaces/beneficiaire'
+import { profilVersStructureLegacy } from 'interfaces/profil'
 import { Agence } from 'interfaces/referentiel'
 import {
   estFranceTravail,
@@ -19,6 +22,8 @@ import {
   labelStructure,
   structureMilo,
 } from 'interfaces/structure'
+import { AlerteParam } from 'referentiel/alerteParam'
+import { useAlerte } from 'utils/alerteContext'
 import { trackEvent, trackPage } from 'utils/analytics/matomo'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
@@ -26,6 +31,9 @@ import { usePortefeuille } from 'utils/portefeuilleContext'
 
 const ConfirmationDeleteConseillerModal = dynamic(
   () => import('components/ConfirmationDeleteConseillerModal')
+)
+const RenseignementDispositifModal = dynamic(
+  () => import('components/RenseignementDispositifModal')
 )
 const ConfirmationSuppressionCompteConseillerModal = dynamic(
   () => import('components/ConfirmationSuppressionCompteConseillerModal')
@@ -52,6 +60,9 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
 
   const [showInformationEmailManquant, setShowInformationEmailManquant] =
     useState<boolean>(Boolean(conseillerEstMilo && !conseiller.email))
+  const [showModaleDispositif, setShowModaleDispositif] =
+    useState<boolean>(false)
+  const [_, setAlerte] = useAlerte()
 
   const labelAgence = conseillerEstMilo ? 'Mission Locale' : 'agence'
   const [trackingLabel, setTrackingLabel] = useState<string>('Profil')
@@ -80,6 +91,23 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
     await modifierAgence(agence)
     setConseiller({ ...conseiller, agence })
     setTrackingLabel('Profil - Succès ajout agence')
+  }
+
+  async function modifierDispositif(dispositif: Dispositif): Promise<void> {
+    const { modifierDispositif: modifierDispositifDuConseiller } =
+      await import('services/conseiller.service')
+    await modifierDispositifDuConseiller(dispositif)
+    const profil = { ...conseiller.profil, dispositif }
+    setConseiller({
+      ...conseiller,
+      profil,
+      structure: profilVersStructureLegacy(profil),
+    })
+    setShowModaleDispositif(false)
+    setAlerte(AlerteParam.choixDispositif)
+    setTrackingLabel('Profil - Succès modification dispositif')
+    // Le dispositif conditionne l'habillage de l'espace : on recharge le layout.
+    router.refresh()
   }
 
   async function openDeleteConseillerModal(e: React.MouseEvent<HTMLElement>) {
@@ -162,10 +190,9 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
         <h2 className='text-m-bold text-grey-800 mb-4'>Informations</h2>
 
         {estFranceTravail(conseiller.structure) && (
-          <InformationMessage label='Changement d’agence ou de dispositif ?'>
+          <InformationMessage label='Changement d’agence ?'>
             <p>
-              Pour changer d’agence ou de dispositif, vous devez supprimer votre
-              compte.
+              Pour changer d’agence, vous devez supprimer votre compte.
               <ExternalLink
                 label='Consultez la procédure à suivre'
                 href='https://doc.pass-emploi.beta.gouv.fr/suppression-de-compte/'
@@ -201,16 +228,39 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
           )}
 
           {estFranceTravail(conseiller.structure) && (
-            <div>
-              <dt className='mt-2 inline text-base-regular'>
-                Votre dispositif :
-              </dt>
-              <dd className='ml-2 inline text-base-bold'>
-                {labelStructure(conseiller.structure)}
+            <div className='mt-2 flex items-center flex-wrap gap-2'>
+              <dt className='text-base-regular'>Votre dispositif :</dt>
+              <dd className='flex items-center gap-2'>
+                <TagMetier
+                  label={labelStructure(conseiller.structure)}
+                  className='text-primary bg-primary-lighten'
+                />
+                <button
+                  type='button'
+                  className='inline-flex items-center text-primary'
+                  aria-label='Modifier votre dispositif'
+                  onClick={() => setShowModaleDispositif(true)}
+                >
+                  <IconComponent
+                    name={IconName.Edit}
+                    aria-hidden={true}
+                    focusable={false}
+                    className='w-4 h-4 mr-1 fill-primary'
+                  />
+                  Modifier
+                </button>
               </dd>
             </div>
           )}
         </dl>
+
+        {showModaleDispositif && (
+          <RenseignementDispositifModal
+            dispositifActuel={conseiller.profil.dispositif as Dispositif}
+            onDispositifChoisi={modifierDispositif}
+            onClose={() => setShowModaleDispositif(false)}
+          />
+        )}
 
         <Button
           className='mt-4'

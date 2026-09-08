@@ -65,15 +65,11 @@ async function hydrateJwtAtFirstSignin(
   { access_token, expires_at, refresh_token }: Account,
   jwt: JWT
 ): Promise<HydratedJWT> {
-  const { userId, userStructure, userProfile, userRoles, userType } = decode(
+  const { userId, userRoles, userType } = decode(
     <string>access_token
   ) as JwtPayload
-
-  // Cible : le claim `userProfile` ; repli sur `userStructure` (legacy) tant
-  // que connect ne l'émet pas.
-  const profil: Profil = estProfil(userProfile)
-    ? userProfile
-    : structureLegacyVersProfil(userStructure)
+  const profil =
+    profilDuAccessToken(access_token) ?? structureLegacyVersProfil('')
 
   rootLogger.info(
     {
@@ -120,11 +116,19 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
       'token_refreshed'
     )
 
+    // Le dispositif d'un conseiller FT peut changer : le profil suit le token rafraîchi.
+    const profil =
+      profilDuAccessToken(refreshedTokens.access_token) ?? jwt.profilConseiller
+
     return {
       ...jwt,
       accessToken: refreshedTokens.access_token,
       refreshToken: refreshedTokens.refresh_token ?? jwt.refreshToken,
       expiresAtTimestamp: expiresAtMs,
+      profilConseiller: profil,
+      structureConseiller: profil
+        ? profilVersStructureLegacy(profil)
+        : jwt.structureConseiller,
     }
   } catch (error) {
     rootLogger.info(
@@ -141,6 +145,17 @@ async function refreshAccessToken(jwt: HydratedJWT): Promise<HydratedJWT> {
       error: RefreshAccessTokenError,
     }
   }
+}
+
+// Cible : le claim `userProfile` ; repli sur `userStructure` (legacy).
+function profilDuAccessToken(accessToken?: string): Profil | undefined {
+  const payload = accessToken ? decode(accessToken) : undefined
+  if (!payload || typeof payload === 'string') return undefined
+
+  const { userProfile, userStructure } = payload
+  if (estProfil(userProfile)) return userProfile
+  if (userStructure) return structureLegacyVersProfil(userStructure)
+  return undefined
 }
 
 async function fetchRefreshedTokens(

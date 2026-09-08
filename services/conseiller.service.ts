@@ -3,7 +3,11 @@ import { Session } from 'next-auth'
 import { getSession } from 'next-auth/react'
 
 import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
-import { DossierMilo, IdentiteBeneficiaire } from 'interfaces/beneficiaire'
+import {
+  Dispositif,
+  DossierMilo,
+  IdentiteBeneficiaire,
+} from 'interfaces/beneficiaire'
 import { Conseiller, SimpleConseiller } from 'interfaces/conseiller'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import {
@@ -47,6 +51,17 @@ export async function modifierAgence({
   return apiPut(
     `/conseillers/${session!.user.id}`,
     { agence },
+    session!.accessToken
+  )
+}
+
+export async function modifierDispositif(
+  dispositif: Dispositif
+): Promise<void> {
+  const session = await getSession()
+  return apiPut(
+    `/conseillers/${session!.user.id}`,
+    { dispositif },
     session!.accessToken
   )
 }

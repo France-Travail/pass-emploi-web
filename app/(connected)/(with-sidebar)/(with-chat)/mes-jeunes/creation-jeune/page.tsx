@@ -13,6 +13,7 @@ import {
   estMilo,
   labelStructure,
 } from 'interfaces/structure'
+import { getConseillerServerSide } from 'services/conseiller.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
@@ -24,15 +25,16 @@ export const metadata: Metadata = {
 
 export default async function CreationBeneficiaire() {
   const { user, accessToken } = await getMandatorySessionServerSide()
+  const conseiller = await getConseillerServerSide(user, accessToken)
 
   const header =
     'Créer un compte bénéficiaire' +
-    (estFranceTravail(user.structure)
-      ? ` ${labelStructure(user.structure)}`
+    (estFranceTravail(conseiller.structure)
+      ? ` ${labelStructure(conseiller.structure)}`
       : '')
 
   let listes: Liste[] | undefined = undefined
-  if (estAvenirPro(user.structure)) {
+  if (estAvenirPro(conseiller.structure)) {
     try {
       listes = await getListesServerSide(user.id, accessToken)
     } catch (error) {
@@ -50,8 +52,8 @@ export default async function CreationBeneficiaire() {
       <PageFilArianePortal />
       <PageHeaderPortal header={header} />
 
-      {estMilo(user.structure) && <CreationBeneficiaireMiloPage />}
-      {!estMilo(user.structure) && (
+      {estMilo(conseiller.structure) && <CreationBeneficiaireMiloPage />}
+      {!estMilo(conseiller.structure) && (
         <CreationBeneficiaireFranceTravailPage listes={listes} />
       )}
     </>

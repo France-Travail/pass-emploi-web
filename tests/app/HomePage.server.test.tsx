@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import HomePage from 'app/(connected)/(with-sidebar)/(with-chat)/(index)/HomePage'
 import Home from 'app/(connected)/(with-sidebar)/(with-chat)/(index)/page'
 import { unConseiller } from 'fixtures/conseiller'
+import { unProfilFT } from 'fixtures/profil'
 import {
   uneListeDAgencesFranceTravail,
   uneListeDAgencesMILO,
@@ -78,6 +79,7 @@ describe('HomePage server side', () => {
       expect(HomePage).toHaveBeenCalledWith(
         {
           afficherModaleAgence: true,
+          afficherModaleDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: false,
           redirectUrl: '/mes-jeunes',
@@ -111,6 +113,7 @@ describe('HomePage server side', () => {
       expect(HomePage).toHaveBeenCalledWith(
         {
           afficherModaleAgence: true,
+          afficherModaleDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: false,
           redirectUrl: '/agenda',
@@ -144,6 +147,7 @@ describe('HomePage server side', () => {
       expect(HomePage).toHaveBeenCalledWith(
         {
           afficherModaleAgence: false,
+          afficherModaleDispositif: false,
           afficherModaleEmail: true,
           afficherModaleOnboarding: false,
           redirectUrl: '/mes-jeunes',
@@ -178,9 +182,43 @@ describe('HomePage server side', () => {
       expect(HomePage).toHaveBeenCalledWith(
         {
           afficherModaleAgence: true,
+          afficherModaleDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: true,
           redirectUrl: '/agenda',
+          referentielAgences: uneListeDAgencesFranceTravail(),
+        },
+        undefined
+      )
+    })
+  })
+
+  describe('si le conseiller France Travail n’a pas choisi son dispositif', () => {
+    it('prépare la page pour choisir son dispositif', async () => {
+      ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({})
+
+      const conseiller = unConseiller({
+        structure: structureFTCej,
+        profil: unProfilFT(null),
+        agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
+        email: 'pass.emploi@beta.gouv.fr',
+      })
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(conseiller)
+      ;(getAgencesServerSide as jest.Mock).mockResolvedValue(
+        uneListeDAgencesFranceTravail()
+      )
+
+      // When
+      render(await Home({}))
+
+      // Then
+      expect(HomePage).toHaveBeenCalledWith(
+        {
+          afficherModaleAgence: false,
+          afficherModaleDispositif: true,
+          afficherModaleEmail: false,
+          afficherModaleOnboarding: false,
+          redirectUrl: '/mes-jeunes',
           referentielAgences: uneListeDAgencesFranceTravail(),
         },
         undefined

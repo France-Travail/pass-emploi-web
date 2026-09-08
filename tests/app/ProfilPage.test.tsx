@@ -10,9 +10,11 @@ import { uneListeDAgencesMILO } from 'fixtures/referentiel'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
 import { structureFTCej, structureMilo } from 'interfaces/structure'
+import { AlerteParam } from 'referentiel/alerteParam'
 import { getBeneficiairesDuConseillerClientSide } from 'services/beneficiaires.service'
 import {
   modifierAgence,
+  modifierDispositif,
   modifierNotificationsSonores,
   supprimerConseiller,
 } from 'services/conseiller.service'
@@ -60,6 +62,16 @@ describe('ProfilPage client side', () => {
       expect(getByDescriptionTerm('Votre agence :')).toHaveTextContent(
         'MLS3F SAINT-LOUIS'
       )
+    })
+
+    it('affiche le dispositif du conseiller avec un bouton pour le modifier', () => {
+      // Then
+      expect(getByDescriptionTerm('Votre dispositif :')).toHaveTextContent(
+        'CEJ'
+      )
+      expect(
+        screen.getByRole('button', { name: 'Modifier votre dispositif' })
+      ).toBeInTheDocument()
     })
 
     it("contient un champ pour sélectionner l'activation des notifications", () => {
@@ -330,6 +342,67 @@ describe('ProfilPage client side', () => {
           screen.getByRole('link', { name: /Accéder à i-milo/ })
         ).toBeInTheDocument()
       })
+    })
+  })
+
+  describe('quand le conseiller France Travail modifie son dispositif', () => {
+    let refresh: jest.Mock
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    beforeEach(async () => {
+      // Given
+      refresh = jest.fn()
+      alerteSetter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ refresh })
+      ;({ container } = await renderWithContexts(
+        <ProfilPage referentielMissionsLocales={[]} />,
+        {
+          customConseiller: unConseiller({ structure: structureFTCej }),
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre dispositif' })
+      )
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('affiche une modale avec le dispositif actuel et un bouton pour annuler', () => {
+      // Then
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: 'Modifiez votre dispositif',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('combobox', { name: /Votre dispositif/ })
+      ).toHaveValue(structureFTCej)
+      expect(
+        screen.getByRole('button', { name: 'Annuler' })
+      ).toBeInTheDocument()
+    })
+
+    it('modifie le conseiller avec le nouveau dispositif', async () => {
+      // When
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /Votre dispositif/ }),
+        'RSA rénové'
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
+
+      // Then
+      expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+      expect(getByDescriptionTerm('Votre dispositif :')).toHaveTextContent(
+        'RSA rénové'
+      )
+      expect(alerteSetter).toHaveBeenCalledWith('choixDispositif')
+      expect(refresh).toHaveBeenCalled()
     })
   })
 

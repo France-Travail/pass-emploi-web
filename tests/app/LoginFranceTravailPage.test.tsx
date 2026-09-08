@@ -51,20 +51,16 @@ describe('LoginFranceTravailPage client side', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche un bouton pour les utilisateurs ayant un compte', async () => {
+    it('affiche un bouton de connexion unique, le dispositif se choisit ensuite', async () => {
       // Then
       expect(
         screen.getByRole('button', {
           name: 'Connexion France Travail',
         })
-      ).toHaveAccessibleDescription('Vous avez déjà un compte ?')
-    })
-
-    it('affiche un lien pour une première visite', () => {
-      // Then
-      expect(
-        screen.getByRole('link', { name: 'Première visite ?' })
-      ).toHaveAttribute('href', '/login/france-travail/dispositifs')
+      ).toHaveAccessibleDescription(
+        'Vous choisirez votre dispositif après la connexion.'
+      )
+      expect(() => screen.getByRole('link')).toThrow()
     })
 
     it("permet de s'identifier de manière unique en tant que conseiller FT", async () => {

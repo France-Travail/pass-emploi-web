@@ -98,7 +98,7 @@ function erreurConseiller(
 ): { erreur: string; withTuto?: boolean } {
   switch (reason) {
     case 'UTILISATEUR_INEXISTANT':
-      redirect('/login/france-travail/dispositifs')
+      redirect('/login/france-travail')
     case 'UTILISATEUR_DEJA_MILO':
       return {
         erreur:

@@ -4,11 +4,13 @@ import {
   SimpleConseillerJson,
   ConseillerJson,
 } from 'interfaces/json/conseiller'
+import { structureLegacyVersProfil } from 'interfaces/profil'
 import { structureMilo } from 'interfaces/structure'
 
 export const unConseiller = (
   overrides: Partial<Conseiller> = {}
 ): Conseiller => {
+  const structure = overrides.structure ?? structureMilo
   const defaults: Conseiller = {
     id: 'id-conseiller-1',
     firstName: 'Nils',
@@ -16,8 +18,8 @@ export const unConseiller = (
     notificationsSonores: false,
     aDesBeneficiairesARecuperer: false,
     estSuperviseur: false,
-    structure: structureMilo,
-    profil: unProfilMilo(),
+    structure,
+    profil: structureLegacyVersProfil(structure),
     dateSignatureCGU: '2023-10-03T00:00:00.000+02:00',
   }
   return { ...defaults, ...overrides }
@@ -42,6 +44,7 @@ export const unConseillerJson = (
     id: 'id-conseiller-1',
     firstName: 'Nils',
     lastName: 'Tavernier',
+    profil: unProfilMilo(),
     notificationsSonores: false,
     aDesBeneficiairesARecuperer: false,
     dateSignatureCGU: '2023-10-03',

@@ -12,7 +12,7 @@ export const structureConseilDepartemental = 'CONSEIL_DEPT'
 
 const structuresCEJ = [structureMilo, structureFTCej] as const
 
-const structuresFranceTravail = [
+export const structuresFranceTravail = [
   structureFTCej,
   structureBrsa,
   structureAij,

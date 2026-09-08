@@ -17,6 +17,7 @@ import {
 } from 'interfaces/structure'
 import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions.service'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
+import { getConseillerServerSide } from 'services/conseiller.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
@@ -33,16 +34,16 @@ export default async function Portefeuille({
   searchParams?: PortfeuilleSearchParams
 }) {
   const { user, accessToken } = await getMandatorySessionServerSide()
-  const beneficiaires = await getBeneficiairesDuConseillerServerSide(
-    user.id,
-    accessToken
-  )
+  const [conseiller, beneficiaires] = await Promise.all([
+    getConseillerServerSide(user, accessToken),
+    getBeneficiairesDuConseillerServerSide(user.id, accessToken),
+  ])
   const { source, page } = (await searchParams) ?? {}
 
   const parsedPage = page ? parseInt(page, 10) : 1
 
   let beneficiairesAvecCompteurs: BeneficiaireAvecCompteursActionsRdvs[]
-  if (estMilo(user.structure)) {
+  if (estMilo(conseiller.structure)) {
     const dateDebut = DateTime.now().startOf('week')
     const dateFin = DateTime.now().endOf('week')
     const compteurBeneficiairesPeriode: CompteursBeneficiairePeriode[] =
@@ -69,7 +70,7 @@ export default async function Portefeuille({
   }
 
   let listes: Liste[] | undefined = undefined
-  if (estAvenirPro(user.structure)) {
+  if (estAvenirPro(conseiller.structure)) {
     try {
       listes = await getListesServerSide(user.id, accessToken)
     } catch (error) {
@@ -89,8 +90,8 @@ export default async function Portefeuille({
 
   const header =
     'Portefeuille' +
-    (estFranceTravail(user.structure)
-      ? ` ${labelStructure(user.structure)}`
+    (estFranceTravail(conseiller.structure)
+      ? ` ${labelStructure(conseiller.structure)}`
       : '')
   return (
     <>

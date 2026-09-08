@@ -4,9 +4,11 @@ import { DateTime } from 'luxon'
 import Portefeuille from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/page'
 import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
+import { unConseiller } from 'fixtures/conseiller'
 import { compareBeneficiairesByNom } from 'interfaces/beneficiaire'
 import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions.service'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
+import { getConseillerServerSide } from 'services/conseiller.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 jest.mock('utils/auth/getMandatorySessionServerSide', () => jest.fn())
@@ -14,6 +16,7 @@ jest.mock(
   'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
 )
 jest.mock('services/beneficiaires.service')
+jest.mock('services/conseiller.service')
 jest.mock('services/actions.service')
 
 describe('PortefeuillePage server side', () => {
@@ -39,6 +42,9 @@ describe('PortefeuillePage server side', () => {
       user: { id: 'id-conseiller-1', structure: 'POLE_EMPLOI' },
       accessToken: 'accessToken',
     })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: 'POLE_EMPLOI' })
+    )
 
     // When
     await Portefeuille({})
@@ -57,6 +63,9 @@ describe('PortefeuillePage server side', () => {
         user: { id: 'id-conseiller-1', structure: 'POLE_EMPLOI' },
         accessToken: 'accessToken',
       })
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: 'POLE_EMPLOI' })
+      )
 
       // When
       render(await Portefeuille({}))
@@ -93,6 +102,9 @@ describe('PortefeuillePage server side', () => {
         user: { id: 'id-conseiller-1', structure: 'MILO' },
         accessToken: 'accessToken',
       })
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: 'MILO' })
+      )
 
       jest
         .spyOn(DateTime, 'now')

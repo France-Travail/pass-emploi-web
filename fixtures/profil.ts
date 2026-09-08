@@ -7,7 +7,7 @@ export const unProfilMilo = (dispositif: Dispositif | null = null): Profil => ({
 })
 
 export const unProfilFT = (
-  dispositif: Dispositif = Dispositif.CEJ
+  dispositif: Dispositif | null = Dispositif.CEJ
 ): Profil => ({
   structure: 'FRANCE_TRAVAIL',
   dispositif,

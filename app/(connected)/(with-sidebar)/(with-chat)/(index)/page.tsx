@@ -3,7 +3,11 @@ import { redirect } from 'next/navigation'
 
 import HomePage from 'app/(connected)/(with-sidebar)/(with-chat)/(index)/HomePage'
 import { PageHeaderPortal } from 'components/PageNavigationPortals'
-import { aEtablissement, doitSignerLesCGU } from 'interfaces/conseiller'
+import {
+  aEtablissement,
+  doitChoisirSonDispositif,
+  doitSignerLesCGU,
+} from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import { getAgencesServerSide } from 'services/referentiel.service'
@@ -34,7 +38,13 @@ export default async function Home({
   const afficherModaleOnboarding = Boolean(onboarding)
   const emailEstManquant = estMilo(conseiller.structure) && !conseiller.email
   const agenceEstManquante = !aEtablissement(conseiller)
-  if (!afficherModaleOnboarding && !emailEstManquant && !agenceEstManquante)
+  const dispositifEstManquant = doitChoisirSonDispositif(conseiller)
+  if (
+    !afficherModaleOnboarding &&
+    !emailEstManquant &&
+    !agenceEstManquante &&
+    !dispositifEstManquant
+  )
     redirect(targetPage)
 
   let referentielAgences = undefined
@@ -52,6 +62,7 @@ export default async function Home({
       <HomePage
         afficherModaleOnboarding={afficherModaleOnboarding}
         afficherModaleAgence={agenceEstManquante}
+        afficherModaleDispositif={dispositifEstManquant}
         afficherModaleEmail={emailEstManquant}
         redirectUrl={targetPage}
         referentielAgences={referentielAgences}

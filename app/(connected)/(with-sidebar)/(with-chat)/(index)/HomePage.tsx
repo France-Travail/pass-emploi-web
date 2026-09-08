@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
+import { Dispositif } from 'interfaces/beneficiaire'
+import { profilVersStructureLegacy } from 'interfaces/profil'
 import { Agence } from 'interfaces/referentiel'
 import { estMilo, structureMilo } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -18,12 +20,16 @@ type HomePageProps = {
   redirectUrl: string
   afficherModaleOnboarding: boolean
   afficherModaleAgence: boolean
+  afficherModaleDispositif: boolean
   afficherModaleEmail: boolean
   referentielAgences?: Agence[]
 }
 
 const RenseignementAgenceModal = dynamic(
   () => import('components/RenseignementAgenceModal')
+)
+const RenseignementDispositifModal = dynamic(
+  () => import('components/RenseignementDispositifModal')
 )
 const RenseignementEmailModal = dynamic(
   () => import('components/RenseignementEmailModal')
@@ -38,6 +44,7 @@ const OnboardingModal = dynamic(
 function HomePage({
   afficherModaleOnboarding,
   afficherModaleAgence,
+  afficherModaleDispositif,
   afficherModaleEmail,
   redirectUrl,
   referentielAgences,
@@ -54,9 +61,14 @@ function HomePage({
     useState<boolean>(afficherModaleEmail)
   const [showModaleAgence, setShowModaleAgence] =
     useState<boolean>(afficherModaleAgence)
+  const [showModaleDispositif, setShowModaleDispositif] = useState<boolean>(
+    afficherModaleDispositif
+  )
 
   const [trackingLabel, setTrackingLabel] = useState<string>(
-    'Pop-in sélection agence'
+    afficherModaleDispositif
+      ? 'Pop-in sélection dispositif'
+      : 'Pop-in sélection agence'
   )
   async function selectAgence(agence: {
     id?: string
@@ -68,6 +80,20 @@ function HomePage({
     setTrackingLabel('Succès ajout agence')
     setAlerte(AlerteParam.choixAgence)
     redirectToUrl()
+  }
+
+  async function selectDispositif(dispositif: Dispositif): Promise<void> {
+    const { modifierDispositif } = await import('services/conseiller.service')
+    await modifierDispositif(dispositif)
+    const profil = { ...conseiller.profil, dispositif }
+    setConseiller({
+      ...conseiller,
+      profil,
+      structure: profilVersStructureLegacy(profil),
+    })
+    setTrackingLabel('Succès ajout dispositif')
+    setAlerte(AlerteParam.choixDispositif)
+    setShowModaleDispositif(false)
   }
 
   // TODO rename
@@ -94,14 +120,28 @@ function HomePage({
   }
 
   useEffect(() => {
-    if (!showModaleOnboarding && !showModaleAgence && !showModaleEmail)
+    if (
+      !showModaleOnboarding &&
+      !showModaleAgence &&
+      !showModaleDispositif &&
+      !showModaleEmail
+    )
       redirectToUrl()
-  }, [showModaleOnboarding, showModaleAgence, showModaleEmail])
+  }, [
+    showModaleOnboarding,
+    showModaleAgence,
+    showModaleDispositif,
+    showModaleEmail,
+  ])
 
   useMatomo(trackingLabel, portefeuille.length > 0)
 
   return (
     <>
+      {showModaleDispositif && (
+        <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
+      )}
+
       {showModaleEmail && (
         <RenseignementEmailModal
           onAccederImilo={trackAccederImilo}
@@ -118,6 +158,7 @@ function HomePage({
       )}
 
       {showModaleAgence &&
+        !showModaleDispositif &&
         !estMilo(conseiller.structure) &&
         referentielAgences && (
           <RenseignementAgenceModal

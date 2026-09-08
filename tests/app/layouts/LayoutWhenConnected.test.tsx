@@ -1,15 +1,18 @@
 import { render } from '@testing-library/react'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 
 import LayoutWhenConnected, { generateMetadata } from 'app/(connected)/layout'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
+import { unProfilFT } from 'fixtures/profil'
 import {
   BeneficiaireFromListe,
   extractBeneficiaireWithActivity,
 } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
+import { structureBrsa, structureFTCej } from 'interfaces/structure'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
@@ -58,12 +61,12 @@ describe('LayoutWhenConnected', () => {
   })
   it('affiche favicon icon en tant que brsa conseiller connecté', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue({
-      user: {
-        estConseiller: true,
-        structure: 'POLE_EMPLOI_BRSA',
-      },
+      user: { estConseiller: true, id: 'user-id' },
       accessToken: 'accessToken',
     })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: structureBrsa })
+    )
 
     const metadata = await generateMetadata()
 
@@ -126,6 +129,48 @@ describe('LayoutWhenConnected', () => {
         }),
         undefined
       )
+    })
+  })
+
+  describe('quand le conseiller France Travail n’a pas choisi son dispositif', () => {
+    beforeEach(() => {
+      // Given
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: { estConseiller: true, id: 'user-id' },
+        accessToken: 'accessToken',
+      })
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: structureFTCej, profil: unProfilFT(null) })
+      )
+      ;(getBeneficiairesDuConseillerServerSide as jest.Mock).mockResolvedValue(
+        []
+      )
+    })
+
+    it('renvoie vers l’accueil pour choisir le dispositif', async () => {
+      // Given
+      ;(headers as jest.Mock).mockResolvedValue({
+        get: () => '/mes-jeunes',
+      })
+
+      // When
+      const promise = LayoutWhenConnected({ children: <div /> })
+
+      // Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /?redirectUrl=%2Fmes-jeunes')
+      )
+    })
+
+    it('laisse afficher l’accueil', async () => {
+      // Given
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
     })
   })
 })

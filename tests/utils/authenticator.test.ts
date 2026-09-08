@@ -154,6 +154,49 @@ describe('Authenticator', () => {
         })
       })
 
+      describe("Quand l'accessToken rafraîchi porte un profil", () => {
+        it('met à jour le profil du conseiller depuis le nouveau token', async () => {
+          // Given
+          const jwt = {
+            ...jwtFixture(),
+            accessToken: 'accessToken',
+            refreshToken: 'refreshToken',
+            expiresAtTimestamp: now.minus({ second: cinqMnEnS }).toMillis(),
+            profilConseiller: { structure: 'FRANCE_TRAVAIL', dispositif: null },
+            structureConseiller: 'POLE_EMPLOI',
+          }
+          const nouvelAccessToken = sign(
+            {
+              userProfile: { structure: 'FRANCE_TRAVAIL', dispositif: 'BRSA' },
+            },
+            'secret'
+          )
+          ;(fetchJson as jest.Mock).mockResolvedValueOnce({
+            content: {
+              access_token: nouvelAccessToken,
+              refresh_token: 'nouveauRefreshToken',
+              expires_in: cinqMnEnS,
+            },
+          })
+
+          // When
+          const actual = await handleJWTAndRefresh({ jwt })
+
+          // Then
+          expect(actual).toEqual({
+            ...jwt,
+            accessToken: nouvelAccessToken,
+            refreshToken: 'nouveauRefreshToken',
+            expiresAtTimestamp: now.plus({ minute: 5 }).toMillis(),
+            profilConseiller: {
+              structure: 'FRANCE_TRAVAIL',
+              dispositif: 'BRSA',
+            },
+            structureConseiller: 'POLE_EMPLOI_BRSA',
+          })
+        })
+      })
+
       describe("si l'access token expire dans moins de 15 secondes", () => {
         it('utilise le refresh token pour récupérer un nouvel access token', async () => {
           // Given

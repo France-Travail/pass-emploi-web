@@ -1,14 +1,20 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { useRouter } from 'next/navigation'
 
 import HomePage from 'app/(connected)/(with-sidebar)/(with-chat)/(index)/HomePage'
+import { unProfilFT } from 'fixtures/profil'
 import { uneListeDAgencesFranceTravail } from 'fixtures/referentiel'
 import { Agence } from 'interfaces/referentiel'
-import { structureFTCej, structureMilo } from 'interfaces/structure'
+import {
+  labelStructure,
+  structureFTCej,
+  structureMilo,
+  structuresFranceTravail,
+} from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
-import { modifierAgence } from 'services/conseiller.service'
+import { modifierAgence, modifierDispositif } from 'services/conseiller.service'
 import renderWithContexts from 'tests/renderWithContexts'
 
 jest.mock('services/conseiller.service')
@@ -29,6 +35,7 @@ describe('HomePage client side', () => {
       ;({ container } = await renderWithContexts(
         <HomePage
           afficherModaleAgence={true}
+          afficherModaleDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           redirectUrl='/mes-jeunes'
@@ -83,6 +90,7 @@ describe('HomePage client side', () => {
       ;({ container } = await renderWithContexts(
         <HomePage
           afficherModaleAgence={true}
+          afficherModaleDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           referentielAgences={agences}
@@ -234,12 +242,98 @@ describe('HomePage client side', () => {
     })
   })
 
+  describe('quand le conseiller France Travail doit choisir son dispositif', () => {
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+
+    beforeEach(async () => {
+      // Given
+      alerteSetter = jest.fn()
+
+      // When
+      ;({ container } = await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={false}
+          afficherModaleDispositif={true}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={false}
+          redirectUrl='/mes-jeunes'
+        />,
+        {
+          customConseiller: {
+            structure: structureFTCej,
+            profil: unProfilFT(null),
+          },
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('contient un message pour demander le dispositif du conseiller', () => {
+      // Then
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: 'Ajoutez votre dispositif à votre profil',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(/Une fois votre dispositif renseigné/)
+      ).toBeInTheDocument()
+    })
+
+    it('ne permet pas de fermer la modale', () => {
+      // Then
+      expect(() =>
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      ).toThrow()
+      expect(() => screen.getByRole('button', { name: 'Annuler' })).toThrow()
+    })
+
+    it('contient la liste des dispositifs France Travail', () => {
+      // Then
+      const selectDispositif = screen.getByRole('combobox', {
+        name: /Votre dispositif/,
+      })
+      expect(selectDispositif).toBeRequired()
+      structuresFranceTravail.forEach((structure) =>
+        expect(
+          within(selectDispositif).getByRole('option', {
+            name: labelStructure(structure),
+          })
+        ).toBeInTheDocument()
+      )
+    })
+
+    it('modifie le conseiller avec le dispositif choisi', async () => {
+      // Given
+      const selectDispositif = screen.getByRole('combobox', {
+        name: /Votre dispositif/,
+      })
+      const submit = screen.getByRole('button', { name: 'Ajouter' })
+
+      // When
+      await userEvent.selectOptions(selectDispositif, 'RSA rénové')
+      await userEvent.click(submit)
+
+      // Then
+      expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+      expect(alerteSetter).toHaveBeenCalledWith('choixDispositif')
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+    })
+  })
+
   describe('quand le conseiller doit renseigner son adresse email', () => {
     beforeEach(async () => {
       // When
       ;({ container } = await renderWithContexts(
         <HomePage
           afficherModaleAgence={false}
+          afficherModaleDispositif={false}
           afficherModaleEmail={true}
           afficherModaleOnboarding={false}
           redirectUrl='/mes-jeunes'
@@ -282,6 +376,7 @@ describe('HomePage client side', () => {
         ;({ container } = await renderWithContexts(
           <HomePage
             afficherModaleAgence={false}
+            afficherModaleDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'
@@ -346,6 +441,7 @@ describe('HomePage client side', () => {
         ;({ container } = await renderWithContexts(
           <HomePage
             afficherModaleAgence={false}
+            afficherModaleDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'
@@ -419,6 +515,7 @@ describe('HomePage client side', () => {
         ;({ container } = await renderWithContexts(
           <HomePage
             afficherModaleAgence={false}
+            afficherModaleDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'
