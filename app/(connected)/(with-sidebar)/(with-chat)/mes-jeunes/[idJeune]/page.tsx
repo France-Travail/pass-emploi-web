@@ -24,7 +24,7 @@ import {
 } from 'services/beneficiaires.service'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
-import { toLongMonthDate } from 'utils/date'
+import { getPeriodeComprenant, LUNDI } from 'utils/date'
 
 type FicheBeneficiaireParams = Promise<{ idJeune: string }>
 type FicheBeneficiaireSearchParams = Promise<{
@@ -152,17 +152,15 @@ async function renderFichePasMilo(
     | 'debutSemaineInitiale'
   >
 ): Promise<ReactElement> {
-  const trenteJoursAvant = DateTime.now().minus({ day: 30 }).startOf('day')
-  const aujourdhui = DateTime.now()
-  const periode = {
-    debut: trenteJoursAvant,
-    fin: aujourdhui,
-    label: `du ${toLongMonthDate(trenteJoursAvant)} au ${toLongMonthDate(aujourdhui)}`,
-  }
+  // Les indicateurs de la fiche portent sur la semaine en cours, comme ceux
+  // des actions MiLo : on récupère les démarches de cette semaine seulement.
+  const semaineEnCours = getPeriodeComprenant(DateTime.now(), {
+    jourSemaineReference: LUNDI,
+  })
   const demarches = estConseilDepartemental(conseiller.structure)
     ? await getDemarchesBeneficiaire(
         props.beneficiaire.id,
-        periode,
+        semaineEnCours,
         conseiller.id,
         accessToken
       )

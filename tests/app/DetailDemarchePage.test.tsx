@@ -1,17 +1,25 @@
 import { act, screen } from '@testing-library/react'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
+import { DateTime } from 'luxon'
 import React from 'react'
 
 import DetailDemarchePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/demarches/[idDemarche]/DetailDemarchePage'
 import propsStatutsDemarches from 'components/action/propsStatutsDemarches'
 import { unDetailBeneficiaire, uneDemarche } from 'fixtures/beneficiaire'
+import { StatutDemarche } from 'interfaces/json/beneficiaire'
 import getByDescriptionTerm from 'tests/querySelector'
 import renderWithContexts from 'tests/renderWithContexts'
 import { toLongMonthDate } from 'utils/date'
 
 describe('DetailDemarchePage client side', () => {
   let container: HTMLElement
+
+  beforeEach(() => {
+    jest
+      .spyOn(DateTime, 'now')
+      .mockReturnValue(DateTime.fromISO('2024-09-25T12:00:00.000+02:00'))
+  })
 
   describe('render', () => {
     const demarche = uneDemarche()
@@ -84,6 +92,26 @@ describe('DetailDemarchePage client side', () => {
       expect(getByDescriptionTerm('Moyen :')).toHaveTextContent(
         '--information non disponible'
       )
+    })
+  })
+
+  describe('si la démarche à faire a dépassé son échéance', () => {
+    beforeEach(async () => {
+      await renderWithContexts(
+        <DetailDemarchePage
+          demarche={uneDemarche({
+            statut: StatutDemarche.A_FAIRE,
+            dateFin: '2024-09-20T17:30:07.756Z',
+          })}
+          beneficiaire={unDetailBeneficiaire()}
+          isStale={false}
+        />
+      )
+    })
+
+    it('affiche le statut En retard', () => {
+      expect(screen.getByText('En retard')).toBeInTheDocument()
+      expect(() => screen.getByText('À faire')).toThrow()
     })
   })
 })

@@ -202,6 +202,15 @@ export function estCEJ({ dispositif }: { dispositif: string }): boolean {
   return dispositif === 'CEJ'
 }
 
+export function demarcheEstEnRetard(
+  { statut, dateFin }: Demarche,
+  maintenant: DateTime = DateTime.now()
+): boolean {
+  const resteAFaire =
+    statut === StatutDemarche.A_FAIRE || statut === StatutDemarche.EN_COURS
+  return resteAFaire && DateTime.fromISO(dateFin) < maintenant.startOf('day')
+}
+
 export function compareBeneficiairesByNom(
   beneficiaire1: IdentiteBeneficiaire,
   beneficiaire2: IdentiteBeneficiaire

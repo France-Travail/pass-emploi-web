@@ -2,6 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AxeResults } from 'axe-core'
 import { axe } from 'jest-axe'
+import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
 import React, { Dispatch, SetStateAction } from 'react'
 
@@ -24,6 +25,7 @@ import {
   CategorieSituation,
   Demarche,
 } from 'interfaces/beneficiaire'
+import { StatutDemarche } from 'interfaces/json/beneficiaire'
 import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { getActionsBeneficiaire } from 'services/actions.service'
@@ -770,11 +772,42 @@ describe('FicheBeneficiairePage client side', () => {
 
   describe('pour les conseillers départementaux', () => {
     beforeEach(() => {
+      jest
+        .spyOn(DateTime, 'now')
+        .mockReturnValue(DateTime.fromISO('2024-09-25T12:00:00.000+02:00'))
       ;(getDemarchesBeneficiaireClientSide as jest.Mock).mockResolvedValue({
         data: uneListeDeDemarches(),
         isState: false,
       })
     })
+
+    it('affiche en retard une démarche à faire dont l’échéance est dépassée', async () => {
+      // Given
+      ;(getDemarchesBeneficiaireClientSide as jest.Mock).mockResolvedValue({
+        data: [
+          uneDemarche({
+            statut: StatutDemarche.A_FAIRE,
+            dateFin: '2024-09-20T17:30:07.756Z',
+          }),
+        ],
+        isStale: false,
+      })
+
+      // When
+      await renderFicheJeuneNonMilo({
+        demarches: { data: [], isStale: false },
+        structure: 'CONSEIL_DEPT',
+        ongletInitial: 'demarches',
+      })
+
+      // Then
+      expect(
+        screen.getByRole('row', {
+          name: /Réalisation d’entretiens d’embauche 20 septembre 2024 Mes candidatures En retard Voir le détail/,
+        })
+      ).toBeInTheDocument()
+    })
+
     it('affiche le tableau des démarches', async () => {
       // When
       await renderFicheJeuneNonMilo({

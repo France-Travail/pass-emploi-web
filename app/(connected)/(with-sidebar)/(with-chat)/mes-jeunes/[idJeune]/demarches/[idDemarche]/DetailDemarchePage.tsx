@@ -3,9 +3,15 @@
 import { withTransaction } from '@elastic/apm-rum-react'
 import React from 'react'
 
-import propsStatutsDemarches from 'components/action/propsStatutsDemarches'
+import propsStatutsDemarches, {
+  propsDemarcheEnRetard,
+} from 'components/action/propsStatutsDemarches'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
-import { Demarche, DetailBeneficiaire } from 'interfaces/beneficiaire'
+import {
+  Demarche,
+  demarcheEstEnRetard,
+  DetailBeneficiaire,
+} from 'interfaces/beneficiaire'
 import { estConseillerReferent } from 'interfaces/conseiller'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
@@ -46,7 +52,9 @@ function DetailDemarchePage({
       <div className='border-b-2 border-solid border-primary-lighten mb-5 pb-5'>
         <h2 className='text-m-bold text-grey-800 mb-6'>Statut</h2>
         <span className='text-base-bold'>
-          {propsStatutsDemarches[demarche.statut].label}
+          {demarcheEstEnRetard(demarche)
+            ? propsDemarcheEnRetard.label
+            : propsStatutsDemarches[demarche.statut].label}
         </span>
       </div>
 

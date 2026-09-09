@@ -19,7 +19,11 @@ import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
 import TH from 'components/ui/Table/TH'
 import TR from 'components/ui/Table/TR'
-import { Demarche, IdentiteBeneficiaire } from 'interfaces/beneficiaire'
+import {
+  Demarche,
+  demarcheEstEnRetard,
+  IdentiteBeneficiaire,
+} from 'interfaces/beneficiaire'
 import { StatutDemarche } from 'interfaces/json/beneficiaire'
 import { compareDates, compareDatesDesc, toLongMonthDate } from 'utils/date'
 
@@ -283,7 +287,10 @@ function DemarcheRow({
       </TD>
       <TD>
         <p className='flex items-center'>
-          <TagStatutDemarche status={demarche.statut} />
+          <TagStatutDemarche
+            status={demarche.statut}
+            demarcheEstEnRetard={demarcheEstEnRetard(demarche)}
+          />
         </p>
       </TD>
       <TDLink

@@ -5,6 +5,7 @@ import { CompteursHeuresBeneficiaireFicheBeneficiaire } from 'components/jeune/C
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import {
   Demarche,
+  demarcheEstEnRetard,
   DetailBeneficiaire,
   estCEJ,
   IndicateursSemaine,
@@ -45,27 +46,24 @@ export default function IndicateursBeneficiaire({
       const dateCreation = DateTime.fromISO(demarche.dateCreation)
       const dateFin = DateTime.fromISO(demarche.dateFin)
 
-      if (dateCreation >= debutDeLaSemaine) acc.demarchesCreees.push(demarche)
+      if (estDansLaSemaine(dateCreation)) acc.demarchesCreees.push(demarche)
 
       if (
-        dateFin >= debutDeLaSemaine &&
-        demarche.statut === StatutDemarche.REALISEE
+        demarche.statut === StatutDemarche.REALISEE &&
+        estDansLaSemaine(dateFin)
       )
         acc.demarchesTerminees.push(demarche)
 
-      if (
-        dateFin < DateTime.now().startOf('day') &&
-        Boolean(
-          demarche.statut !== StatutDemarche.REALISEE &&
-          demarche.statut !== StatutDemarche.ANNULEE
-        )
-      )
-        acc.demarchesEnRetard.push(demarche)
+      if (demarcheEstEnRetard(demarche)) acc.demarchesEnRetard.push(demarche)
 
       return acc
     },
     { demarchesCreees: [], demarchesTerminees: [], demarchesEnRetard: [] }
   )
+
+  function estDansLaSemaine(date: DateTime): boolean {
+    return date >= debutDeLaSemaine && date <= finDeLaSemaine
+  }
 
   return (
     <div className='grow shrink px-6'>
@@ -134,21 +132,21 @@ export default function IndicateursBeneficiaire({
               iconName={IconName.Timer}
               count={demarchesCreees.length}
               label='démarches créées'
-              labelSingulier='action créée'
+              labelSingulier='démarche créée'
               colors='PRIMARY'
             />
             <Indicateur
               iconName={IconName.Check}
               count={demarchesTerminees.length}
               label='démarches terminées'
-              labelSingulier='action terminée'
+              labelSingulier='démarche terminée'
               colors='SUCCESS'
             />
             <Indicateur
               iconName={IconName.Error}
               count={demarchesEnRetard.length}
               label='démarches en retard'
-              labelSingulier='action en retard'
+              labelSingulier='démarche en retard'
               colors='WARNING'
             />
           </>

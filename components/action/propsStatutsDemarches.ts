@@ -24,4 +24,9 @@ const propsStatutsDemarches: {
   },
 }
 
+export const propsDemarcheEnRetard = {
+  label: 'En retard',
+  style: 'text-warning bg-warning-lighten',
+}
+
 export default propsStatutsDemarches
