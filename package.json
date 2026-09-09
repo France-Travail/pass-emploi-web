@@ -23,7 +23,7 @@
   "dependencies": {
     "@elastic/apm-rum": "5.17.5",
     "@elastic/apm-rum-react": "2.0.11",
-    "@next/bundle-analyzer": "^16.2.10",
+    "@next/bundle-analyzer": "^16.3.4",
     "crypto-js": "4.2.0",
     "dotenv": "17.4.2",
     "dotvault": "^0.0.9",
@@ -35,7 +35,7 @@
     "lodash.isequal": "4.5.0",
     "luxon": "3.7.2",
     "matomo-tracker": "2.2.4",
-    "next": "^16.2.12",
+    "next": "^16.3.4",
     "next-auth": "^4.24.15",
     "next-logger": "^5.0.2",
     "next-themes": "^0.4.6",
@@ -46,7 +46,7 @@
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.2",
     "sanitize-html": "2.17.5",
-    "sharp": "0.35.3",
+    "sharp": "0.35.4",
     "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
@@ -70,7 +70,7 @@
     "@types/sanitize-html": "^2.16.1",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.2",
-    "eslint-config-next": "^16.2.9",
+    "eslint-config-next": "^16.3.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-react-compiler": "19.1.0-rc.2",
@@ -93,7 +93,7 @@
     "test-exclude": ">=7.0.0",
     "@grpc/grpc-js": ">=1.9.16",
     "postcss": ">=8.5.18",
-    "sharp": ">=0.35.0",
+    "sharp": ">=0.35.4",
     "react-router": ">=8.3.0"
   },
   "comments": {
@@ -102,7 +102,7 @@
       "test-exclude": "Pour compatibilité glob 10.5.0 - Sans cette entrée, test-exclude retombe en 6.0.0. À retirer en même temps que la résolution glob",
       "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - Plancher de sécurité : @firebase/firestore (transitif via firebase) demande ~1.9.0, qui résout aujourd'hui exactement 1.9.16. À retirer quand il demandera >= 1.9.16 explicitement",
       "postcss": "GHSA-qx2v-qp2m-jg93 / GHSA-6g55-p6wh-862q / GHSA-r28c-9q8g-f849 - Sans cette entrée, l'arbre retombe en postcss 8.4.31 (vulnérable). À retirer quand les consommateurs transitifs dépendent de postcss >= 8.5.18",
-      "sharp": "GHSA-f88m-g3jw-g9cj - Sharp est aussi une dépendance directe (0.35.3), mais sans cette entrée un consommateur transitif réintroduit sharp 0.34.5 (vulnérable). À retirer quand ce consommateur dépend de sharp >= 0.35.0"
+      "sharp": "GHSA-f88m-g3jw-g9cj / GHSA-rgj7-g3m4-5g8c - Sharp est aussi une dépendance directe (0.35.4), mais sans cette entrée un consommateur transitif réintroduit sharp 0.34.5 (vulnérable). À retirer quand ce consommateur dépend de sharp >= 0.35.4"
     },
     "cvesAcceptees": {
       "react-router": "GHSA-qwww-vcr4-c8h2 (high) - Risque accepté, non atteignable ici. Corrigé dans react-router 8.3.0 uniquement : react-router-dom s'arrête à 7.18.2 (shim qui épingle react-router en exact 7.18.2), aucun bump ne corrige. On ne déclare react-router-dom que pour la peer dep de @elastic/apm-rum-react, qui code en dur `import ... from 'react-router-dom'` (dist/es/get-apm-routes.js) et bloque la migration vers react-router v8. L'avis ne concerne que les API RSC instables : zéro import de react-router dans le code applicatif (Next.js App Router), et seul withTransaction est utilisé, jamais ApmRoutes. À revoir quand elastic/apm-agent-rum-js#1655 sera mergé et publié."

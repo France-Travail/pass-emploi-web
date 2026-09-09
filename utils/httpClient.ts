@@ -134,6 +134,8 @@ async function handleHttpError(
   if (response.status === 401) {
     const logoutUrl = '/api/auth/federated-logout'
     if (typeof window !== 'undefined') {
+      // Route API qui redirige vers l'IdP : une navigation complète est voulue, pas une navigation client vers une page Next.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign(logoutUrl)
     } else {
       redirect(logoutUrl)
