@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Dispositif } from 'interfaces/beneficiaire'
-import { profilVersStructureLegacy } from 'interfaces/profil'
 import { Agence } from 'interfaces/referentiel'
 import { estMilo, structureMilo } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -61,9 +60,6 @@ function HomePage({
     useState<boolean>(afficherModaleEmail)
   const [showModaleAgence, setShowModaleAgence] =
     useState<boolean>(afficherModaleAgence)
-  const [showModaleDispositif, setShowModaleDispositif] = useState<boolean>(
-    afficherModaleDispositif
-  )
 
   const [trackingLabel, setTrackingLabel] = useState<string>(
     afficherModaleDispositif
@@ -82,18 +78,12 @@ function HomePage({
     redirectToUrl()
   }
 
+  // Le dispositif voyage dans le token : le conseiller se reconnecte pour le retrouver.
   async function selectDispositif(dispositif: Dispositif): Promise<void> {
     const { modifierDispositif } = await import('services/conseiller.service')
     await modifierDispositif(dispositif)
-    const profil = { ...conseiller.profil, dispositif }
-    setConseiller({
-      ...conseiller,
-      profil,
-      structure: profilVersStructureLegacy(profil),
-    })
     setTrackingLabel('Succès ajout dispositif')
-    setAlerte(AlerteParam.choixDispositif)
-    setShowModaleDispositif(false)
+    router.push('/api/auth/federated-logout')
   }
 
   // TODO rename
@@ -123,14 +113,14 @@ function HomePage({
     if (
       !showModaleOnboarding &&
       !showModaleAgence &&
-      !showModaleDispositif &&
+      !afficherModaleDispositif &&
       !showModaleEmail
     )
       redirectToUrl()
   }, [
     showModaleOnboarding,
     showModaleAgence,
-    showModaleDispositif,
+    afficherModaleDispositif,
     showModaleEmail,
   ])
 
@@ -138,7 +128,7 @@ function HomePage({
 
   return (
     <>
-      {showModaleDispositif && (
+      {afficherModaleDispositif && (
         <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
       )}
 
@@ -158,7 +148,7 @@ function HomePage({
       )}
 
       {showModaleAgence &&
-        !showModaleDispositif &&
+        !afficherModaleDispositif &&
         !estMilo(conseiller.structure) &&
         referentielAgences && (
           <RenseignementAgenceModal

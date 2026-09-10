@@ -10,9 +10,9 @@ import { uneListeDAgencesMILO } from 'fixtures/referentiel'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
 import { structureFTCej, structureMilo } from 'interfaces/structure'
-import { AlerteParam } from 'referentiel/alerteParam'
 import { getBeneficiairesDuConseillerClientSide } from 'services/beneficiaires.service'
 import {
+  getImpactChangementDispositif,
   modifierAgence,
   modifierDispositif,
   modifierNotificationsSonores,
@@ -346,19 +346,19 @@ describe('ProfilPage client side', () => {
   })
 
   describe('quand le conseiller France Travail modifie son dispositif', () => {
-    let refresh: jest.Mock
-    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    let pushRouter: jest.Mock
     beforeEach(async () => {
       // Given
-      refresh = jest.fn()
-      alerteSetter = jest.fn()
-      ;(useRouter as jest.Mock).mockReturnValue({ refresh })
+      pushRouter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ push: pushRouter })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 1,
+        nbBeneficiairesTransferesTemporairement: 0,
+        nbBeneficiairesSuivisTemporairement: 0,
+      })
       ;({ container } = await renderWithContexts(
         <ProfilPage referentielMissionsLocales={[]} />,
-        {
-          customConseiller: unConseiller({ structure: structureFTCej }),
-          customAlerte: { setter: alerteSetter },
-        }
+        { customConseiller: unConseiller({ structure: structureFTCej }) }
       ))
 
       // When
@@ -390,7 +390,7 @@ describe('ProfilPage client side', () => {
       ).toBeInTheDocument()
     })
 
-    it('modifie le conseiller avec le nouveau dispositif', async () => {
+    it('demande confirmation puis modifie le dispositif et déconnecte le conseiller', async () => {
       // When
       await userEvent.selectOptions(
         screen.getByRole('combobox', {
@@ -398,15 +398,28 @@ describe('ProfilPage client side', () => {
         }),
         'RSA rénové'
       )
-      await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Suivant' }))
+
+      // Then
+      expect(
+        screen.getByText('Confirmez-vous le passage au dispositif RSA rénové ?')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          '1 bénéficiaire de votre portefeuille passera également au dispositif RSA rénové.'
+        )
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/garderont leur dispositif actuel/)
+      ).toThrow()
+      expect(modifierDispositif).not.toHaveBeenCalled()
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
 
       // Then
       expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
-      expect(getByDescriptionTerm('Votre dispositif :')).toHaveTextContent(
-        'RSA rénové'
-      )
-      expect(alerteSetter).toHaveBeenCalledWith('choixDispositif')
-      expect(refresh).toHaveBeenCalled()
+      expect(pushRouter).toHaveBeenCalledWith('/api/auth/federated-logout')
     })
   })
 

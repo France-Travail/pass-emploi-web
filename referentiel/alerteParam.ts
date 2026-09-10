@@ -21,7 +21,6 @@ export enum AlerteParam {
   suppressionListe = 'suppressionListe',
   // Autre
   choixAgence = 'choixAgence',
-  choixDispositif = 'choixDispositif',
   envoiMessage = 'envoiMessage',
   changementDispositif = 'changementDispositif',
   modificationIdentifiantPartenaire = 'modificationIdentifiantPartenaire',

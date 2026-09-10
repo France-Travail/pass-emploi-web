@@ -38,6 +38,12 @@ export type Conseiller = BaseConseiller & {
   dateDeMigration?: DateTime
 }
 
+export type ImpactChangementDispositif = {
+  nbBeneficiairesConcernes: number
+  nbBeneficiairesTransferesTemporairement: number
+  nbBeneficiairesSuivisTemporairement: number
+}
+
 export function estSuperviseur(conseiller: Conseiller): boolean {
   return conseiller.estSuperviseur
 }
