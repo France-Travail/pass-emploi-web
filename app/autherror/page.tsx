@@ -84,6 +84,8 @@ function erreurBeneficiaire(
     case 'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL':
     case 'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT':
       return "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
+    case 'FRANCE_TRAVAIL_INDISPONIBLE':
+      return 'Une erreur est survenue avec le système France Travail, votre compte n’a pas pu être créé.\nVeuillez réessayer plus tard.'
     case 'Callback':
       return erreurIdp(structureUtilisateur)
     default: {

@@ -41,6 +41,30 @@ describe('AuthErrorPage', () => {
       )
     })
   })
+  describe('bénéficiaire France Travail', () => {
+    it('explique une panne du système France Travail et invite à réessayer', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'FRANCE_TRAVAIL_INDISPONIBLE',
+        typeUtilisateur: 'JEUNE',
+        structureUtilisateur: 'FRANCE_TRAVAIL',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      expect(
+        screen.getByText(
+          'Une erreur est survenue avec le système France Travail, votre compte n’a pas pu être créé.'
+        )
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText('Veuillez réessayer plus tard.')
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('MigrationConseillerPage', () => {
     it("affiche la page d'erreur Migration Conseiller", async () => {
       // Given
