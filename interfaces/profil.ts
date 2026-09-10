@@ -83,11 +83,10 @@ export function dispositifDeLaStructureFT(structure: Structure): Dispositif {
   return structureLegacyVersProfil(structure).dispositif as Dispositif
 }
 
-export function structureFTDuDispositif(
-  dispositif: string
-): Structure | undefined {
-  return structuresFranceTravail.find(
-    (structure) => dispositifDeLaStructureFT(structure) === dispositif
+// Choix de dispositif : on ne propose pas celui déjà en place.
+export function structuresFTHorsDispositif(dispositif?: string): Structure[] {
+  return structuresFranceTravail.filter(
+    (structure) => dispositifDeLaStructureFT(structure) !== dispositif
   )
 }
 

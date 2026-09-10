@@ -68,8 +68,7 @@ export function jsonToSimpleConseiller(
   return conseiller
 }
 
-// Le profil (structure × dispositif) vient de l'API : le dispositif d'un
-// conseiller FT peut changer en cours de session, la session n'en est pas la source.
+// Le profil vient de l'API, pas de la session : le dispositif peut changer en cours de session.
 export function jsonToConseiller(
   conseillerJson: ConseillerJson,
   { estSuperviseur }: Pick<Session.HydratedUser, 'estSuperviseur'>

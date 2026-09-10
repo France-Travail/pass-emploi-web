@@ -8,7 +8,11 @@ import {
   DossierMilo,
   IdentiteBeneficiaire,
 } from 'interfaces/beneficiaire'
-import { Conseiller, SimpleConseiller } from 'interfaces/conseiller'
+import {
+  Conseiller,
+  ImpactChangementDispositif,
+  SimpleConseiller,
+} from 'interfaces/conseiller'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import {
   ConseillerJson,
@@ -53,6 +57,17 @@ export async function modifierAgence({
     { agence },
     session!.accessToken
   )
+}
+
+export async function getImpactChangementDispositif(
+  idConseiller: string
+): Promise<ImpactChangementDispositif> {
+  const session = await getSession()
+  const { content } = await apiGet<ImpactChangementDispositif>(
+    `/conseillers/${idConseiller}/changement-dispositif`,
+    session!.accessToken
+  )
+  return content
 }
 
 export async function modifierDispositif(

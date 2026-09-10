@@ -72,8 +72,7 @@ export default function AppContextProviders({
   )
 }
 
-// Lit le conseiller du contexte : l'habillage suit un changement de dispositif
-// sans rechargement.
+// Lit le conseiller du contexte : l'habillage suit un changement de dispositif sans rechargement.
 function ThemeDuConseiller({ children }: Readonly<{ children: ReactNode }>) {
   const [conseiller] = useConseiller()
   const theme = estPassEmploi(conseiller.structure) ? 'darker' : 'neutral'

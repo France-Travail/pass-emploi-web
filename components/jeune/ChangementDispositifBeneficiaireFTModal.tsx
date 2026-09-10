@@ -7,13 +7,9 @@ import Select from 'components/ui/Form/Select'
 import { Dispositif } from 'interfaces/beneficiaire'
 import {
   dispositifDeLaStructureFT,
-  structureFTDuDispositif,
+  structuresFTHorsDispositif,
 } from 'interfaces/profil'
-import {
-  labelStructure,
-  Structure,
-  structuresFranceTravail,
-} from 'interfaces/structure'
+import { labelStructure, Structure } from 'interfaces/structure'
 
 type ChangementDispositifBeneficiaireFTModalProps = {
   dispositif: string
@@ -30,18 +26,13 @@ export default function ChangementDispositifBeneficiaireFTModal({
 }: Readonly<ChangementDispositifBeneficiaireFTModalProps>) {
   const modalRef = useRef<ModalHandles>(null)
 
-  const [structureChoisie, setStructureChoisie] = useState<Structure | ''>(
-    structureFTDuDispositif(dispositif) ?? ''
-  )
+  const [structureChoisie, setStructureChoisie] = useState<Structure | ''>('')
   const [loading, setLoading] = useState<boolean>(false)
-
-  const dispositifInchange =
-    Boolean(structureChoisie) &&
-    dispositifDeLaStructureFT(structureChoisie as Structure) === dispositif
+  const structuresProposees = structuresFTHorsDispositif(dispositif)
 
   async function submitDispositif(e: FormEvent) {
     e.preventDefault()
-    if (!structureChoisie || dispositifInchange) return
+    if (!structureChoisie) return
 
     setLoading(true)
     try {
@@ -67,7 +58,7 @@ export default function ChangementDispositifBeneficiaireFTModal({
           defaultValue={structureChoisie}
           onChange={(value) => setStructureChoisie(value as Structure)}
         >
-          {structuresFranceTravail.map((structure) => (
+          {structuresProposees.map((structure) => (
             <option key={structure} value={structure}>
               {labelStructure(structure)}
             </option>
@@ -85,7 +76,7 @@ export default function ChangementDispositifBeneficiaireFTModal({
           <Button
             className='ml-6'
             type='submit'
-            disabled={!structureChoisie || dispositifInchange}
+            disabled={!structureChoisie}
             isLoading={loading}
           >
             Modifier

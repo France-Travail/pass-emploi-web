@@ -16,6 +16,7 @@ import {
   createCompteJeuneMilo,
   getConseillers,
   getConseillerServerSide,
+  getImpactChangementDispositif,
   getDossierJeune,
   modifierAgence,
   modifierDateSignatureCGU,
@@ -215,6 +216,28 @@ describe('ConseillerApiService', () => {
         { agence: { nom: 'Agence libre' } },
         'accessToken'
       )
+    })
+  })
+
+  describe('.getImpactChangementDispositif', () => {
+    it('récupère les bénéficiaires concernés par un changement de dispositif', async () => {
+      // Given
+      const impact = {
+        nbBeneficiairesConcernes: 3,
+        nbBeneficiairesTransferesTemporairement: 1,
+        nbBeneficiairesSuivisTemporairement: 1,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({ content: impact })
+
+      // When
+      const actual = await getImpactChangementDispositif('id-conseiller-1')
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/conseillers/id-conseiller-1/changement-dispositif',
+        'accessToken'
+      )
+      expect(actual).toEqual(impact)
     })
   })
 

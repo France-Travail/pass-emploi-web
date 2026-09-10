@@ -1,4 +1,4 @@
-import { act, screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { useRouter } from 'next/navigation'
@@ -9,10 +9,15 @@ import { unConseiller } from 'fixtures/conseiller'
 import { uneListeDAgencesMILO } from 'fixtures/referentiel'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
-import { structureFTCej, structureMilo } from 'interfaces/structure'
-import { AlerteParam } from 'referentiel/alerteParam'
+import {
+  labelStructure,
+  structureBrsa,
+  structureFTCej,
+  structureMilo,
+} from 'interfaces/structure'
 import { getBeneficiairesDuConseillerClientSide } from 'services/beneficiaires.service'
 import {
+  getImpactChangementDispositif,
   modifierAgence,
   modifierDispositif,
   modifierNotificationsSonores,
@@ -346,19 +351,19 @@ describe('ProfilPage client side', () => {
   })
 
   describe('quand le conseiller France Travail modifie son dispositif', () => {
-    let refresh: jest.Mock
-    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    let pushRouter: jest.Mock
     beforeEach(async () => {
       // Given
-      refresh = jest.fn()
-      alerteSetter = jest.fn()
-      ;(useRouter as jest.Mock).mockReturnValue({ refresh })
+      pushRouter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ push: pushRouter })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 1,
+        nbBeneficiairesTransferesTemporairement: 0,
+        nbBeneficiairesSuivisTemporairement: 0,
+      })
       ;({ container } = await renderWithContexts(
         <ProfilPage referentielMissionsLocales={[]} />,
-        {
-          customConseiller: unConseiller({ structure: structureFTCej }),
-          customAlerte: { setter: alerteSetter },
-        }
+        { customConseiller: unConseiller({ structure: structureFTCej }) }
       ))
 
       // When
@@ -372,7 +377,7 @@ describe('ProfilPage client side', () => {
       expect(results).toHaveNoViolations()
     })
 
-    it('affiche une modale avec le dispositif actuel et un bouton pour annuler', () => {
+    it('affiche une modale sans le dispositif actuel et un bouton pour annuler', () => {
       // Then
       expect(
         screen.getByRole('heading', {
@@ -380,17 +385,28 @@ describe('ProfilPage client side', () => {
           name: 'Modifier mon dispositif',
         })
       ).toBeInTheDocument()
-      expect(
-        screen.getByRole('combobox', {
-          name: /Sélectionner le nouveau dispositif dans la liste suivante/,
+      const selectDispositif = screen.getByRole('combobox', {
+        name: /Sélectionner le nouveau dispositif dans la liste suivante/,
+      })
+      expect(selectDispositif).toHaveValue('')
+      expect(() =>
+        within(selectDispositif).getByRole('option', {
+          hidden: true,
+          name: labelStructure(structureFTCej),
         })
-      ).toHaveValue(structureFTCej)
+      ).toThrow()
+      expect(
+        within(selectDispositif).getByRole('option', {
+          hidden: true,
+          name: labelStructure(structureBrsa),
+        })
+      ).toBeInTheDocument()
       expect(
         screen.getByRole('button', { name: 'Annuler' })
       ).toBeInTheDocument()
     })
 
-    it('modifie le conseiller avec le nouveau dispositif', async () => {
+    it('demande confirmation puis modifie le dispositif et déconnecte le conseiller', async () => {
       // When
       await userEvent.selectOptions(
         screen.getByRole('combobox', {
@@ -398,15 +414,28 @@ describe('ProfilPage client side', () => {
         }),
         'RSA rénové'
       )
-      await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Suivant' }))
+
+      // Then
+      expect(
+        screen.getByText('Confirmez-vous le passage au dispositif RSA rénové ?')
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          '1 bénéficiaire de votre portefeuille passera également au dispositif RSA rénové.'
+        )
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/garderont leur dispositif actuel/)
+      ).toThrow()
+      expect(modifierDispositif).not.toHaveBeenCalled()
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
 
       // Then
       expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
-      expect(getByDescriptionTerm('Votre dispositif :')).toHaveTextContent(
-        'RSA rénové'
-      )
-      expect(alerteSetter).toHaveBeenCalledWith('choixDispositif')
-      expect(refresh).toHaveBeenCalled()
+      expect(pushRouter).toHaveBeenCalledWith('/api/auth/federated-logout')
     })
   })
 

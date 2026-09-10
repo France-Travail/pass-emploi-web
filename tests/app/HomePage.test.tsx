@@ -14,7 +14,11 @@ import {
   structuresFranceTravail,
 } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
-import { modifierAgence, modifierDispositif } from 'services/conseiller.service'
+import {
+  getImpactChangementDispositif,
+  modifierAgence,
+  modifierDispositif,
+} from 'services/conseiller.service'
 import renderWithContexts from 'tests/renderWithContexts'
 
 jest.mock('services/conseiller.service')
@@ -243,11 +247,17 @@ describe('HomePage client side', () => {
   })
 
   describe('quand le conseiller France Travail doit choisir son dispositif', () => {
-    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    let push: jest.Mock
 
     beforeEach(async () => {
       // Given
-      alerteSetter = jest.fn()
+      push = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ replace, push })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 3,
+        nbBeneficiairesTransferesTemporairement: 1,
+        nbBeneficiairesSuivisTemporairement: 2,
+      })
 
       // When
       ;({ container } = await renderWithContexts(
@@ -263,7 +273,6 @@ describe('HomePage client side', () => {
             structure: structureFTCej,
             profil: unProfilFT(null),
           },
-          customAlerte: { setter: alerteSetter },
         }
       ))
     })
@@ -309,21 +318,61 @@ describe('HomePage client side', () => {
       )
     })
 
-    it('modifie le conseiller avec le dispositif choisi', async () => {
-      // Given
-      const selectDispositif = screen.getByRole('combobox', {
-        name: /Votre dispositif/,
+    describe('quand le conseiller a choisi un dispositif', () => {
+      beforeEach(async () => {
+        // When
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', { name: /Votre dispositif/ }),
+          'RSA rénové'
+        )
+        await userEvent.click(screen.getByRole('button', { name: 'Suivant' }))
       })
-      const submit = screen.getByRole('button', { name: 'Ajouter' })
 
-      // When
-      await userEvent.selectOptions(selectDispositif, 'RSA rénové')
-      await userEvent.click(submit)
+      it('demande confirmation en détaillant les bénéficiaires concernés', () => {
+        // Then
+        expect(getImpactChangementDispositif).toHaveBeenCalledWith(
+          'id-conseiller-1'
+        )
+        expect(
+          screen.getByText(
+            'Confirmez-vous le passage au dispositif RSA rénové ?'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            '3 bénéficiaires de votre portefeuille passeront également au dispositif RSA rénové. Dont 1 bénéficiaire actuellement suivi à titre temporaire par un autre conseiller.'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            '2 bénéficiaires garderont leur dispositif actuel. Vous les suivez temporairement pour un autre conseiller : ils restent rattachés au dispositif de ce conseiller.'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(/Vous serez déconnecté après validation/)
+        ).toBeInTheDocument()
+        expect(modifierDispositif).not.toHaveBeenCalled()
+      })
 
-      // Then
-      expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
-      expect(alerteSetter).toHaveBeenCalledWith('choixDispositif')
-      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+      it('permet de revenir au choix', async () => {
+        // When
+        await userEvent.click(screen.getByRole('button', { name: 'Retour' }))
+
+        // Then
+        expect(
+          screen.getByRole('combobox', { name: /Votre dispositif/ })
+        ).toHaveValue('POLE_EMPLOI_BRSA')
+      })
+
+      it('modifie le dispositif puis déconnecte le conseiller', async () => {
+        // When
+        await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+        expect(push).toHaveBeenCalledWith('/api/auth/federated-logout')
+        expect(replace).not.toHaveBeenCalled()
+      })
     })
   })
 

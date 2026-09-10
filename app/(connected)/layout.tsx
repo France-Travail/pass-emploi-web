@@ -13,8 +13,7 @@ import { getConseillerServerSide } from 'services/conseiller.service'
 import AppContextProviders from 'utils/AppContextProviders'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
-// Les pages accessibles à un conseiller France Travail sans dispositif :
-// l'accueil (qui impose la modale de choix) et la signature des CGU.
+// Pages accessibles à un conseiller FT sans dispositif : l'accueil (modale de choix) et les CGU.
 const PAGES_SANS_DISPOSITIF = new Set(['/', '/consentement-cgu'])
 
 export async function generateMetadata(): Promise<Metadata> {

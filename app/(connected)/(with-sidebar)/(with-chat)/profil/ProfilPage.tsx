@@ -13,7 +13,6 @@ import { TagMetier } from 'components/ui/Indicateurs/Tag'
 import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { Dispositif } from 'interfaces/beneficiaire'
-import { profilVersStructureLegacy } from 'interfaces/profil'
 import { Agence } from 'interfaces/referentiel'
 import {
   estFranceTravail,
@@ -22,8 +21,6 @@ import {
   labelStructure,
   structureMilo,
 } from 'interfaces/structure'
-import { AlerteParam } from 'referentiel/alerteParam'
-import { useAlerte } from 'utils/alerteContext'
 import { trackEvent, trackPage } from 'utils/analytics/matomo'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
@@ -62,7 +59,6 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
     useState<boolean>(Boolean(conseillerEstMilo && !conseiller.email))
   const [showModaleDispositif, setShowModaleDispositif] =
     useState<boolean>(false)
-  const [_, setAlerte] = useAlerte()
 
   const labelAgence = conseillerEstMilo ? 'Mission Locale' : 'agence'
   const [trackingLabel, setTrackingLabel] = useState<string>('Profil')
@@ -93,21 +89,13 @@ function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
     setTrackingLabel('Profil - Succès ajout agence')
   }
 
+  // Le dispositif voyage dans le token : le conseiller se reconnecte pour le retrouver.
   async function modifierDispositif(dispositif: Dispositif): Promise<void> {
     const { modifierDispositif: modifierDispositifDuConseiller } =
       await import('services/conseiller.service')
     await modifierDispositifDuConseiller(dispositif)
-    const profil = { ...conseiller.profil, dispositif }
-    setConseiller({
-      ...conseiller,
-      profil,
-      structure: profilVersStructureLegacy(profil),
-    })
-    setShowModaleDispositif(false)
-    setAlerte(AlerteParam.choixDispositif)
     setTrackingLabel('Profil - Succès modification dispositif')
-    // Le dispositif conditionne l'habillage de l'espace : on recharge le layout.
-    router.refresh()
+    router.push('/api/auth/federated-logout')
   }
 
   async function openDeleteConseillerModal(e: React.MouseEvent<HTMLElement>) {

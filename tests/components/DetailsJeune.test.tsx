@@ -350,7 +350,7 @@ describe('<DetailsJeune>', () => {
         )
       })
 
-      it('affiche une pop-in avec la liste des dispositifs France Travail', () => {
+      it('affiche une pop-in avec les dispositifs France Travail, sauf celui du bénéficiaire', () => {
         // Then
         expect(
           screen.getByRole('heading', {
@@ -361,14 +361,23 @@ describe('<DetailsJeune>', () => {
         const selectDispositif = screen.getByRole('combobox', {
           name: /Sélectionner le nouveau dispositif dans la liste suivante/,
         })
-        expect(selectDispositif).toHaveValue(structureFTCej)
-        structuresFranceTravail.forEach((structure) =>
-          expect(
-            within(selectDispositif).getByRole('option', {
-              name: labelStructure(structure),
-            })
-          ).toBeInTheDocument()
-        )
+        expect(selectDispositif).toHaveValue('')
+        structuresFranceTravail
+          .filter((structure) => structure !== structureFTCej)
+          .forEach((structure) =>
+            expect(
+              within(selectDispositif).getByRole('option', {
+                hidden: true,
+                name: labelStructure(structure),
+              })
+            ).toBeInTheDocument()
+          )
+        expect(() =>
+          within(selectDispositif).getByRole('option', {
+            hidden: true,
+            name: labelStructure(structureFTCej),
+          })
+        ).toThrow()
         expect(screen.getByRole('button', { name: 'Modifier' })).toBeDisabled()
       })
 
