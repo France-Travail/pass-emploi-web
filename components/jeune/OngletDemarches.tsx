@@ -34,7 +34,7 @@ export enum TRI {
 
 interface OngletDemarchesProps {
   beneficiaire: IdentiteBeneficiaire
-  demarches: Demarche[]
+  demarches: Demarche[] | null
   isLoading: boolean
 }
 
@@ -56,7 +56,7 @@ export default function OngletDemarches({
         </div>
       )}
 
-      {demarches.length === 0 && (
+      {demarches && demarches.length === 0 && (
         <div className='flex flex-col justify-center items-center'>
           <EmptyState
             illustrationName={IllustrationName.Checklist}

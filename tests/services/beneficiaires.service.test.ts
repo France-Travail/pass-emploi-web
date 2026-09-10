@@ -717,7 +717,8 @@ describe('JeunesApiService', () => {
       // Then
       expect(apiGet).toHaveBeenCalledWith(
         '/conseillers/id-conseiller-1/jeunes/id-beneficiaire-1/demarches?dateDebut=2024-09-10T00%3A00%3A00.000%2B02%3A00&dateFin=2024-09-16T00%3A00%3A00.000%2B02%3A00',
-        'accessToken'
+        'accessToken',
+        { logoutOn401: false }
       )
       expect(actual).toEqual({ data: uneListeDeDemarches(), isStale: false })
     })
@@ -751,28 +752,42 @@ describe('JeunesApiService', () => {
       // Then
       expect(apiGet).toHaveBeenCalledWith(
         '/conseillers/id-conseiller-1/jeunes/id-beneficiaire-1/demarches?dateDebut=2024-09-10T00%3A00%3A00.000%2B02%3A00&dateFin=2024-09-16T00%3A00%3A00.000%2B02%3A00',
-        'accessToken'
+        'accessToken',
+        { logoutOn401: false }
       )
       expect(actual).toEqual({ data: uneListeDeDemarches(), isStale: true })
     })
 
-    it('renvoie un échec', async () => {
+    it('renvoie null sur 404', async () => {
       // Given
       ;(apiGet as jest.Mock).mockRejectedValue(
         new ApiError(404, 'Erreur lors de la récupération des démarches')
       )
-      const dateDebut = DateTime.fromISO('2024-09-10')
-      const dateFin = DateTime.fromISO('2024-09-16')
-      const label = ''
 
       // When
       const actual = await getDemarchesBeneficiaire(
         'id-beneficiaire-1',
-        {
-          debut: dateDebut,
-          fin: dateFin,
-          label,
-        },
+        periode,
+        'id-conseiller-1',
+        'accessToken'
+      )
+
+      // Then
+      expect(actual).toEqual(null)
+    })
+
+    it('renvoie null sur 401 sans déclencher la déconnexion', async () => {
+      // Le token France Travail du bénéficiaire peut être refusé (401) sans que
+      // la session du conseiller soit expirée : on renvoie null au lieu de déco.
+      // Given
+      ;(apiGet as jest.Mock).mockRejectedValue(
+        new ApiError(401, 'Token France Travail refusé')
+      )
+
+      // When
+      const actual = await getDemarchesBeneficiaire(
+        'id-beneficiaire-1',
+        periode,
         'id-conseiller-1',
         'accessToken'
       )
@@ -780,7 +795,8 @@ describe('JeunesApiService', () => {
       // Then
       expect(apiGet).toHaveBeenCalledWith(
         '/conseillers/id-conseiller-1/jeunes/id-beneficiaire-1/demarches?dateDebut=2024-09-10T00%3A00%3A00.000%2B02%3A00&dateFin=2024-09-16T00%3A00%3A00.000%2B02%3A00',
-        'accessToken'
+        'accessToken',
+        { logoutOn401: false }
       )
       expect(actual).toEqual(null)
     })

@@ -50,7 +50,10 @@ export default function OngletsBeneficiairePasMilo({
   const [conseiller] = useConseiller()
 
   const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [demarches, setDemarches] = useState<Demarche[] | undefined>(undefined)
+  // undefined = pas encore chargé ; null = échec de récupération ; [] = aucune démarche.
+  const [demarches, setDemarches] = useState<Demarche[] | null | undefined>(
+    undefined
+  )
   const [offres, setOffres] = useState<Offre[]>([])
 
   const trenteJoursAvant = DateTime.now().minus({ days: 30 })
@@ -99,7 +102,9 @@ export default function OngletsBeneficiairePasMilo({
           conseiller.id
         )
           .then((nouvellesDemarches) =>
-            setDemarches(nouvellesDemarches?.data ?? [])
+            // null (échec de récupération) conservé tel quel pour afficher le
+            // message d'erreur ; distinct de [] (aucune démarche).
+            setDemarches(nouvellesDemarches ? nouvellesDemarches.data : null)
           )
           .finally(() => setIsLoading(false))
         break

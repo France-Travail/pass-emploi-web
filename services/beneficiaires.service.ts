@@ -444,7 +444,9 @@ export async function getDemarchesBeneficiaire(
       content: { queryModel: demarchesJson, dateDuCache },
     } = await apiGet<{ queryModel: DemarcheJson[]; dateDuCache?: string }>(
       `/conseillers/${idConseiller}/jeunes/${idBeneficiaire}/demarches?dateDebut=${dateDebutUrlEncoded}&dateFin=${dateFinUrlEncoded}`,
-      accessToken
+      accessToken,
+      // 401 = token France Travail du bénéficiaire refusé par l'API partenaire, pas une session conseiller expirée : on ne déconnecte pas
+      { logoutOn401: false }
     )
 
     return {
@@ -452,7 +454,8 @@ export async function getDemarchesBeneficiaire(
       isStale: Boolean(dateDuCache),
     }
   } catch (e) {
-    if (e instanceof ApiError && e.statusCode === 404) return null
+    if (e instanceof ApiError && (e.statusCode === 404 || e.statusCode === 401))
+      return null
     throw e
   }
 }

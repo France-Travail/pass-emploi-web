@@ -158,8 +158,57 @@ describe('HttpClient', () => {
     })
 
     describe('when authorization is expired', () => {
-      it('forces reauthentication', async () => {
-        // TODO
+      let assign: jest.Mock
+      let locationOriginal: Location
+      beforeEach(() => {
+        // jsdom rend window.location.assign en lecture seule : on remplace
+        // l'objet location le temps du test.
+        locationOriginal = window.location
+        assign = jest.fn()
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          value: { ...locationOriginal, assign },
+        })
+        ;(fetch as jest.Mock).mockResolvedValue({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+          json: jest.fn(async () => ({ statusCode: 401, message: 'expiré' })),
+        })
+      })
+      afterEach(() => {
+        Object.defineProperty(window, 'location', {
+          configurable: true,
+          value: locationOriginal,
+        })
+      })
+
+      it('force la déconnexion par défaut', async () => {
+        // When
+        try {
+          await fetchJson('/api/path/whatever')
+        } catch {
+          // l'ApiError est levée après le déclenchement de la déconnexion
+        }
+
+        // Then
+        expect(assign).toHaveBeenCalledWith('/api/auth/federated-logout')
+      })
+
+      it('ne déconnecte pas quand logoutOn401 vaut false et lève une ApiError', async () => {
+        // When
+        let error
+        try {
+          await fetchJson('/api/path/whatever', undefined, {
+            logoutOn401: false,
+          })
+        } catch (e) {
+          error = e
+        }
+
+        // Then
+        expect(assign).not.toHaveBeenCalled()
+        expect(error).toEqual(new ApiError(401, 'expiré'))
       })
     })
 

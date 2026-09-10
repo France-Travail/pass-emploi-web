@@ -1,19 +1,24 @@
 import { InfoFichier } from 'interfaces/fichier'
-import { fetchJson, fetchNoContent } from 'utils/httpClient'
+import { fetchJson, fetchNoContent, FetchOptions } from 'utils/httpClient'
 
 const apiPrefix = process.env.NEXT_PUBLIC_API_ENDPOINT
 
 export async function apiGet<T>(
   path: string,
-  accessToken: string
+  accessToken: string,
+  options?: FetchOptions
 ): Promise<{ content: T; headers: Headers }> {
   const headers = new Headers({
     Authorization: `Bearer ${accessToken}`,
   })
 
-  return fetchJson(`${apiPrefix}${path}`, {
-    headers,
-  })
+  return fetchJson(
+    `${apiPrefix}${path}`,
+    {
+      headers,
+    },
+    options
+  )
 }
 
 export async function apiPost<T = void>(

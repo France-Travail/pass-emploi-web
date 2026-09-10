@@ -21,13 +21,22 @@ export class UnexpectedError implements Error {
   constructor(readonly message: string) {}
 }
 
+export interface FetchOptions {
+  // Sur 401, déconnecte le conseiller (redirection federated-logout). true par défaut.
+  // Passer false quand le 401 peut venir d'une ressource tierce (ex : token France
+  // Travail du bénéficiaire refusé par l'API partenaire) et ne doit donc PAS déconnecter
+  // le conseiller : l'appelant reçoit alors une ApiError(401) à traiter lui-même.
+  logoutOn401?: boolean
+}
+
 // ── API publique ─────────────────────────────────────────────────────────────
 
 export async function fetchJson(
   path: string,
-  reqInit?: RequestInit
+  reqInit?: RequestInit,
+  options?: FetchOptions
 ): Promise<{ content: any; headers: Headers }> {
-  const response = await callFetch(path, reqInit)
+  const response = await callFetch(path, reqInit, options)
 
   const contentType = response.headers.get('content-type')
   if (contentType?.includes('application/json')) {
@@ -38,16 +47,18 @@ export async function fetchJson(
 
 export async function fetchNoContent(
   path: string,
-  reqInit?: RequestInit
+  reqInit?: RequestInit,
+  options?: FetchOptions
 ): Promise<void> {
-  await callFetch(path, reqInit)
+  await callFetch(path, reqInit, options)
 }
 
 // ── Implémentation ───────────────────────────────────────────────────────────
 
 async function callFetch(
   path: string,
-  reqInit?: RequestInit
+  reqInit?: RequestInit,
+  options?: FetchOptions
 ): Promise<Response> {
   const method = reqInit?.method ?? 'GET'
   const startTime = Date.now()
@@ -96,7 +107,12 @@ async function callFetch(
   const duration = nsFrom(startTime)
 
   if (!response.ok) {
-    await handleHttpError(response, { method, parsedUrl, duration })
+    await handleHttpError(response, {
+      method,
+      parsedUrl,
+      duration,
+      logoutOn401: options?.logoutOn401 ?? true,
+    })
   } else {
     rootLogger.info(
       {
@@ -129,9 +145,15 @@ async function handleHttpError(
     method,
     parsedUrl,
     duration,
-  }: { method: string; parsedUrl: URL | undefined; duration: number }
+    logoutOn401,
+  }: {
+    method: string
+    parsedUrl: URL | undefined
+    duration: number
+    logoutOn401: boolean
+  }
 ): Promise<void> {
-  if (response.status === 401) {
+  if (response.status === 401 && logoutOn401) {
     const logoutUrl = '/api/auth/federated-logout'
     if (typeof window !== 'undefined') {
       // Route API qui redirige vers l'IdP : une navigation complète est voulue, pas une navigation client vers une page Next.
