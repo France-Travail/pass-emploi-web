@@ -35,6 +35,7 @@ export type Conseiller = BaseConseiller & {
   structureMilo?: MissionLocale
   dateSignatureCGU?: string
   dateVisionnageActus?: string
+  dateMajAgence?: DateTime
   dateDeMigration?: DateTime
 }
 
@@ -52,6 +53,19 @@ export function aEtablissement(conseiller: Conseiller): boolean {
   return estMilo(conseiller.structure)
     ? Boolean(conseiller.structureMilo)
     : Boolean(conseiller.agence)
+}
+
+const DELAI_CONFIRMATION_AGENCE = { months: 6 }
+
+export function doitRenseignerSonAgence(conseiller: Conseiller): boolean {
+  if (conseiller.profil.structure !== 'FRANCE_TRAVAIL') return false
+  // Une agence saisie à la main n'a pas d'id : elle n'est jamais confirmée.
+  if (!conseiller.agence?.id) return true
+  if (!conseiller.dateMajAgence) return true
+
+  return (
+    conseiller.dateMajAgence < DateTime.now().minus(DELAI_CONFIRMATION_AGENCE)
+  )
 }
 
 // Seul un conseiller France Travail choisit son dispositif (Milo et CD n'en ont pas).

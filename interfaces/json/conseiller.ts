@@ -51,6 +51,7 @@ export interface ConseillerJson {
   aDesBeneficiairesARecuperer: boolean
   dateSignatureCGU?: string
   dateVisionnageActus?: string
+  dateMajAgence?: string
   dateDeMigration?: string
 }
 
@@ -73,8 +74,14 @@ export function jsonToConseiller(
   conseillerJson: ConseillerJson,
   { estSuperviseur }: Pick<Session.HydratedUser, 'estSuperviseur'>
 ): Conseiller {
-  const { agence, dateSignatureCGU, dateVisionnageActus, profil, ...json } =
-    conseillerJson
+  const {
+    agence,
+    dateSignatureCGU,
+    dateVisionnageActus,
+    dateMajAgence,
+    profil,
+    ...json
+  } = conseillerJson
   const conseiller: Conseiller = {
     ...json,
     structure: profilVersStructureLegacy(profil),
@@ -93,6 +100,10 @@ export function jsonToConseiller(
 
   if (dateVisionnageActus) {
     conseiller.dateVisionnageActus = dateVisionnageActus
+  }
+
+  if (dateMajAgence) {
+    conseiller.dateMajAgence = DateTime.fromISO(dateMajAgence)
   }
 
   return conseiller

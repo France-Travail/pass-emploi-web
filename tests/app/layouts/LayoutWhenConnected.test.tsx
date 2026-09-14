@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import { DateTime } from 'luxon'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
@@ -12,7 +13,12 @@ import {
   extractBeneficiaireWithActivity,
 } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
-import { structureBrsa, structureFTCej } from 'interfaces/structure'
+import {
+  structureBrsa,
+  structureConseilDepartemental,
+  structureFTCej,
+  structureMilo,
+} from 'interfaces/structure'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
@@ -129,6 +135,98 @@ describe('LayoutWhenConnected', () => {
         }),
         undefined
       )
+    })
+  })
+
+  describe('quand le conseiller France Travail doit confirmer son agence', () => {
+    beforeEach(() => {
+      // Given
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: { estConseiller: true, id: 'user-id' },
+        accessToken: 'accessToken',
+      })
+      ;(getBeneficiairesDuConseillerServerSide as jest.Mock).mockResolvedValue(
+        []
+      )
+    })
+
+    it('renvoie vers l’accueil pour confirmer l’agence', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: structureFTCej, agence: undefined })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      const promise = LayoutWhenConnected({ children: <div /> })
+
+      // Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /?redirectUrl=%2Fmes-jeunes')
+      )
+    })
+
+    it('laisse afficher l’accueil', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: structureFTCej, agence: undefined })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it('n’impacte pas un conseiller Mission Locale sans Mission Locale', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: structureMilo, structureMilo: undefined })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it('n’impacte pas un conseiller Conseil départemental sans agence', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          structure: structureConseilDepartemental,
+          agence: undefined,
+        })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it('laisse passer un conseiller France Travail confirmé il y a moins de 6 mois', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          structure: structureFTCej,
+          agence: { id: 'id-agence', nom: 'Agence du référentiel' },
+          dateMajAgence: DateTime.now().minus({ months: 5 }),
+        })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
     })
   })
 

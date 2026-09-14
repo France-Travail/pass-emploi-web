@@ -1,20 +1,22 @@
 import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
+import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
 
 import ProfilPage from 'app/(connected)/(with-sidebar)/(with-chat)/profil/ProfilPage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
 import { unConseiller } from 'fixtures/conseiller'
-import { uneListeDAgencesMILO } from 'fixtures/referentiel'
+import {
+  uneListeDAgencesFranceTravail,
+  uneListeDAgencesMILO,
+} from 'fixtures/referentiel'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
-import {
-  labelStructure,
-  structureBrsa,
-  structureFTCej,
-  structureMilo,
-} from 'interfaces/structure'
+import { Agence } from 'interfaces/referentiel'
+import { labelStructure, structureBrsa } from 'interfaces/structure'
+import { structureFTCej, structureMilo } from 'interfaces/structure'
+import { AlerteParam } from 'referentiel/alerteParam'
 import { getBeneficiairesDuConseillerClientSide } from 'services/beneficiaires.service'
 import {
   getImpactChangementDispositif,
@@ -46,7 +48,7 @@ describe('ProfilPage client side', () => {
 
       // When
       ;({ container } = await renderWithContexts(
-        <ProfilPage referentielMissionsLocales={[]} />,
+        <ProfilPage referentielAgences={[]} />,
         {
           customConseiller: conseiller,
         }
@@ -97,7 +99,7 @@ describe('ProfilPage client side', () => {
     beforeEach(async () => {
       // When
       ;({ container } = await renderWithContexts(
-        <ProfilPage referentielMissionsLocales={[]} />
+        <ProfilPage referentielAgences={[]} />
       ))
     })
 
@@ -124,7 +126,7 @@ describe('ProfilPage client side', () => {
 
         // When
         ;({ container } = await renderWithContexts(
-          <ProfilPage referentielMissionsLocales={[]} />,
+          <ProfilPage referentielAgences={[]} />,
           {
             customConseiller: conseiller,
           }
@@ -163,7 +165,7 @@ describe('ProfilPage client side', () => {
 
         // When
         ;({ container } = await renderWithContexts(
-          <ProfilPage referentielMissionsLocales={agences} />,
+          <ProfilPage referentielAgences={agences} />,
           {
             customConseiller: conseiller,
           }
@@ -321,7 +323,7 @@ describe('ProfilPage client side', () => {
       beforeEach(async () => {
         // When
         ;({ container } = await renderWithContexts(
-          <ProfilPage referentielMissionsLocales={agences} />,
+          <ProfilPage referentielAgences={agences} />,
           {
             customConseiller: conseiller,
           }
@@ -350,6 +352,92 @@ describe('ProfilPage client side', () => {
     })
   })
 
+  describe('quand le conseiller France Travail modifie son agence', () => {
+    let agences: Agence[]
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+
+    beforeEach(async () => {
+      // Given
+      agences = uneListeDAgencesFranceTravail()
+      alerteSetter = jest.fn()
+
+      // When
+      ;({ container } = await renderWithContexts(
+        <ProfilPage referentielAgences={agences} />,
+        {
+          customConseiller: unConseiller({
+            structure: structureFTCej,
+            agence: {
+              nom: 'Agence France Travail BOURG EN BRESSE',
+              id: 'id-1',
+            },
+            dateMajAgence: DateTime.now().minus({ months: 1 }),
+          }),
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('n’invite plus à supprimer son compte pour changer d’agence', () => {
+      // Then
+      expect(() =>
+        screen.getByText(/vous devez supprimer votre compte/)
+      ).toThrow()
+    })
+
+    it('affiche un bouton pour modifier son agence', () => {
+      // Then
+      expect(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      ).toBeInTheDocument()
+    })
+
+    it('ouvre la modale de choix d’agence sans saisie libre', async () => {
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('combobox', { name: /votre agence/ })
+      ).toBeInTheDocument()
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Mon agence n’apparaît pas/ })
+      )
+      expect(() =>
+        screen.getByRole('textbox', { name: /Saisir le nom/ })
+      ).toThrow()
+    })
+
+    it('enregistre la nouvelle agence', async () => {
+      // Given
+      const agence = agences[2]
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      )
+
+      // When
+      await userEvent.type(
+        screen.getByRole('combobox', { name: /votre agence/ }),
+        `${agence.nom} (${agence.codeDepartement})`
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledWith(agence)
+      expect(alerteSetter).toHaveBeenCalledWith('choixAgence')
+      expect(getByDescriptionTerm('Votre agence :')).toHaveTextContent(
+        agence.nom
+      )
+    })
+  })
+
   describe('quand le conseiller France Travail modifie son dispositif', () => {
     let pushRouter: jest.Mock
     beforeEach(async () => {
@@ -362,7 +450,7 @@ describe('ProfilPage client side', () => {
         nbBeneficiairesSuivisTemporairement: 0,
       })
       ;({ container } = await renderWithContexts(
-        <ProfilPage referentielMissionsLocales={[]} />,
+        <ProfilPage referentielAgences={[]} />,
         { customConseiller: unConseiller({ structure: structureFTCej }) }
       ))
 
@@ -455,7 +543,7 @@ describe('ProfilPage client side', () => {
 
         // When
         ;({ container } = await renderWithContexts(
-          <ProfilPage referentielMissionsLocales={[]} />,
+          <ProfilPage referentielAgences={[]} />,
           {
             customConseiller: conseiller,
           }
@@ -518,7 +606,7 @@ describe('ProfilPage client side', () => {
 
         // When
         ;({ container } = await renderWithContexts(
-          <ProfilPage referentielMissionsLocales={[]} />,
+          <ProfilPage referentielAgences={[]} />,
           {
             customConseiller: conseiller,
           }
@@ -555,7 +643,7 @@ describe('ProfilPage client side', () => {
         notificationsSonores: false,
       })
 
-      await renderWithContexts(<ProfilPage referentielMissionsLocales={[]} />, {
+      await renderWithContexts(<ProfilPage referentielAgences={[]} />, {
         customConseiller: conseiller,
       })
 
