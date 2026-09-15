@@ -422,7 +422,7 @@ describe('ProfilPage client side', () => {
       ).toBeInTheDocument()
       expect(
         screen.getByText(
-          '1 bénéficiaire de votre portefeuille passera également au dispositif RSA rénové.'
+          '1 bénéficiaire de votre portefeuille passera au dispositif RSA rénové.'
         )
       ).toBeInTheDocument()
       expect(() =>

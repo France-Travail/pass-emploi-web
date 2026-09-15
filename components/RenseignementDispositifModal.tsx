@@ -181,8 +181,8 @@ function phraseBeneficiairesConcernes(
 
   const concernes =
     nbBeneficiairesConcernes === 1
-      ? `1 bénéficiaire de votre portefeuille passera également au dispositif ${labelDispositif}.`
-      : `${nbBeneficiairesConcernes} bénéficiaires de votre portefeuille passeront également au dispositif ${labelDispositif}.`
+      ? `1 bénéficiaire de votre portefeuille passera au dispositif ${labelDispositif}.`
+      : `${nbBeneficiairesConcernes} bénéficiaires de votre portefeuille passeront au dispositif ${labelDispositif}.`
 
   if (nbBeneficiairesTransferesTemporairement === 0) return concernes
 
@@ -195,6 +195,6 @@ function phraseBeneficiairesConcernes(
 
 function phraseBeneficiairesSuivisTemporairement(nb: number): string {
   if (nb === 1)
-    return '1 bénéficiaire gardera son dispositif actuel. Vous le suivez temporairement pour un autre conseiller : il reste rattaché au dispositif de ce conseiller.'
-  return `${nb} bénéficiaires garderont leur dispositif actuel. Vous les suivez temporairement pour un autre conseiller : ils restent rattachés au dispositif de ce conseiller.`
+    return '1 bénéficiaire gardera son dispositif actuel car vous le suivez temporairement.'
+  return `${nb} bénéficiaires garderont leur dispositif actuel car vous les suivez temporairement.`
 }

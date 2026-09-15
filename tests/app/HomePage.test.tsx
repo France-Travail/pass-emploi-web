@@ -340,12 +340,12 @@ describe('HomePage client side', () => {
         ).toBeInTheDocument()
         expect(
           screen.getByText(
-            '3 bénéficiaires de votre portefeuille passeront également au dispositif RSA rénové. Dont 1 bénéficiaire actuellement suivi à titre temporaire par un autre conseiller.'
+            '3 bénéficiaires de votre portefeuille passeront au dispositif RSA rénové. Dont 1 bénéficiaire actuellement suivi à titre temporaire par un autre conseiller.'
           )
         ).toBeInTheDocument()
         expect(
           screen.getByText(
-            '2 bénéficiaires garderont leur dispositif actuel. Vous les suivez temporairement pour un autre conseiller : ils restent rattachés au dispositif de ce conseiller.'
+            '2 bénéficiaires garderont leur dispositif actuel car vous les suivez temporairement.'
           )
         ).toBeInTheDocument()
         expect(
