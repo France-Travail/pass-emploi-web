@@ -96,7 +96,7 @@ describe('Intégration notifications sonores', () => {
 async function renderWithNotificationsSonores(notificationsSonores: boolean) {
   await renderWithContexts(
     <ChatsProvider>
-      <ProfilPage referentielMissionsLocales={[]} />
+      <ProfilPage referentielAgences={[]} />
     </ChatsProvider>,
     {
       customConseiller: unConseiller({

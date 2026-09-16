@@ -6,14 +6,16 @@ import React, { ReactNode } from 'react'
 import A11yPageTitle from 'components/A11yPageTitle'
 import { MODAL_ROOT_ID } from 'components/globals'
 import LiensEvitement from 'components/LiensEvitement'
-import { doitChoisirSonDispositif } from 'interfaces/conseiller'
+import {
+  doitChoisirSonDispositif,
+  doitRenseignerSonAgence,
+} from 'interfaces/conseiller'
 import { estPassEmploi } from 'interfaces/structure'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import AppContextProviders from 'utils/AppContextProviders'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
-// Pages accessibles à un conseiller FT sans dispositif : l'accueil (modale de choix) et les CGU.
 const PAGES_SANS_DISPOSITIF = new Set(['/', '/consentement-cgu'])
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -48,7 +50,10 @@ export default async function LayoutWhenConnected({
     getBeneficiairesDuConseillerServerSide(user.id, accessToken),
   ])
 
-  if (doitChoisirSonDispositif(conseiller)) {
+  if (
+    doitChoisirSonDispositif(conseiller) ||
+    doitRenseignerSonAgence(conseiller)
+  ) {
     const cheminCourant = (await headers()).get('x-current-path') ?? '/'
     if (!PAGES_SANS_DISPOSITIF.has(cheminCourant))
       redirect(`/?${new URLSearchParams({ redirectUrl: cheminCourant })}`)

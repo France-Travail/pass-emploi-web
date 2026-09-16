@@ -98,6 +98,56 @@ describe('ConseillerApiService', () => {
       expect(apiGet).toHaveBeenCalledWith('/conseillers/id-user', accessToken)
       expect(actual.dateDeMigration).toBeUndefined()
     })
+    it('renseigne la date de confirmation de l’agence', async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        profil: unProfilMilo(),
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({
+          dateMajAgence: '2026-09-04T12:29:30.000+02:00',
+        }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(actual.dateMajAgence).toEqual(
+        DateTime.fromISO('2026-09-04T12:29:30.000+02:00')
+      )
+    })
+    it('ne renseigne pas de date de confirmation de l’agence si elle n’existe pas', async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        profil: unProfilMilo(),
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({ dateMajAgence: undefined }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(actual.dateMajAgence).toBeUndefined()
+    })
     it('ne renseigne pas de date de migration si elle est invalide', async () => {
       // Given
       const accessToken = 'accessToken'

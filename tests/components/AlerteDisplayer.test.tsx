@@ -290,6 +290,27 @@ describe('AlerteDisplayer', () => {
     })
   })
 
+  describe('quand on modifie son agence de rattachement', () => {
+    it("affiche l'alerte de succès", async () => {
+      await renderWithContexts(<AlerteDisplayer />, {
+        customAlerte: {
+          value: {
+            key: AlerteParam.modificationAgence,
+          },
+          setter: alerteSetter,
+        },
+        customConseiller: unConseiller({
+          structure: structureFTCej,
+        }),
+      })
+
+      // Then
+      expect(
+        screen.getByText('Votre agence de rattachement a bien été modifié')
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('quand on crée une liste', () => {
     it("affiche l'alerte de succès", async () => {
       await renderWithContexts(<AlerteDisplayer />, {
