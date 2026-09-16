@@ -11,10 +11,12 @@ import {
 import {
   Conseiller,
   ImpactChangementDispositif,
+  MessageInformatif,
   SimpleConseiller,
 } from 'interfaces/conseiller'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import {
+  CommunicationsConseillerJson,
   ConseillerJson,
   jsonToConseiller,
   jsonToSimpleConseiller,
@@ -30,6 +32,17 @@ export async function getConseillerServerSide(
     accessToken
   )
   return jsonToConseiller(conseillerJson, user)
+}
+
+export async function getMessageInformatifServerSide(
+  idConseiller: string,
+  accessToken: string
+): Promise<MessageInformatif | undefined> {
+  const { content } = await apiGet<CommunicationsConseillerJson>(
+    `/conseillers/${idConseiller}/communications`,
+    accessToken
+  )
+  return content.messageInformatif
 }
 
 export async function getConseillers(
