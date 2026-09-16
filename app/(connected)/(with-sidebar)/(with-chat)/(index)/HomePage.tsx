@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 
 import { Dispositif } from 'interfaces/beneficiaire'
 import { Agence } from 'interfaces/referentiel'
-import { estFranceTravail, estMilo, structureMilo } from 'interfaces/structure'
+import { estMilo, structureMilo } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
 import { trackEvent, trackPage } from 'utils/analytics/matomo'
@@ -154,12 +154,7 @@ function HomePage({
           <RenseignementAgenceModal
             referentielAgences={referentielAgences}
             onAgenceChoisie={selectAgence}
-            avecSaisieLibre={!estFranceTravail(conseiller.structure)}
-            onClose={
-              estFranceTravail(conseiller.structure)
-                ? undefined
-                : () => setShowModaleAgence(false)
-            }
+            onClose={() => setShowModaleAgence(false)}
           />
         )}
 

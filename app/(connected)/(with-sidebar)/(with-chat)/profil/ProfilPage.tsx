@@ -1,7 +1,6 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
-import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -22,8 +21,6 @@ import {
   labelStructure,
   structureMilo,
 } from 'interfaces/structure'
-import { AlerteParam } from 'referentiel/alerteParam'
-import { useAlerte } from 'utils/alerteContext'
 import { trackEvent, trackPage } from 'utils/analytics/matomo'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
@@ -35,18 +32,15 @@ const ConfirmationDeleteConseillerModal = dynamic(
 const RenseignementDispositifModal = dynamic(
   () => import('components/RenseignementDispositifModal')
 )
-const RenseignementAgenceModal = dynamic(
-  () => import('components/RenseignementAgenceModal')
-)
 const ConfirmationSuppressionCompteConseillerModal = dynamic(
   () => import('components/ConfirmationSuppressionCompteConseillerModal')
 )
 
 type ProfilProps = {
-  referentielAgences: Agence[]
+  referentielMissionsLocales: Agence[]
 }
 
-function ProfilPage({ referentielAgences }: ProfilProps) {
+function ProfilPage({ referentielMissionsLocales }: ProfilProps) {
   const router = useRouter()
   const [conseiller, setConseiller] = useConseiller()
   const [portefeuille] = usePortefeuille()
@@ -65,8 +59,6 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
     useState<boolean>(Boolean(conseillerEstMilo && !conseiller.email))
   const [showModaleDispositif, setShowModaleDispositif] =
     useState<boolean>(false)
-  const [showModaleAgence, setShowModaleAgence] = useState<boolean>(false)
-  const [_, setAlerte] = useAlerte()
 
   const labelAgence = conseillerEstMilo ? 'Mission Locale' : 'agence'
   const [trackingLabel, setTrackingLabel] = useState<string>('Profil')
@@ -97,19 +89,7 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
     setTrackingLabel('Profil - Succès ajout agence')
   }
 
-  async function modifierAgenceFT(agence: {
-    id?: string
-    nom: string
-  }): Promise<void> {
-    const { modifierAgence } = await import('services/conseiller.service')
-    await modifierAgence(agence)
-    // Refléter l'estampille posée par l'API, sinon la modale bloquante revient.
-    setConseiller({ ...conseiller, agence, dateMajAgence: DateTime.now() })
-    setShowModaleAgence(false)
-    setAlerte(AlerteParam.modificationAgence)
-    setTrackingLabel('Profil - Succès modification agence')
-  }
-
+  // Le dispositif voyage dans le token : le conseiller se reconnecte pour le retrouver.
   async function modifierDispositif(dispositif: Dispositif): Promise<void> {
     const { modifierDispositif: modifierDispositifDuConseiller } =
       await import('services/conseiller.service')
@@ -141,6 +121,16 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
     } catch (e) {
       console.error(e)
     }
+  }
+
+  function trackTutoSuppression() {
+    trackEvent({
+      structure: conseiller.structure,
+      categorie: 'Tutoriel',
+      action: 'Suppression compte',
+      nom: '',
+      aDesBeneficiaires: null,
+    })
   }
 
   function trackContacterSupportClick() {
@@ -187,6 +177,20 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
       <section className='border border-solid rounded-base w-full p-4 border-grey-100 mb-8'>
         <h2 className='text-m-bold text-grey-800 mb-4'>Informations</h2>
 
+        {estFranceTravail(conseiller.structure) && (
+          <InformationMessage label='Changement d’agence ?'>
+            <p>
+              Pour changer d’agence, vous devez supprimer votre compte.
+              <ExternalLink
+                label='Consultez la procédure à suivre'
+                href='https://doc.pass-emploi.beta.gouv.fr/suppression-de-compte/'
+                onClick={trackTutoSuppression}
+                className='flex! mt-2'
+              />
+            </p>
+          </InformationMessage>
+        )}
+
         <h3 className='text-base-bold'>
           {conseiller.firstName} {conseiller.lastName}
         </h3>
@@ -201,26 +205,12 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
           )}
 
           {conseiller.agence && (
-            <div className='mt-2 flex items-center flex-wrap gap-2'>
-              <dt className='text-base-regular'>Votre {labelAgence} :</dt>
-              <dd className='flex items-center gap-2 text-base-bold'>
+            <div>
+              <dt className='mt-2 inline text-base-regular'>
+                Votre {labelAgence} :
+              </dt>
+              <dd className='ml-2 inline text-base-bold'>
                 {conseiller.agence.nom}
-                {estFranceTravail(conseiller.structure) && (
-                  <button
-                    type='button'
-                    className='inline-flex items-center text-s-regular text-content-color underline hover:text-primary'
-                    aria-label='Modifier votre agence'
-                    onClick={() => setShowModaleAgence(true)}
-                  >
-                    <IconComponent
-                      name={IconName.Edit}
-                      aria-hidden={true}
-                      focusable={false}
-                      className='w-4 h-4 mr-1 fill-current'
-                    />
-                    Modifier
-                  </button>
-                )}
               </dd>
             </div>
           )}
@@ -251,16 +241,6 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
             </div>
           )}
         </dl>
-
-        {showModaleAgence && (
-          <RenseignementAgenceModal
-            referentielAgences={referentielAgences}
-            onAgenceChoisie={modifierAgenceFT}
-            avecSaisieLibre={false}
-            agenceActuelle={conseiller.agence}
-            onClose={() => setShowModaleAgence(false)}
-          />
-        )}
 
         {showModaleDispositif && (
           <RenseignementDispositifModal
@@ -322,7 +302,7 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
 
             {!conseiller.agence && (
               <RenseignementMissionLocaleForm
-                referentielMissionsLocales={referentielAgences}
+                referentielMissionsLocales={referentielMissionsLocales}
                 onMissionLocaleChoisie={selectAgence}
                 onContacterSupport={trackContacterSupportClick}
               />

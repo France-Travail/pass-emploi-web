@@ -1,5 +1,4 @@
 import { render } from '@testing-library/react'
-import { DateTime } from 'luxon'
 import { redirect } from 'next/navigation'
 
 import HomePage from 'app/(connected)/(with-sidebar)/(with-chat)/(index)/HomePage'
@@ -11,11 +10,7 @@ import {
   uneListeDAgencesMILO,
 } from 'fixtures/referentiel'
 import { Conseiller } from 'interfaces/conseiller'
-import {
-  structureConseilDepartemental,
-  structureFTCej,
-  structureMilo,
-} from 'interfaces/structure'
+import { structureFTCej, structureMilo } from 'interfaces/structure'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import { getAgencesServerSide } from 'services/referentiel.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -206,7 +201,6 @@ describe('HomePage server side', () => {
         structure: structureFTCej,
         profil: unProfilFT(null),
         agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
-        dateMajAgence: DateTime.now().minus({ months: 1 }),
         email: 'pass.emploi@beta.gouv.fr',
       })
       ;(getConseillerServerSide as jest.Mock).mockResolvedValue(conseiller)
@@ -228,95 +222,6 @@ describe('HomePage server side', () => {
           referentielAgences: uneListeDAgencesFranceTravail(),
         },
         undefined
-      )
-    })
-  })
-
-  describe('si le conseiller France Travail doit confirmer son agence', () => {
-    beforeEach(() => {
-      ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({})
-      ;(getAgencesServerSide as jest.Mock).mockResolvedValue(
-        uneListeDAgencesFranceTravail()
-      )
-    })
-
-    it('impose la modale quand l’agence a été saisie à la main', async () => {
-      // Given
-      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-        unConseiller({
-          structure: structureFTCej,
-          agence: { nom: 'Agence saisie à la main' },
-          email: 'pass.emploi@beta.gouv.fr',
-        })
-      )
-
-      // When
-      render(await Home({}))
-
-      // Then
-      expect(HomePage).toHaveBeenCalledWith(
-        expect.objectContaining({ afficherModaleAgence: true }),
-        undefined
-      )
-    })
-
-    it('impose la modale quand l’agence a été confirmée il y a plus de 6 mois', async () => {
-      // Given
-      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-        unConseiller({
-          structure: structureFTCej,
-          agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
-          dateMajAgence: DateTime.now().minus({ months: 6, days: 1 }),
-          email: 'pass.emploi@beta.gouv.fr',
-        })
-      )
-
-      // When
-      render(await Home({}))
-
-      // Then
-      expect(HomePage).toHaveBeenCalledWith(
-        expect.objectContaining({ afficherModaleAgence: true }),
-        undefined
-      )
-    })
-
-    it('n’impose pas la modale quand l’agence a été confirmée il y a moins de 6 mois', async () => {
-      // Given
-      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-        unConseiller({
-          structure: structureFTCej,
-          agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
-          dateMajAgence: DateTime.now().minus({ months: 5 }),
-          email: 'pass.emploi@beta.gouv.fr',
-        })
-      )
-
-      // When
-      const promise = Home({})
-
-      // Then
-      await expect(promise).rejects.toEqual(
-        new Error('NEXT_REDIRECT /mes-jeunes')
-      )
-    })
-
-    it('laisse le Conseil départemental sur sa règle historique', async () => {
-      // Given
-      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-        unConseiller({
-          structure: structureConseilDepartemental,
-          agence: { nom: 'Agence saisie à la main' },
-          email: 'pass.emploi@beta.gouv.fr',
-        })
-      )
-
-      // When
-      const promise = Home({})
-
-      // Then
-      await expect(promise).rejects.toEqual(
-        new Error('NEXT_REDIRECT /mes-jeunes')
       )
     })
   })
