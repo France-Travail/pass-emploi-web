@@ -106,7 +106,7 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
     // Refléter l'estampille posée par l'API, sinon la modale bloquante revient.
     setConseiller({ ...conseiller, agence, dateMajAgence: DateTime.now() })
     setShowModaleAgence(false)
-    setAlerte(AlerteParam.choixAgence)
+    setAlerte(AlerteParam.modificationAgence)
     setTrackingLabel('Profil - Succès modification agence')
   }
 
@@ -257,6 +257,7 @@ function ProfilPage({ referentielAgences }: ProfilProps) {
             referentielAgences={referentielAgences}
             onAgenceChoisie={modifierAgenceFT}
             avecSaisieLibre={false}
+            agenceActuelle={conseiller.agence}
             onClose={() => setShowModaleAgence(false)}
           />
         )}

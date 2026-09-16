@@ -429,6 +429,23 @@ describe('HomePage client side', () => {
       expect(replace).toHaveBeenCalledWith('/mes-jeunes')
     })
 
+    it('affiche la consigne de reconfirmation', () => {
+      // Then
+      expect(
+        screen.getByText(/Elle vous sera redemandée tous les 6 mois/)
+      ).toBeInTheDocument()
+    })
+
+    it('laisse le champ vide et le bouton « Ajouter »', () => {
+      // Then
+      expect(
+        screen.getByRole('combobox', { name: /votre agence/ })
+      ).toHaveValue('')
+      expect(
+        screen.getByRole('button', { name: 'Ajouter' })
+      ).toBeInTheDocument()
+    })
+
     it('refuse un texte hors liste', async () => {
       // Given
       const searchAgence = screen.getByRole('combobox', {

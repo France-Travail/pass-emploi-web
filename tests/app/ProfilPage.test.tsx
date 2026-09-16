@@ -367,10 +367,7 @@ describe('ProfilPage client side', () => {
         {
           customConseiller: unConseiller({
             structure: structureFTCej,
-            agence: {
-              nom: 'Agence France Travail BOURG EN BRESSE',
-              id: 'id-1',
-            },
+            agence: { nom: agences[0].nom, id: agences[0].id },
             dateMajAgence: DateTime.now().minus({ months: 1 }),
           }),
           customAlerte: { setter: alerteSetter },
@@ -415,6 +412,43 @@ describe('ProfilPage client side', () => {
       ).toThrow()
     })
 
+    it('pré-remplit le champ avec l’agence de rattachement actuelle', async () => {
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('combobox', { name: /votre agence/ })
+      ).toHaveValue(`${agences[0].nom} (${agences[0].codeDepartement})`)
+    })
+
+    it('n’affiche pas la consigne de reconfirmation', async () => {
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      )
+
+      // Then
+      expect(() =>
+        screen.getByText(/Elle vous sera redemandée tous les 6 mois/)
+      ).toThrow()
+    })
+
+    it('intitule le bouton de validation « Modifier »', async () => {
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Modifier votre agence' })
+      )
+
+      // Then
+      expect(
+        screen.getByRole('button', { name: 'Modifier' })
+      ).toBeInTheDocument()
+      expect(() => screen.getByRole('button', { name: 'Ajouter' })).toThrow()
+    })
+
     it('enregistre la nouvelle agence', async () => {
       // Given
       const agence = agences[2]
@@ -423,15 +457,19 @@ describe('ProfilPage client side', () => {
       )
 
       // When
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+      await userEvent.clear(searchAgence)
       await userEvent.type(
-        screen.getByRole('combobox', { name: /votre agence/ }),
+        searchAgence,
         `${agence.nom} (${agence.codeDepartement})`
       )
-      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
 
       // Then
       expect(modifierAgence).toHaveBeenCalledWith(agence)
-      expect(alerteSetter).toHaveBeenCalledWith('choixAgence')
+      expect(alerteSetter).toHaveBeenCalledWith('modificationAgence')
       expect(getByDescriptionTerm('Votre agence :')).toHaveTextContent(
         agence.nom
       )

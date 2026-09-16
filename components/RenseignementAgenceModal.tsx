@@ -10,6 +10,7 @@ interface RenseignementAgenceModalProps {
   onAgenceChoisie: (agence: { id?: string; nom: string }) => void
   onClose?: () => void
   avecSaisieLibre?: boolean
+  agenceActuelle?: { id?: string; nom: string }
 }
 
 export default function RenseignementAgenceModal({
@@ -17,6 +18,7 @@ export default function RenseignementAgenceModal({
   onAgenceChoisie,
   onClose,
   avecSaisieLibre = true,
+  agenceActuelle,
 }: RenseignementAgenceModalProps) {
   const modalRef = useRef<ModalHandles>(null)
   const fermable = Boolean(onClose)
@@ -24,7 +26,7 @@ export default function RenseignementAgenceModal({
   return (
     <Modal
       ref={modalRef}
-      title={titre(avecSaisieLibre, fermable)}
+      title={titre(avecSaisieLibre, Boolean(agenceActuelle))}
       onClose={() => onClose?.()}
       fermable={fermable}
     >
@@ -37,7 +39,7 @@ export default function RenseignementAgenceModal({
         </>
       )}
 
-      {!avecSaisieLibre && (
+      {!avecSaisieLibre && !agenceActuelle && (
         <InformationMessage label='Sélectionnez l’agence dans laquelle vous travaillez actuellement. Elle vous sera redemandée tous les 6 mois.' />
       )}
 
@@ -45,13 +47,14 @@ export default function RenseignementAgenceModal({
         referentielAgences={referentielAgences}
         onAgenceChoisie={onAgenceChoisie}
         avecSaisieLibre={avecSaisieLibre}
+        agenceActuelle={agenceActuelle}
         onClose={fermable ? (e) => modalRef.current!.closeModal(e) : undefined}
       />
     </Modal>
   )
 }
 
-function titre(avecSaisieLibre: boolean, fermable: boolean): string {
+function titre(avecSaisieLibre: boolean, modification: boolean): string {
   if (avecSaisieLibre) return 'Ajoutez votre agence à votre profil'
-  return fermable ? 'Modifier votre agence' : 'Confirmez votre agence'
+  return modification ? 'Modifier votre agence' : 'Confirmez votre agence'
 }

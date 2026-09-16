@@ -16,11 +16,20 @@ function libelleAgence({ nom, codeDepartement }: Agence): string {
   return codeDepartement ? `${nom} (${codeDepartement})` : nom
 }
 
+function libelleDansLeReferentiel(
+  agence: { id?: string; nom: string },
+  referentiel: Agence[]
+): string | undefined {
+  const trouvee = referentiel.find(({ id }) => id === agence.id)
+  return trouvee && libelleAgence(trouvee)
+}
+
 interface RenseignementAgenceFormProps {
   referentielAgences: Agence[]
   onAgenceChoisie: (agence: { id?: string; nom: string }) => void
   onClose?: (e: MouseEvent) => void
   avecSaisieLibre?: boolean
+  agenceActuelle?: { id?: string; nom: string }
 }
 
 export default function RenseignementAgenceForm({
@@ -28,18 +37,22 @@ export default function RenseignementAgenceForm({
   onAgenceChoisie,
   onClose,
   avecSaisieLibre = true,
+  agenceActuelle,
 }: RenseignementAgenceFormProps) {
+  const libelleAgenceActuelle = agenceActuelle
+    ? (libelleDansLeReferentiel(agenceActuelle, referentielAgences) ??
+      agenceActuelle.nom)
+    : ''
   const [idAgenceSelectionnee, setIdAgenceSelectionnee] =
-    useState<ValueWithError>({ value: '' })
+    useState<ValueWithError>({ value: agenceActuelle?.id ?? '' })
   const [agenceNonTrouvee, setAgenceNonTrouvee] = useState<boolean>(false)
   const [agenceLibre, setAgenceLibre] = useState<ValueWithError>({ value: '' })
-  const [recherche, setRecherche] = useState<string>('')
+  const [recherche, setRecherche] = useState<string>(libelleAgenceActuelle)
   const searchAgenceRef = useRef<HTMLInputElement>(null)
   const agenceLibreRef = useRef<HTMLInputElement>(null)
 
   const showAgenceLibre = avecSaisieLibre && agenceNonTrouvee
 
-  // Le référentiel compte près de 900 agences : sans seuil, la liste est inexploitable.
   const suggestions =
     recherche.length < NB_CARACTERES_MINIMUM_RECHERCHE
       ? []
@@ -114,6 +127,7 @@ export default function RenseignementAgenceForm({
           value: libelleAgence(agence),
         }))}
         onChange={selectAgence}
+        defaultValue={libelleAgenceActuelle}
         invalid={Boolean(idAgenceSelectionnee.error)}
         disabled={showAgenceLibre}
       />
@@ -168,7 +182,7 @@ export default function RenseignementAgenceForm({
           </Button>
         )}
         <Button className={onClose ? 'ml-6' : ''} type='submit'>
-          Ajouter
+          {agenceActuelle ? 'Modifier' : 'Ajouter'}
         </Button>
       </div>
     </form>

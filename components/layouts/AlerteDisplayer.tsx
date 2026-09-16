@@ -103,6 +103,9 @@ const ALERTES: DictAlertes = {
     },
   },
   choixAgence: { title: 'Votre agence a été ajoutée à votre profil' },
+  modificationAgence: {
+    title: 'Votre agence de rattachement a bien été modifié',
+  },
   envoiMessage: {
     title:
       'Votre message multi-destinataires a été envoyé en tant que message individuel à chacun des bénéficiaires',
