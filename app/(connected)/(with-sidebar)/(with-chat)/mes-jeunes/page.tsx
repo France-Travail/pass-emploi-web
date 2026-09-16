@@ -17,7 +17,10 @@ import {
 } from 'interfaces/structure'
 import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions.service'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getMessageInformatifServerSide,
+} from 'services/conseiller.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
@@ -34,9 +37,10 @@ export default async function Portefeuille({
   searchParams?: PortfeuilleSearchParams
 }) {
   const { user, accessToken } = await getMandatorySessionServerSide()
-  const [conseiller, beneficiaires] = await Promise.all([
+  const [conseiller, beneficiaires, messageInformatif] = await Promise.all([
     getConseillerServerSide(user, accessToken),
     getBeneficiairesDuConseillerServerSide(user.id, accessToken),
+    getMessageInformatifServerSide(user.id, accessToken),
   ])
   const { source, page } = (await searchParams) ?? {}
 
@@ -102,6 +106,7 @@ export default async function Portefeuille({
         isFromEmail={Boolean(source)}
         page={parsedPage || 1}
         listes={listes}
+        messageInformatif={messageInformatif}
       />
     </>
   )
