@@ -9,6 +9,7 @@ import { uneListeDAgencesFranceTravail } from 'fixtures/referentiel'
 import { Agence } from 'interfaces/referentiel'
 import {
   labelStructure,
+  structureConseilDepartemental,
   structureFTCej,
   structureMilo,
   structuresFranceTravail,
@@ -81,7 +82,7 @@ describe('HomePage client side', () => {
     })
   })
 
-  describe('quand le conseiller doit renseigner son agence', () => {
+  describe('quand le conseiller Conseil départemental doit renseigner son agence', () => {
     let agences: Agence[]
     let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
 
@@ -101,7 +102,7 @@ describe('HomePage client side', () => {
           redirectUrl='/mes-jeunes'
         />,
         {
-          customConseiller: { structure: structureFTCej },
+          customConseiller: { structure: structureConseilDepartemental },
           customAlerte: { setter: alerteSetter },
         }
       ))
@@ -122,14 +123,22 @@ describe('HomePage client side', () => {
       ).toBeInTheDocument()
     })
 
-    it('contient un input pour choisir une agence', () => {
+    it('contient un input pour choisir une agence', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'Agence')
+
       // Then
-      expect(
-        screen.getByRole('combobox', { name: /votre agence/ })
-      ).toBeInTheDocument()
       agences.forEach((agence) =>
         expect(
-          screen.getByRole('option', { hidden: true, name: agence.nom })
+          screen.getByRole('option', {
+            hidden: true,
+            name: `${agence.nom} (${agence.codeDepartement})`,
+          })
         ).toBeInTheDocument()
       )
     })
@@ -164,7 +173,10 @@ describe('HomePage client side', () => {
       const submit = screen.getByRole('button', { name: 'Ajouter' })
 
       // When
-      await userEvent.type(searchAgence, agence.nom)
+      await userEvent.type(
+        searchAgence,
+        `${agence.nom} (${agence.codeDepartement})`
+      )
       await userEvent.click(submit)
 
       // Then
@@ -243,6 +255,213 @@ describe('HomePage client side', () => {
         expect(screen.getByText('Saisir une agence')).toBeInTheDocument()
         expect(modifierAgence).toHaveBeenCalledTimes(0)
       })
+    })
+  })
+
+  describe('quand le conseiller France Travail doit confirmer son agence', () => {
+    let agences: Agence[]
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+
+    beforeEach(async () => {
+      // Given
+      alerteSetter = jest.fn()
+      agences = uneListeDAgencesFranceTravail()
+
+      // When
+      ;({ container } = await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={false}
+          referentielAgences={agences}
+          redirectUrl='/mes-jeunes'
+        />,
+        {
+          customConseiller: { structure: structureFTCej },
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('ne peut pas être fermée', () => {
+      // Then
+      expect(() =>
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      ).toThrow()
+      expect(() => screen.getByRole('button', { name: 'Annuler' })).toThrow()
+    })
+
+    it('propose les agences du référentiel', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'Agence')
+
+      // Then
+      agences.forEach((agence) =>
+        expect(
+          screen.getByRole('option', {
+            hidden: true,
+            name: `${agence.nom} (${agence.codeDepartement})`,
+          })
+        ).toBeInTheDocument()
+      )
+    })
+
+    it('n’autorise pas la saisie manuelle d’une agence', async () => {
+      // Given
+      const checkAgenceNonTrouvee = screen.getByRole('checkbox', {
+        name: /Mon agence n’apparaît pas/,
+      })
+
+      // When
+      await userEvent.click(checkAgenceNonTrouvee)
+
+      // Then
+      expect(() =>
+        screen.getByRole('textbox', { name: /Saisir le nom/ })
+      ).toThrow()
+    })
+
+    it('renvoie vers le support quand l’agence est absente de la liste', async () => {
+      // Given
+      const checkAgenceNonTrouvee = screen.getByRole('checkbox', {
+        name: /Mon agence n’apparaît pas/,
+      })
+
+      // When
+      await userEvent.click(checkAgenceNonTrouvee)
+
+      // Then
+      expect(
+        screen.getByText(
+          /veuillez contacter le support à cet adresse email : support@pass-emploi.beta.gouv.fr/
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('n’affiche aucune suggestion en dessous de 3 caractères', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'TH')
+
+      // Then
+      expect(() => screen.getAllByRole('option', { hidden: true })).toThrow()
+    })
+
+    it('affiche les suggestions à partir de 3 caractères', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'THI')
+
+      // Then
+      expect(
+        screen.getByRole('option', {
+          hidden: true,
+          name: 'Agence France Travail THIERS (3)',
+        })
+      ).toBeInTheDocument()
+      expect(screen.getAllByRole('option', { hidden: true })).toHaveLength(1)
+    })
+
+    it('suffixe chaque agence de son département', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'CLERMONT')
+
+      // Then
+      expect(
+        screen.getByRole('option', {
+          hidden: true,
+          name: 'Agence France Travail CLERMONT PRE LA REINE (1)',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('option', {
+          hidden: true,
+          name: 'Agence France Travail CLERMONT JOUHAUX (2)',
+        })
+      ).toBeInTheDocument()
+    })
+
+    it("modifie le conseiller avec l'agence choisie", async () => {
+      // Given
+      const agence = agences[2]
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(
+        searchAgence,
+        `${agence.nom} (${agence.codeDepartement})`
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledWith({
+        id: agence.id,
+        nom: 'Agence France Travail THIERS',
+        codeDepartement: '3',
+      })
+      expect(alerteSetter).toHaveBeenCalledWith('choixAgence')
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+    })
+
+    it('affiche la consigne de reconfirmation', () => {
+      // Then
+      expect(
+        screen.getByText(/Elle vous sera redemandée tous les 6 mois/)
+      ).toBeInTheDocument()
+    })
+
+    it('laisse le champ vide et le bouton « Ajouter »', () => {
+      // Then
+      expect(
+        screen.getByRole('combobox', { name: /votre agence/ })
+      ).toHaveValue('')
+      expect(
+        screen.getByRole('button', { name: 'Ajouter' })
+      ).toBeInTheDocument()
+    })
+
+    it('refuse un texte hors liste', async () => {
+      // Given
+      const searchAgence = screen.getByRole('combobox', {
+        name: /votre agence/,
+      })
+
+      // When
+      await userEvent.type(searchAgence, 'pouet')
+      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+
+      // Then
+      expect(
+        screen.getByText('Sélectionner une agence dans la liste')
+      ).toBeInTheDocument()
+      expect(modifierAgence).not.toHaveBeenCalled()
+      expect(replace).not.toHaveBeenCalled()
     })
   })
 

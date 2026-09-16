@@ -6,9 +6,10 @@ import { PageHeaderPortal } from 'components/PageNavigationPortals'
 import {
   aEtablissement,
   doitChoisirSonDispositif,
+  doitRenseignerSonAgence,
   doitSignerLesCGU,
 } from 'interfaces/conseiller'
-import { estMilo } from 'interfaces/structure'
+import { estFranceTravail, estMilo } from 'interfaces/structure'
 import { getConseillerServerSide } from 'services/conseiller.service'
 import { getAgencesServerSide } from 'services/referentiel.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -37,7 +38,9 @@ export default async function Home({
 
   const afficherModaleOnboarding = Boolean(onboarding)
   const emailEstManquant = estMilo(conseiller.structure) && !conseiller.email
-  const agenceEstManquante = !aEtablissement(conseiller)
+  const agenceEstManquante = estFranceTravail(conseiller.structure)
+    ? doitRenseignerSonAgence(conseiller)
+    : !aEtablissement(conseiller)
   const dispositifEstManquant = doitChoisirSonDispositif(conseiller)
   if (
     !afficherModaleOnboarding &&
