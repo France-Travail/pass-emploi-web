@@ -18,6 +18,7 @@ import {
   BeneficiaireAvecCompteursActionsRdvs,
   BeneficiaireAvecInfosComplementaires,
 } from 'interfaces/beneficiaire'
+import { MessageInformatif } from 'interfaces/conseiller'
 import { Liste } from 'interfaces/liste'
 import { estFranceTravail, estMilo, labelStructure } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -26,8 +27,6 @@ import { useAlerte } from 'utils/alerteContext'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useChatCredentials } from 'utils/chat/chatCredentialsContext'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
-
-import { toMonthday } from '../../../../../utils/date'
 
 const TutorielAjoutBeneficiaireMilo = dynamic(
   () => import('components/mes-jeunes/TutorielAjoutBeneficiaireMilo')
@@ -42,6 +41,7 @@ type PortefeuilleProps = {
   isFromEmail: boolean
   page: number
   listes?: Liste[]
+  messageInformatif?: MessageInformatif
 }
 
 function PortefeuillePage({
@@ -49,6 +49,7 @@ function PortefeuillePage({
   isFromEmail,
   page,
   listes,
+  messageInformatif,
 }: PortefeuilleProps) {
   const chatCredentials = useChatCredentials()
   const [alerte, setAlerte] = useAlerte()
@@ -76,8 +77,6 @@ function PortefeuillePage({
   if (alerte?.key === AlerteParam.envoiMessage)
     initialTracking += ' - Succès envoi message'
   const [trackingTitle, setTrackingTitle] = useState<string>(initialTracking)
-
-  const conseillerDoitMigrer = !!conseiller.dateDeMigration
 
   async function recupererBeneficiaires(): Promise<void> {
     setIsRecuperationBeneficiairesLoading(true)
@@ -181,16 +180,9 @@ function PortefeuillePage({
         </ButtonLink>
       </PageActionsPortal>
 
-      {conseillerDoitMigrer && (
-        <InformationMessage label='Information importante' className='mb-6'>
-          <p>
-            Le {toMonthday(conseiller.dateDeMigration!)}, l’application du CEJ
-            ne sera plus disponible. Vos services seront accessibles sur
-            l’applicatif CVM Messagerie instantanée.
-            <br />
-            Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires
-            à votre portefeuille.
-          </p>
+      {messageInformatif && (
+        <InformationMessage label={messageInformatif.titre} className='mb-6'>
+          <p className='whitespace-pre-line'>{messageInformatif.contenu}</p>
         </InformationMessage>
       )}
 

@@ -11,15 +11,19 @@ import {
 import {
   Conseiller,
   ImpactChangementDispositif,
+  MessageInformatif,
   SimpleConseiller,
 } from 'interfaces/conseiller'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import {
+  CommunicationsConseillerJson,
   ConseillerJson,
   jsonToConseiller,
   jsonToSimpleConseiller,
   SimpleConseillerJson,
 } from 'interfaces/json/conseiller'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export async function getConseillerServerSide(
   user: Session.HydratedUser,
@@ -30,6 +34,28 @@ export async function getConseillerServerSide(
     accessToken
   )
   return jsonToConseiller(conseillerJson, user)
+}
+
+export async function getMessageInformatifServerSide(
+  idConseiller: string,
+  accessToken: string
+): Promise<MessageInformatif | undefined> {
+  try {
+    const { content } = await apiGet<CommunicationsConseillerJson>(
+      `/conseillers/${idConseiller}/communications`,
+      accessToken
+    )
+    return content.messageInformatif
+  } catch (error) {
+    rootLogger.error(
+      {
+        event: { action: 'request_failed', outcome: 'failure' },
+        error: toEcsError(error),
+      },
+      'Erreur lors de la récupération du message informatif'
+    )
+    return undefined
+  }
 }
 
 export async function getConseillers(

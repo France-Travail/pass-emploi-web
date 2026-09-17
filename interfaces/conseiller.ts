@@ -36,7 +36,12 @@ export type Conseiller = BaseConseiller & {
   dateSignatureCGU?: string
   dateVisionnageActus?: string
   dateMajAgence?: DateTime
-  dateDeMigration?: DateTime
+}
+
+export type MessageInformatif = {
+  id: number
+  titre: string
+  contenu: string
 }
 
 export type ImpactChangementDispositif = {

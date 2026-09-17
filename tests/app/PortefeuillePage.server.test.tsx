@@ -4,11 +4,14 @@ import { DateTime } from 'luxon'
 import Portefeuille from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/page'
 import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
-import { unConseiller } from 'fixtures/conseiller'
+import { unConseiller, unMessageInformatif } from 'fixtures/conseiller'
 import { compareBeneficiairesByNom } from 'interfaces/beneficiaire'
 import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions.service'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getMessageInformatifServerSide,
+} from 'services/conseiller.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 jest.mock('utils/auth/getMandatorySessionServerSide', () => jest.fn())
@@ -34,6 +37,7 @@ describe('PortefeuillePage server side', () => {
         rdvs: 3,
       }))
     )
+    ;(getMessageInformatifServerSide as jest.Mock).mockResolvedValue(undefined)
   })
 
   it('récupère la liste des jeunes', async () => {
@@ -53,6 +57,34 @@ describe('PortefeuillePage server side', () => {
     expect(getBeneficiairesDuConseillerServerSide).toHaveBeenCalledWith(
       'id-conseiller-1',
       'accessToken'
+    )
+  })
+
+  it('récupère le message informatif et le transmet à la page', async () => {
+    // Given
+    ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
+      user: { id: 'id-conseiller-1', structure: 'POLE_EMPLOI' },
+      accessToken: 'accessToken',
+    })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: 'POLE_EMPLOI' })
+    )
+    const messageInformatif = unMessageInformatif()
+    ;(getMessageInformatifServerSide as jest.Mock).mockResolvedValue(
+      messageInformatif
+    )
+
+    // When
+    render(await Portefeuille({}))
+
+    // Then
+    expect(getMessageInformatifServerSide).toHaveBeenCalledWith(
+      'id-conseiller-1',
+      'accessToken'
+    )
+    expect(PortefeuillePage).toHaveBeenCalledWith(
+      expect.objectContaining({ messageInformatif }),
+      undefined
     )
   })
 

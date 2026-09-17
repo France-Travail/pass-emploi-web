@@ -12,7 +12,7 @@ import {
   unBeneficiaireAvecActionsNonTerminees,
   unDetailBeneficiaire,
 } from 'fixtures/beneficiaire'
-import { unConseiller } from 'fixtures/conseiller'
+import { unConseiller, unMessageInformatif } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
 import {
   structureAvenirPro,
@@ -969,36 +969,47 @@ describe('PortefeuillePage client side', () => {
     })
   })
 
-  describe('quand le conseiller doit migrer vers Parcours Emploi', () => {
-    it('affiche un bandeau lui informant la date de migration', async () => {
+  describe('quand un message informatif est fourni', () => {
+    it('affiche le bandeau avec le titre et le contenu du message', async () => {
       // GIVEN
-      const conseiller = unConseiller({
-        dateDeMigration: DateTime.fromISO('2025-11-01'),
+      const conseiller = unConseiller()
+      const messageInformatif = unMessageInformatif({
+        titre: 'Votre application évolue',
+        contenu:
+          'Le 15 octobre 2026, l’application pass emploi ne sera plus disponible.\nNous vous recommandons de ne plus ajouter de nouveaux bénéficiaires.',
       })
 
       // WHEN
       await renderWithContexts(
         <ConseillerProvider conseiller={conseiller}>
-          <PortefeuillePage conseillerJeunes={jeunes} isFromEmail page={1} />
+          <PortefeuillePage
+            conseillerJeunes={jeunes}
+            isFromEmail
+            page={1}
+            messageInformatif={messageInformatif}
+          />
         </ConseillerProvider>
       )
 
       // THEN
-      expect(
-        screen.getByRole('status', { name: /Information importante/i })
-      ).toBeInTheDocument()
-      expect(screen.getByText(/Le\s+samedi 1er novembre/i)).toHaveTextContent(
-        /Le\s+samedi 1er novembre, l’application du CEJ ne sera plus disponible\. Vos services seront accessibles sur l’applicatif CVM Messagerie instantanée\.\s*Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires à votre portefeuille\./i
+      const bandeau = screen.getByRole('status', {
+        name: /Votre application évolue/i,
+      })
+      expect(bandeau).toBeInTheDocument()
+      const contenu = screen.getByText(
+        /Le 15 octobre 2026, l’application pass emploi ne sera plus disponible\./i
+      )
+      expect(contenu).toHaveClass('whitespace-pre-line')
+      expect(contenu).toHaveTextContent(
+        'Nous vous recommandons de ne plus ajouter de nouveaux bénéficiaires.'
       )
     })
   })
 
-  describe('quand le conseiller ne doit pas migrer vers Parcours Emploi', () => {
+  describe("quand aucun message informatif n'est fourni", () => {
     it("n'affiche pas de bandeau d'information", async () => {
       // GIVEN
-      const conseiller = unConseiller({
-        dateDeMigration: undefined,
-      })
+      const conseiller = unConseiller()
 
       // WHEN
       await renderWithContexts(
@@ -1008,9 +1019,7 @@ describe('PortefeuillePage client side', () => {
       )
 
       // THEN
-      expect(
-        screen.queryByRole('status', { name: /Information importante/i })
-      ).not.toBeInTheDocument()
+      expect(screen.queryByRole('status')).not.toBeInTheDocument()
     })
   })
 })
