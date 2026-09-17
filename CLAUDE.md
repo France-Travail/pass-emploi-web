@@ -287,11 +287,13 @@ yarn dev
 
 ### Scripts Disponibles
 
-| Commande             | Description                                                               |
-|----------------------|---------------------------------------------------------------------------|
-| `yarn dev`           | Serveur de dev sur http://localhost:3000 (avec pino-pretty pour les logs) |
-| `yarn watch`         | Alias de `dev`                                                            |
-| `yarn build`         | Build production (Next.js + server.ts)                                    |
+| Commande                 | Description                                                               |
+|--------------------------|-----------------------------------------------------------------------------|
+| `yarn dev`               | Serveur de dev sur http://localhost:3000 (avec pino-pretty pour les logs) |
+| `yarn dev:local`         | Idem, API cible = `pass-emploi-api` en local (`http://localhost:5000`)   |
+| `yarn dev:staging`       | Idem, API cible = `pass-emploi-api` de staging                           |
+| `yarn watch[:local\|:staging]` | Alias de `dev[:local\|:staging]`                                    |
+| `yarn build`             | Build production (Next.js + server.ts)                                    |
 | `yarn start`         | Démarre le serveur prod (après build)                                     |
 | `yarn lint`          | ESLint                                                                    |
 | `yarn test`          | Jest avec coverage                                                        |
@@ -299,6 +301,11 @@ yarn dev
 | `yarn release:patch` | Release patch (x.x.X)                                                     |
 | `yarn release:minor` | Release minor (x.X.0)                                                     |
 | `yarn release:major` | Release major (X.0.0)                                                     |
+
+`.env.api-local` / `.env.api-staging` sont **committés et sans secret** : ils surchargent
+`NEXT_PUBLIC_API_ENDPOINT` par-dessus `.env.local`, chargés avant lui via `dotenv-cli` (premier
+fichier gagne). L'auth (`KEYCLOAK_ISSUER`, `NEXTAUTH_URL`) reste celle de `.env.local`
+(staging) dans les deux profils — seule l'API backend ciblée change.
 
 ### Testing
 

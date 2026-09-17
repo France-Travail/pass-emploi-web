@@ -22,9 +22,15 @@ yarn
 
 Enfin, lancez le serveur de dev:
 
-```bash
-yarn dev
-```
+| Commande                        | Profil                                                          |
+|----------------------------------|------------------------------------------------------------------|
+| `yarn dev` / `yarn watch`       | `.env.local` tel quel                                            |
+| `yarn dev:local` / `yarn watch:local`     | Pointe vers `pass-emploi-api` en local (`http://localhost:5000`) |
+| `yarn dev:staging` / `yarn watch:staging` | Pointe vers `pass-emploi-api` de staging                         |
+
+Les profils `.env.api-local` / `.env.api-staging` sont committés et sans secret : ils
+surchargent `NEXT_PUBLIC_API_ENDPOINT` par-dessus `.env.local`. L'authentification reste sur le
+keycloak/broker de staging dans tous les cas — seule l'API cible change.
 
 Voilà! Ouvrez [http://localhost:3000](http://localhost:3000) sur votre navigateur.
 

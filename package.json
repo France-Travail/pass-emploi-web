@@ -7,6 +7,8 @@
   },
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json server.ts | pino-pretty",
+    "dev:local": "dotenv -e .env.api-local -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
+    "dev:staging": "dotenv -e .env.api-staging -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
     "watch": "yarn dev",
     "build": "NODE_ENV=production; next build --webpack && tsc --project tsconfig.server.json && rm -rf .next/cache",
     "build-source-map": "NODE_ENV=production next build --webpack && source-map-explorer .next/static/**/*.js",
@@ -69,6 +71,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/sanitize-html": "^2.16.1",
     "css-loader": "^7.1.4",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.3.4",
     "eslint-config-prettier": "^10.1.8",
