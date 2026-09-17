@@ -22,6 +22,8 @@ import {
   jsonToSimpleConseiller,
   SimpleConseillerJson,
 } from 'interfaces/json/conseiller'
+import { toEcsError } from 'utils/monitoring/ecsHelpers'
+import { rootLogger } from 'utils/monitoring/logger'
 
 export async function getConseillerServerSide(
   user: Session.HydratedUser,
@@ -38,11 +40,22 @@ export async function getMessageInformatifServerSide(
   idConseiller: string,
   accessToken: string
 ): Promise<MessageInformatif | undefined> {
-  const { content } = await apiGet<CommunicationsConseillerJson>(
-    `/conseillers/${idConseiller}/communications`,
-    accessToken
-  )
-  return content.messageInformatif
+  try {
+    const { content } = await apiGet<CommunicationsConseillerJson>(
+      `/conseillers/${idConseiller}/communications`,
+      accessToken
+    )
+    return content.messageInformatif
+  } catch (error) {
+    rootLogger.error(
+      {
+        event: { action: 'request_failed', outcome: 'failure' },
+        error: toEcsError(error),
+      },
+      'Erreur lors de la récupération du message informatif'
+    )
+    return undefined
+  }
 }
 
 export async function getConseillers(

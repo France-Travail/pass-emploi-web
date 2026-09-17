@@ -12,7 +12,7 @@ import {
   unBeneficiaireAvecActionsNonTerminees,
   unDetailBeneficiaire,
 } from 'fixtures/beneficiaire'
-import { unConseiller } from 'fixtures/conseiller'
+import { unConseiller, unMessageInformatif } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
 import {
   structureAvenirPro,
@@ -973,12 +973,11 @@ describe('PortefeuillePage client side', () => {
     it('affiche le bandeau avec le titre et le contenu du message', async () => {
       // GIVEN
       const conseiller = unConseiller()
-      const messageInformatif = {
-        id: 3,
+      const messageInformatif = unMessageInformatif({
         titre: 'Votre application évolue',
         contenu:
           'Le 15 octobre 2026, l’application pass emploi ne sera plus disponible.\nNous vous recommandons de ne plus ajouter de nouveaux bénéficiaires.',
-      }
+      })
 
       // WHEN
       await renderWithContexts(

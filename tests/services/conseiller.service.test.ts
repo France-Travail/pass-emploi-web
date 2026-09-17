@@ -7,6 +7,7 @@ import {
   unBaseConseillerJson,
   unConseiller,
   unConseillerJson,
+  unMessageInformatif,
 } from 'fixtures/conseiller'
 import { unDossierMilo } from 'fixtures/milo'
 import { unProfilMilo } from 'fixtures/profil'
@@ -127,10 +128,9 @@ describe('ConseillerApiService', () => {
     it('renvoie le message informatif du conseiller', async () => {
       // Given
       const accessToken = 'accessToken'
+      const messageInformatif = unMessageInformatif()
       ;(apiGet as jest.Mock).mockResolvedValue({
-        content: {
-          messageInformatif: { id: 3, titre: 'Titre', contenu: 'Contenu' },
-        },
+        content: { messageInformatif },
       })
 
       // When
@@ -144,13 +144,28 @@ describe('ConseillerApiService', () => {
         '/conseillers/id-conseiller/communications',
         accessToken
       )
-      expect(actual).toEqual({ id: 3, titre: 'Titre', contenu: 'Contenu' })
+      expect(actual).toEqual(messageInformatif)
     })
 
     it("renvoie undefined si aucun message informatif n'est à afficher", async () => {
       // Given
       const accessToken = 'accessToken'
       ;(apiGet as jest.Mock).mockResolvedValue({ content: {} })
+
+      // When
+      const actual = await getMessageInformatifServerSide(
+        'id-conseiller',
+        accessToken
+      )
+
+      // Then
+      expect(actual).toBeUndefined()
+    })
+
+    it("renvoie undefined sans lever d'erreur si l'appel API échoue", async () => {
+      // Given
+      const accessToken = 'accessToken'
+      ;(apiGet as jest.Mock).mockRejectedValue(new Error('erreur API'))
 
       // When
       const actual = await getMessageInformatifServerSide(

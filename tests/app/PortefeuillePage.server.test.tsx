@@ -4,7 +4,7 @@ import { DateTime } from 'luxon'
 import Portefeuille from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/page'
 import PortefeuillePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/PortefeuillePage'
 import { desItemsBeneficiaires } from 'fixtures/beneficiaire'
-import { unConseiller } from 'fixtures/conseiller'
+import { unConseiller, unMessageInformatif } from 'fixtures/conseiller'
 import { compareBeneficiairesByNom } from 'interfaces/beneficiaire'
 import { recupereCompteursBeneficiairesPortefeuilleMilo } from 'services/actions.service'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
@@ -37,9 +37,7 @@ describe('PortefeuillePage server side', () => {
         rdvs: 3,
       }))
     )
-    ;(getMessageInformatifServerSide as jest.Mock).mockResolvedValue(
-      undefined
-    )
+    ;(getMessageInformatifServerSide as jest.Mock).mockResolvedValue(undefined)
   })
 
   it('récupère la liste des jeunes', async () => {
@@ -71,11 +69,7 @@ describe('PortefeuillePage server side', () => {
     ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
       unConseiller({ structure: 'POLE_EMPLOI' })
     )
-    const messageInformatif = {
-      id: 3,
-      titre: 'Titre',
-      contenu: 'Contenu',
-    }
+    const messageInformatif = unMessageInformatif()
     ;(getMessageInformatifServerSide as jest.Mock).mockResolvedValue(
       messageInformatif
     )
