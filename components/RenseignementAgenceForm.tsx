@@ -112,7 +112,7 @@ export default function RenseignementAgenceForm({
       className='px-10 pt-6'
     >
       <Label htmlFor='search-agence'>
-        Rechercher votre agence dans la liste suivante
+        Taper 3 caractères minimum pour rechercher votre agence ci-dessous
       </Label>
       {idAgenceSelectionnee.error && (
         <InputError id='search-agence--error' className='mt-2'>

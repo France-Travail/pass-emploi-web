@@ -214,7 +214,7 @@ describe('HomePage client side', () => {
       beforeEach(async () => {
         // Given
         searchAgence = screen.getByRole('combobox', {
-          name: /Rechercher/,
+          name: /rechercher votre agence/,
         })
         await userEvent.type(searchAgence, 'pouet')
 
