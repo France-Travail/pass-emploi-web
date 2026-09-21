@@ -13,15 +13,24 @@ jest.mock('next/navigation', () => ({
   redirect: jest.fn(),
 }))
 jest.mock('next/headers', () => ({
-  headers: jest.fn().mockResolvedValue({ get: jest.fn().mockReturnValue('/') }),
+  headers: jest.fn().mockResolvedValue({
+    get: jest.fn((name: string) =>
+      name === 'x-request-id' ? 'req-from-header' : '/'
+    ),
+  }),
 }))
 jest.mock('elastic-apm-node', () => ({
   setUserContext: jest.fn(),
+}))
+jest.mock('utils/monitoring/requestStore', () => ({
+  initRequestId: jest.fn(),
+  initRequestUser: jest.fn(),
 }))
 
 import { getSessionServerSide } from 'utils/auth/auth'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { requestContext } from 'utils/monitoring/requestContext'
+import { initRequestId, initRequestUser } from 'utils/monitoring/requestStore'
 
 const mockGetSessionServerSide = getSessionServerSide as jest.Mock
 
@@ -44,6 +53,21 @@ function makeSession(overrides: Partial<Session['user']> = {}): Session {
 }
 
 describe('getMandatorySessionServerSide', () => {
+  beforeEach(() => jest.clearAllMocks())
+
+  it('enrichit le requestStore (rendu RSC) avec le user et le request id', async () => {
+    mockGetSessionServerSide.mockResolvedValue(makeSession())
+
+    await getMandatorySessionServerSide()
+
+    expect(initRequestUser).toHaveBeenCalledWith({
+      id: 'conseiller-uuid',
+      type: 'CONSEILLER',
+      structure: 'MILO',
+    })
+    expect(initRequestId).toHaveBeenCalledWith('req-from-header')
+  })
+
   it('enrichit le RequestContext avec user.id, type et structure', async () => {
     mockGetSessionServerSide.mockResolvedValue(makeSession())
 

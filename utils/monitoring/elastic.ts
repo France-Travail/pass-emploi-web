@@ -21,3 +21,7 @@ export function captureError(error: Error | string) {
     rum.captureError(error)
   }
 }
+
+export function setRumUser(user: { id: string; structure: string }) {
+  rum.setUserContext({ id: user.id, username: user.structure })
+}

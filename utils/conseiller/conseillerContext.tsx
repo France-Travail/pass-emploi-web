@@ -1,8 +1,15 @@
 'use client'
 
-import { createContext, ReactNode, useContext, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 import { Conseiller } from 'interfaces/conseiller'
+import { setRumUser } from 'utils/monitoring/elastic'
 
 type ConseillerState = [Conseiller, (updatedConseiller: Conseiller) => void]
 
@@ -16,6 +23,12 @@ export function ConseillerProvider({
   conseiller: Conseiller
 }) {
   const state = useState<Conseiller>(conseiller)
+  const [{ id, structure }] = state
+
+  useEffect(() => {
+    setRumUser({ id, structure })
+  }, [id, structure])
+
   return (
     <ConseillerContext.Provider value={state}>
       {children}
