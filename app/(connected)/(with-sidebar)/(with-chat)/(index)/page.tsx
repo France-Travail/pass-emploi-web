@@ -6,6 +6,7 @@ import { PageHeaderPortal } from 'components/PageNavigationPortals'
 import {
   aEtablissement,
   doitChoisirSonDispositif,
+  doitConfirmerSonDispositif,
   doitRenseignerSonAgence,
   doitSignerLesCGU,
 } from 'interfaces/conseiller'
@@ -42,11 +43,13 @@ export default async function Home({
     ? doitRenseignerSonAgence(conseiller)
     : !aEtablissement(conseiller)
   const dispositifEstManquant = doitChoisirSonDispositif(conseiller)
+  const dispositifEstAConfirmer = doitConfirmerSonDispositif(conseiller)
   if (
     !afficherModaleOnboarding &&
     !emailEstManquant &&
     !agenceEstManquante &&
-    !dispositifEstManquant
+    !dispositifEstManquant &&
+    !dispositifEstAConfirmer
   )
     redirect(targetPage)
 
@@ -66,6 +69,7 @@ export default async function Home({
         afficherModaleOnboarding={afficherModaleOnboarding}
         afficherModaleAgence={agenceEstManquante}
         afficherModaleDispositif={dispositifEstManquant}
+        afficherModaleConfirmationDispositif={dispositifEstAConfirmer}
         afficherModaleEmail={emailEstManquant}
         redirectUrl={targetPage}
         referentielAgences={referentielAgences}

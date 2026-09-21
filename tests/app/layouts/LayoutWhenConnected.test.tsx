@@ -218,6 +218,92 @@ describe('LayoutWhenConnected', () => {
           structure: structureFTCej,
           agence: { id: 'id-agence', nom: 'Agence du référentiel' },
           dateMajAgence: DateTime.now().minus({ months: 5 }),
+          dateMajDispositif: DateTime.now().minus({ months: 5 }),
+        })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('quand le conseiller France Travail doit confirmer son dispositif', () => {
+    const conseillerFTAJour: Partial<Conseiller> = {
+      structure: structureFTCej,
+      agence: { id: 'id-agence', nom: 'Agence du référentiel' },
+      dateMajAgence: DateTime.now().minus({ months: 1 }),
+    }
+
+    beforeEach(() => {
+      // Given
+      ;(getServerSession as jest.Mock).mockResolvedValue({
+        user: { estConseiller: true, id: 'user-id' },
+        accessToken: 'accessToken',
+      })
+      ;(getBeneficiairesDuConseillerServerSide as jest.Mock).mockResolvedValue(
+        []
+      )
+    })
+
+    it('renvoie vers l’accueil quand le dispositif n’a jamais été confirmé', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller(conseillerFTAJour)
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      const promise = LayoutWhenConnected({ children: <div /> })
+
+      // Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /?redirectUrl=%2Fmes-jeunes')
+      )
+    })
+
+    it('renvoie vers l’accueil quand le dispositif a été confirmé il y a plus d’un an', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          ...conseillerFTAJour,
+          dateMajDispositif: DateTime.now().minus({ years: 1, days: 1 }),
+        })
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })
+
+      // When
+      const promise = LayoutWhenConnected({ children: <div /> })
+
+      // Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /?redirectUrl=%2Fmes-jeunes')
+      )
+    })
+
+    it('laisse afficher l’accueil', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller(conseillerFTAJour)
+      )
+      ;(headers as jest.Mock).mockResolvedValue({ get: () => '/' })
+
+      // When
+      render(await LayoutWhenConnected({ children: <div /> }))
+
+      // Then
+      expect(redirect).not.toHaveBeenCalled()
+    })
+
+    it('laisse passer un conseiller France Travail confirmé il y a moins d’un an', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          ...conseillerFTAJour,
+          dateMajDispositif: DateTime.now().minus({ months: 11 }),
         })
       )
       ;(headers as jest.Mock).mockResolvedValue({ get: () => '/mes-jeunes' })

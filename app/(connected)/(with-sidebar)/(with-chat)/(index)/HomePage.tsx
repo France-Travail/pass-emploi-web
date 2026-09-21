@@ -1,6 +1,7 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
+import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -20,6 +21,7 @@ type HomePageProps = {
   afficherModaleOnboarding: boolean
   afficherModaleAgence: boolean
   afficherModaleDispositif: boolean
+  afficherModaleConfirmationDispositif: boolean
   afficherModaleEmail: boolean
   referentielAgences?: Agence[]
 }
@@ -44,6 +46,7 @@ function HomePage({
   afficherModaleOnboarding,
   afficherModaleAgence,
   afficherModaleDispositif,
+  afficherModaleConfirmationDispositif,
   afficherModaleEmail,
   redirectUrl,
   referentielAgences,
@@ -60,11 +63,16 @@ function HomePage({
     useState<boolean>(afficherModaleEmail)
   const [showModaleAgence, setShowModaleAgence] =
     useState<boolean>(afficherModaleAgence)
+  const [
+    showModaleConfirmationDispositif,
+    setShowModaleConfirmationDispositif,
+  ] = useState<boolean>(afficherModaleConfirmationDispositif)
 
   const [trackingLabel, setTrackingLabel] = useState<string>(
-    afficherModaleDispositif
-      ? 'Pop-in sélection dispositif'
-      : 'Pop-in sélection agence'
+    labelPopInInitiale(
+      afficherModaleDispositif,
+      afficherModaleConfirmationDispositif
+    )
   )
   async function selectAgence(agence: {
     id?: string
@@ -84,6 +92,16 @@ function HomePage({
     await modifierDispositif(dispositif)
     setTrackingLabel('Succès ajout dispositif')
     router.push('/api/auth/federated-logout')
+  }
+
+  // Même dispositif : rien ne change dans le token, l'API note juste la date pour la relance annuelle.
+  async function reconfirmerDispositif(dispositif: Dispositif): Promise<void> {
+    const { modifierDispositif } = await import('services/conseiller.service')
+    await modifierDispositif(dispositif)
+    setConseiller({ ...conseiller, dateMajDispositif: DateTime.now() })
+    setTrackingLabel('Succès confirmation dispositif')
+    setAlerte(AlerteParam.confirmationDispositif)
+    setShowModaleConfirmationDispositif(false)
   }
 
   // TODO rename
@@ -114,6 +132,7 @@ function HomePage({
       !showModaleOnboarding &&
       !showModaleAgence &&
       !afficherModaleDispositif &&
+      !showModaleConfirmationDispositif &&
       !showModaleEmail
     )
       redirectToUrl()
@@ -121,6 +140,7 @@ function HomePage({
     showModaleOnboarding,
     showModaleAgence,
     afficherModaleDispositif,
+    showModaleConfirmationDispositif,
     showModaleEmail,
   ])
 
@@ -130,6 +150,14 @@ function HomePage({
     <>
       {afficherModaleDispositif && (
         <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
+      )}
+
+      {showModaleConfirmationDispositif && (
+        <RenseignementDispositifModal
+          dispositifActuel={conseiller.profil.dispositif as Dispositif}
+          onDispositifChoisi={selectDispositif}
+          onDispositifReconfirme={reconfirmerDispositif}
+        />
       )}
 
       {showModaleEmail && (
@@ -149,6 +177,7 @@ function HomePage({
 
       {showModaleAgence &&
         !afficherModaleDispositif &&
+        !showModaleConfirmationDispositif &&
         !estMilo(conseiller.structure) &&
         referentielAgences && (
           <RenseignementAgenceModal
@@ -171,6 +200,16 @@ function HomePage({
       )}
     </>
   )
+}
+
+function labelPopInInitiale(
+  afficherModaleDispositif: boolean,
+  afficherModaleConfirmationDispositif: boolean
+): string {
+  if (afficherModaleDispositif) return 'Pop-in sélection dispositif'
+  if (afficherModaleConfirmationDispositif)
+    return 'Pop-in confirmation dispositif'
+  return 'Pop-in sélection agence'
 }
 
 export default withTransaction(HomePage.name, 'page')(HomePage)

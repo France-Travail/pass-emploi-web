@@ -122,6 +122,56 @@ describe('ConseillerApiService', () => {
       // Then
       expect(actual.dateMajAgence).toBeUndefined()
     })
+    it('convertit la date de confirmation du dispositif', async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        profil: unProfilMilo(),
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({
+          dateMajDispositif: '2026-09-21T12:29:30.000+02:00',
+        }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(actual.dateMajDispositif).toEqual(
+        DateTime.fromISO('2026-09-21T12:29:30.000+02:00')
+      )
+    })
+    it('ne renseigne pas de date de confirmation du dispositif si elle n’existe pas', async () => {
+      // Given
+      const accessToken = 'accessToken'
+
+      const user: Session.HydratedUser = {
+        id: 'id-user',
+        name: 'Albert Durant',
+        structure: structureMilo,
+        profil: unProfilMilo(),
+        email: 'albert.durant@gmail.com',
+        estConseiller: true,
+        estSuperviseur: false,
+      }
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: unConseillerJson({ dateMajDispositif: undefined }),
+      })
+
+      // When
+      const actual = await getConseillerServerSide(user, accessToken)
+
+      // Then
+      expect(actual.dateMajDispositif).toBeUndefined()
+    })
   })
 
   describe('.getMessageInformatifServerSide', () => {

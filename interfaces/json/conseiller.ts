@@ -54,6 +54,7 @@ export interface ConseillerJson {
   dateSignatureCGU?: string
   dateVisionnageActus?: string
   dateMajAgence?: string
+  dateMajDispositif?: string
 }
 
 export type CommunicationsConseillerJson = {
@@ -84,6 +85,7 @@ export function jsonToConseiller(
     dateSignatureCGU,
     dateVisionnageActus,
     dateMajAgence,
+    dateMajDispositif,
     profil,
     ...json
   } = conseillerJson
@@ -108,6 +110,10 @@ export function jsonToConseiller(
 
   if (dateMajAgence) {
     conseiller.dateMajAgence = DateTime.fromISO(dateMajAgence)
+  }
+
+  if (dateMajDispositif) {
+    conseiller.dateMajDispositif = DateTime.fromISO(dateMajDispositif)
   }
 
   return conseiller

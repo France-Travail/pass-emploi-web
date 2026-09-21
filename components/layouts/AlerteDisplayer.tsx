@@ -114,6 +114,7 @@ const ALERTES: DictAlertes = {
     title: (target?: string) =>
       `Ce bénéficiaire est bien passé en accompagnement ${target}`,
   },
+  confirmationDispositif: { title: 'Votre dispositif a bien été confirmé' },
   modificationIdentifiantPartenaire: {
     title: 'L’identifiant France Travail a bien été mis à jour',
   },

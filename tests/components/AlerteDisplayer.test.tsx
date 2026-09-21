@@ -311,6 +311,27 @@ describe('AlerteDisplayer', () => {
     })
   })
 
+  describe('quand on confirme son dispositif', () => {
+    it("affiche l'alerte de succès", async () => {
+      await renderWithContexts(<AlerteDisplayer />, {
+        customAlerte: {
+          value: {
+            key: AlerteParam.confirmationDispositif,
+          },
+          setter: alerteSetter,
+        },
+        customConseiller: unConseiller({
+          structure: structureFTCej,
+        }),
+      })
+
+      // Then
+      expect(
+        screen.getByText('Votre dispositif a bien été confirmé')
+      ).toBeInTheDocument()
+    })
+  })
+
   describe('quand on crée une liste', () => {
     it("affiche l'alerte de succès", async () => {
       await renderWithContexts(<AlerteDisplayer />, {
