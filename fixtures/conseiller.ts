@@ -1,5 +1,5 @@
 import { unProfilMilo } from 'fixtures/profil'
-import { Conseiller } from 'interfaces/conseiller'
+import { Conseiller, MessageInformatif } from 'interfaces/conseiller'
 import {
   SimpleConseillerJson,
   ConseillerJson,
@@ -33,6 +33,17 @@ export const unBaseConseillerJson = (
     prenom: 'Nils',
     nom: 'Tavernier',
     email: 'nils.tavernier@mail.com',
+  }
+  return { ...defaults, ...overrides }
+}
+
+export const unMessageInformatif = (
+  overrides: Partial<MessageInformatif> = {}
+): MessageInformatif => {
+  const defaults: MessageInformatif = {
+    id: 3,
+    titre: 'Titre',
+    contenu: 'Contenu',
   }
   return { ...defaults, ...overrides }
 }

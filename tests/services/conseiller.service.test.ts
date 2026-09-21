@@ -7,6 +7,7 @@ import {
   unBaseConseillerJson,
   unConseiller,
   unConseillerJson,
+  unMessageInformatif,
 } from 'fixtures/conseiller'
 import { unDossierMilo } from 'fixtures/milo'
 import { unProfilMilo } from 'fixtures/profil'
@@ -18,6 +19,7 @@ import {
   getConseillerServerSide,
   getImpactChangementDispositif,
   getDossierJeune,
+  getMessageInformatifServerSide,
   modifierAgence,
   modifierDateSignatureCGU,
   modifierDispositif,
@@ -54,7 +56,6 @@ describe('ConseillerApiService', () => {
           },
           dateSignatureCGU: uneDate,
           dateVisionnageActus: uneDate,
-          dateDeMigration: '2025-11-25',
         }),
       })
 
@@ -68,35 +69,8 @@ describe('ConseillerApiService', () => {
           agence: { nom: 'Milo Marseille', id: 'id-agence' },
           dateSignatureCGU: uneDate,
           dateVisionnageActus: uneDate,
-          dateDeMigration: DateTime.fromISO('2025-11-25'),
         })
       )
-    })
-    it("ne renseigne pas de date de migration si elle n'existe pas", async () => {
-      // Given
-      const accessToken = 'accessToken'
-
-      const user: Session.HydratedUser = {
-        id: 'id-user',
-        name: 'Albert Durant',
-        structure: structureMilo,
-        profil: unProfilMilo(),
-        email: 'albert.durant@gmail.com',
-        estConseiller: true,
-        estSuperviseur: false,
-      }
-      ;(apiGet as jest.Mock).mockResolvedValue({
-        content: unConseillerJson({
-          dateDeMigration: undefined,
-        }),
-      })
-
-      // When
-      const actual = await getConseillerServerSide(user, accessToken)
-
-      // Then
-      expect(apiGet).toHaveBeenCalledWith('/conseillers/id-user', accessToken)
-      expect(actual.dateDeMigration).toBeUndefined()
     })
     it('renseigne la date de confirmation de l’agence', async () => {
       // Given
@@ -148,31 +122,59 @@ describe('ConseillerApiService', () => {
       // Then
       expect(actual.dateMajAgence).toBeUndefined()
     })
-    it('ne renseigne pas de date de migration si elle est invalide', async () => {
+  })
+
+  describe('.getMessageInformatifServerSide', () => {
+    it('renvoie le message informatif du conseiller', async () => {
       // Given
       const accessToken = 'accessToken'
-
-      const user: Session.HydratedUser = {
-        id: 'id-user',
-        name: 'Albert Durant',
-        structure: structureMilo,
-        profil: unProfilMilo(),
-        email: 'albert.durant@gmail.com',
-        estConseiller: true,
-        estSuperviseur: false,
-      }
+      const messageInformatif = unMessageInformatif()
       ;(apiGet as jest.Mock).mockResolvedValue({
-        content: unConseillerJson({
-          dateDeMigration: 'mauvaise-date',
-        }),
+        content: { messageInformatif },
       })
 
       // When
-      const actual = await getConseillerServerSide(user, accessToken)
+      const actual = await getMessageInformatifServerSide(
+        'id-conseiller',
+        accessToken
+      )
 
       // Then
-      expect(apiGet).toHaveBeenCalledWith('/conseillers/id-user', accessToken)
-      expect(actual.dateDeMigration).toBeUndefined()
+      expect(apiGet).toHaveBeenCalledWith(
+        '/conseillers/id-conseiller/communications',
+        accessToken
+      )
+      expect(actual).toEqual(messageInformatif)
+    })
+
+    it("renvoie undefined si aucun message informatif n'est à afficher", async () => {
+      // Given
+      const accessToken = 'accessToken'
+      ;(apiGet as jest.Mock).mockResolvedValue({ content: {} })
+
+      // When
+      const actual = await getMessageInformatifServerSide(
+        'id-conseiller',
+        accessToken
+      )
+
+      // Then
+      expect(actual).toBeUndefined()
+    })
+
+    it("renvoie undefined sans lever d'erreur si l'appel API échoue", async () => {
+      // Given
+      const accessToken = 'accessToken'
+      ;(apiGet as jest.Mock).mockRejectedValue(new Error('erreur API'))
+
+      // When
+      const actual = await getMessageInformatifServerSide(
+        'id-conseiller',
+        accessToken
+      )
+
+      // Then
+      expect(actual).toBeUndefined()
     })
   })
 
