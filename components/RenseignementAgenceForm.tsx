@@ -8,8 +8,8 @@ import SelectAutocomplete from 'components/ui/Form/SelectAutocomplete'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 import { ValueWithError } from 'components/ValueWithError'
 import { Agence } from 'interfaces/referentiel'
+import { EMAIL_SUPPORT } from 'referentiel/support'
 
-const EMAIL_SUPPORT = 'support@pass-emploi.beta.gouv.fr'
 const NB_CARACTERES_MINIMUM_RECHERCHE = 3
 
 function libelleAgence({ nom, codeDepartement }: Agence): string {
@@ -171,7 +171,7 @@ export default function RenseignementAgenceForm({
       {!avecSaisieLibre && agenceNonTrouvee && (
         <InformationMessage
           className='mt-6'
-          label={`Si vous ne trouvez pas votre agence, veuillez contacter le support à cet adresse email : ${EMAIL_SUPPORT}`}
+          label={`Si vous ne trouvez pas votre agence, veuillez contacter le support à cette adresse email : ${EMAIL_SUPPORT}`}
         />
       )}
 

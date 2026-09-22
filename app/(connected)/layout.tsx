@@ -8,6 +8,7 @@ import { MODAL_ROOT_ID } from 'components/globals'
 import LiensEvitement from 'components/LiensEvitement'
 import {
   doitChoisirSonDispositif,
+  doitConfirmerSonDispositif,
   doitRenseignerSonAgence,
 } from 'interfaces/conseiller'
 import { estPassEmploi } from 'interfaces/structure'
@@ -52,6 +53,7 @@ export default async function LayoutWhenConnected({
 
   if (
     doitChoisirSonDispositif(conseiller) ||
+    doitConfirmerSonDispositif(conseiller) ||
     doitRenseignerSonAgence(conseiller)
   ) {
     const cheminCourant = (await headers()).get('x-current-path') ?? '/'

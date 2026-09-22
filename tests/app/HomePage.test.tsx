@@ -41,6 +41,7 @@ describe('HomePage client side', () => {
         <HomePage
           afficherModaleAgence={true}
           afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           redirectUrl='/mes-jeunes'
@@ -96,6 +97,7 @@ describe('HomePage client side', () => {
         <HomePage
           afficherModaleAgence={true}
           afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           referentielAgences={agences}
@@ -272,6 +274,7 @@ describe('HomePage client side', () => {
         <HomePage
           afficherModaleAgence={true}
           afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           referentielAgences={agences}
@@ -344,7 +347,7 @@ describe('HomePage client side', () => {
       // Then
       expect(
         screen.getByText(
-          /veuillez contacter le support à cet adresse email : support@pass-emploi.beta.gouv.fr/
+          /veuillez contacter le support à cette adresse email : support@pass-emploi.beta.gouv.fr/
         )
       ).toBeInTheDocument()
     })
@@ -483,6 +486,7 @@ describe('HomePage client side', () => {
         <HomePage
           afficherModaleAgence={false}
           afficherModaleDispositif={true}
+          afficherModaleConfirmationDispositif={false}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
           redirectUrl='/mes-jeunes'
@@ -595,6 +599,393 @@ describe('HomePage client side', () => {
     })
   })
 
+  describe('quand le conseiller France Travail doit confirmer son dispositif', () => {
+    let push: jest.Mock
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+
+    beforeEach(async () => {
+      // Given
+      push = jest.fn()
+      alerteSetter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ replace, push })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 40,
+        nbBeneficiairesTransferesTemporairement: 0,
+        nbBeneficiairesSuivisTemporairement: 1,
+      })
+
+      // When
+      ;({ container } = await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={false}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={true}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={false}
+          redirectUrl='/mes-jeunes'
+        />,
+        {
+          customConseiller: {
+            structure: structureFTCej,
+            profil: unProfilFT(),
+          },
+          customAlerte: { setter: alerteSetter },
+        }
+      ))
+    })
+
+    it('a11y', async () => {
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('demande au conseiller d’indiquer son dispositif', () => {
+      // Then
+      expect(
+        screen.getByRole('heading', {
+          level: 2,
+          name: 'Indiquer mon dispositif',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Vos bénéficiaires seront rattachés au dispositif sélectionné. Les réaffectations temporaires gardent leur dispositif actuel.'
+        )
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/Une fois votre dispositif renseigné/)
+      ).toThrow()
+    })
+
+    it('ne permet pas de fermer la modale', () => {
+      // Then
+      expect(() =>
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      ).toThrow()
+      expect(() => screen.getByRole('button', { name: 'Annuler' })).toThrow()
+      expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('propose tous les dispositifs France Travail, y compris l’actuel, sans présélection', () => {
+      // Then
+      const selectDispositif = screen.getByRole('combobox', {
+        name: /Sélectionner le dispositif dans la liste suivante/,
+      })
+      expect(selectDispositif).toBeRequired()
+      expect(selectDispositif).toHaveValue('')
+      structuresFranceTravail.forEach((structure) =>
+        expect(
+          within(selectDispositif).getByRole('option', {
+            name: labelStructure(structure),
+          })
+        ).toBeInTheDocument()
+      )
+      expect(screen.getByRole('button', { name: 'Confirmer' })).toBeDisabled()
+    })
+
+    it('renvoie vers le support quand le dispositif est absent de la liste', async () => {
+      // Given
+      expect(() => screen.getByText(/veuillez contacter le support/)).toThrow()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Mon dispositif n’apparaît pas/ })
+      )
+
+      // Then
+      expect(
+        screen.getByText(
+          /Si vous avez un problème avec un dispositif, veuillez contacter le support à l’adresse suivante : support@pass-emploi.beta.gouv.fr/
+        )
+      ).toBeInTheDocument()
+    })
+
+    describe('quand le conseiller confirme son dispositif actuel', () => {
+      beforeEach(async () => {
+        // When
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
+          'CEJ'
+        )
+        await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+      })
+
+      it('enregistre la confirmation sans demander de validation', () => {
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith('CEJ')
+        expect(getImpactChangementDispositif).not.toHaveBeenCalled()
+      })
+
+      it('ferme la modale, affiche le succès et laisse le conseiller connecté', () => {
+        // Then
+        expect(() =>
+          screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
+        ).toThrow()
+        expect(alerteSetter).toHaveBeenCalledWith('confirmationDispositif')
+        expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+        expect(push).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('quand le conseiller choisit un autre dispositif', () => {
+      beforeEach(async () => {
+        // When
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
+          'RSA rénové'
+        )
+        await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+      })
+
+      it('demande validation en détaillant les bénéficiaires concernés', () => {
+        // Then
+        expect(
+          screen.getByRole('heading', {
+            level: 2,
+            name: 'Valider mon dispositif',
+          })
+        ).toBeInTheDocument()
+        expect(getImpactChangementDispositif).toHaveBeenCalledWith(
+          'id-conseiller-1'
+        )
+        expect(
+          screen.getByText(
+            'Confirmez-vous le passage au dispositif RSA rénové ?'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            '40 bénéficiaires de votre portefeuille passeront au dispositif RSA rénové.'
+          )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            '1 bénéficiaire gardera son dispositif actuel car vous le suivez temporairement.'
+          )
+        ).toBeInTheDocument()
+        expect(modifierDispositif).not.toHaveBeenCalled()
+      })
+
+      it('ne permet toujours pas de fermer la modale', () => {
+        // Then
+        expect(() =>
+          screen.getByRole('button', { name: 'Fermer la fenêtre' })
+        ).toThrow()
+        expect(() => screen.getByRole('button', { name: 'Annuler' })).toThrow()
+      })
+
+      it('permet de revenir au choix', async () => {
+        // When
+        await userEvent.click(screen.getByRole('button', { name: 'Retour' }))
+
+        // Then
+        expect(
+          screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('combobox', { name: /Sélectionner le dispositif/ })
+        ).toHaveValue('POLE_EMPLOI_BRSA')
+      })
+
+      it('modifie le dispositif puis déconnecte le conseiller', async () => {
+        // When
+        await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+        expect(push).toHaveBeenCalledWith('/api/auth/federated-logout')
+        expect(alerteSetter).not.toHaveBeenCalled()
+        expect(replace).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('quand le conseiller France Travail doit confirmer son agence puis son dispositif', () => {
+    let push: jest.Mock
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    const agences = uneListeDAgencesFranceTravail()
+
+    beforeEach(async () => {
+      // Given
+      push = jest.fn()
+      alerteSetter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ replace, push })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 2,
+        nbBeneficiairesTransferesTemporairement: 0,
+        nbBeneficiairesSuivisTemporairement: 0,
+      })
+
+      // When
+      await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={true}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={false}
+          referentielAgences={agences}
+          redirectUrl='/mes-jeunes'
+        />,
+        {
+          customConseiller: {
+            structure: structureFTCej,
+            profil: unProfilFT(),
+          },
+          customAlerte: { setter: alerteSetter },
+        }
+      )
+    })
+
+    async function choisirUneAgence() {
+      const agence = agences[2]
+      await userEvent.type(
+        screen.getByRole('combobox', { name: /votre agence/ }),
+        `${agence.nom} (${agence.codeDepartement})`
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    }
+
+    it('commence par l’agence', () => {
+      // Then
+      expect(
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
+      ).toThrow()
+    })
+
+    it('enchaîne sur le dispositif une fois l’agence choisie, sans quitter la page', async () => {
+      // When
+      await choisirUneAgence()
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledTimes(1)
+      expect(
+        screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toThrow()
+      expect(replace).not.toHaveBeenCalled()
+    })
+
+    it('redirige avec le bandeau du dispositif une fois les deux confirmés', async () => {
+      // When
+      await choisirUneAgence()
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
+        'CEJ'
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(modifierDispositif).toHaveBeenCalledWith('CEJ')
+      expect(alerteSetter).toHaveBeenLastCalledWith('confirmationDispositif')
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+      expect(push).not.toHaveBeenCalled()
+    })
+
+    it('déconnecte en dernier quand le dispositif change', async () => {
+      // When
+      await choisirUneAgence()
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
+        'RSA rénové'
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledTimes(1)
+      expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+      expect(push).toHaveBeenCalledWith('/api/auth/federated-logout')
+      expect(replace).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('quand plusieurs modales sont dues', () => {
+    it('n’en affiche qu’une à la fois : la structure Mission Locale avant l’email', async () => {
+      // Given
+      await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
+          afficherModaleEmail={true}
+          afficherModaleOnboarding={false}
+          redirectUrl='/mes-jeunes'
+        />,
+        { customConseiller: { structure: structureMilo } }
+      )
+      expect(
+        screen.getByText(/vous devez renseigner votre structure/)
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/Votre adresse email n’est pas renseignée/)
+      ).toThrow()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      )
+
+      // Then
+      expect(
+        screen.getByText(/Votre adresse email n’est pas renseignée/)
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/vous devez renseigner votre structure/)
+      ).toThrow()
+      expect(replace).not.toHaveBeenCalled()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      )
+
+      // Then
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+    })
+
+    it('affiche l’onboarding avant les modales obligatoires', async () => {
+      // Given
+      await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={true}
+          referentielAgences={uneListeDAgencesFranceTravail()}
+          redirectUrl='/mes-jeunes'
+        />,
+        { customConseiller: { structure: structureFTCej } }
+      )
+      expect(
+        screen.getByRole('heading', {
+          name: 'Bienvenue Nils dans votre espace conseiller CEJ',
+        })
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toThrow()
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Commencer' }))
+
+      // Then
+      expect(
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toBeInTheDocument()
+      expect(replace).not.toHaveBeenCalled()
+    })
+  })
+
   describe('quand le conseiller doit renseigner son adresse email', () => {
     beforeEach(async () => {
       // When
@@ -602,6 +993,7 @@ describe('HomePage client side', () => {
         <HomePage
           afficherModaleAgence={false}
           afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
           afficherModaleEmail={true}
           afficherModaleOnboarding={false}
           redirectUrl='/mes-jeunes'
@@ -645,6 +1037,7 @@ describe('HomePage client side', () => {
           <HomePage
             afficherModaleAgence={false}
             afficherModaleDispositif={false}
+            afficherModaleConfirmationDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'
@@ -710,6 +1103,7 @@ describe('HomePage client side', () => {
           <HomePage
             afficherModaleAgence={false}
             afficherModaleDispositif={false}
+            afficherModaleConfirmationDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'
@@ -784,6 +1178,7 @@ describe('HomePage client side', () => {
           <HomePage
             afficherModaleAgence={false}
             afficherModaleDispositif={false}
+            afficherModaleConfirmationDispositif={false}
             afficherModaleEmail={false}
             afficherModaleOnboarding={true}
             redirectUrl='/mes-jeunes'

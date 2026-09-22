@@ -1,6 +1,7 @@
 'use client'
 
 import { withTransaction } from '@elastic/apm-rum-react'
+import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -20,9 +21,19 @@ type HomePageProps = {
   afficherModaleOnboarding: boolean
   afficherModaleAgence: boolean
   afficherModaleDispositif: boolean
+  afficherModaleConfirmationDispositif: boolean
   afficherModaleEmail: boolean
   referentielAgences?: Agence[]
 }
+
+type ModaleActive =
+  | 'onboarding'
+  | 'dispositif'
+  | 'structure'
+  | 'agence'
+  | 'confirmation-dispositif'
+  | 'email'
+  | undefined
 
 const RenseignementAgenceModal = dynamic(
   () => import('components/RenseignementAgenceModal')
@@ -44,6 +55,7 @@ function HomePage({
   afficherModaleOnboarding,
   afficherModaleAgence,
   afficherModaleDispositif,
+  afficherModaleConfirmationDispositif,
   afficherModaleEmail,
   redirectUrl,
   referentielAgences,
@@ -60,12 +72,24 @@ function HomePage({
     useState<boolean>(afficherModaleEmail)
   const [showModaleAgence, setShowModaleAgence] =
     useState<boolean>(afficherModaleAgence)
+  const [
+    showModaleConfirmationDispositif,
+    setShowModaleConfirmationDispositif,
+  ] = useState<boolean>(afficherModaleConfirmationDispositif)
+
+  const modaleActive = premiereModaleDue({
+    onboarding: showModaleOnboarding,
+    dispositif: afficherModaleDispositif,
+    agence: showModaleAgence,
+    confirmationDispositif: showModaleConfirmationDispositif,
+    email: showModaleEmail,
+    estMilo: estMilo(conseiller.structure),
+  })
 
   const [trackingLabel, setTrackingLabel] = useState<string>(
-    afficherModaleDispositif
-      ? 'Pop-in sélection dispositif'
-      : 'Pop-in sélection agence'
+    labelPopIn(modaleActive)
   )
+
   async function selectAgence(agence: {
     id?: string
     nom: string
@@ -75,7 +99,7 @@ function HomePage({
     setConseiller({ ...conseiller, agence })
     setTrackingLabel('Succès ajout agence')
     setAlerte(AlerteParam.choixAgence)
-    redirectToUrl()
+    setShowModaleAgence(false)
   }
 
   // Le dispositif voyage dans le token : le conseiller se reconnecte pour le retrouver.
@@ -84,6 +108,16 @@ function HomePage({
     await modifierDispositif(dispositif)
     setTrackingLabel('Succès ajout dispositif')
     router.push('/api/auth/federated-logout')
+  }
+
+  // Même dispositif : rien ne change dans le token, l'API note juste la date pour la relance annuelle.
+  async function reconfirmerDispositif(dispositif: Dispositif): Promise<void> {
+    const { modifierDispositif } = await import('services/conseiller.service')
+    await modifierDispositif(dispositif)
+    setConseiller({ ...conseiller, dateMajDispositif: DateTime.now() })
+    setTrackingLabel('Succès confirmation dispositif')
+    setAlerte(AlerteParam.confirmationDispositif)
+    setShowModaleConfirmationDispositif(false)
   }
 
   // TODO rename
@@ -110,36 +144,25 @@ function HomePage({
   }
 
   useEffect(() => {
-    if (
-      !showModaleOnboarding &&
-      !showModaleAgence &&
-      !afficherModaleDispositif &&
-      !showModaleEmail
-    )
-      redirectToUrl()
-  }, [
-    showModaleOnboarding,
-    showModaleAgence,
-    afficherModaleDispositif,
-    showModaleEmail,
-  ])
+    if (!modaleActive) redirectToUrl()
+  }, [modaleActive])
 
   useMatomo(trackingLabel, portefeuille.length > 0)
 
   return (
     <>
-      {afficherModaleDispositif && (
-        <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
-      )}
-
-      {showModaleEmail && (
-        <RenseignementEmailModal
-          onAccederImilo={trackAccederImilo}
-          onClose={() => setShowModaleEmail(false)}
+      {modaleActive === 'onboarding' && (
+        <OnboardingModal
+          conseiller={conseiller}
+          onClose={() => setShowModaleOnboarding(false)}
         />
       )}
 
-      {showModaleAgence && estMilo(conseiller.structure) && (
+      {modaleActive === 'dispositif' && (
+        <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
+      )}
+
+      {modaleActive === 'structure' && (
         <RenseignementStructureModal
           onContacterSupport={trackContacterSupport}
           onAccederImilo={trackAccederImilo}
@@ -147,30 +170,73 @@ function HomePage({
         />
       )}
 
-      {showModaleAgence &&
-        !afficherModaleDispositif &&
-        !estMilo(conseiller.structure) &&
-        referentielAgences && (
-          <RenseignementAgenceModal
-            referentielAgences={referentielAgences}
-            onAgenceChoisie={selectAgence}
-            avecSaisieLibre={!estFranceTravail(conseiller.structure)}
-            onClose={
-              estFranceTravail(conseiller.structure)
-                ? undefined
-                : () => setShowModaleAgence(false)
-            }
-          />
-        )}
+      {modaleActive === 'agence' && referentielAgences && (
+        <RenseignementAgenceModal
+          referentielAgences={referentielAgences}
+          onAgenceChoisie={selectAgence}
+          avecSaisieLibre={!estFranceTravail(conseiller.structure)}
+          onClose={
+            estFranceTravail(conseiller.structure)
+              ? undefined
+              : () => setShowModaleAgence(false)
+          }
+        />
+      )}
 
-      {showModaleOnboarding && (
-        <OnboardingModal
-          conseiller={conseiller}
-          onClose={() => setShowModaleOnboarding(false)}
+      {modaleActive === 'confirmation-dispositif' && (
+        <RenseignementDispositifModal
+          dispositifActuel={conseiller.profil.dispositif as Dispositif}
+          onDispositifChoisi={selectDispositif}
+          onDispositifReconfirme={reconfirmerDispositif}
+        />
+      )}
+
+      {modaleActive === 'email' && (
+        <RenseignementEmailModal
+          onAccederImilo={trackAccederImilo}
+          onClose={() => setShowModaleEmail(false)}
         />
       )}
     </>
   )
+}
+
+// Une seule modale à la fois. L'onboarding passe en premier : son drapeau ne survit pas
+// à la reconnexion imposée par le choix du dispositif. La confirmation du dispositif passe
+// après l'agence : en changer déconnecte, autant que ce soit la dernière étape.
+function premiereModaleDue(dues: {
+  onboarding: boolean
+  dispositif: boolean
+  agence: boolean
+  confirmationDispositif: boolean
+  email: boolean
+  estMilo: boolean
+}): ModaleActive {
+  if (dues.onboarding) return 'onboarding'
+  if (dues.dispositif) return 'dispositif'
+  if (dues.agence) return dues.estMilo ? 'structure' : 'agence'
+  if (dues.confirmationDispositif) return 'confirmation-dispositif'
+  if (dues.email) return 'email'
+  return undefined
+}
+
+function labelPopIn(modaleActive: ModaleActive): string {
+  switch (modaleActive) {
+    case 'onboarding':
+      return 'Pop-in onboarding'
+    case 'dispositif':
+      return 'Pop-in sélection dispositif'
+    case 'structure':
+      return 'Pop-in sélection Mission Locale'
+    case 'agence':
+      return 'Pop-in sélection agence'
+    case 'confirmation-dispositif':
+      return 'Pop-in confirmation dispositif'
+    case 'email':
+      return 'Pop-in renseignement email'
+    default:
+      return 'Accueil'
+  }
 }
 
 export default withTransaction(HomePage.name, 'page')(HomePage)

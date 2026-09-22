@@ -1,7 +1,11 @@
 import { DateTime } from 'luxon'
 
 import { unConseiller } from 'fixtures/conseiller'
-import { doitRenseignerSonAgence } from 'interfaces/conseiller'
+import { unProfilFT } from 'fixtures/profil'
+import {
+  doitConfirmerSonDispositif,
+  doitRenseignerSonAgence,
+} from 'interfaces/conseiller'
 import {
   structureAvenirPro,
   structureConseilDepartemental,
@@ -72,5 +76,60 @@ describe('doitRenseignerSonAgence', () => {
     })
 
     expect(doitRenseignerSonAgence(conseiller)).toEqual(false)
+  })
+})
+
+describe('doitConfirmerSonDispositif', () => {
+  it('est vrai pour un conseiller France Travail qui n’a jamais confirmé son dispositif', () => {
+    const conseiller = unConseiller({ structure: structureFTCej })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(true)
+  })
+
+  it('est vrai pour un conseiller France Travail confirmé il y a plus d’un an', () => {
+    const conseiller = unConseiller({
+      structure: structureFTCej,
+      dateMajDispositif: DateTime.now().minus({ years: 1, days: 1 }),
+    })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(true)
+  })
+
+  it('est faux pour un conseiller France Travail confirmé il y a moins d’un an', () => {
+    const conseiller = unConseiller({
+      structure: structureFTCej,
+      dateMajDispositif: DateTime.now().minus({ months: 11 }),
+    })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(false)
+  })
+
+  it('est vrai pour un conseiller Avenir pro qui n’a jamais confirmé son dispositif', () => {
+    const conseiller = unConseiller({ structure: structureAvenirPro })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(true)
+  })
+
+  it('est faux pour un conseiller France Travail sans dispositif, qui doit d’abord le choisir', () => {
+    const conseiller = unConseiller({
+      structure: structureFTCej,
+      profil: unProfilFT(null),
+    })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(false)
+  })
+
+  it('est faux pour un conseiller Mission Locale', () => {
+    const conseiller = unConseiller({ structure: structureMilo })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(false)
+  })
+
+  it('est faux pour un conseiller Conseil départemental', () => {
+    const conseiller = unConseiller({
+      structure: structureConseilDepartemental,
+    })
+
+    expect(doitConfirmerSonDispositif(conseiller)).toEqual(false)
   })
 })

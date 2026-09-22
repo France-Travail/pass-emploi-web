@@ -36,6 +36,7 @@ export type Conseiller = BaseConseiller & {
   dateSignatureCGU?: string
   dateVisionnageActus?: string
   dateMajAgence?: DateTime
+  dateMajDispositif?: DateTime
 }
 
 export type MessageInformatif = {
@@ -78,6 +79,20 @@ export function doitChoisirSonDispositif(conseiller: Conseiller): boolean {
   return (
     conseiller.profil.structure === 'FRANCE_TRAVAIL' &&
     !conseiller.profil.dispositif
+  )
+}
+
+const DELAI_CONFIRMATION_DISPOSITIF = { years: 1 }
+
+// Le dispositif connu en base n'est fiable qu'une fois indiqué par le conseiller lui-même.
+export function doitConfirmerSonDispositif(conseiller: Conseiller): boolean {
+  if (conseiller.profil.structure !== 'FRANCE_TRAVAIL') return false
+  if (!conseiller.profil.dispositif) return false
+  if (!conseiller.dateMajDispositif) return true
+
+  return (
+    conseiller.dateMajDispositif <
+    DateTime.now().minus(DELAI_CONFIRMATION_DISPOSITIF)
   )
 }
 

@@ -11,29 +11,81 @@ import {
   dispositifDeLaStructureFT,
   structuresFTHorsDispositif,
 } from 'interfaces/profil'
-import { labelStructure, Structure } from 'interfaces/structure'
+import {
+  labelStructure,
+  Structure,
+  structuresFranceTravail,
+} from 'interfaces/structure'
+import { EMAIL_SUPPORT } from 'referentiel/support'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 interface RenseignementDispositifModalProps {
   onDispositifChoisi: (dispositif: Dispositif) => Promise<void>
   dispositifActuel?: Dispositif
+  onDispositifReconfirme?: (dispositif: Dispositif) => Promise<void>
   onClose?: () => void
 }
 
+type Mode = 'choix' | 'modification' | 'reconfirmation'
+
+const LIBELLES: Record<
+  Mode,
+  {
+    titre: string
+    titreValidation: string
+    information: string
+    dispositif: string
+    valider: string
+  }
+> = {
+  choix: {
+    titre: 'Choisissez votre dispositif',
+    titreValidation: 'Choisissez votre dispositif',
+    information:
+      'Vos bénéficiaires seront rattachés au nouveau dispositif. Les réaffectations temporaires gardent leur dispositif actuel.',
+    dispositif: 'Votre dispositif',
+    valider: 'Suivant',
+  },
+  modification: {
+    titre: 'Modifier mon dispositif',
+    titreValidation: 'Modifier mon dispositif',
+    information:
+      'Vos bénéficiaires seront rattachés au nouveau dispositif. Les réaffectations temporaires gardent leur dispositif actuel.',
+    dispositif: 'Sélectionner le nouveau dispositif dans la liste suivante',
+    valider: 'Suivant',
+  },
+  reconfirmation: {
+    titre: 'Indiquer mon dispositif',
+    titreValidation: 'Valider mon dispositif',
+    information:
+      'Vos bénéficiaires seront rattachés au dispositif sélectionné. Les réaffectations temporaires gardent leur dispositif actuel.',
+    dispositif: 'Sélectionner le dispositif dans la liste suivante',
+    valider: 'Confirmer',
+  },
+}
+
 // Sans onClose la modale est non fermable. Deux étapes : choix, puis confirmation chiffrée.
+// Avec onDispositifReconfirme, le dispositif actuel reste proposé : le rechoisir saute la 2e étape.
 export default function RenseignementDispositifModal({
   onDispositifChoisi,
   dispositifActuel,
+  onDispositifReconfirme,
   onClose,
 }: Readonly<RenseignementDispositifModalProps>) {
   const modalRef = useRef<ModalHandles>(null)
   const [conseiller] = useConseiller()
   const fermable = Boolean(onClose)
+  const mode = determinerMode(dispositifActuel, onDispositifReconfirme)
+  const libelles = LIBELLES[mode]
 
   const [structureChoisie, setStructureChoisie] = useState<Structure | ''>('')
-  const structuresProposees = structuresFTHorsDispositif(dispositifActuel)
+  const structuresProposees =
+    mode === 'reconfirmation'
+      ? structuresFranceTravail
+      : structuresFTHorsDispositif(dispositifActuel)
   const [impact, setImpact] = useState<ImpactChangementDispositif>()
   const [loading, setLoading] = useState<boolean>(false)
+  const [dispositifNonTrouve, setDispositifNonTrouve] = useState<boolean>(false)
 
   async function passerALaConfirmation(e: FormEvent) {
     e.preventDefault()
@@ -41,6 +93,12 @@ export default function RenseignementDispositifModal({
 
     setLoading(true)
     try {
+      const dispositifChoisi = dispositifDeLaStructureFT(structureChoisie)
+      if (onDispositifReconfirme && dispositifChoisi === dispositifActuel) {
+        await onDispositifReconfirme(dispositifChoisi)
+        return
+      }
+
       const { getImpactChangementDispositif } =
         await import('services/conseiller.service')
       setImpact(await getImpactChangementDispositif(conseiller.id))
@@ -63,28 +121,22 @@ export default function RenseignementDispositifModal({
   return (
     <Modal
       ref={modalRef}
-      title={
-        dispositifActuel
-          ? 'Modifier mon dispositif'
-          : 'Choisissez votre dispositif'
-      }
+      title={impact ? libelles.titreValidation : libelles.titre}
       onClose={() => onClose?.()}
       fermable={fermable}
     >
       {!impact && (
         <>
-          {!fermable && (
+          {mode === 'choix' && (
             <InformationMessage label='Une fois votre dispositif renseigné, ce message n’apparaîtra plus.' />
           )}
           <div className='mt-2'>
-            <InformationMessage label='Vos bénéficiaires seront rattachés au nouveau dispositif. Les réaffectations temporaires gardent leur dispositif actuel.' />
+            <InformationMessage label={libelles.information} />
           </div>
 
           <form onSubmit={passerALaConfirmation} className='px-10 pt-6'>
             <Label htmlFor='dispositif' inputRequired={true}>
-              {dispositifActuel
-                ? 'Sélectionner le nouveau dispositif dans la liste suivante'
-                : 'Votre dispositif'}
+              {libelles.dispositif}
             </Label>
             <Select
               id='dispositif'
@@ -98,6 +150,30 @@ export default function RenseignementDispositifModal({
                 </option>
               ))}
             </Select>
+
+            {mode === 'reconfirmation' && (
+              <>
+                <input
+                  type='checkbox'
+                  id='dispositif-not-found'
+                  onChange={(e) => setDispositifNonTrouve(e.target.checked)}
+                  className='mt-6'
+                />
+                <label
+                  htmlFor='dispositif-not-found'
+                  className='ml-2 text-base-regular mb-4'
+                >
+                  Mon dispositif n’apparaît pas dans la liste
+                </label>
+
+                {dispositifNonTrouve && (
+                  <InformationMessage
+                    className='mt-6'
+                    label={`Si vous avez un problème avec un dispositif, veuillez contacter le support à l’adresse suivante : ${EMAIL_SUPPORT}`}
+                  />
+                )}
+              </>
+            )}
 
             <div className='mt-14 flex justify-center'>
               {fermable && (
@@ -115,7 +191,7 @@ export default function RenseignementDispositifModal({
                 disabled={!structureChoisie}
                 isLoading={loading}
               >
-                Suivant
+                {libelles.valider}
               </Button>
             </div>
           </form>
@@ -167,6 +243,14 @@ export default function RenseignementDispositifModal({
       )}
     </Modal>
   )
+}
+
+function determinerMode(
+  dispositifActuel?: Dispositif,
+  onDispositifReconfirme?: (dispositif: Dispositif) => Promise<void>
+): Mode {
+  if (onDispositifReconfirme) return 'reconfirmation'
+  return dispositifActuel ? 'modification' : 'choix'
 }
 
 function phraseBeneficiairesConcernes(

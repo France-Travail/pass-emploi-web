@@ -6,6 +6,7 @@ import { PageHeaderPortal } from 'components/PageNavigationPortals'
 import {
   aEtablissement,
   doitChoisirSonDispositif,
+  doitConfirmerSonDispositif,
   doitRenseignerSonAgence,
   doitSignerLesCGU,
 } from 'interfaces/conseiller'
@@ -33,8 +34,11 @@ export default async function Home({
   if (doitSignerLesCGU(conseiller)) redirect('/consentement-cgu')
 
   const { source, redirectUrl, onboarding } = (await searchParams) ?? {}
-  const sourceQueryParam = source ? `?source=${source}` : ''
-  const targetPage = redirectUrl ?? '/mes-jeunes' + sourceQueryParam
+  const sourceQueryParam = source
+    ? '?' + new URLSearchParams({ source }).toString()
+    : ''
+  const targetPage =
+    cheminInterne(redirectUrl) ?? '/mes-jeunes' + sourceQueryParam
 
   const afficherModaleOnboarding = Boolean(onboarding)
   const emailEstManquant = estMilo(conseiller.structure) && !conseiller.email
@@ -42,11 +46,13 @@ export default async function Home({
     ? doitRenseignerSonAgence(conseiller)
     : !aEtablissement(conseiller)
   const dispositifEstManquant = doitChoisirSonDispositif(conseiller)
+  const dispositifEstAConfirmer = doitConfirmerSonDispositif(conseiller)
   if (
     !afficherModaleOnboarding &&
     !emailEstManquant &&
     !agenceEstManquante &&
-    !dispositifEstManquant
+    !dispositifEstManquant &&
+    !dispositifEstAConfirmer
   )
     redirect(targetPage)
 
@@ -66,10 +72,18 @@ export default async function Home({
         afficherModaleOnboarding={afficherModaleOnboarding}
         afficherModaleAgence={agenceEstManquante}
         afficherModaleDispositif={dispositifEstManquant}
+        afficherModaleConfirmationDispositif={dispositifEstAConfirmer}
         afficherModaleEmail={emailEstManquant}
         redirectUrl={targetPage}
         referentielAgences={referentielAgences}
       />
     </>
   )
+}
+
+// « //hote » et « /\hote » sont lus comme des URL absolues par les navigateurs :
+// on ne renvoie que vers un chemin du site.
+function cheminInterne(url?: string): string | undefined {
+  if (!url?.startsWith('/') || /^\/[\\/]/.test(url)) return undefined
+  return url
 }

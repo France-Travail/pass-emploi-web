@@ -65,6 +65,44 @@ describe('HomePage server side', () => {
       await expect(promise).rejects.toEqual(new Error('NEXT_REDIRECT /agenda'))
       expect(redirect).toHaveBeenCalledWith('/agenda')
     })
+
+    it('ignore une url de redirection hors du site', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({
+          redirectUrl: 'https://site-externe.fr/agenda',
+        }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes')
+      )
+    })
+
+    it('ignore une url de redirection sans protocole', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({ redirectUrl: '//site-externe.fr' }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes')
+      )
+    })
+
+    it('encode la source dans l’url du portefeuille', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({ source: 'notif mail&co' }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes?source=notif+mail%26co')
+      )
+    })
   })
 
   describe('si le conseiller Milo n’a pas renseigné sa structure', () => {
@@ -85,6 +123,7 @@ describe('HomePage server side', () => {
         {
           afficherModaleAgence: true,
           afficherModaleDispositif: false,
+          afficherModaleConfirmationDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: false,
           redirectUrl: '/mes-jeunes',
@@ -101,6 +140,7 @@ describe('HomePage server side', () => {
       const conseiller = unConseiller({
         structure: structureFTCej,
         email: 'pass.emploi@beta.gouv.fr',
+        dateMajDispositif: DateTime.now().minus({ months: 1 }),
       })
       ;(getConseillerServerSide as jest.Mock).mockResolvedValue(conseiller)
       ;(getAgencesServerSide as jest.Mock).mockResolvedValue(
@@ -119,6 +159,7 @@ describe('HomePage server side', () => {
         {
           afficherModaleAgence: true,
           afficherModaleDispositif: false,
+          afficherModaleConfirmationDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: false,
           redirectUrl: '/agenda',
@@ -153,6 +194,7 @@ describe('HomePage server side', () => {
         {
           afficherModaleAgence: false,
           afficherModaleDispositif: false,
+          afficherModaleConfirmationDispositif: false,
           afficherModaleEmail: true,
           afficherModaleOnboarding: false,
           redirectUrl: '/mes-jeunes',
@@ -167,7 +209,10 @@ describe('HomePage server side', () => {
     it('prépare la page avec l’onboarding', async () => {
       ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({})
       ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-        unConseiller({ structure: structureFTCej })
+        unConseiller({
+          structure: structureFTCej,
+          dateMajDispositif: DateTime.now().minus({ months: 1 }),
+        })
       )
       ;(getAgencesServerSide as jest.Mock).mockResolvedValue(
         uneListeDAgencesFranceTravail()
@@ -188,6 +233,7 @@ describe('HomePage server side', () => {
         {
           afficherModaleAgence: true,
           afficherModaleDispositif: false,
+          afficherModaleConfirmationDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: true,
           redirectUrl: '/agenda',
@@ -222,6 +268,7 @@ describe('HomePage server side', () => {
         {
           afficherModaleAgence: false,
           afficherModaleDispositif: true,
+          afficherModaleConfirmationDispositif: false,
           afficherModaleEmail: false,
           afficherModaleOnboarding: false,
           redirectUrl: '/mes-jeunes',
@@ -288,6 +335,7 @@ describe('HomePage server side', () => {
           structure: structureFTCej,
           agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
           dateMajAgence: DateTime.now().minus({ months: 5 }),
+          dateMajDispositif: DateTime.now().minus({ months: 5 }),
           email: 'pass.emploi@beta.gouv.fr',
         })
       )
@@ -308,6 +356,83 @@ describe('HomePage server side', () => {
           structure: structureConseilDepartemental,
           agence: { nom: 'Agence saisie à la main' },
           email: 'pass.emploi@beta.gouv.fr',
+        })
+      )
+
+      // When
+      const promise = Home({})
+
+      // Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes')
+      )
+    })
+  })
+
+  describe('si le conseiller France Travail doit confirmer son dispositif', () => {
+    const conseillerFTAJour: Partial<Conseiller> = {
+      structure: structureFTCej,
+      agence: { nom: 'Agence France Travail THIERS', id: 'id-agence' },
+      dateMajAgence: DateTime.now().minus({ months: 1 }),
+      email: 'pass.emploi@beta.gouv.fr',
+    }
+
+    beforeEach(() => {
+      ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({})
+      ;(getAgencesServerSide as jest.Mock).mockResolvedValue(
+        uneListeDAgencesFranceTravail()
+      )
+    })
+
+    it('impose la modale quand le dispositif n’a jamais été confirmé', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller(conseillerFTAJour)
+      )
+
+      // When
+      render(await Home({}))
+
+      // Then
+      expect(HomePage).toHaveBeenCalledWith(
+        {
+          afficherModaleAgence: false,
+          afficherModaleDispositif: false,
+          afficherModaleConfirmationDispositif: true,
+          afficherModaleEmail: false,
+          afficherModaleOnboarding: false,
+          redirectUrl: '/mes-jeunes',
+          referentielAgences: uneListeDAgencesFranceTravail(),
+        },
+        undefined
+      )
+    })
+
+    it('impose la modale quand le dispositif a été confirmé il y a plus d’un an', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          ...conseillerFTAJour,
+          dateMajDispositif: DateTime.now().minus({ years: 1, days: 1 }),
+        })
+      )
+
+      // When
+      render(await Home({}))
+
+      // Then
+      expect(HomePage).toHaveBeenCalledWith(
+        expect.objectContaining({ afficherModaleConfirmationDispositif: true }),
+        undefined
+      )
+    })
+
+    it('n’impose pas la modale quand le dispositif a été confirmé il y a moins d’un an', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({
+          ...conseillerFTAJour,
+          dateMajDispositif: DateTime.now().minus({ months: 11 }),
         })
       )
 
