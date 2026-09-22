@@ -71,6 +71,7 @@ function HomePage({
   const [trackingLabel, setTrackingLabel] = useState<string>(
     labelPopInInitiale(
       afficherModaleDispositif,
+      afficherModaleAgence,
       afficherModaleConfirmationDispositif
     )
   )
@@ -83,7 +84,7 @@ function HomePage({
     setConseiller({ ...conseiller, agence })
     setTrackingLabel('Succès ajout agence')
     setAlerte(AlerteParam.choixAgence)
-    redirectToUrl()
+    setShowModaleAgence(false)
   }
 
   // Le dispositif voyage dans le token : le conseiller se reconnecte pour le retrouver.
@@ -152,7 +153,8 @@ function HomePage({
         <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
       )}
 
-      {showModaleConfirmationDispositif && (
+      {/* Après l'agence : changer de dispositif déconnecte, autant que ce soit la dernière étape. */}
+      {showModaleConfirmationDispositif && !showModaleAgence && (
         <RenseignementDispositifModal
           dispositifActuel={conseiller.profil.dispositif as Dispositif}
           onDispositifChoisi={selectDispositif}
@@ -177,7 +179,6 @@ function HomePage({
 
       {showModaleAgence &&
         !afficherModaleDispositif &&
-        !showModaleConfirmationDispositif &&
         !estMilo(conseiller.structure) &&
         referentielAgences && (
           <RenseignementAgenceModal
@@ -204,10 +205,11 @@ function HomePage({
 
 function labelPopInInitiale(
   afficherModaleDispositif: boolean,
+  afficherModaleAgence: boolean,
   afficherModaleConfirmationDispositif: boolean
 ): string {
   if (afficherModaleDispositif) return 'Pop-in sélection dispositif'
-  if (afficherModaleConfirmationDispositif)
+  if (afficherModaleConfirmationDispositif && !afficherModaleAgence)
     return 'Pop-in confirmation dispositif'
   return 'Pop-in sélection agence'
 }

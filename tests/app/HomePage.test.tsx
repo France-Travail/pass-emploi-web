@@ -783,8 +783,22 @@ describe('HomePage client side', () => {
     })
   })
 
-  describe('quand le conseiller France Travail doit confirmer son dispositif puis son agence', () => {
+  describe('quand le conseiller France Travail doit confirmer son agence puis son dispositif', () => {
+    let push: jest.Mock
+    let alerteSetter: (key: AlerteParam | undefined, target?: string) => void
+    const agences = uneListeDAgencesFranceTravail()
+
     beforeEach(async () => {
+      // Given
+      push = jest.fn()
+      alerteSetter = jest.fn()
+      ;(useRouter as jest.Mock).mockReturnValue({ replace, push })
+      ;(getImpactChangementDispositif as jest.Mock).mockResolvedValue({
+        nbBeneficiairesConcernes: 2,
+        nbBeneficiairesTransferesTemporairement: 0,
+        nbBeneficiairesSuivisTemporairement: 0,
+      })
+
       // When
       await renderWithContexts(
         <HomePage
@@ -793,7 +807,7 @@ describe('HomePage client side', () => {
           afficherModaleConfirmationDispositif={true}
           afficherModaleEmail={false}
           afficherModaleOnboarding={false}
-          referentielAgences={uneListeDAgencesFranceTravail()}
+          referentielAgences={agences}
           redirectUrl='/mes-jeunes'
         />,
         {
@@ -801,22 +815,48 @@ describe('HomePage client side', () => {
             structure: structureFTCej,
             profil: unProfilFT(),
           },
+          customAlerte: { setter: alerteSetter },
         }
       )
     })
 
-    it('commence par le dispositif', () => {
+    async function choisirUneAgence() {
+      const agence = agences[2]
+      await userEvent.type(
+        screen.getByRole('combobox', { name: /votre agence/ }),
+        `${agence.nom} (${agence.codeDepartement})`
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Ajouter' }))
+    }
+
+    it('commence par l’agence', () => {
       // Then
+      expect(
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
+      ).toThrow()
+    })
+
+    it('enchaîne sur le dispositif une fois l’agence choisie, sans quitter la page', async () => {
+      // When
+      await choisirUneAgence()
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledTimes(1)
       expect(
         screen.getByRole('heading', { name: 'Indiquer mon dispositif' })
       ).toBeInTheDocument()
       expect(() =>
         screen.getByRole('heading', { name: 'Confirmez votre agence' })
       ).toThrow()
+      expect(replace).not.toHaveBeenCalled()
     })
 
-    it('enchaîne sur l’agence une fois le dispositif confirmé', async () => {
+    it('redirige avec le bandeau du dispositif une fois les deux confirmés', async () => {
       // When
+      await choisirUneAgence()
       await userEvent.selectOptions(
         screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
         'CEJ'
@@ -824,9 +864,26 @@ describe('HomePage client side', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
 
       // Then
-      expect(
-        screen.getByRole('heading', { name: 'Confirmez votre agence' })
-      ).toBeInTheDocument()
+      expect(modifierDispositif).toHaveBeenCalledWith('CEJ')
+      expect(alerteSetter).toHaveBeenLastCalledWith('confirmationDispositif')
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+      expect(push).not.toHaveBeenCalled()
+    })
+
+    it('déconnecte en dernier quand le dispositif change', async () => {
+      // When
+      await choisirUneAgence()
+      await userEvent.selectOptions(
+        screen.getByRole('combobox', { name: /Sélectionner le dispositif/ }),
+        'RSA rénové'
+      )
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmer' }))
+
+      // Then
+      expect(modifierAgence).toHaveBeenCalledTimes(1)
+      expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
+      expect(push).toHaveBeenCalledWith('/api/auth/federated-logout')
       expect(replace).not.toHaveBeenCalled()
     })
   })
