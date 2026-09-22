@@ -16,6 +16,7 @@ import {
   Structure,
   structuresFranceTravail,
 } from 'interfaces/structure'
+import { EMAIL_SUPPORT } from 'referentiel/support'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
 interface RenseignementDispositifModalProps {
@@ -84,6 +85,7 @@ export default function RenseignementDispositifModal({
       : structuresFTHorsDispositif(dispositifActuel)
   const [impact, setImpact] = useState<ImpactChangementDispositif>()
   const [loading, setLoading] = useState<boolean>(false)
+  const [dispositifNonTrouve, setDispositifNonTrouve] = useState<boolean>(false)
 
   async function passerALaConfirmation(e: FormEvent) {
     e.preventDefault()
@@ -148,6 +150,30 @@ export default function RenseignementDispositifModal({
                 </option>
               ))}
             </Select>
+
+            {mode === 'reconfirmation' && (
+              <>
+                <input
+                  type='checkbox'
+                  id='dispositif-not-found'
+                  onChange={(e) => setDispositifNonTrouve(e.target.checked)}
+                  className='mt-6'
+                />
+                <label
+                  htmlFor='dispositif-not-found'
+                  className='ml-2 text-base-regular mb-4'
+                >
+                  Mon dispositif n’apparaît pas dans la liste
+                </label>
+
+                {dispositifNonTrouve && (
+                  <InformationMessage
+                    className='mt-6'
+                    label={`Si vous avez un problème avec un dispositif, veuillez contacter le support à l’adresse suivante : ${EMAIL_SUPPORT}`}
+                  />
+                )}
+              </>
+            )}
 
             <div className='mt-14 flex justify-center'>
               {fermable && (

@@ -683,6 +683,23 @@ describe('HomePage client side', () => {
       expect(screen.getByRole('button', { name: 'Confirmer' })).toBeDisabled()
     })
 
+    it('renvoie vers le support quand le dispositif est absent de la liste', async () => {
+      // Given
+      expect(() => screen.getByText(/veuillez contacter le support/)).toThrow()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('checkbox', { name: /Mon dispositif n’apparaît pas/ })
+      )
+
+      // Then
+      expect(
+        screen.getByText(
+          /Si vous avez un problème avec un dispositif, veuillez contacter le support à l’adresse suivante : support@pass-emploi.beta.gouv.fr/
+        )
+      ).toBeInTheDocument()
+    })
+
     describe('quand le conseiller confirme son dispositif actuel', () => {
       beforeEach(async () => {
         // When

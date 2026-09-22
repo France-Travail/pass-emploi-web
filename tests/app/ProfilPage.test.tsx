@@ -503,6 +503,13 @@ describe('ProfilPage client side', () => {
       expect(results).toHaveNoViolations()
     })
 
+    it('ne propose pas le renvoi vers le support', () => {
+      // Then
+      expect(() =>
+        screen.getByRole('checkbox', { name: /Mon dispositif n’apparaît pas/ })
+      ).toThrow()
+    })
+
     it('affiche une modale sans le dispositif actuel et un bouton pour annuler', () => {
       // Then
       expect(
