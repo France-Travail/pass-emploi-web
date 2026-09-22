@@ -171,7 +171,7 @@ export default function RenseignementAgenceForm({
       {!avecSaisieLibre && agenceNonTrouvee && (
         <InformationMessage
           className='mt-6'
-          label={`Si vous ne trouvez pas votre agence, veuillez contacter le support à cet adresse email : ${EMAIL_SUPPORT}`}
+          label={`Si vous ne trouvez pas votre agence, veuillez contacter le support à cette adresse email : ${EMAIL_SUPPORT}`}
         />
       )}
 

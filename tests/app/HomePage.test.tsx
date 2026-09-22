@@ -347,7 +347,7 @@ describe('HomePage client side', () => {
       // Then
       expect(
         screen.getByText(
-          /veuillez contacter le support à cet adresse email : support@pass-emploi.beta.gouv.fr/
+          /veuillez contacter le support à cette adresse email : support@pass-emploi.beta.gouv.fr/
         )
       ).toBeInTheDocument()
     })
@@ -901,6 +901,87 @@ describe('HomePage client side', () => {
       expect(modifierAgence).toHaveBeenCalledTimes(1)
       expect(modifierDispositif).toHaveBeenCalledWith('BRSA')
       expect(push).toHaveBeenCalledWith('/api/auth/federated-logout')
+      expect(replace).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('quand plusieurs modales sont dues', () => {
+    it('n’en affiche qu’une à la fois : la structure Mission Locale avant l’email', async () => {
+      // Given
+      await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
+          afficherModaleEmail={true}
+          afficherModaleOnboarding={false}
+          redirectUrl='/mes-jeunes'
+        />,
+        { customConseiller: { structure: structureMilo } }
+      )
+      expect(
+        screen.getByText(/vous devez renseigner votre structure/)
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/Votre adresse email n’est pas renseignée/)
+      ).toThrow()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      )
+
+      // Then
+      expect(
+        screen.getByText(/Votre adresse email n’est pas renseignée/)
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByText(/vous devez renseigner votre structure/)
+      ).toThrow()
+      expect(replace).not.toHaveBeenCalled()
+
+      // When
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Fermer la fenêtre' })
+      )
+
+      // Then
+      expect(replace).toHaveBeenCalledWith('/mes-jeunes')
+    })
+
+    it('affiche l’onboarding avant les modales obligatoires', async () => {
+      // Given
+      await renderWithContexts(
+        <HomePage
+          afficherModaleAgence={true}
+          afficherModaleDispositif={false}
+          afficherModaleConfirmationDispositif={false}
+          afficherModaleEmail={false}
+          afficherModaleOnboarding={true}
+          referentielAgences={uneListeDAgencesFranceTravail()}
+          redirectUrl='/mes-jeunes'
+        />,
+        { customConseiller: { structure: structureFTCej } }
+      )
+      expect(
+        screen.getByRole('heading', {
+          name: 'Bienvenue Nils dans votre espace conseiller CEJ',
+        })
+      ).toBeInTheDocument()
+      expect(() =>
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toThrow()
+
+      // When
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Continuer' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Commencer' }))
+
+      // Then
+      expect(
+        screen.getByRole('heading', { name: 'Confirmez votre agence' })
+      ).toBeInTheDocument()
       expect(replace).not.toHaveBeenCalled()
     })
   })

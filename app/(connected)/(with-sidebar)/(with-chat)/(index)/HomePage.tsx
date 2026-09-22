@@ -26,6 +26,15 @@ type HomePageProps = {
   referentielAgences?: Agence[]
 }
 
+type ModaleActive =
+  | 'onboarding'
+  | 'dispositif'
+  | 'structure'
+  | 'agence'
+  | 'confirmation-dispositif'
+  | 'email'
+  | undefined
+
 const RenseignementAgenceModal = dynamic(
   () => import('components/RenseignementAgenceModal')
 )
@@ -68,13 +77,19 @@ function HomePage({
     setShowModaleConfirmationDispositif,
   ] = useState<boolean>(afficherModaleConfirmationDispositif)
 
+  const modaleActive = premiereModaleDue({
+    onboarding: showModaleOnboarding,
+    dispositif: afficherModaleDispositif,
+    agence: showModaleAgence,
+    confirmationDispositif: showModaleConfirmationDispositif,
+    email: showModaleEmail,
+    estMilo: estMilo(conseiller.structure),
+  })
+
   const [trackingLabel, setTrackingLabel] = useState<string>(
-    labelPopInInitiale(
-      afficherModaleDispositif,
-      afficherModaleAgence,
-      afficherModaleConfirmationDispositif
-    )
+    labelPopIn(modaleActive)
   )
+
   async function selectAgence(agence: {
     id?: string
     nom: string
@@ -129,47 +144,25 @@ function HomePage({
   }
 
   useEffect(() => {
-    if (
-      !showModaleOnboarding &&
-      !showModaleAgence &&
-      !afficherModaleDispositif &&
-      !showModaleConfirmationDispositif &&
-      !showModaleEmail
-    )
-      redirectToUrl()
-  }, [
-    showModaleOnboarding,
-    showModaleAgence,
-    afficherModaleDispositif,
-    showModaleConfirmationDispositif,
-    showModaleEmail,
-  ])
+    if (!modaleActive) redirectToUrl()
+  }, [modaleActive])
 
   useMatomo(trackingLabel, portefeuille.length > 0)
 
   return (
     <>
-      {afficherModaleDispositif && (
+      {modaleActive === 'onboarding' && (
+        <OnboardingModal
+          conseiller={conseiller}
+          onClose={() => setShowModaleOnboarding(false)}
+        />
+      )}
+
+      {modaleActive === 'dispositif' && (
         <RenseignementDispositifModal onDispositifChoisi={selectDispositif} />
       )}
 
-      {/* Après l'agence : changer de dispositif déconnecte, autant que ce soit la dernière étape. */}
-      {showModaleConfirmationDispositif && !showModaleAgence && (
-        <RenseignementDispositifModal
-          dispositifActuel={conseiller.profil.dispositif as Dispositif}
-          onDispositifChoisi={selectDispositif}
-          onDispositifReconfirme={reconfirmerDispositif}
-        />
-      )}
-
-      {showModaleEmail && (
-        <RenseignementEmailModal
-          onAccederImilo={trackAccederImilo}
-          onClose={() => setShowModaleEmail(false)}
-        />
-      )}
-
-      {showModaleAgence && estMilo(conseiller.structure) && (
+      {modaleActive === 'structure' && (
         <RenseignementStructureModal
           onContacterSupport={trackContacterSupport}
           onAccederImilo={trackAccederImilo}
@@ -177,41 +170,73 @@ function HomePage({
         />
       )}
 
-      {showModaleAgence &&
-        !afficherModaleDispositif &&
-        !estMilo(conseiller.structure) &&
-        referentielAgences && (
-          <RenseignementAgenceModal
-            referentielAgences={referentielAgences}
-            onAgenceChoisie={selectAgence}
-            avecSaisieLibre={!estFranceTravail(conseiller.structure)}
-            onClose={
-              estFranceTravail(conseiller.structure)
-                ? undefined
-                : () => setShowModaleAgence(false)
-            }
-          />
-        )}
+      {modaleActive === 'agence' && referentielAgences && (
+        <RenseignementAgenceModal
+          referentielAgences={referentielAgences}
+          onAgenceChoisie={selectAgence}
+          avecSaisieLibre={!estFranceTravail(conseiller.structure)}
+          onClose={
+            estFranceTravail(conseiller.structure)
+              ? undefined
+              : () => setShowModaleAgence(false)
+          }
+        />
+      )}
 
-      {showModaleOnboarding && (
-        <OnboardingModal
-          conseiller={conseiller}
-          onClose={() => setShowModaleOnboarding(false)}
+      {modaleActive === 'confirmation-dispositif' && (
+        <RenseignementDispositifModal
+          dispositifActuel={conseiller.profil.dispositif as Dispositif}
+          onDispositifChoisi={selectDispositif}
+          onDispositifReconfirme={reconfirmerDispositif}
+        />
+      )}
+
+      {modaleActive === 'email' && (
+        <RenseignementEmailModal
+          onAccederImilo={trackAccederImilo}
+          onClose={() => setShowModaleEmail(false)}
         />
       )}
     </>
   )
 }
 
-function labelPopInInitiale(
-  afficherModaleDispositif: boolean,
-  afficherModaleAgence: boolean,
-  afficherModaleConfirmationDispositif: boolean
-): string {
-  if (afficherModaleDispositif) return 'Pop-in sélection dispositif'
-  if (afficherModaleConfirmationDispositif && !afficherModaleAgence)
-    return 'Pop-in confirmation dispositif'
-  return 'Pop-in sélection agence'
+// Une seule modale à la fois. L'onboarding passe en premier : son drapeau ne survit pas
+// à la reconnexion imposée par le choix du dispositif. La confirmation du dispositif passe
+// après l'agence : en changer déconnecte, autant que ce soit la dernière étape.
+function premiereModaleDue(dues: {
+  onboarding: boolean
+  dispositif: boolean
+  agence: boolean
+  confirmationDispositif: boolean
+  email: boolean
+  estMilo: boolean
+}): ModaleActive {
+  if (dues.onboarding) return 'onboarding'
+  if (dues.dispositif) return 'dispositif'
+  if (dues.agence) return dues.estMilo ? 'structure' : 'agence'
+  if (dues.confirmationDispositif) return 'confirmation-dispositif'
+  if (dues.email) return 'email'
+  return undefined
+}
+
+function labelPopIn(modaleActive: ModaleActive): string {
+  switch (modaleActive) {
+    case 'onboarding':
+      return 'Pop-in onboarding'
+    case 'dispositif':
+      return 'Pop-in sélection dispositif'
+    case 'structure':
+      return 'Pop-in sélection Mission Locale'
+    case 'agence':
+      return 'Pop-in sélection agence'
+    case 'confirmation-dispositif':
+      return 'Pop-in confirmation dispositif'
+    case 'email':
+      return 'Pop-in renseignement email'
+    default:
+      return 'Accueil'
+  }
 }
 
 export default withTransaction(HomePage.name, 'page')(HomePage)

@@ -65,6 +65,44 @@ describe('HomePage server side', () => {
       await expect(promise).rejects.toEqual(new Error('NEXT_REDIRECT /agenda'))
       expect(redirect).toHaveBeenCalledWith('/agenda')
     })
+
+    it('ignore une url de redirection hors du site', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({
+          redirectUrl: 'https://site-externe.fr/agenda',
+        }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes')
+      )
+    })
+
+    it('ignore une url de redirection sans protocole', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({ redirectUrl: '//site-externe.fr' }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes')
+      )
+    })
+
+    it('encode la source dans l’url du portefeuille', async () => {
+      // When
+      const promise = Home({
+        searchParams: Promise.resolve({ source: 'notif mail&co' }),
+      })
+
+      //Then
+      await expect(promise).rejects.toEqual(
+        new Error('NEXT_REDIRECT /mes-jeunes?source=notif+mail%26co')
+      )
+    })
   })
 
   describe('si le conseiller Milo n’a pas renseigné sa structure', () => {
