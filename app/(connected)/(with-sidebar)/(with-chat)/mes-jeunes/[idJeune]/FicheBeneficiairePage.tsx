@@ -182,10 +182,7 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
       {showModaleDeleteBeneficiaire && (
         <DeleteBeneficiaireModal
           beneficiaire={beneficiaire}
-          onSuccess={() => {
-            router.push('/mes-jeunes')
-            router.refresh()
-          }}
+          onSuccess={() => router.push('/mes-jeunes')}
           onClose={() => setShowModaleDeleteBeneficiaire(false)}
           onError={() => {
             setShowSuppressionCompteBeneficiaireError(true)

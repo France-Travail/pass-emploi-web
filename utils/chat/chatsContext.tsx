@@ -114,6 +114,16 @@ export function useChats(): BeneficiaireEtChat[] | undefined {
   return useContext(ChatsContext)
 }
 
+// Après un archivage, le chat du bénéficiaire disparaît de la liste avant que
+// la conversation courante ne soit réinitialisée : ne plus interroger l'API
+// sur ce bénéficiaire (403) tant que la conversation n'est plus dans la liste.
+export function conversationEncoreOuverte(
+  conversation: { id: string },
+  chats: BeneficiaireEtChat[] | undefined
+): boolean {
+  return !chats || chats.some(({ id }) => id === conversation.id)
+}
+
 function aUnNouveauMessage(
   previousChat: BeneficiaireEtChat,
   updatedChat: BeneficiaireEtChat

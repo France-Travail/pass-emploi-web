@@ -13,7 +13,7 @@ import { Liste } from 'interfaces/liste'
 import { estMilo } from 'interfaces/structure'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
 import { getListesClientSide } from 'services/listes.service'
-import { useChats } from 'utils/chat/chatsContext'
+import { conversationEncoreOuverte, useChats } from 'utils/chat/chatsContext'
 import { useCurrentConversation } from 'utils/chat/currentConversationContext'
 import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
@@ -64,7 +64,8 @@ export default function ChatContainer({
     if (
       currentConversation &&
       !listeSelectionnee.liste &&
-      !showRubriqueListes
+      !showRubriqueListes &&
+      conversationEncoreOuverte(currentConversation, chats)
     ) {
       getConseillersDuJeuneClientSide(currentConversation.id).then(
         (conseillersJeunes) => setConseillers(conseillersJeunes)

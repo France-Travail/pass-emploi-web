@@ -11,7 +11,7 @@ import { ConseillerHistorique } from 'interfaces/beneficiaire'
 import { MessageListe } from 'interfaces/message'
 import { getConseillersDuJeuneClientSide } from 'services/beneficiaires.service'
 import useMatomo from 'utils/analytics/useMatomo'
-import { useChats } from 'utils/chat/chatsContext'
+import { conversationEncoreOuverte, useChats } from 'utils/chat/chatsContext'
 import { useCurrentConversation } from 'utils/chat/currentConversationContext'
 import { useListeSelectionnee } from 'utils/chat/listeSelectionneeContext'
 import { useShowRubriqueListe } from 'utils/chat/showRubriqueListeContext'
@@ -43,7 +43,8 @@ function MessageriePage() {
     if (
       currentConversation &&
       !listeSelectionnee.liste &&
-      !showRubriqueListes
+      !showRubriqueListes &&
+      conversationEncoreOuverte(currentConversation, chats)
     ) {
       getConseillersDuJeuneClientSide(currentConversation.id).then(
         (conseillersJeunes) => setConseillers(conseillersJeunes)
