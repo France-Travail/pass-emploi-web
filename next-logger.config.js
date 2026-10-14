@@ -14,11 +14,9 @@ const logger = (defaultConfig) =>
         return { 'log.level': label }
       },
     },
-    mixin: () => {
-      if (!apm) return {}
-      const currentTraceIds = apm.currentTraceIds
-      return Object.keys(currentTraceIds).length ? currentTraceIds : {}
-    },
+    // Copie obligatoire : elastic-apm renvoie un objet gelé (Object.freeze), et pino
+    // fusionne l'objet de log dedans (Object.assign(mixin, mergeObject)) → TypeError.
+    mixin: () => (apm ? { ...apm.currentTraceIds } : {}),
   })
 
 module.exports = {

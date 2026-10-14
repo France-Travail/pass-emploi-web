@@ -2,7 +2,20 @@ import { render, screen, within } from '@testing-library/react'
 
 import AuthError from '../../../app/autherror/page'
 
+const USER_AGENT_IOS =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15'
+const USER_AGENT_ANDROID =
+  'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 Chrome/120.0'
+
+function simulerUserAgent(userAgent: string) {
+  jest.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue(userAgent)
+}
+
 describe('AuthErrorPage', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
   describe('MigrationJeunePage', () => {
     it("affiche la page d'erreur Migration Jeune", async () => {
       // Given
@@ -62,6 +75,172 @@ describe('AuthErrorPage', () => {
       expect(
         screen.getByText('Veuillez réessayer plus tard.')
       ).toBeInTheDocument()
+    })
+  })
+
+  describe('migration Pass Emploi vers Parcours Emploi', () => {
+    it('affiche la page de migration conseiller', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        typeUtilisateur: 'CONSEILLER',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      const mainContent = screen.getByRole('main', {
+        name: 'Information importante',
+      })
+      expect(
+        within(mainContent).getByText(
+          'L’accès à l’application pass emploi n’est plus disponible. Pour échanger avec vos bénéficiaires, rendez-vous dans CVM - messagerie instantanée.'
+        )
+      ).toBeInTheDocument()
+      expect(
+        within(mainContent).getByText(
+          'Les demandeurs d’emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous.'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('affiche la page de migration jeune', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        typeUtilisateur: 'JEUNE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      const mainContent = screen.getByRole('main', {
+        name: 'Vos outils évoluent',
+      })
+      expect(
+        within(mainContent).getByText(
+          'L’application pass emploi n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it.each([
+      [
+        'iOS',
+        USER_AGENT_IOS,
+        'https://apps.apple.com/app/apple-store/id563863597?pt=1432235&ct=migration-cej&mt=8',
+      ],
+      [
+        'Android',
+        USER_AGENT_ANDROID,
+        'https://play.google.com/store/apps/details?id=com.poleemploi.pemobile&referrer=utm_source=cej&utm_medium=cta&utm_campaign=migration_cej',
+      ],
+    ])(
+      'renvoie vers le store Parcours Emploi sur %s',
+      async (_, userAgent, urlStore) => {
+        // Given
+        simulerUserAgent(userAgent)
+        const searchParams = Promise.resolve({
+          reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+          typeUtilisateur: 'JEUNE',
+        })
+
+        // When
+        render(await AuthError({ searchParams }))
+
+        // Then
+        expect(
+          screen.getByRole('link', { name: 'Télécharger l’application' })
+        ).toHaveAttribute('href', urlStore)
+      }
+    )
+
+    it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        typeUtilisateur: 'JEUNE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      expect(
+        screen.queryByRole('link', { name: 'Télécharger l’application' })
+      ).not.toBeInTheDocument()
+    })
+  })
+
+  describe('migration Pass Emploi vers 1 jeune 1 solution', () => {
+    it('affiche la page de migration jeune', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_1J1S',
+        typeUtilisateur: 'JEUNE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      const mainContent = screen.getByRole('main', {
+        name: 'pass emploi devient 1 jeune 1 solution',
+      })
+      expect(
+        within(mainContent).getByText(
+          'Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
+        )
+      ).toBeInTheDocument()
+    })
+
+    it.each([
+      [
+        'iOS',
+        USER_AGENT_IOS,
+        'https://apps.apple.com/app/apple-store/id1581603519',
+      ],
+      [
+        'Android',
+        USER_AGENT_ANDROID,
+        'https://play.google.com/store/apps/details?id=fr.fabrique.social.gouv.passemploi',
+      ],
+    ])(
+      'renvoie vers le store 1 jeune 1 solution sur %s',
+      async (_, userAgent, urlStore) => {
+        // Given
+        simulerUserAgent(userAgent)
+        const searchParams = Promise.resolve({
+          reason: 'MIGRATION_1J1S',
+          typeUtilisateur: 'JEUNE',
+        })
+
+        // When
+        render(await AuthError({ searchParams }))
+
+        // Then
+        expect(
+          screen.getByRole('link', { name: 'Télécharger l’application' })
+        ).toHaveAttribute('href', urlStore)
+      }
+    )
+
+    it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_1J1S',
+        typeUtilisateur: 'JEUNE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      expect(
+        screen.queryByRole('link', { name: 'Télécharger l’application' })
+      ).not.toBeInTheDocument()
     })
   })
 

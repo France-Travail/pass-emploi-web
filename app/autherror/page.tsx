@@ -1,8 +1,12 @@
 import { redirect } from 'next/navigation'
 
 import AuthErrorPage from 'app/autherror/AuthErrorPage'
+import MigrationApplicationJeunePage from 'app/autherror/MigrationApplicationJeunePage'
 import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
 import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
+import MigrationPassEmploiConseillerPage from 'app/autherror/MigrationPassEmploiConseillerPage'
+import { URLS_1J1S, URLS_PARCOURS_EMPLOI } from 'app/autherror/urlsStores'
+import { IllustrationName } from 'components/ui/IllustrationComponent'
 import {
   estStructure,
   getUrlFormulaireSupport,
@@ -34,6 +38,32 @@ export default async function AuthError({
     } else if (typeUtilisateur === 'JEUNE') {
       return <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
     }
+  }
+
+  if (reason === 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI') {
+    if (typeUtilisateur === 'CONSEILLER') {
+      return <MigrationPassEmploiConseillerPage />
+    } else if (typeUtilisateur === 'JEUNE') {
+      return (
+        <MigrationApplicationJeunePage
+          titre='Vos outils évoluent'
+          texte='L’application pass emploi n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
+          illustration={IllustrationName.MigrationPassEmploiJeune}
+          urlsStores={URLS_PARCOURS_EMPLOI}
+        />
+      )
+    }
+  }
+
+  if (reason === 'MIGRATION_1J1S' && typeUtilisateur === 'JEUNE') {
+    return (
+      <MigrationApplicationJeunePage
+        titre='pass emploi devient 1 jeune 1 solution'
+        texte='Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
+        illustration={IllustrationName.MigrationPassEmploi1J1S}
+        urlsStores={URLS_1J1S}
+      />
+    )
   }
 
   if (typeUtilisateur === 'CONSEILLER') {

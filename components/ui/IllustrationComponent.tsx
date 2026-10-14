@@ -18,6 +18,9 @@ import IllustrationSearch from 'assets/images/illustration-search.svg'
 import IllustrationSend from 'assets/images/illustration-send.svg'
 import IllustrationMigrationParcoursEmploiJeune from 'assets/images/migration-jeune-parcours-emploi.svg'
 import IllustrationMigrationParcoursEmploi from 'assets/images/migration-parcours-emploi.svg'
+import IllustrationMigrationPassEmploi1J1S from 'assets/images/migration-pass-emploi-1j1s.svg'
+import IllustrationMigrationPassEmploiCvm from 'assets/images/migration-pass-emploi-cvm.svg'
+import IllustrationMigrationPassEmploiParcoursEmploi from 'assets/images/migration-pass-emploi-parcours-emploi.svg'
 
 export enum IllustrationName {
   ArrowForward = 'ArrowForward',
@@ -38,6 +41,9 @@ export enum IllustrationName {
   Send = 'Send',
   MigrationParcoursEmploiConseiller = 'MigrationParcoursEmploiConseiller',
   MigrationParcoursEmploiJeune = 'MigrationParcoursEmploiJeune',
+  MigrationPassEmploiConseiller = 'MigrationPassEmploiConseiller',
+  MigrationPassEmploiJeune = 'MigrationPassEmploiJeune',
+  MigrationPassEmploi1J1S = 'MigrationPassEmploi1J1S',
 }
 
 const illustrationsByName: {
@@ -63,6 +69,12 @@ const illustrationsByName: {
     IllustrationMigrationParcoursEmploiJeune,
   [IllustrationName.MigrationParcoursEmploiConseiller]:
     IllustrationMigrationParcoursEmploi,
+  [IllustrationName.MigrationPassEmploiConseiller]:
+    IllustrationMigrationPassEmploiCvm,
+  [IllustrationName.MigrationPassEmploiJeune]:
+    IllustrationMigrationPassEmploiParcoursEmploi,
+  [IllustrationName.MigrationPassEmploi1J1S]:
+    IllustrationMigrationPassEmploi1J1S,
 }
 
 type IllustrationsComponentProps = ComponentPropsWithoutRef<'svg'> & {
