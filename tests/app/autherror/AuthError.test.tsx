@@ -12,7 +12,18 @@ function simulerUserAgent(userAgent: string) {
 }
 
 describe('AuthErrorPage', () => {
+  const envInitial = process.env
+
+  beforeEach(() => {
+    process.env = {
+      ...envInitial,
+      POPULATIONS_MIGRATION_PASS_EMPLOI: 'POP_PASS_EMPLOI',
+      POPULATIONS_MIGRATION_1J1S: 'POP_1J1S',
+    }
+  })
+
   afterEach(() => {
+    process.env = envInitial
     jest.restoreAllMocks()
   })
 
@@ -82,7 +93,8 @@ describe('AuthErrorPage', () => {
     it('affiche la page de migration conseiller', async () => {
       // Given
       const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP_PASS_EMPLOI',
         typeUtilisateur: 'CONSEILLER',
       })
 
@@ -108,7 +120,8 @@ describe('AuthErrorPage', () => {
     it('affiche la page de migration jeune', async () => {
       // Given
       const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP_PASS_EMPLOI',
         typeUtilisateur: 'JEUNE',
       })
 
@@ -143,7 +156,8 @@ describe('AuthErrorPage', () => {
         // Given
         simulerUserAgent(userAgent)
         const searchParams = Promise.resolve({
-          reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+          reason: 'MIGRATION_PARCOURS_EMPLOI',
+          population: 'POP_PASS_EMPLOI',
           typeUtilisateur: 'JEUNE',
         })
 
@@ -160,7 +174,8 @@ describe('AuthErrorPage', () => {
     it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
       // Given
       const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PASS_EMPLOI_PARCOURS_EMPLOI',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP_PASS_EMPLOI',
         typeUtilisateur: 'JEUNE',
       })
 
@@ -178,7 +193,8 @@ describe('AuthErrorPage', () => {
     it('affiche la page de migration jeune', async () => {
       // Given
       const searchParams = Promise.resolve({
-        reason: 'MIGRATION_1J1S',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP_1J1S',
         typeUtilisateur: 'JEUNE',
       })
 
@@ -213,7 +229,8 @@ describe('AuthErrorPage', () => {
         // Given
         simulerUserAgent(userAgent)
         const searchParams = Promise.resolve({
-          reason: 'MIGRATION_1J1S',
+          reason: 'MIGRATION_PARCOURS_EMPLOI',
+          population: 'POP_1J1S',
           typeUtilisateur: 'JEUNE',
         })
 
@@ -230,7 +247,8 @@ describe('AuthErrorPage', () => {
     it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
       // Given
       const searchParams = Promise.resolve({
-        reason: 'MIGRATION_1J1S',
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        population: 'POP_1J1S',
         typeUtilisateur: 'JEUNE',
       })
 
@@ -265,6 +283,49 @@ describe('AuthErrorPage', () => {
           "Les demandeurs d'emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous."
         )
       ).toBeInTheDocument()
+    })
+  })
+
+  describe('population de migration non reconnue', () => {
+    it('affiche l’ancienne page jeune pour une population inconnue', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        typeUtilisateur: 'JEUNE',
+        population: 'POP_INCONNUE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      expect(
+        screen.getByText(
+          "L'application du CEJ n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
+        )
+      ).toBeInTheDocument()
+    })
+
+    it('affiche l’ancienne page conseiller pour une population 1J1S', async () => {
+      // Given
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_PARCOURS_EMPLOI',
+        typeUtilisateur: 'CONSEILLER',
+        population: 'POP_1J1S',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      expect(
+        screen.getByText(
+          "Les demandeurs d'emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous."
+        )
+      ).toBeInTheDocument()
+      expect(
+        screen.queryByText(/L’accès à l’application pass emploi/)
+      ).not.toBeInTheDocument()
     })
   })
 })
