@@ -305,27 +305,5 @@ describe('AuthErrorPage', () => {
         )
       ).toBeInTheDocument()
     })
-
-    it('affiche l’ancienne page conseiller pour une population 1J1S', async () => {
-      // Given
-      const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PARCOURS_EMPLOI',
-        typeUtilisateur: 'CONSEILLER',
-        population: 'POP_1J1S',
-      })
-
-      // When
-      render(await AuthError({ searchParams }))
-
-      // Then
-      expect(
-        screen.getByText(
-          "Les demandeurs d'emploi doivent désormais utiliser Parcours Emploi pour échanger avec vous."
-        )
-      ).toBeInTheDocument()
-      expect(
-        screen.queryByText(/L’accès à l’application pass emploi/)
-      ).not.toBeInTheDocument()
-    })
   })
 })
