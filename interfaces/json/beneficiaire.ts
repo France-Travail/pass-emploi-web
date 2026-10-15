@@ -4,7 +4,7 @@ import {
   CategorieSituation,
   Demarche,
   DetailBeneficiaire,
-  Dispositif,
+  DispositifMilo,
   IdentiteBeneficiaire,
   IndicateursSemaine,
   MetadonneesFavoris,
@@ -16,8 +16,6 @@ export enum StatutDemarche {
   REALISEE = 'REALISEE',
   ANNULEE = 'ANNULEE',
 }
-
-export type DispositifMilo = Dispositif.CEJ | Dispositif.PACEA
 
 interface Situation {
   etat: string

@@ -299,12 +299,17 @@ describe('FicheBeneficiairePage client side', () => {
         )
       })
 
-      it('affiche le titre et les deux options', async () => {
+      it('affiche le titre et les options vers les deux autres dispositifs', async () => {
         // Then
         expect(
           screen.getByText(
-            'Confirmation du changement de dispositif Passage en PACEA sans perte de données'
+            'Confirmation du changement de dispositif Changement de dispositif sans perte de données'
           )
+        ).toBeInTheDocument()
+        expect(
+          screen.getByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en Autre",
+          })
         ).toBeInTheDocument()
         expect(
           screen.getByRole('radio', {
@@ -328,6 +333,81 @@ describe('FicheBeneficiairePage client side', () => {
         expect(modifierDispositif).not.toHaveBeenCalled()
       })
 
+      it("exige le choix du dispositif d'arrivée en cas d'erreur de sélection", async () => {
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+
+        // Then
+        expect(screen.queryByRole('radio', { name: 'CEJ' })).toBeNull()
+        expect(
+          screen.getByRole('button', {
+            name: 'Confirmer le changement de dispositif',
+          })
+        ).toBeDisabled()
+      })
+
+      it('permet de passer le bénéficiaire en Autre (erreur de sélection)', async () => {
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(screen.getByRole('radio', { name: 'Autre' }))
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en Autre',
+          })
+        )
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'AUTRE'
+        )
+        expect(alerteSetter).toHaveBeenCalledWith(
+          AlerteParam.changementDispositif,
+          'Autre'
+        )
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('Autre')
+      })
+
+      it("permet de passer le bénéficiaire en Autre (fin d'accompagnement)", async () => {
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en Autre",
+          })
+        )
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', {
+            name: /Motif de fin d'accompagnement/,
+          }),
+          'Emploi durable (plus de 6 mois)'
+        )
+        await userEvent.type(
+          screen.getByLabelText(/Date de fin d'accompagnement/),
+          '2024-06-01'
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en Autre',
+          })
+        )
+
+        // Then
+        expect(changerDispositifAvecMotif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'AUTRE',
+          'Emploi durable (plus de 6 mois)',
+          '2024-06-01'
+        )
+      })
+
       it('permet de changer le dispositif du bénéficiaire (erreur de sélection)', async () => {
         // When
         await userEvent.click(
@@ -335,6 +415,7 @@ describe('FicheBeneficiairePage client side', () => {
             name: 'Le dispositif CEJ a été sélectionné par erreur',
           })
         )
+        await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
         await userEvent.click(
           screen.getByRole('button', {
             name: 'Confirmer le passage du bénéficiaire en PACEA',
@@ -395,6 +476,7 @@ describe('FicheBeneficiairePage client side', () => {
               name: 'Le dispositif CEJ a été sélectionné par erreur',
             })
           )
+          await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
           await userEvent.click(
             screen.getByRole('button', {
               name: 'Confirmer le passage du bénéficiaire en PACEA',
@@ -467,6 +549,7 @@ describe('FicheBeneficiairePage client side', () => {
             name: 'Le dispositif CEJ a été sélectionné par erreur',
           })
         )
+        await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
         await userEvent.click(
           screen.getByRole('button', {
             name: 'Confirmer le passage du bénéficiaire en PACEA',
@@ -509,6 +592,7 @@ describe('FicheBeneficiairePage client side', () => {
             name: 'Le dispositif PACEA a été sélectionné par erreur',
           })
         )
+        await userEvent.click(screen.getByRole('radio', { name: 'CEJ' }))
         await userEvent.click(
           screen.getByRole('button', {
             name: 'Confirmer le passage du bénéficiaire en CEJ',
@@ -563,6 +647,7 @@ describe('FicheBeneficiairePage client side', () => {
             name: 'Le dispositif CEJ a été sélectionné par erreur',
           })
         )
+        await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
         await userEvent.click(
           screen.getByRole('button', {
             name: 'Confirmer le passage du bénéficiaire en PACEA',

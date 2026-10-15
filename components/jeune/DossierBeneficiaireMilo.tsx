@@ -13,11 +13,12 @@ import InputError from 'components/ui/Form/InputError'
 import { Switch } from 'components/ui/Form/Switch'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
-import { Dispositif, DossierMilo } from 'interfaces/beneficiaire'
 import {
-  BeneficiaireMiloFormData,
+  Dispositif,
   DispositifMilo,
-} from 'interfaces/json/beneficiaire'
+  DossierMilo,
+} from 'interfaces/beneficiaire'
+import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
@@ -183,6 +184,17 @@ function DossierBeneficiaireMilo(
             {''}
             Parcours contractualisé d’accompagnement vers l’emploi et
             l’autonomie (PACEA)
+          </label>
+          <label htmlFor='dispositif-autre' className='block py-2'>
+            <input
+              type='radio'
+              name='dispositif'
+              id='dispositif-autre'
+              className='mr-2'
+              onClick={() => choisirDispositif(Dispositif.AUTRE)}
+            />
+            {''}
+            Autre
           </label>
         </fieldset>
       </form>

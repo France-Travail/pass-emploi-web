@@ -219,6 +219,48 @@ describe('<DossierMilo', () => {
     })
   })
 
+  describe('dispositif Autre', () => {
+    let onCreateCompte: jest.Mock
+
+    beforeEach(async () => {
+      // GIVEN
+      const dossier = unDossierMilo()
+      onCreateCompte = jest.fn().mockResolvedValue(undefined)
+
+      // WHEN
+      await renderWithContexts(
+        <DossierBeneficiaireMilo
+          dossier={dossier}
+          beneficiaireExisteDejaMilo={false}
+          erreurMessageCreationCompte=''
+          onCreateCompte={onCreateCompte}
+          onAnnulationCreerCompte={jest.fn()}
+          onRefresh={jest.fn()}
+          onRetour={jest.fn()}
+        />
+      )
+    })
+
+    it('crée le compte en Autre, sans compteur des heures', async () => {
+      // WHEN
+      await userEvent.click(screen.getByRole('radio', { name: 'Autre' }))
+
+      // THEN
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument()
+
+      // WHEN
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // THEN
+      await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
+      const [payload] = onCreateCompte.mock.calls[0]
+      expect(payload.dispositif).toBe('AUTRE')
+      expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
+    })
+  })
+
   describe("quand l'e-mail du bénéficiaire n'est pas renseigné", () => {
     beforeEach(async () => {
       //GIVEN

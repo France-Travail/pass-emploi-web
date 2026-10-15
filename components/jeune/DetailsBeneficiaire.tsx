@@ -15,6 +15,7 @@ import {
   Demarche,
   DetailBeneficiaire,
   Dispositif,
+  DISPOSITIFS_MILO,
   getLabelDispositif,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
@@ -123,12 +124,19 @@ export default function DetailsBeneficiaire({
     try {
       await modifierDispositif(id, nouveauDispositif)
       setDispositifActuel(nouveauDispositif)
-      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
+      setAlerte(
+        AlerteParam.changementDispositif,
+        getLabelDispositif(nouveauDispositif)
+      )
       router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
     }
   }
+
+  const dispositifsCiblesMilo = DISPOSITIFS_MILO.filter(
+    (dispositifMilo) => dispositifMilo !== dispositifActuel
+  )
 
   // Un bénéficiaire en réaffectation temporaire garde le dispositif de son conseiller initial
   const peutModifierDispositifFT =
@@ -165,7 +173,10 @@ export default function DetailsBeneficiaire({
         dateFinAccompagnement
       )
       setDispositifActuel(nouveauDispositif)
-      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
+      setAlerte(
+        AlerteParam.changementDispositif,
+        getLabelDispositif(nouveauDispositif)
+      )
       router.refresh()
     } finally {
       modalDispositifRef.current!.closeModal()
@@ -253,6 +264,7 @@ export default function DetailsBeneficiaire({
         <ChangementDispositifBeneficiaireModal
           ref={modalDispositifRef}
           dispositif={dispositifActuel}
+          dispositifsCibles={dispositifsCiblesMilo}
           lastActivity={lastActivity}
           motifsFinAccompagnement={motifsFinAccompagnement}
           onConfirm={changerDispositif}
