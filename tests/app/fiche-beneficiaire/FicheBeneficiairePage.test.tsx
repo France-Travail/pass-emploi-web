@@ -25,6 +25,7 @@ import {
   CategorieSituation,
   Demarche,
 } from 'interfaces/beneficiaire'
+import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { StatutDemarche } from 'interfaces/json/beneficiaire'
 import { Structure, structureFTCej, structureMilo } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -522,6 +523,57 @@ describe('FicheBeneficiairePage client side', () => {
       })
     })
 
+    describe('changement de dispositif sans la fonctionnalité Autre', () => {
+      beforeEach(async () => {
+        // Given
+        ;(useRouter as jest.Mock).mockReturnValue({
+          replace: jest.fn(),
+          refresh: jest.fn(),
+        })
+        ;(modifierDispositif as jest.Mock).mockResolvedValue(undefined)
+        ;(getMotifsSuppression as jest.Mock).mockResolvedValue(
+          desMotifsDeSuppression()
+        )
+        await renderFicheJeuneMilo({ fonctionnalites: [] })
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+      })
+
+      it('ne propose pas Autre', () => {
+        // Then
+        expect(
+          screen.queryByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en Autre",
+          })
+        ).toBeNull()
+      })
+
+      it('bascule directement vers PACEA en cas d’erreur de sélection', async () => {
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(modifierDispositif).toHaveBeenCalledWith(
+          'id-beneficiaire-1',
+          'PACEA'
+        )
+      })
+    })
+
     describe('texte du bandeau dans le DOM', () => {
       it('affiche le texte du bandeau après un changement CEJ -> PACEA', async () => {
         // Given
@@ -965,6 +1017,7 @@ async function renderFicheJeuneMilo({
   dispositif,
   alerteSetter,
   withAlerteDisplayer,
+  fonctionnalites = [Fonctionnalite.DISPOSITIF_AUTRE],
 }: {
   lastActivity?: string
   structureDifferente?: boolean
@@ -973,6 +1026,7 @@ async function renderFicheJeuneMilo({
   dispositif?: string
   alerteSetter?: jest.Mock
   withAlerteDisplayer?: boolean
+  fonctionnalites?: string[]
 } = {}): Promise<HTMLElement> {
   const beneficiaire = unDetailBeneficiaire({
     lastActivity,
@@ -1007,6 +1061,7 @@ async function renderFicheJeuneMilo({
       customConseiller: {
         agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
         structure: structureMilo,
+        fonctionnalites,
         structureMilo: structureDifferente
           ? {
               nom: 'Mission locale',

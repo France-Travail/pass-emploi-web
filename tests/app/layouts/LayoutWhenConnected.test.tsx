@@ -20,7 +20,10 @@ import {
   structureMilo,
 } from 'interfaces/structure'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getFonctionnalitesConseillerServerSide,
+} from 'services/conseiller.service'
 import { ConseillerProvider } from 'utils/conseiller/conseillerContext'
 import { PortefeuilleProvider } from 'utils/portefeuilleContext'
 
@@ -99,6 +102,9 @@ describe('LayoutWhenConnected', () => {
 
       conseiller = unConseiller()
       ;(getConseillerServerSide as jest.Mock).mockResolvedValue(conseiller)
+      ;(getFonctionnalitesConseillerServerSide as jest.Mock).mockResolvedValue([
+        'DISPOSITIF_AUTRE',
+      ])
 
       portefeuille = desItemsBeneficiaires()
       ;(getBeneficiairesDuConseillerServerSide as jest.Mock).mockResolvedValue(
@@ -116,8 +122,18 @@ describe('LayoutWhenConnected', () => {
         'accessToken'
       )
       expect(ConseillerProvider).toHaveBeenCalledWith(
-        expect.objectContaining({ conseiller }),
+        expect.objectContaining({
+          conseiller: { ...conseiller, fonctionnalites: ['DISPOSITIF_AUTRE'] },
+        }),
         undefined
+      )
+    })
+
+    it('alimente le contexte avec les fonctionnalités du conseiller', async () => {
+      // Then
+      expect(getFonctionnalitesConseillerServerSide).toHaveBeenCalledWith(
+        'user-id',
+        'accessToken'
       )
     })
 

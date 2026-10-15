@@ -98,7 +98,7 @@ function ChangementDispositifBeneficiaireModal(
       <fieldset className='flex flex-col gap-4 mt-4'>
         <legend className='sr-only'>Raison du changement de dispositif</legend>
 
-        <label className='flex gap-2 items-center cursor-pointer mt-10 mb-4'>
+        <label className='flex gap-2 items-center cursor-pointer mt-10'>
           <input
             type='radio'
             name='raison-changement'

@@ -17,6 +17,7 @@ import {
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import {
   CommunicationsConseillerJson,
+  FonctionnalitesConseillerJson,
   ConseillerJson,
   jsonToConseiller,
   jsonToSimpleConseiller,
@@ -55,6 +56,28 @@ export async function getMessageInformatifServerSide(
       'Erreur lors de la récupération du message informatif'
     )
     return undefined
+  }
+}
+
+export async function getFonctionnalitesConseillerServerSide(
+  idConseiller: string,
+  accessToken: string
+): Promise<string[]> {
+  try {
+    const { content } = await apiGet<FonctionnalitesConseillerJson>(
+      `/conseillers/${idConseiller}/fonctionnalites`,
+      accessToken
+    )
+    return content.fonctionnalites
+  } catch (error) {
+    rootLogger.error(
+      {
+        event: { action: 'request_failed', outcome: 'failure' },
+        error: toEcsError(error),
+      },
+      'Erreur lors de la récupération des fonctionnalités du conseiller'
+    )
+    return []
   }
 }
 

@@ -18,8 +18,11 @@ import {
   DispositifMilo,
   DossierMilo,
 } from 'interfaces/beneficiaire'
+import { aLaFonctionnalite } from 'interfaces/conseiller'
+import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
+import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 interface DossierBeneficiaireMiloProps {
@@ -48,6 +51,11 @@ function DossierBeneficiaireMilo(
   ref: ForwardedRef<{ focusRetour: () => void }>
 ) {
   const [portefeuille] = usePortefeuille()
+  const [conseiller] = useConseiller()
+  const peutChoisirDispositifAutre = aLaFonctionnalite(
+    conseiller,
+    Fonctionnalite.DISPOSITIF_AUTRE
+  )
 
   const [dispositif, setDispositif] = useState<DispositifMilo>()
   const [erreurDispositif, setErreurDispositif] = useState<string>()
@@ -185,17 +193,19 @@ function DossierBeneficiaireMilo(
             Parcours contractualisé d’accompagnement vers l’emploi et
             l’autonomie (PACEA)
           </label>
-          <label htmlFor='dispositif-autre' className='block py-2'>
-            <input
-              type='radio'
-              name='dispositif'
-              id='dispositif-autre'
-              className='mr-2'
-              onClick={() => choisirDispositif(Dispositif.AUTRE)}
-            />
-            {''}
-            Autre
-          </label>
+          {peutChoisirDispositifAutre && (
+            <label htmlFor='dispositif-autre' className='block py-2'>
+              <input
+                type='radio'
+                name='dispositif'
+                id='dispositif-autre'
+                className='mr-2'
+                onClick={() => choisirDispositif(Dispositif.AUTRE)}
+              />
+              {''}
+              Autre
+            </label>
+          )}
         </fieldset>
       </form>
 
