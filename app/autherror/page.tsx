@@ -5,8 +5,8 @@ import MigrationApplicationJeunePage from 'app/autherror/MigrationApplicationJeu
 import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
 import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
 import MigrationPassEmploiConseillerPage from 'app/autherror/MigrationPassEmploiConseillerPage'
-import { whitescreenDeMigration } from 'app/autherror/populationsMigration'
-import { URLS_1J1S, URLS_PARCOURS_EMPLOI } from 'app/autherror/urlsStores'
+import { estPopulationDeMigrationPassEmploi } from 'app/autherror/populationsMigration'
+import { URLS_PARCOURS_EMPLOI } from 'app/autherror/urlsStores'
 import { IllustrationName } from 'components/ui/IllustrationComponent'
 import {
   estStructure,
@@ -42,10 +42,10 @@ export default async function AuthError({
   } = (await searchParams) ?? {}
 
   if (reason === 'MIGRATION_PARCOURS_EMPLOI') {
-    const whitescreen = whitescreenDeMigration(population)
+    const migrationPassEmploi = estPopulationDeMigrationPassEmploi(population)
 
     if (typeUtilisateur === 'CONSEILLER') {
-      return whitescreen === 'PASS_EMPLOI' ? (
+      return migrationPassEmploi ? (
         <MigrationPassEmploiConseillerPage />
       ) : (
         <MigrationConseillerPage />
@@ -53,28 +53,16 @@ export default async function AuthError({
     }
 
     if (typeUtilisateur === 'JEUNE') {
-      switch (whitescreen) {
-        case 'PASS_EMPLOI':
-          return (
-            <MigrationApplicationJeunePage
-              titre='Vos outils évoluent'
-              texte='L’application pass emploi n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
-              illustration={IllustrationName.MigrationPassEmploiJeune}
-              urlsStores={URLS_PARCOURS_EMPLOI}
-            />
-          )
-        case '1J1S':
-          return (
-            <MigrationApplicationJeunePage
-              titre='pass emploi devient 1 jeune 1 solution'
-              texte='Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
-              illustration={IllustrationName.MigrationPassEmploi1J1S}
-              urlsStores={URLS_1J1S}
-            />
-          )
-        default:
-          return <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
-      }
+      return migrationPassEmploi ? (
+        <MigrationApplicationJeunePage
+          titre='Vos outils évoluent'
+          texte='L’application pass emploi n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
+          illustration={IllustrationName.MigrationPassEmploiJeune}
+          urlsStores={URLS_PARCOURS_EMPLOI}
+        />
+      ) : (
+        <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
+      )
     }
   }
 

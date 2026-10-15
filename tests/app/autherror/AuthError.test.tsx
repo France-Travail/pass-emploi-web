@@ -18,7 +18,6 @@ describe('AuthErrorPage', () => {
     process.env = {
       ...envInitial,
       POPULATIONS_MIGRATION_PASS_EMPLOI: 'POP_PASS_EMPLOI',
-      POPULATIONS_MIGRATION_1J1S: 'POP_1J1S',
     }
   })
 
@@ -176,79 +175,6 @@ describe('AuthErrorPage', () => {
       const searchParams = Promise.resolve({
         reason: 'MIGRATION_PARCOURS_EMPLOI',
         population: 'POP_PASS_EMPLOI',
-        typeUtilisateur: 'JEUNE',
-      })
-
-      // When
-      render(await AuthError({ searchParams }))
-
-      // Then
-      expect(
-        screen.queryByRole('link', { name: 'Télécharger l’application' })
-      ).not.toBeInTheDocument()
-    })
-  })
-
-  describe('migration Pass Emploi vers 1 jeune 1 solution', () => {
-    it('affiche la page de migration jeune', async () => {
-      // Given
-      const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PARCOURS_EMPLOI',
-        population: 'POP_1J1S',
-        typeUtilisateur: 'JEUNE',
-      })
-
-      // When
-      render(await AuthError({ searchParams }))
-
-      // Then
-      const mainContent = screen.getByRole('main', {
-        name: 'pass emploi devient 1 jeune 1 solution',
-      })
-      expect(
-        within(mainContent).getByText(
-          'Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
-        )
-      ).toBeInTheDocument()
-    })
-
-    it.each([
-      [
-        'iOS',
-        USER_AGENT_IOS,
-        'https://apps.apple.com/app/apple-store/id1581603519',
-      ],
-      [
-        'Android',
-        USER_AGENT_ANDROID,
-        'https://play.google.com/store/apps/details?id=fr.fabrique.social.gouv.passemploi',
-      ],
-    ])(
-      'renvoie vers le store 1 jeune 1 solution sur %s',
-      async (_, userAgent, urlStore) => {
-        // Given
-        simulerUserAgent(userAgent)
-        const searchParams = Promise.resolve({
-          reason: 'MIGRATION_PARCOURS_EMPLOI',
-          population: 'POP_1J1S',
-          typeUtilisateur: 'JEUNE',
-        })
-
-        // When
-        render(await AuthError({ searchParams }))
-
-        // Then
-        expect(
-          screen.getByRole('link', { name: 'Télécharger l’application' })
-        ).toHaveAttribute('href', urlStore)
-      }
-    )
-
-    it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
-      // Given
-      const searchParams = Promise.resolve({
-        reason: 'MIGRATION_PARCOURS_EMPLOI',
-        population: 'POP_1J1S',
         typeUtilisateur: 'JEUNE',
       })
 

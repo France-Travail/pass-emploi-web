@@ -10,10 +10,3 @@ export const URLS_PARCOURS_EMPLOI: UrlsStoresMobile & { desktop: string } = {
   desktop:
     'https://www.francetravail.fr/candidat/vos-services-en-ligne/applications-mobiles/appli-mopbile--smartphone-mes-of.html',
 }
-
-// L’application 1 jeune 1 solution est publiée sous le bundle de l’application CEJ (fr.fabrique.social.gouv.passemploi), pas sous celui de pass emploi (….passemploi.rsa)
-export const URLS_1J1S: UrlsStoresMobile = {
-  ios: 'https://apps.apple.com/app/apple-store/id1581603519',
-  android:
-    'https://play.google.com/store/apps/details?id=fr.fabrique.social.gouv.passemploi',
-}

@@ -1,13 +1,12 @@
-import { whitescreenDeMigration } from 'app/autherror/populationsMigration'
+import { estPopulationDeMigrationPassEmploi } from 'app/autherror/populationsMigration'
 
-describe('whitescreenDeMigration', () => {
+describe('estPopulationDeMigrationPassEmploi', () => {
   const envInitial = process.env
 
   beforeEach(() => {
     process.env = {
       ...envInitial,
       POPULATIONS_MIGRATION_PASS_EMPLOI: ' POP_PE_1 , POP_PE_2,',
-      POPULATIONS_MIGRATION_1J1S: 'POP_1J1S',
     }
   })
 
@@ -16,30 +15,19 @@ describe('whitescreenDeMigration', () => {
   })
 
   it('reconnaît une population pass emploi, espaces et virgule finale ignorés', () => {
-    expect(whitescreenDeMigration('POP_PE_1')).toEqual('PASS_EMPLOI')
-    expect(whitescreenDeMigration('POP_PE_2')).toEqual('PASS_EMPLOI')
-  })
-
-  it('reconnaît une population 1J1S', () => {
-    expect(whitescreenDeMigration('POP_1J1S')).toEqual('1J1S')
+    expect(estPopulationDeMigrationPassEmploi('POP_PE_1')).toBe(true)
+    expect(estPopulationDeMigrationPassEmploi('POP_PE_2')).toBe(true)
   })
 
   it('ne reconnaît ni une population inconnue ni une population absente', () => {
-    expect(whitescreenDeMigration('POP_INCONNUE')).toBeUndefined()
-    expect(whitescreenDeMigration(undefined)).toBeUndefined()
-    expect(whitescreenDeMigration('')).toBeUndefined()
+    expect(estPopulationDeMigrationPassEmploi('POP_INCONNUE')).toBe(false)
+    expect(estPopulationDeMigrationPassEmploi(undefined)).toBe(false)
+    expect(estPopulationDeMigrationPassEmploi('')).toBe(false)
   })
 
-  it('privilégie pass emploi quand la population est dans les deux listes', () => {
-    process.env.POPULATIONS_MIGRATION_1J1S = 'POP_PE_1'
-
-    expect(whitescreenDeMigration('POP_PE_1')).toEqual('PASS_EMPLOI')
-  })
-
-  it('ne reconnaît rien quand les variables ne sont pas définies', () => {
+  it('ne reconnaît rien quand la variable n’est pas définie', () => {
     delete process.env.POPULATIONS_MIGRATION_PASS_EMPLOI
-    delete process.env.POPULATIONS_MIGRATION_1J1S
 
-    expect(whitescreenDeMigration('POP_PE_1')).toBeUndefined()
+    expect(estPopulationDeMigrationPassEmploi('POP_PE_1')).toBe(false)
   })
 })
