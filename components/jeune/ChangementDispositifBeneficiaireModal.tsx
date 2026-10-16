@@ -91,7 +91,7 @@ function ChangementDispositifBeneficiaireModal(
   return (
     <Modal
       ref={ref}
-      title='Confirmation du changement de dispositif Changement de dispositif sans perte de données'
+      title='Changement de dispositif sans perte de données'
       onClose={onCancel}
       titleIllustration={IllustrationName.ArrowForward}
     >

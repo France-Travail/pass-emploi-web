@@ -152,6 +152,9 @@ function FicheBeneficiairePage(props: FicheBeneficiaireProps) {
         beneficiaire={beneficiaire}
         historiqueConseillers={historiqueConseillers}
         demarches={estBeneficiaireMilo ? undefined : props.demarches}
+        fonctionnalites={
+          estBeneficiaireMilo ? props.fonctionnalites : undefined
+        }
         indicateursSemaine={indicateursSemaine}
         withCreations={!lectureSeule && estBeneficiaireMilo}
         onSupprimerBeneficiaire={

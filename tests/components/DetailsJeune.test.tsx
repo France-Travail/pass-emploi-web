@@ -401,6 +401,30 @@ describe('<DetailsJeune>', () => {
           'RSA rénové'
         )
       })
+
+      it('affiche une erreur si la modification du dispositif échoue', async () => {
+        // Given
+        ;(modifierDispositif as jest.Mock).mockRejectedValue(
+          new Error('Forbidden')
+        )
+
+        // When
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', {
+            name: /Sélectionner le nouveau dispositif/,
+          }),
+          'RSA rénové'
+        )
+        await userEvent.click(screen.getByRole('button', { name: 'Modifier' }))
+
+        // Then
+        expect(
+          screen.getByRole('alert', {
+            name: 'Une erreur est survenue lors du changement de dispositif. Veuillez réessayer.',
+          })
+        ).toBeInTheDocument()
+        expect(alerteSetter).not.toHaveBeenCalled()
+      })
     })
   })
 

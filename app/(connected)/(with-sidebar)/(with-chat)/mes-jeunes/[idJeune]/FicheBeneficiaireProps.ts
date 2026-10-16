@@ -39,6 +39,7 @@ export type FicheMiloProps = BaseFiche & {
   ongletInitial: OngletMilo
   rdvs: EvenementListItem[]
   categoriesActions: SituationNonProfessionnelle[]
+  fonctionnalites?: string[]
   erreurSessions?: boolean
 }
 

@@ -17,8 +17,6 @@ type ChangementDispositifBeneficiaireFTModalProps = {
   onCancel: () => void
 }
 
-// Changement de dispositif d'un bénéficiaire France Travail, sans transition :
-// le bénéficiaire garde son historique. Le parent ferme la modale après succès.
 export default function ChangementDispositifBeneficiaireFTModal({
   dispositif,
   onConfirm,

@@ -303,9 +303,7 @@ describe('FicheBeneficiairePage client side', () => {
       it('affiche le titre et les options vers les deux autres dispositifs', async () => {
         // Then
         expect(
-          screen.getByText(
-            'Confirmation du changement de dispositif Changement de dispositif sans perte de données'
-          )
+          screen.getByText('Changement de dispositif sans perte de données')
         ).toBeInTheDocument()
         expect(
           screen.getByRole('radio', {
@@ -466,6 +464,99 @@ describe('FicheBeneficiairePage client side', () => {
           '2024-06-01'
         )
         expect(mockRefresh).toHaveBeenCalled()
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
+      })
+
+      it('affiche une erreur si le changement de dispositif échoue (erreur de sélection)', async () => {
+        // Given
+        ;(modifierDispositif as jest.Mock).mockRejectedValue(
+          new Error('Forbidden')
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: 'Le dispositif CEJ a été sélectionné par erreur',
+          })
+        )
+        await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(
+          screen.getByRole('alert', {
+            name: 'Une erreur est survenue lors du changement de dispositif. Veuillez réessayer.',
+          })
+        ).toBeInTheDocument()
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
+        expect(alerteSetter).not.toHaveBeenCalled()
+        expect(mockRefresh).not.toHaveBeenCalled()
+      })
+
+      it("affiche une erreur si le changement de dispositif échoue (fin d'accompagnement)", async () => {
+        // Given
+        ;(changerDispositifAvecMotif as jest.Mock).mockRejectedValue(
+          new Error('Bad Request')
+        )
+
+        // When
+        await userEvent.click(
+          screen.getByRole('radio', {
+            name: "Fin d'un accompagnement CEJ et poursuite en PACEA",
+          })
+        )
+        await userEvent.selectOptions(
+          screen.getByRole('combobox', {
+            name: /Motif de fin d'accompagnement/,
+          }),
+          'Emploi durable (plus de 6 mois)'
+        )
+        await userEvent.type(
+          screen.getByLabelText(/Date de fin d'accompagnement/),
+          '2024-06-01'
+        )
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Confirmer le passage du bénéficiaire en PACEA',
+          })
+        )
+
+        // Then
+        expect(
+          screen.getByRole('alert', {
+            name: 'Une erreur est survenue lors du changement de dispositif. Veuillez réessayer.',
+          })
+        ).toBeInTheDocument()
+        expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('CEJ')
+        expect(alerteSetter).not.toHaveBeenCalled()
+        expect(mockRefresh).not.toHaveBeenCalled()
+      })
+
+      it("retire l'erreur quand un nouvel essai de changement de dispositif réussit", async () => {
+        // Given
+        ;(modifierDispositif as jest.Mock).mockRejectedValueOnce(
+          new Error('Forbidden')
+        )
+        await changerEnPaceaParErreur()
+
+        // When
+        await userEvent.click(
+          screen.getByRole('button', {
+            name: 'Changer le bénéficiaire de dispositif',
+          })
+        )
+        await changerEnPaceaParErreur()
+
+        // Then
+        expect(
+          screen.queryByRole('alert', {
+            name: 'Une erreur est survenue lors du changement de dispositif. Veuillez réessayer.',
+          })
+        ).not.toBeInTheDocument()
         expect(getByDescriptionTerm('Dispositif')).toHaveTextContent('PACEA')
       })
 
@@ -1009,6 +1100,20 @@ describe('FicheBeneficiairePage client side', () => {
   })
 })
 
+async function changerEnPaceaParErreur() {
+  await userEvent.click(
+    screen.getByRole('radio', {
+      name: 'Le dispositif CEJ a été sélectionné par erreur',
+    })
+  )
+  await userEvent.click(screen.getByRole('radio', { name: 'PACEA' }))
+  await userEvent.click(
+    screen.getByRole('button', {
+      name: 'Confirmer le passage du bénéficiaire en PACEA',
+    })
+  )
+}
+
 async function renderFicheJeuneMilo({
   lastActivity,
   structureDifferente,
@@ -1045,6 +1150,7 @@ async function renderFicheJeuneMilo({
       rdvs={[]}
       categoriesActions={desCategories()}
       ongletInitial='actions'
+      fonctionnalites={fonctionnalites}
     />
   )
 
@@ -1061,7 +1167,6 @@ async function renderFicheJeuneMilo({
       customConseiller: {
         agence: { id: 'id-structure-meaux', nom: 'Agence de Meaux' },
         structure: structureMilo,
-        fonctionnalites,
         structureMilo: structureDifferente
           ? {
               nom: 'Mission locale',

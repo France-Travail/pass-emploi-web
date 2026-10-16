@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 
 import { DetailBeneficiaire } from 'interfaces/beneficiaire'
-import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { Profil } from 'interfaces/profil'
 import { MissionLocale } from 'interfaces/referentiel'
 import { estMilo, estPassEmploi, Structure } from 'interfaces/structure'
@@ -38,7 +37,6 @@ export type Conseiller = BaseConseiller & {
   dateVisionnageActus?: string
   dateMajAgence?: DateTime
   dateMajDispositif?: DateTime
-  fonctionnalites?: string[]
 }
 
 export type MessageInformatif = {
@@ -51,13 +49,6 @@ export type ImpactChangementDispositif = {
   nbBeneficiairesConcernes: number
   nbBeneficiairesTransferesTemporairement: number
   nbBeneficiairesSuivisTemporairement: number
-}
-
-export function aLaFonctionnalite(
-  conseiller: Pick<Conseiller, 'fonctionnalites'>,
-  fonctionnalite: Fonctionnalite
-): boolean {
-  return Boolean(conseiller.fonctionnalites?.includes(fonctionnalite))
 }
 
 export function estSuperviseur(conseiller: Conseiller): boolean {

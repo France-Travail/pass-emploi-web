@@ -234,8 +234,8 @@ describe('<DossierMilo', () => {
           onAnnulationCreerCompte={jest.fn()}
           onRefresh={jest.fn()}
           onRetour={jest.fn()}
-        />,
-        { customConseiller: { fonctionnalites } }
+          fonctionnalites={fonctionnalites}
+        />
       )
     }
 

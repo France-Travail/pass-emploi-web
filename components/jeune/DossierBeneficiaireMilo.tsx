@@ -18,11 +18,9 @@ import {
   DispositifMilo,
   DossierMilo,
 } from 'interfaces/beneficiaire'
-import { aLaFonctionnalite } from 'interfaces/conseiller'
 import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
-import { useConseiller } from 'utils/conseiller/conseillerContext'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 interface DossierBeneficiaireMiloProps {
@@ -36,6 +34,7 @@ interface DossierBeneficiaireMiloProps {
   onAnnulationCreerCompte: () => void
   erreurMessageCreationCompte?: string
   beneficiaireExisteDejaMilo: boolean
+  fonctionnalites?: string[]
 }
 
 function DossierBeneficiaireMilo(
@@ -47,13 +46,12 @@ function DossierBeneficiaireMilo(
     onRetour,
     onAnnulationCreerCompte,
     beneficiaireExisteDejaMilo,
+    fonctionnalites = [],
   }: DossierBeneficiaireMiloProps,
   ref: ForwardedRef<{ focusRetour: () => void }>
 ) {
   const [portefeuille] = usePortefeuille()
-  const [conseiller] = useConseiller()
-  const peutChoisirDispositifAutre = aLaFonctionnalite(
-    conseiller,
+  const peutChoisirDispositifAutre = fonctionnalites.includes(
     Fonctionnalite.DISPOSITIF_AUTRE
   )
 
@@ -202,7 +200,6 @@ function DossierBeneficiaireMilo(
                 className='mr-2'
                 onClick={() => choisirDispositif(Dispositif.AUTRE)}
               />
-              {''}
               Autre
             </label>
           )}

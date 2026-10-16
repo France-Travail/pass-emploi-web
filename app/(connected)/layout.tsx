@@ -13,10 +13,7 @@ import {
 } from 'interfaces/conseiller'
 import { estPassEmploi } from 'interfaces/structure'
 import { getBeneficiairesDuConseillerServerSide } from 'services/beneficiaires.service'
-import {
-  getConseillerServerSide,
-  getFonctionnalitesConseillerServerSide,
-} from 'services/conseiller.service'
+import { getConseillerServerSide } from 'services/conseiller.service'
 import AppContextProviders from 'utils/AppContextProviders'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
@@ -49,10 +46,9 @@ export default async function LayoutWhenConnected({
 }) {
   const { accessToken, user } = await getMandatorySessionServerSide()
 
-  const [conseiller, portefeuille, fonctionnalites] = await Promise.all([
+  const [conseiller, portefeuille] = await Promise.all([
     getConseillerServerSide(user, accessToken),
     getBeneficiairesDuConseillerServerSide(user.id, accessToken),
-    getFonctionnalitesConseillerServerSide(user.id, accessToken),
   ])
 
   if (
@@ -67,10 +63,7 @@ export default async function LayoutWhenConnected({
 
   return (
     <>
-      <AppContextProviders
-        conseiller={{ ...conseiller, fonctionnalites }}
-        portefeuille={portefeuille}
-      >
+      <AppContextProviders conseiller={conseiller} portefeuille={portefeuille}>
         <A11yPageTitle />
         <LiensEvitement />
 

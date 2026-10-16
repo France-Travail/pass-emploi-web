@@ -19,7 +19,10 @@ import {
   getJeuneDetails,
   getMetadonneesFavorisJeune,
 } from 'services/beneficiaires.service'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getFonctionnalitesConseillerServerSide,
+} from 'services/conseiller.service'
 import { getRendezVousJeune } from 'services/evenements.service'
 import { getOffres } from 'services/favoris.service'
 import { getSessionsMiloBeneficiaire } from 'services/sessions.service'
@@ -80,6 +83,9 @@ describe('FicheBeneficiairePage server side', () => {
         structureMilo: { nom: 'Agence', id: 'id-test' },
       })
     )
+    ;(getFonctionnalitesConseillerServerSide as jest.Mock).mockResolvedValue([
+      'DISPOSITIF_AUTRE',
+    ])
     ;(getMandatorySessionServerSide as jest.Mock).mockReturnValue({
       accessToken: 'accessToken',
       user: { id: 'id-conseiller-1', structure: 'MILO' },
@@ -111,8 +117,17 @@ describe('FicheBeneficiairePage server side', () => {
           ongletInitial: 'actions',
           debutSemaineInitiale: undefined,
           categoriesActions: undefined,
+          fonctionnalites: ['DISPOSITIF_AUTRE'],
         },
         undefined
+      )
+    })
+
+    it('récupère les fonctionnalités du conseiller', async () => {
+      // Then
+      expect(getFonctionnalitesConseillerServerSide).toHaveBeenCalledWith(
+        'id-conseiller-1',
+        'accessToken'
       )
     })
 
@@ -191,6 +206,7 @@ describe('FicheBeneficiairePage server side', () => {
       // Then
       expect(getRendezVousJeune).not.toHaveBeenCalled()
       expect(getSessionsMiloBeneficiaire).not.toHaveBeenCalled()
+      expect(getFonctionnalitesConseillerServerSide).not.toHaveBeenCalled()
       expect(FicheBeneficiairePage).toHaveBeenCalledWith(
         expect.not.objectContaining({ rdvs: expect.arrayContaining([]) }),
         undefined
