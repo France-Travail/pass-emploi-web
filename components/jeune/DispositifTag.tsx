@@ -33,6 +33,8 @@ function getStyle({ dispositif, onWhite }: DispositifTagProps): string {
       return 'bg-additional-5-lighten'
     case Dispositif.EQUIP_EMPLOI_RECRUT:
       return 'bg-warning-lighten'
+    case Dispositif.AUTRE:
+      return 'text-additional-1-darken bg-additional-1-lighten'
     case Dispositif.CEJ:
     default:
       return (

@@ -13,7 +13,10 @@ import {
   estMilo,
   labelStructure,
 } from 'interfaces/structure'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getFonctionnalitesConseillerServerSide,
+} from 'services/conseiller.service'
 import { getListesServerSide } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
@@ -47,12 +50,18 @@ export default async function CreationBeneficiaire() {
       )
     }
   }
+  const fonctionnalites = estMilo(conseiller.structure)
+    ? await getFonctionnalitesConseillerServerSide(user.id, accessToken)
+    : undefined
+
   return (
     <>
       <PageFilArianePortal />
       <PageHeaderPortal header={header} />
 
-      {estMilo(conseiller.structure) && <CreationBeneficiaireMiloPage />}
+      {estMilo(conseiller.structure) && (
+        <CreationBeneficiaireMiloPage fonctionnalites={fonctionnalites} />
+      )}
       {!estMilo(conseiller.structure) && (
         <CreationBeneficiaireFranceTravailPage listes={listes} />
       )}

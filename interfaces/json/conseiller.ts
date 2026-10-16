@@ -57,6 +57,10 @@ export interface ConseillerJson {
   dateMajDispositif?: string
 }
 
+export type FonctionnalitesConseillerJson = {
+  fonctionnalites: string[]
+}
+
 export type CommunicationsConseillerJson = {
   messageInformatif?: MessageInformatif
 }

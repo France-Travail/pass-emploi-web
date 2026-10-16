@@ -13,11 +13,13 @@ import InputError from 'components/ui/Form/InputError'
 import { Switch } from 'components/ui/Form/Switch'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
-import { Dispositif, DossierMilo } from 'interfaces/beneficiaire'
 import {
-  BeneficiaireMiloFormData,
+  Dispositif,
   DispositifMilo,
-} from 'interfaces/json/beneficiaire'
+  DossierMilo,
+} from 'interfaces/beneficiaire'
+import { Fonctionnalite } from 'interfaces/fonctionnalite'
+import { BeneficiaireMiloFormData } from 'interfaces/json/beneficiaire'
 import useMatomo from 'utils/analytics/useMatomo'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
@@ -32,6 +34,7 @@ interface DossierBeneficiaireMiloProps {
   onAnnulationCreerCompte: () => void
   erreurMessageCreationCompte?: string
   beneficiaireExisteDejaMilo: boolean
+  fonctionnalites?: string[]
 }
 
 function DossierBeneficiaireMilo(
@@ -43,10 +46,14 @@ function DossierBeneficiaireMilo(
     onRetour,
     onAnnulationCreerCompte,
     beneficiaireExisteDejaMilo,
+    fonctionnalites = [],
   }: DossierBeneficiaireMiloProps,
   ref: ForwardedRef<{ focusRetour: () => void }>
 ) {
   const [portefeuille] = usePortefeuille()
+  const peutChoisirDispositifAutre = fonctionnalites.includes(
+    Fonctionnalite.DISPOSITIF_AUTRE
+  )
 
   const [dispositif, setDispositif] = useState<DispositifMilo>()
   const [erreurDispositif, setErreurDispositif] = useState<string>()
@@ -184,6 +191,18 @@ function DossierBeneficiaireMilo(
             Parcours contractualisé d’accompagnement vers l’emploi et
             l’autonomie (PACEA)
           </label>
+          {peutChoisirDispositifAutre && (
+            <label htmlFor='dispositif-autre' className='block py-2'>
+              <input
+                type='radio'
+                name='dispositif'
+                id='dispositif-autre'
+                className='mr-2'
+                onClick={() => choisirDispositif(Dispositif.AUTRE)}
+              />
+              Autre
+            </label>
+          )}
         </fieldset>
       </form>
 
