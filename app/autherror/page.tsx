@@ -1,8 +1,13 @@
 import { redirect } from 'next/navigation'
 
 import AuthErrorPage from 'app/autherror/AuthErrorPage'
+import MigrationApplicationJeunePage from 'app/autherror/MigrationApplicationJeunePage'
 import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
 import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
+import MigrationPassEmploiConseillerPage from 'app/autherror/MigrationPassEmploiConseillerPage'
+import { estPopulationDeMigrationPassEmploi } from 'app/autherror/populationsMigration'
+import { URLS_PARCOURS_EMPLOI } from 'app/autherror/urlsStores'
+import { IllustrationName } from 'components/ui/IllustrationComponent'
 import {
   estStructure,
   getUrlFormulaireSupport,
@@ -17,6 +22,7 @@ type AuthErrorSearchParams = Promise<
     email?: string
     prenom?: string
     nom?: string
+    population: string
   }>
 >
 
@@ -25,14 +31,38 @@ export default async function AuthError({
 }: Readonly<{
   searchParams?: AuthErrorSearchParams
 }>) {
-  const { reason, typeUtilisateur, structureUtilisateur, email, prenom, nom } =
-    (await searchParams) ?? {}
+  const {
+    reason,
+    typeUtilisateur,
+    structureUtilisateur,
+    email,
+    prenom,
+    nom,
+    population,
+  } = (await searchParams) ?? {}
 
   if (reason === 'MIGRATION_PARCOURS_EMPLOI') {
+    const migrationPassEmploi = estPopulationDeMigrationPassEmploi(population)
+
     if (typeUtilisateur === 'CONSEILLER') {
-      return <MigrationConseillerPage />
-    } else if (typeUtilisateur === 'JEUNE') {
-      return <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
+      return migrationPassEmploi ? (
+        <MigrationPassEmploiConseillerPage />
+      ) : (
+        <MigrationConseillerPage />
+      )
+    }
+
+    if (typeUtilisateur === 'JEUNE') {
+      return migrationPassEmploi ? (
+        <MigrationApplicationJeunePage
+          titre='Vos outils évoluent'
+          texte='L’application pass emploi n’est plus disponible. Vous devez désormais utiliser l’application Parcours Emploi.'
+          illustration={IllustrationName.MigrationPassEmploiJeune}
+          urlsStores={URLS_PARCOURS_EMPLOI}
+        />
+      ) : (
+        <MigrationJeunePage nom={nom} prenom={prenom} email={email} />
+      )
     }
   }
 

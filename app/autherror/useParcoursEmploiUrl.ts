@@ -2,13 +2,7 @@
 
 import { useSyncExternalStore } from 'react'
 
-const URLS = {
-  ios: 'https://apps.apple.com/app/apple-store/id563863597?pt=1432235&ct=migration-cej&mt=8',
-  android:
-    'https://play.google.com/store/apps/details?id=com.poleemploi.pemobile&referrer=utm_source=cej&utm_medium=cta&utm_campaign=migration_cej',
-  desktop:
-    'https://www.francetravail.fr/candidat/vos-services-en-ligne/applications-mobiles/appli-mopbile--smartphone-mes-of.html',
-} as const
+import { URLS_PARCOURS_EMPLOI, UrlsStoresMobile } from './urlsStores'
 
 type Platform = 'ios' | 'android' | 'desktop'
 
@@ -19,12 +13,19 @@ function detectPlatform(ua: string): Platform {
   return 'desktop'
 }
 
-export function useParcoursEmploiUrl(): string {
-  const platform = useSyncExternalStore(
+function usePlatform(): Platform {
+  return useSyncExternalStore(
     () => () => {},
     () => detectPlatform(navigator.userAgent),
     () => 'desktop' as Platform
   )
+}
 
-  return URLS[platform]
+export function useMobileStoreUrl(urls: UrlsStoresMobile): string | undefined {
+  const platform = usePlatform()
+  return platform === 'desktop' ? undefined : urls[platform]
+}
+
+export function useParcoursEmploiUrl(): string {
+  return URLS_PARCOURS_EMPLOI[usePlatform()]
 }
