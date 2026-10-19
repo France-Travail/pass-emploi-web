@@ -15,9 +15,11 @@ import {
   Demarche,
   DetailBeneficiaire,
   Dispositif,
+  DISPOSITIFS_MILO,
   getLabelDispositif,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
+import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { estFranceTravail, estMilo, structureFTCej } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -38,6 +40,7 @@ interface DetailsBeneficiaireProps {
   withCreations: boolean
   demarches?: { data: Demarche[] } | null
   indicateursSemaine?: IndicateursSemaine
+  fonctionnalites?: string[]
   onSupprimerBeneficiaire?: () => void
   className?: string
 }
@@ -48,6 +51,7 @@ export default function DetailsBeneficiaire({
   withCreations,
   demarches,
   indicateursSemaine,
+  fonctionnalites = [],
   onSupprimerBeneficiaire,
   className,
 }: Readonly<DetailsBeneficiaireProps>) {
@@ -64,6 +68,8 @@ export default function DetailsBeneficiaire({
     MotifSuppressionBeneficiaire[]
   >([])
   const [erreurChargementMotifs, setErreurChargementMotifs] =
+    useState<boolean>(false)
+  const [erreurChangementDispositif, setErreurChangementDispositif] =
     useState<boolean>(false)
 
   const modalDispositifRef = useRef<ModalHandles>(null)
@@ -117,18 +123,41 @@ export default function DetailsBeneficiaire({
     }
   }
 
+  async function enregistrerChangementDispositif(
+    nouveauDispositif: string,
+    enregistrer: () => Promise<void>
+  ): Promise<void> {
+    setErreurChangementDispositif(false)
+    try {
+      await enregistrer()
+      setDispositifActuel(nouveauDispositif)
+      setAlerte(
+        AlerteParam.changementDispositif,
+        getLabelDispositif(nouveauDispositif)
+      )
+      router.refresh()
+    } catch {
+      setErreurChangementDispositif(true)
+    }
+  }
+
   async function changerDispositif(nouveauDispositif: string): Promise<void> {
     const { modifierDispositif } =
       await import('services/beneficiaires.service')
-    try {
-      await modifierDispositif(id, nouveauDispositif)
-      setDispositifActuel(nouveauDispositif)
-      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
-      router.refresh()
-    } finally {
-      modalDispositifRef.current!.closeModal()
-    }
+    await enregistrerChangementDispositif(nouveauDispositif, () =>
+      modifierDispositif(id, nouveauDispositif)
+    )
+    modalDispositifRef.current!.closeModal()
   }
+
+  const peutChoisirDispositifAutre = fonctionnalites.includes(
+    Fonctionnalite.DISPOSITIF_AUTRE
+  )
+  const dispositifsCiblesMilo = DISPOSITIFS_MILO.filter(
+    (dispositifMilo) =>
+      dispositifMilo !== dispositifActuel &&
+      (peutChoisirDispositifAutre || dispositifMilo !== Dispositif.AUTRE)
+  )
 
   // Un bénéficiaire en réaffectation temporaire garde le dispositif de son conseiller initial
   const peutModifierDispositifFT =
@@ -140,14 +169,10 @@ export default function DetailsBeneficiaire({
   ): Promise<void> {
     const { modifierDispositif } =
       await import('services/beneficiaires.service')
-    await modifierDispositif(id, nouveauDispositif)
-    setDispositifActuel(nouveauDispositif)
-    setAlerte(
-      AlerteParam.changementDispositif,
-      getLabelDispositif(nouveauDispositif)
+    await enregistrerChangementDispositif(nouveauDispositif, () =>
+      modifierDispositif(id, nouveauDispositif)
     )
     setShowChangementDispositifFT(false)
-    router.refresh()
   }
 
   async function changerDispositifFinAccompagnement(
@@ -157,19 +182,15 @@ export default function DetailsBeneficiaire({
   ): Promise<void> {
     const { changerDispositifAvecMotif } =
       await import('services/beneficiaires.service')
-    try {
-      await changerDispositifAvecMotif(
+    await enregistrerChangementDispositif(nouveauDispositif, () =>
+      changerDispositifAvecMotif(
         id,
         nouveauDispositif,
         motif,
         dateFinAccompagnement
       )
-      setDispositifActuel(nouveauDispositif)
-      setAlerte(AlerteParam.changementDispositif, nouveauDispositif)
-      router.refresh()
-    } finally {
-      modalDispositifRef.current!.closeModal()
-    }
+    )
+    modalDispositifRef.current!.closeModal()
   }
 
   function trackEventOnCopieIdentifiantPartenaire() {
@@ -249,10 +270,18 @@ export default function DetailsBeneficiaire({
         />
       )}
 
+      {erreurChangementDispositif && (
+        <FailureAlert
+          label='Une erreur est survenue lors du changement de dispositif. Veuillez réessayer.'
+          onAcknowledge={() => setErreurChangementDispositif(false)}
+        />
+      )}
+
       {showChangementDispositif && (
         <ChangementDispositifBeneficiaireModal
           ref={modalDispositifRef}
           dispositif={dispositifActuel}
+          dispositifsCibles={dispositifsCiblesMilo}
           lastActivity={lastActivity}
           motifsFinAccompagnement={motifsFinAccompagnement}
           onConfirm={changerDispositif}

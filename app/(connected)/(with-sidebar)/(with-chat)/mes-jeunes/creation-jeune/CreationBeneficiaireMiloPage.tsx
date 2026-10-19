@@ -24,7 +24,11 @@ interface EmailExistantError {
   id: string | undefined
 }
 
-function CreationBeneficiaireMiloPage() {
+function CreationBeneficiaireMiloPage({
+  fonctionnalites,
+}: {
+  fonctionnalites?: string[]
+}) {
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
   const [portefeuille, setPortefeuille] = usePortefeuille()
@@ -167,6 +171,7 @@ function CreationBeneficiaireMiloPage() {
           onCreateCompte={creerCompteJeune}
           erreurMessageCreationCompte={erreurCreation}
           beneficiaireExisteDejaMilo={compteBeneficiaireExisteDeja}
+          fonctionnalites={fonctionnalites}
           onRefresh={() => rechercherDossier(dossier.id)}
           onRetour={() => {
             clearErreurs()

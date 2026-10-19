@@ -19,6 +19,7 @@ export type Portefeuille = BeneficiaireWithActivity[]
 export enum Dispositif {
   CEJ = 'CEJ',
   PACEA = 'PACEA',
+  AUTRE = 'AUTRE',
   BRSA = 'BRSA',
   AIJ = 'AIJ',
   CONSEIL_DEPT = 'CONSEIL_DEPT',
@@ -28,12 +29,25 @@ export enum Dispositif {
   EQUIP_EMPLOI_RECRUT = 'EQUIP_EMPLOI_RECRUT',
 }
 
+export type DispositifMilo =
+  | Dispositif.CEJ
+  | Dispositif.PACEA
+  | Dispositif.AUTRE
+
+export const DISPOSITIFS_MILO: DispositifMilo[] = [
+  Dispositif.CEJ,
+  Dispositif.PACEA,
+  Dispositif.AUTRE,
+]
+
 export function getLabelDispositif(dispositif: string): string {
   switch (dispositif) {
     case Dispositif.CEJ:
       return 'CEJ'
     case Dispositif.PACEA:
       return 'PACEA'
+    case Dispositif.AUTRE:
+      return 'Autre'
     case Dispositif.BRSA:
       return 'RSA rénové'
     case Dispositif.AIJ:

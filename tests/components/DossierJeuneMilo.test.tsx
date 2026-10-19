@@ -5,6 +5,7 @@ import React from 'react'
 import { MODAL_ROOT_ID } from 'components/globals'
 import DossierBeneficiaireMilo from 'components/jeune/DossierBeneficiaireMilo'
 import { unDossierMilo } from 'fixtures/milo'
+import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import getByDescriptionTerm from 'tests/querySelector'
 import renderWithContexts from 'tests/renderWithContexts'
 
@@ -215,6 +216,57 @@ describe('<DossierMilo', () => {
       await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
       const [payload] = onCreateCompte.mock.calls[0]
       expect(payload.dispositif).toBe('PACEA')
+      expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
+    })
+  })
+
+  describe('dispositif Autre', () => {
+    let onCreateCompte: jest.Mock
+
+    async function renderDossier(fonctionnalites: string[]) {
+      onCreateCompte = jest.fn().mockResolvedValue(undefined)
+      await renderWithContexts(
+        <DossierBeneficiaireMilo
+          dossier={unDossierMilo()}
+          beneficiaireExisteDejaMilo={false}
+          erreurMessageCreationCompte=''
+          onCreateCompte={onCreateCompte}
+          onAnnulationCreerCompte={jest.fn()}
+          onRefresh={jest.fn()}
+          onRetour={jest.fn()}
+          fonctionnalites={fonctionnalites}
+        />
+      )
+    }
+
+    it('ne propose pas Autre sans la fonctionnalité', async () => {
+      // WHEN
+      await renderDossier([])
+
+      // THEN
+      expect(screen.queryByRole('radio', { name: 'Autre' })).toBeNull()
+      expect(screen.getByRole('radio', { name: /PACEA/ })).toBeInTheDocument()
+    })
+
+    it('crée le compte en Autre, sans compteur des heures', async () => {
+      // GIVEN
+      await renderDossier([Fonctionnalite.DISPOSITIF_AUTRE])
+
+      // WHEN
+      await userEvent.click(screen.getByRole('radio', { name: 'Autre' }))
+
+      // THEN
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument()
+
+      // WHEN
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Créer le compte' })
+      )
+
+      // THEN
+      await waitFor(() => expect(onCreateCompte).toHaveBeenCalled())
+      const [payload] = onCreateCompte.mock.calls[0]
+      expect(payload.dispositif).toBe('AUTRE')
       expect(payload.peutVoirLeCompteurDesHeures).toBe(false)
     })
   })

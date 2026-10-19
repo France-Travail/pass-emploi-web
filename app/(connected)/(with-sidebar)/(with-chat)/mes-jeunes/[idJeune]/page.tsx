@@ -22,7 +22,10 @@ import {
   getJeuneDetails,
   getMetadonneesFavorisJeune,
 } from 'services/beneficiaires.service'
-import { getConseillerServerSide } from 'services/conseiller.service'
+import {
+  getConseillerServerSide,
+  getFonctionnalitesConseillerServerSide,
+} from 'services/conseiller.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { getPeriodeComprenant, LUNDI } from 'utils/date'
 
@@ -88,7 +91,7 @@ export default async function FicheBeneficiaire({
       <PageFilArianePortal />
 
       {estMilo(conseiller.structure) &&
-        (await renderFicheMilo(accessToken, props))}
+        (await renderFicheMilo(user.id, accessToken, props))}
 
       {!estMilo(conseiller.structure) &&
         (await renderFichePasMilo(conseiller, accessToken, props))}
@@ -114,6 +117,7 @@ function getOngletInitial(
 }
 
 async function renderFicheMilo(
+  idConseiller: string,
   accessToken: string,
   props: Pick<
     FicheMiloProps,
@@ -125,16 +129,17 @@ async function renderFicheMilo(
     | 'debutSemaineInitiale'
   >
 ): Promise<ReactElement> {
-  const categoriesActions = await getSituationsNonProfessionnelles(
-    { avecNonSNP: false },
-    accessToken
-  )
+  const [categoriesActions, fonctionnalites] = await Promise.all([
+    getSituationsNonProfessionnelles({ avecNonSNP: false }, accessToken),
+    getFonctionnalitesConseillerServerSide(idConseiller, accessToken),
+  ])
 
   return (
     <FicheBeneficiairePage
       {...props}
       estMilo={true}
       categoriesActions={categoriesActions}
+      fonctionnalites={fonctionnalites}
     />
   )
 }

@@ -19,6 +19,7 @@ import {
   getConseillerServerSide,
   getImpactChangementDispositif,
   getDossierJeune,
+  getFonctionnalitesConseillerServerSide,
   getMessageInformatifServerSide,
   modifierAgence,
   modifierDateSignatureCGU,
@@ -171,6 +172,42 @@ describe('ConseillerApiService', () => {
 
       // Then
       expect(actual.dateMajDispositif).toBeUndefined()
+    })
+  })
+
+  describe('.getFonctionnalitesConseillerServerSide', () => {
+    it('renvoie les fonctionnalités actives du conseiller', async () => {
+      // Given
+      ;(apiGet as jest.Mock).mockResolvedValue({
+        content: { fonctionnalites: ['DISPOSITIF_AUTRE'] },
+      })
+
+      // When
+      const actual = await getFonctionnalitesConseillerServerSide(
+        'id-conseiller',
+        'accessToken'
+      )
+
+      // Then
+      expect(apiGet).toHaveBeenCalledWith(
+        '/conseillers/id-conseiller/fonctionnalites',
+        'accessToken'
+      )
+      expect(actual).toEqual(['DISPOSITIF_AUTRE'])
+    })
+
+    it('renvoie une liste vide si la récupération échoue', async () => {
+      // Given
+      ;(apiGet as jest.Mock).mockRejectedValue(new Error('erreur'))
+
+      // When
+      const actual = await getFonctionnalitesConseillerServerSide(
+        'id-conseiller',
+        'accessToken'
+      )
+
+      // Then
+      expect(actual).toEqual([])
     })
   })
 

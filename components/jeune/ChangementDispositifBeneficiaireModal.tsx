@@ -6,11 +6,15 @@ import Input from 'components/ui/Form/Input'
 import Label from 'components/ui/Form/Label'
 import Select from 'components/ui/Form/Select'
 import { IllustrationName } from 'components/ui/IllustrationComponent'
+import { getLabelDispositif } from 'interfaces/beneficiaire'
 import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { toShortDate } from 'utils/date'
 
+type Raison = 'erreur' | 'fin-accompagnement'
+
 type ChangementDispositifBeneficiaireModalProps = {
   dispositif: string
+  dispositifsCibles: string[]
   lastActivity?: string
   motifsFinAccompagnement: MotifSuppressionBeneficiaire[]
   onConfirm: (nouveauDispositif: string) => Promise<void>
@@ -25,6 +29,7 @@ type ChangementDispositifBeneficiaireModalProps = {
 function ChangementDispositifBeneficiaireModal(
   {
     dispositif,
+    dispositifsCibles,
     lastActivity,
     motifsFinAccompagnement,
     onConfirm,
@@ -33,27 +38,48 @@ function ChangementDispositifBeneficiaireModal(
   }: ChangementDispositifBeneficiaireModalProps,
   ref: ForwardedRef<ModalHandles>
 ) {
-  const [raison, setRaison] = useState<'erreur' | 'fin-accompagnement'>()
+  const [raison, setRaison] = useState<Raison>()
+  const [dispositifCible, setDispositifCible] = useState<string | undefined>(
+    dispositifsCibles.length === 1 ? dispositifsCibles[0] : undefined
+  )
   const [motif, setMotif] = useState<string>('')
   const [dateFinAccompagnement, setDateFinAccompagnement] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
-  const nouveauDispositif = dispositif === 'CEJ' ? 'PACEA' : 'CEJ'
+  const labelDispositif = getLabelDispositif(dispositif)
+  const doitChoisirLeDispositifCible = dispositifsCibles.length > 1
+  const labelConfirmation = dispositifCible
+    ? `Confirmer le passage du bénéficiaire en ${getLabelDispositif(dispositifCible)}`
+    : 'Confirmer le changement de dispositif'
+
+  function choisirErreur() {
+    setRaison('erreur')
+    if (doitChoisirLeDispositifCible) setDispositifCible(undefined)
+  }
+
+  function choisirFinAccompagnement(cible: string) {
+    setRaison('fin-accompagnement')
+    setDispositifCible(cible)
+  }
 
   async function handleConfirmerErreur() {
+    if (!dispositifCible) return
+
     setLoading(true)
     try {
-      await onConfirm(nouveauDispositif)
+      await onConfirm(dispositifCible)
     } finally {
       setLoading(false)
     }
   }
 
   async function handleConfirmerFinAccompagnement() {
+    if (!dispositifCible) return
+
     setLoading(true)
     try {
       await onConfirmFinAccompagnement(
-        nouveauDispositif,
+        dispositifCible,
         motif,
         dateFinAccompagnement
       )
@@ -65,51 +91,84 @@ function ChangementDispositifBeneficiaireModal(
   return (
     <Modal
       ref={ref}
-      title={`Confirmation du changement de dispositif Passage en ${nouveauDispositif} sans perte de données`}
+      title='Changement de dispositif sans perte de données'
       onClose={onCancel}
       titleIllustration={IllustrationName.ArrowForward}
     >
       <fieldset className='flex flex-col gap-4 mt-4'>
         <legend className='sr-only'>Raison du changement de dispositif</legend>
 
-        <label className='flex gap-2 items-center cursor-pointer mt-10 mb-4'>
+        <label className='flex gap-2 items-center cursor-pointer mt-10'>
           <input
             type='radio'
             name='raison-changement'
             value='erreur'
-            onChange={() => setRaison('erreur')}
+            checked={raison === 'erreur'}
+            onChange={choisirErreur}
           />
-          Le dispositif {dispositif} a été sélectionné par erreur
+          Le dispositif {labelDispositif} a été sélectionné par erreur
         </label>
 
-        <label className='flex gap-2 items-center cursor-pointer'>
-          <input
-            type='radio'
-            name='raison-changement'
-            value='fin-accompagnement'
-            onChange={() => setRaison('fin-accompagnement')}
-          />
-          Fin d&#39;un accompagnement {dispositif} et poursuite en{' '}
-          {nouveauDispositif}
-        </label>
+        {dispositifsCibles.map((cible) => (
+          <label key={cible} className='flex gap-2 items-center cursor-pointer'>
+            <input
+              type='radio'
+              name='raison-changement'
+              value={`fin-accompagnement-${cible}`}
+              checked={
+                raison === 'fin-accompagnement' && dispositifCible === cible
+              }
+              onChange={() => choisirFinAccompagnement(cible)}
+            />
+            Fin d&#39;un accompagnement {labelDispositif} et poursuite en{' '}
+            {getLabelDispositif(cible)}
+          </label>
+        ))}
       </fieldset>
 
       {raison === 'erreur' && (
-        <Button
-          style={ButtonStyle.PRIMARY}
-          onClick={handleConfirmerErreur}
-          className='block mx-auto mt-10'
-          isLoading={loading}
-        >
-          Confirmer le passage du bénéficiaire en {nouveauDispositif}
-        </Button>
+        <>
+          {doitChoisirLeDispositifCible && (
+            <fieldset className='flex flex-col gap-4 mt-8'>
+              <legend className='text-base-bold mb-4'>
+                Sélectionner le dispositif du bénéficiaire
+              </legend>
+
+              {dispositifsCibles.map((cible) => (
+                <label
+                  key={cible}
+                  className='flex gap-2 items-center cursor-pointer'
+                >
+                  <input
+                    type='radio'
+                    name='dispositif-cible'
+                    value={cible}
+                    checked={dispositifCible === cible}
+                    onChange={() => setDispositifCible(cible)}
+                  />
+                  {getLabelDispositif(cible)}
+                </label>
+              ))}
+            </fieldset>
+          )}
+
+          <Button
+            style={ButtonStyle.PRIMARY}
+            onClick={handleConfirmerErreur}
+            className='block mx-auto mt-10'
+            isLoading={loading}
+            disabled={!dispositifCible}
+          >
+            {labelConfirmation}
+          </Button>
+        </>
       )}
 
       {raison === 'fin-accompagnement' && (
         <>
           <p className='mt-8 mb-8 text-base'>
             Merci de renseigner ces informations pour les statistiques du{' '}
-            {dispositif}
+            {labelDispositif}
           </p>
 
           <div className='flex flex-col gap-4'>
@@ -155,7 +214,7 @@ function ChangementDispositifBeneficiaireModal(
             isLoading={loading}
             disabled={!motif || !dateFinAccompagnement}
           >
-            Confirmer le passage du bénéficiaire en {nouveauDispositif}
+            {labelConfirmation}
           </Button>
         </>
       )}
