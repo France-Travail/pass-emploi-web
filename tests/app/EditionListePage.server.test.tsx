@@ -64,6 +64,9 @@ describe('Page d’édition d’une liste', () => {
     expect(metadata).toEqual({
       title: 'Modifier liste - Portefeuille',
     })
+    expect(document.title).toContain(
+      'Modifier liste Liste export international - Portefeuille'
+    )
     expect(EditionListePage).toHaveBeenCalledWith(
       {
         liste: liste,

@@ -9,6 +9,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import {
   estClos,
@@ -57,6 +58,7 @@ export default async function EditionRdv({
 }: {
   searchParams?: EditionRdvSearchParams
 }) {
+  const { user } = await getMandatorySessionServerSide()
   const props = await buildProps(searchParams)
   const referer = (await headers()).get('referer')
   const redirectUrl = (await searchParams)?.redirectUrl
@@ -68,6 +70,14 @@ export default async function EditionRdv({
   if (props.evenement) {
     return (
       <>
+        <TitrePage
+          titre={
+            props.lectureSeule
+              ? `Détail - ${props.evenement.titre}`
+              : `Modifier le rendez-vous ${props.evenement.titre}`
+          }
+          structure={user.structure}
+        />
         <PageRetourPortal lien={returnTo} />
         <PageHeaderPortal
           header={

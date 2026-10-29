@@ -12,6 +12,7 @@ import {
   valeursOngletsPasMilo,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/FicheBeneficiaireProps'
 import { PageFilArianePortal } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { MetadonneesFavoris } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
 import { estConseilDepartemental, estMilo } from 'interfaces/structure'
@@ -78,6 +79,10 @@ export default async function FicheBeneficiaire({
 
   return (
     <>
+      <TitrePage
+        titre={`${beneficiaire.idConseiller === user.id ? 'Portefeuille' : 'Établissement'} - ${beneficiaire.prenom} ${beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
 
       {estMilo(conseiller.structure) &&

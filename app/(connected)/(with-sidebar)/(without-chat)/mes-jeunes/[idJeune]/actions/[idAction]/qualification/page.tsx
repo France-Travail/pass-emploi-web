@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { StatutAction } from 'interfaces/action'
 import { estMilo } from 'interfaces/structure'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -51,6 +52,10 @@ export default async function Qualification({
 
   return (
     <>
+      <TitrePage
+        titre={`Qualifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageHeaderPortal header='Qualifier l’action' />
       <PageRetourPortal lien={returnTo} />
 

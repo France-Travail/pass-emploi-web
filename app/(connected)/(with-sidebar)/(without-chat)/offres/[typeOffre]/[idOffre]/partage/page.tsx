@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { DetailOffre } from 'interfaces/offre'
 import { getImmersionServerSide } from 'services/immersions.service'
 import { getListesServerSide } from 'services/listes.service'
@@ -38,6 +39,10 @@ export default async function PartageOffre({
 
   return (
     <>
+      <TitrePage
+        titre={`Partage de l’offre ${offre.titre} - Recherche d’offres`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={redirectTo} />
       <PageHeaderPortal header='Partager une offre' />
 

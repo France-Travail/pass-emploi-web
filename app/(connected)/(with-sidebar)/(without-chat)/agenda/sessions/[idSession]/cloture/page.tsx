@@ -6,6 +6,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
 import { estAClore } from 'interfaces/session'
 import { getConseillerServerSide } from 'services/conseiller.service'
@@ -47,6 +48,10 @@ export default async function ClotureSession({
 
   return (
     <>
+      <TitrePage
+        titre={`Clore - Session ${session.offre.titre}`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={returnTo} />
       <PageHeaderPortal header='Clôture de la session' />
 

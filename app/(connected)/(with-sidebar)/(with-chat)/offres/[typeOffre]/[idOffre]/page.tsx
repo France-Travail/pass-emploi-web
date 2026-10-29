@@ -7,6 +7,7 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { DetailOffre } from 'interfaces/offre'
 import { getImmersionServerSide } from 'services/immersions.service'
 import { getOffreEmploiServerSide } from 'services/offres-emploi.service'
@@ -20,10 +21,15 @@ export const metadata: Metadata = {
 }
 
 export default async function Offre({ params }: { params: OffreParams }) {
-  const { offre, header } = await fetchOffre(params)
+  const { user, accessToken } = await getMandatorySessionServerSide()
+  const { offre, header } = await fetchOffre(params, accessToken)
 
   return (
     <>
+      <TitrePage
+        titre={`Détail de l’offre ${offre.titre} - Recherche d’offres`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header={header} />
 
@@ -33,9 +39,9 @@ export default async function Offre({ params }: { params: OffreParams }) {
 }
 
 async function fetchOffre(
-  params: OffreParams
+  params: OffreParams,
+  accessToken: string
 ): Promise<{ offre: DetailOffre; header: string }> {
-  const { accessToken } = await getMandatorySessionServerSide()
   const { idOffre, typeOffre } = await params
 
   let offre: DetailOffre | undefined

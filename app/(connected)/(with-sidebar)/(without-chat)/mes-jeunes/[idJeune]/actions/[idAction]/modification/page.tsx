@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { StatutAction } from 'interfaces/action'
 import { estMilo } from 'interfaces/structure'
 import {
@@ -46,6 +47,10 @@ export default async function ModificationAction({
   const returnTo = `/mes-jeunes/${action.beneficiaire.id}/actions/${action.id}?misc=${unsafeRandomId()}`
   return (
     <>
+      <TitrePage
+        titre={`Modifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageHeaderPortal header='Modifier l’action' />
       <PageRetourPortal lien={returnTo} />
 

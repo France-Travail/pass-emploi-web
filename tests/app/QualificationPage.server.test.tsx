@@ -121,6 +121,9 @@ describe('QualificationPage server side', () => {
         // Then
         expect(getAction).toHaveBeenCalledWith(action.id, 'accessToken')
         expect(metadata).toEqual({ title: 'Qualifier l’action - Actions' })
+        expect(document.title).toContain(
+          `Qualifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.nom}`
+        )
         expect(getSituationsNonProfessionnelles).toHaveBeenCalledWith(
           { avecNonSNP: true },
           'accessToken'

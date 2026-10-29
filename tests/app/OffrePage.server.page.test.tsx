@@ -26,6 +26,7 @@ jest.mock('services/services-civiques.service')
 describe('OffrePage server side', () => {
   beforeEach(() => {
     ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
+      user: { id: 'id-conseiller-1', structure: 'MILO' },
       accessToken: 'accessToken',
     })
   })
@@ -48,6 +49,9 @@ describe('OffrePage server side', () => {
       expect(metadata).toEqual({
         title: 'Détail de l’offre - Recherche d’offres',
       })
+      expect(document.title).toContain(
+        "Détail de l’offre Offre d'emploi - Recherche d’offres"
+      )
       expect(OffrePage).toHaveBeenCalledWith(
         {
           offre: detailEmploi,

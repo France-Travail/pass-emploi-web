@@ -93,6 +93,9 @@ describe('DetailDemarchePage server side', () => {
       expect(metadata).toEqual({
         title: 'Détail de la démarche - Démarches',
       })
+      expect(document.title).toContain(
+        `${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - Portefeuille`
+      )
       expect(DetailDemarchePage).toHaveBeenCalledWith(
         { beneficiaire, demarche },
         undefined

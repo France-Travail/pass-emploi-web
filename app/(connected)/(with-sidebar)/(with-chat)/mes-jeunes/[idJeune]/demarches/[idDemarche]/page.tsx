@@ -11,6 +11,8 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
+import { estConseillerReferent } from 'interfaces/conseiller'
 import { estConseilDepartemental } from 'interfaces/structure'
 import {
   getDemarchesBeneficiaire,
@@ -31,9 +33,18 @@ export default async function DetailDemarche({
   params: DetailDemarcheParams
 }) {
   const { user, ...props } = await getDemarcheProps(params)
+  const { beneficiaire, demarche } = props
 
   return (
     <>
+      <TitrePage
+        titre={`${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - ${
+          estConseillerReferent(user, beneficiaire)
+            ? 'Portefeuille'
+            : 'Etablissement'
+        }`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header='Détails de la démarche' />
 

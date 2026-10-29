@@ -57,6 +57,9 @@ describe('EmargementRdvPage server side', () => {
 
       // Then
       expect(metadata).toEqual({ title: 'Émargement' })
+      expect(document.title).toContain(
+        'Emargement - Meeting de la famille Pirate'
+      )
       expect(EmargementRdvPage).toHaveBeenCalledWith(
         {
           evenement: acAEmarger,

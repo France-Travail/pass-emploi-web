@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { getBeneficiairesDeLaStructureMilo } from 'services/beneficiaires.service'
@@ -56,6 +57,10 @@ export default async function DetailsSession({
   )
   return (
     <>
+      <TitrePage
+        titre={`Détail session ${session.session.nom} - Agenda`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={redirectTo} />
       <PageHeaderPortal header='Clôture de la session' />
 

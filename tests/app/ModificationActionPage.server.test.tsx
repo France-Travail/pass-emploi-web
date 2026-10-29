@@ -54,6 +54,9 @@ describe('ModificationActionPage server side', () => {
 
       // Then
       expect(metadata).toEqual({ title: 'Modifier l’action - Actions' })
+      expect(document.title).toContain(
+        'Modifier l’action Identifier ses atouts et ses compétences - Kenji Jirac'
+      )
       expect(ModificationActionPage).toHaveBeenCalledWith(
         {
           action,

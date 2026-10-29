@@ -132,6 +132,9 @@ describe('EditionRdvPage server side', () => {
       expect(getDetailsEvenement).toHaveBeenCalledWith('id-rdv', 'accessToken')
       expect(getTypesRendezVous).not.toHaveBeenCalled()
       expect(metadata).toEqual({ title: 'Détail de l’événement' })
+      expect(document.title).toContain(
+        'Modifier le rendez-vous Prise de nouvelles par téléphone'
+      )
       expect(EditionRdvPage).toHaveBeenCalledWith(
         expect.objectContaining({ evenement }),
         undefined
