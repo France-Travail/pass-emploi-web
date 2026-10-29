@@ -9,7 +9,9 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { Action } from 'interfaces/action'
+import { estConseillerReferent } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { getAction } from 'services/actions.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -25,7 +27,7 @@ export default async function DetailAction({
 }: {
   params: DetailActionParams
 }) {
-  const { action } = await buildProps(params)
+  const { action, user } = await buildProps(params)
 
   const referer = (await headers()).get('referer')
   const from =
@@ -33,6 +35,14 @@ export default async function DetailAction({
 
   return (
     <>
+      <TitrePage
+        titre={`${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - ${
+          estConseillerReferent(user, action.beneficiaire)
+            ? 'Portefeuille'
+            : 'Etablissement'
+        }`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header='Détails de l’action' />
 

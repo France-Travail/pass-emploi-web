@@ -58,6 +58,9 @@ describe('ActionPage server side', () => {
       // Then
       expect(getAction).toHaveBeenCalledWith('id-action', 'accessToken')
       expect(metadata).toEqual({ title: 'Détail de l’action - Actions' })
+      expect(document.title).toEqual(
+        'Identifier ses atouts et ses compétences - Actions de Kenji Jirac - Portefeuille - Espace conseiller CEJ'
+      )
       expect(DetailActionPage).toHaveBeenCalledWith(
         { action, from: 'beneficiaire' },
         undefined
