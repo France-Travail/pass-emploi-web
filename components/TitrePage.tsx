@@ -3,7 +3,9 @@ import React from 'react'
 import { estPassEmploi } from 'interfaces/structure'
 
 export function titreSite(structure: string): string {
-  return 'Espace conseiller ' + (estPassEmploi(structure) ? 'pass emploi' : 'CEJ')
+  return (
+    'Espace conseiller ' + (estPassEmploi(structure) ? 'pass emploi' : 'CEJ')
+  )
 }
 
 // Titre précis construit avec les données déjà chargées par la page : le
@@ -12,9 +14,9 @@ export function titreSite(structure: string): string {
 export default function TitrePage({
   titre,
   structure,
-}: {
+}: Readonly<{
   titre: string
   structure: string
-}) {
+}>) {
   return <title>{`${titre} - ${titreSite(structure)}`}</title>
 }
