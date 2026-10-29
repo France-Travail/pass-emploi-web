@@ -19,19 +19,10 @@ type RouteProps = {
   searchParams?: QualificationSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
-
-  const { getAction } = await import('services/actions.service')
-  const { idAction } = await params
-  const action = await getAction(idAction, accessToken)
-
-  return {
-    title: `Qualifier l’action ${action?.titre} - ${action?.beneficiaire.prenom} ${action?.beneficiaire.prenom}`,
-  }
+export const metadata: Metadata = {
+  title: 'Qualifier l’action - Actions',
 }
+
 export default async function Qualification({
   params,
   searchParams,

@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 
 import EmargementRdvPage from 'app/(connected)/(full-page)/emargement/[idEvenement]/EmargementRdvPage'
 import EmargementRdv, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(full-page)/emargement/[idEvenement]/page'
 import { unConseiller } from 'fixtures/conseiller'
 import { unEvenement } from 'fixtures/evenement'
@@ -48,11 +48,6 @@ describe('EmargementRdvPage server side', () => {
   describe('Quand l’événement est une ac', () => {
     it('prépare la page', async () => {
       // When
-      const metadata = await generateMetadata({
-        params: Promise.resolve({ idEvenement: 'id-evenement' }),
-        searchParams: Promise.resolve({ type: 'ac' }),
-      })
-
       render(
         await EmargementRdv({
           params: Promise.resolve({ idEvenement: 'id-evenement' }),
@@ -61,10 +56,7 @@ describe('EmargementRdvPage server side', () => {
       )
 
       // Then
-      expect(metadata).toEqual({
-        title: 'Emargement - Meeting de la famille Pirate',
-      })
-
+      expect(metadata).toEqual({ title: 'Émargement' })
       expect(EmargementRdvPage).toHaveBeenCalledWith(
         {
           evenement: acAEmarger,
@@ -78,11 +70,6 @@ describe('EmargementRdvPage server side', () => {
   describe('Quand l’événement est une session', () => {
     it('prépare la page', async () => {
       // When
-      const metadata = await generateMetadata({
-        params: Promise.resolve({ idEvenement: 'id-evenement' }),
-        searchParams: Promise.resolve({ type: 'session' }),
-      })
-
       render(
         await EmargementRdv({
           params: Promise.resolve({ idEvenement: 'id-evenement' }),
@@ -91,10 +78,6 @@ describe('EmargementRdvPage server side', () => {
       )
 
       // Then
-      expect(metadata).toEqual({
-        title: `Emargement - ${sessionAEmarger.session.nom}`,
-      })
-
       expect(EmargementRdvPage).toHaveBeenCalledWith(
         {
           evenement: sessionAEmarger,

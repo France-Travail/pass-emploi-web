@@ -19,20 +19,10 @@ type RouteProps = {
   searchParams?: ClotureSessionSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idSession } = await params
-
-  const session = await getDetailsSession(user.id, idSession, accessToken)
-
-  if (!session) notFound()
-
-  return {
-    title: `Clore - Session ${session.offre.titre}`,
-  }
+export const metadata: Metadata = {
+  title: 'Clore - Session',
 }
+
 export default async function ClotureSession({
   params,
   searchParams,

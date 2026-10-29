@@ -22,18 +22,10 @@ type RouteProps = {
   searchParams?: DetailsSessionSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idSession } = await params
-
-  const session = await getDetailsSession(user.id, idSession, accessToken)
-
-  return {
-    title: `Détail session ${session?.session.nom} - Agenda`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail session - Agenda',
 }
+
 export default async function DetailsSession({
   params,
   searchParams,

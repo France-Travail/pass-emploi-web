@@ -128,11 +128,10 @@ describe('EditionRdvPage server side', () => {
       render(await EditionRdv({ searchParams: Promise.resolve(searchParams) }))
 
       // Then
+      expect(getDetailsEvenement).toHaveBeenCalledTimes(1)
       expect(getDetailsEvenement).toHaveBeenCalledWith('id-rdv', 'accessToken')
       expect(getTypesRendezVous).not.toHaveBeenCalled()
-      expect(metadata).toEqual({
-        title: 'Modifier le rendez-vous Prise de nouvelles par téléphone',
-      })
+      expect(metadata).toEqual({ title: 'Détail de l’événement' })
       expect(EditionRdvPage).toHaveBeenCalledWith(
         expect.objectContaining({ evenement }),
         undefined
@@ -236,10 +235,9 @@ describe('EditionRdvPage server side', () => {
       render(await EditionRdv({ searchParams: Promise.resolve(searchParams) }))
 
       // Then
+      expect(getDetailsEvenement).toHaveBeenCalledTimes(1)
       expect(getDetailsEvenement).toHaveBeenCalledWith('id-rdv', 'accessToken')
-      expect(metadata).toEqual({
-        title: `Modifier le rendez-vous ${animationCollective.titre}`,
-      })
+      expect(metadata).toEqual({ title: 'Détail de l’événement' })
       expect(EditionRdvPage).toHaveBeenCalledWith(
         expect.objectContaining({
           evenement: animationCollective,

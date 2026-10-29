@@ -67,15 +67,13 @@ describe('LayoutWhenConnected', () => {
   })
   it('affiche favicon icon en tant que brsa conseiller connecté', async () => {
     ;(getServerSession as jest.Mock).mockResolvedValue({
-      user: { estConseiller: true, id: 'user-id' },
+      user: { estConseiller: true, id: 'user-id', structure: structureBrsa },
       accessToken: 'accessToken',
     })
-    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
-      unConseiller({ structure: structureBrsa })
-    )
 
     const metadata = await generateMetadata()
 
+    expect(getConseillerServerSide).not.toHaveBeenCalled()
     expect(metadata).toEqual({
       title: {
         template: '%s - Espace conseiller pass emploi',

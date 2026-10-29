@@ -2,7 +2,7 @@ import { render } from '@testing-library/react'
 import { notFound } from 'next/navigation'
 
 import Qualification, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/[idAction]/qualification/page'
 import QualificationPage from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/[idAction]/qualification/QualificationPage'
 import { desCategoriesAvecNONSNP, uneAction } from 'fixtures/action'
@@ -105,14 +105,12 @@ describe('QualificationPage server side', () => {
         // Given
         const action = uneAction({ status: StatutAction.TermineeAQualifier })
         const situationsNonProfessionnelles = desCategoriesAvecNONSNP()
-        const params = Promise.resolve({ idAction: 'id-action' })
         ;(getAction as jest.Mock).mockResolvedValue(action)
         ;(getSituationsNonProfessionnelles as jest.Mock).mockResolvedValue(
           situationsNonProfessionnelles
         )
 
         // When
-        const metadata = await generateMetadata({ params })
         render(
           await Qualification({
             params: Promise.resolve({ idAction: action.id }),
@@ -121,10 +119,8 @@ describe('QualificationPage server side', () => {
         )
 
         // Then
-        expect(getAction).toHaveBeenCalledWith('id-action', 'accessToken')
-        expect(metadata).toEqual({
-          title: `Qualifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.prenom}`,
-        })
+        expect(getAction).toHaveBeenCalledWith(action.id, 'accessToken')
+        expect(metadata).toEqual({ title: 'Qualifier l’action - Actions' })
         expect(getSituationsNonProfessionnelles).toHaveBeenCalledWith(
           { avecNonSNP: true },
           'accessToken'

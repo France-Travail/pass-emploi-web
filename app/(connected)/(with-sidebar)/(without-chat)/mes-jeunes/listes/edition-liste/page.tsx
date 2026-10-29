@@ -18,18 +18,13 @@ export async function generateMetadata({
 }: {
   searchParams?: EditionListeSearchParams
 }): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
   const { idListe } = (await searchParams) ?? {}
 
-  if (idListe) {
-    const liste = await recupererListe(idListe, accessToken)
-    if (!liste) notFound()
-    return {
-      title: `Modifier liste ${liste.titre} - Portefeuille`,
-    }
+  return {
+    title: idListe
+      ? 'Modifier liste - Portefeuille'
+      : 'Créer liste - Portefeuille',
   }
-
-  return { title: 'Créer liste - Portefeuille' }
 }
 
 export default async function EditionListe({

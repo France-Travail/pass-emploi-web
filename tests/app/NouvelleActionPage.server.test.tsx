@@ -2,16 +2,14 @@ import { render } from '@testing-library/react'
 
 import NouvelleActionPage from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/nouvelle-action/NouvelleActionPage'
 import NouvelleAction, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/nouvelle-action/page'
 import { desCategories } from 'fixtures/action'
 import { getSituationsNonProfessionnelles } from 'services/actions.service'
-import { getIdentitesBeneficiairesServerSide } from 'services/beneficiaires.service'
 import { getActionsPredefinies } from 'services/referentiel.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 jest.mock('utils/auth/getMandatorySessionServerSide', () => jest.fn())
-jest.mock('services/beneficiaires.service')
 jest.mock('services/actions.service')
 jest.mock('services/referentiel.service')
 jest.mock(
@@ -20,36 +18,6 @@ jest.mock(
 )
 
 describe('NouvelleActionPage server side', () => {
-  it('prépare les métadonnées', async () => {
-    // Given
-    ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
-      user: { id: 'id-conseiller-1' },
-      accessToken: 'accessToken',
-    })
-    ;(getIdentitesBeneficiairesServerSide as jest.Mock).mockResolvedValue([
-      {
-        id: 'id-beneficiaire',
-        prenom: 'Serge',
-        nom: 'Lama',
-      },
-    ])
-
-    // When
-    const metadata = await generateMetadata({
-      params: Promise.resolve({ idJeune: 'id-beneficiaire' }),
-    })
-
-    // Then
-    expect(getIdentitesBeneficiairesServerSide).toHaveBeenCalledWith(
-      ['id-beneficiaire'],
-      'id-conseiller-1',
-      'accessToken'
-    )
-    expect(metadata).toEqual({
-      title: 'Créer une nouvelle action - Actions Serge Lama',
-    })
-  })
-
   it('prépare la page', async () => {
     // Given
     ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
@@ -74,6 +42,9 @@ describe('NouvelleActionPage server side', () => {
 
     // Then
     expect(getActionsPredefinies).toHaveBeenCalledWith('accessToken')
+    expect(metadata).toEqual({
+      title: 'Créer une nouvelle action - Actions',
+    })
     expect(NouvelleActionPage).toHaveBeenCalledWith(
       {
         idBeneficiaire: 'id-beneficiaire',

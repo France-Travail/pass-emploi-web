@@ -11,7 +11,6 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
-import { estConseillerReferent } from 'interfaces/conseiller'
 import { estConseilDepartemental } from 'interfaces/structure'
 import {
   getDemarchesBeneficiaire,
@@ -22,20 +21,8 @@ import { toLongMonthDate } from 'utils/date'
 
 type DetailDemarcheParams = Promise<{ idJeune: string; idDemarche: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: DetailDemarcheParams
-}): Promise<Metadata> {
-  const { beneficiaire, demarche, user } = await getDemarcheProps(params)
-
-  return {
-    title: `${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - ${
-      estConseillerReferent(user, beneficiaire)
-        ? 'Portefeuille'
-        : 'Etablissement'
-    }`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail de la démarche - Démarches',
 }
 
 export default async function DetailDemarche({

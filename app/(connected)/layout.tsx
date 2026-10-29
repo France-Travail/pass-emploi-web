@@ -20,9 +20,8 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 const PAGES_SANS_DISPOSITIF = new Set(['/', '/consentement-cgu'])
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const conseiller = await getConseillerServerSide(user, accessToken)
-  const estUserPassEmploi = estPassEmploi(conseiller.structure)
+  const { user } = await getMandatorySessionServerSide()
+  const estUserPassEmploi = estPassEmploi(user.structure)
   const siteTitle =
     'Espace conseiller ' + (estUserPassEmploi ? 'pass emploi' : 'CEJ')
   const faviconPath = estUserPassEmploi

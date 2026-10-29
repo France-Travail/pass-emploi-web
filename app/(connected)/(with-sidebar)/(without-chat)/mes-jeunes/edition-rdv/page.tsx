@@ -42,21 +42,13 @@ export async function generateMetadata({
 }: {
   searchParams?: EditionRdvSearchParams
 }): Promise<Metadata> {
-  const { evenement, evenementTypeAC, lectureSeule } =
-    await buildProps(searchParams)
+  const { idRdv, type } = (await searchParams) ?? {}
 
-  if (evenement) {
-    return {
-      title: lectureSeule
-        ? `Detail - ${evenement.titre} `
-        : `Modifier le rendez-vous ${evenement.titre}`,
-    }
-  }
+  if (idRdv) return { title: 'Détail de l’événement' }
 
   return {
-    title: evenementTypeAC
-      ? 'Créer une animation collective'
-      : 'Créer un rendez-vous',
+    title:
+      type === 'ac' ? 'Créer une animation collective' : 'Créer un rendez-vous',
   }
 }
 

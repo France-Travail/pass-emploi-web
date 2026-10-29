@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 
 import DetailDemarchePage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/demarches/[idDemarche]/DetailDemarchePage'
 import DetailDemarche, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/demarches/[idDemarche]/page'
 import {
   unDetailBeneficiaire,
@@ -81,9 +81,6 @@ describe('DetailDemarchePage server side', () => {
 
       // When
       const params = { idJeune: 'id-beneficiaire-1', idDemarche: 'id-demarche' }
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await DetailDemarche({ params: Promise.resolve(params) }))
 
       // Then
@@ -94,7 +91,7 @@ describe('DetailDemarchePage server side', () => {
         'accessToken'
       )
       expect(metadata).toEqual({
-        title: `${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - Portefeuille`,
+        title: 'Détail de la démarche - Démarches',
       })
       expect(DetailDemarchePage).toHaveBeenCalledWith(
         { beneficiaire, demarche },

@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import React, { cache } from 'react'
+import React from 'react'
 
 import OffrePage from 'app/(connected)/(with-sidebar)/(with-chat)/offres/[typeOffre]/[idOffre]/OffrePage'
 import {
@@ -15,13 +15,8 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 
 type OffreParams = Promise<{ typeOffre: string; idOffre: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: OffreParams
-}): Promise<Metadata> {
-  const { offre } = await fetchOffre(params)
-  return { title: `Détail de l’offre ${offre.titre} - Recherche d'offres` }
+export const metadata: Metadata = {
+  title: 'Détail de l’offre - Recherche d’offres',
 }
 
 export default async function Offre({ params }: { params: OffreParams }) {
@@ -37,7 +32,7 @@ export default async function Offre({ params }: { params: OffreParams }) {
   )
 }
 
-const fetchOffre = cache(async function fetchOffre(
+async function fetchOffre(
   params: OffreParams
 ): Promise<{ offre: DetailOffre; header: string }> {
   const { accessToken } = await getMandatorySessionServerSide()
@@ -68,4 +63,4 @@ const fetchOffre = cache(async function fetchOffre(
 
   if (!offre) notFound()
   return { offre, header }
-})
+}

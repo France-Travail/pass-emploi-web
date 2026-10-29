@@ -20,12 +20,8 @@ type RouteProps = {
   searchParams?: EmargementRdvSearchParams
 }
 
-export async function generateMetadata(
-  routeProps: RouteProps
-): Promise<Metadata> {
-  const { titre } = await buildProps(routeProps)
-
-  return { title: titre }
+export const metadata: Metadata = {
+  title: 'Émargement',
 }
 
 export default async function EmargementRdv(routeProps: RouteProps) {

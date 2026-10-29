@@ -39,18 +39,8 @@ type RouteProps = {
   searchParams?: FicheBeneficiaireSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idJeune } = await params
-  const jeune = await getJeuneDetails(idJeune, accessToken)
-  if (!jeune) notFound()
-
-  if (jeune.idConseiller !== user.id) {
-    return { title: `Établissement - ${jeune.prenom} ${jeune.nom}` }
-  }
-  return { title: `Portefeuille - ${jeune.prenom} ${jeune.nom}` }
+export const metadata: Metadata = {
+  title: 'Fiche bénéficiaire',
 }
 
 export default async function FicheBeneficiaire({

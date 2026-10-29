@@ -10,27 +10,14 @@ import {
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
 import { Action } from 'interfaces/action'
-import { estConseillerReferent } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { getAction } from 'services/actions.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 
 type DetailActionParams = Promise<{ idJeune: string; idAction: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: DetailActionParams
-}): Promise<Metadata> {
-  const { action, user } = await buildProps(params)
-
-  return {
-    title: `${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - ${
-      estConseillerReferent(user, action.beneficiaire)
-        ? 'Portefeuille'
-        : 'Etablissement'
-    }`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail de l’action - Actions',
 }
 
 export default async function DetailAction({

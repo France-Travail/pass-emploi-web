@@ -19,18 +19,8 @@ import { unsafeRandomId } from 'utils/helpers'
 
 type ModificationActionParams = Promise<{ idAction: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: ModificationActionParams
-}): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
-  const { idAction } = await params
-  const action = await getAction(idAction, accessToken)
-
-  return {
-    title: `Modifier l’action ${action?.titre} - ${action?.beneficiaire.prenom} ${action?.beneficiaire.nom}`,
-  }
+export const metadata: Metadata = {
+  title: 'Modifier l’action - Actions',
 }
 
 export default async function ModificationAction({

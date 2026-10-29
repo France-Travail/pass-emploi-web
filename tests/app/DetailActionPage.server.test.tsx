@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 
 import DetailActionPage from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/actions/[idAction]/DetailActionPage'
 import DetailAction, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/actions/[idAction]/page'
 import { uneAction } from 'fixtures/action'
 import { getAction } from 'services/actions.service'
@@ -53,16 +53,11 @@ describe('ActionPage server side', () => {
 
       // When
       const params = { idJeune: 'id-beneficiaire-1', idAction: 'id-action' }
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await DetailAction({ params: Promise.resolve(params) }))
 
       // Then
       expect(getAction).toHaveBeenCalledWith('id-action', 'accessToken')
-      expect(metadata).toEqual({
-        title: `${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - Portefeuille`,
-      })
+      expect(metadata).toEqual({ title: 'Détail de l’action - Actions' })
       expect(DetailActionPage).toHaveBeenCalledWith(
         { action, from: 'beneficiaire' },
         undefined
@@ -79,16 +74,10 @@ describe('ActionPage server side', () => {
 
         // When
         const params = { idJeune: 'id-beneficiaire-1', idAction: 'id-action' }
-        const metadata = await generateMetadata({
-          params: Promise.resolve(params),
-        })
         render(await DetailAction({ params: Promise.resolve(params) }))
 
         // Then
         expect(getAction).toHaveBeenCalledWith('id-action', 'accessToken')
-        expect(metadata).toEqual({
-          title: `${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - Portefeuille`,
-        })
         expect(DetailActionPage).toHaveBeenCalledWith(
           { action, from: 'pilotage' },
           undefined
