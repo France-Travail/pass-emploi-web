@@ -6,6 +6,7 @@ import React, { ReactNode } from 'react'
 import A11yPageTitle from 'components/A11yPageTitle'
 import { MODAL_ROOT_ID } from 'components/globals'
 import LiensEvitement from 'components/LiensEvitement'
+import { titreSite } from 'components/TitrePage'
 import {
   doitChoisirSonDispositif,
   doitConfirmerSonDispositif,
@@ -20,11 +21,9 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 const PAGES_SANS_DISPOSITIF = new Set(['/', '/consentement-cgu'])
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const conseiller = await getConseillerServerSide(user, accessToken)
-  const estUserPassEmploi = estPassEmploi(conseiller.structure)
-  const siteTitle =
-    'Espace conseiller ' + (estUserPassEmploi ? 'pass emploi' : 'CEJ')
+  const { user } = await getMandatorySessionServerSide()
+  const estUserPassEmploi = estPassEmploi(user.structure)
+  const siteTitle = titreSite(user.structure)
   const faviconPath = estUserPassEmploi
     ? '/pass-emploi-favicon.png'
     : '/cej-favicon.png'

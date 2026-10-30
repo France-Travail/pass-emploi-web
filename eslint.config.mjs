@@ -56,6 +56,22 @@ const eslintConfig = [
     },
   },
   {
+    files: ['app/**/page.tsx', 'app/**/layout.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        ...[
+          "ExportNamedDeclaration FunctionDeclaration[id.name='generateMetadata'] AwaitExpression > CallExpression:not([callee.name='getMandatorySessionServerSide'])",
+          "ExportNamedDeclaration VariableDeclarator[id.name='generateMetadata'] AwaitExpression > CallExpression:not([callee.name='getMandatorySessionServerSide'])",
+        ].map((selector) => ({
+          selector,
+          message:
+            'Pas d’appel api dans generateMetadata : Next l’exécute au prefetch de chaque <Link> visible vers la page. Titre construit depuis params, searchParams ou la session uniquement.',
+        })),
+      ],
+    },
+  },
+  {
     plugins: {
       'react-compiler': reactCompiler,
     },

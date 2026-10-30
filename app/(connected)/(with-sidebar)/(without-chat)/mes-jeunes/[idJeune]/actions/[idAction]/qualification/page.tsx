@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { StatutAction } from 'interfaces/action'
 import { estMilo } from 'interfaces/structure'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
@@ -19,19 +20,10 @@ type RouteProps = {
   searchParams?: QualificationSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
-
-  const { getAction } = await import('services/actions.service')
-  const { idAction } = await params
-  const action = await getAction(idAction, accessToken)
-
-  return {
-    title: `Qualifier l’action ${action?.titre} - ${action?.beneficiaire.prenom} ${action?.beneficiaire.prenom}`,
-  }
+export const metadata: Metadata = {
+  title: 'Qualifier l’action - Actions',
 }
+
 export default async function Qualification({
   params,
   searchParams,
@@ -60,6 +52,10 @@ export default async function Qualification({
 
   return (
     <>
+      <TitrePage
+        titre={`Qualifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageHeaderPortal header='Qualifier l’action' />
       <PageRetourPortal lien={returnTo} />
 

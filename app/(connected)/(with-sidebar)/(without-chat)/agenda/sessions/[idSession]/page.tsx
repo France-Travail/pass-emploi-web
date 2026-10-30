@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
 import { getBeneficiairesDeLaStructureMilo } from 'services/beneficiaires.service'
@@ -22,18 +23,10 @@ type RouteProps = {
   searchParams?: DetailsSessionSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idSession } = await params
-
-  const session = await getDetailsSession(user.id, idSession, accessToken)
-
-  return {
-    title: `Détail session ${session?.session.nom} - Agenda`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail session - Agenda',
 }
+
 export default async function DetailsSession({
   params,
   searchParams,
@@ -64,6 +57,10 @@ export default async function DetailsSession({
   )
   return (
     <>
+      <TitrePage
+        titre={`Détail session ${session.session.nom} - Agenda`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={redirectTo} />
       <PageHeaderPortal header='Clôture de la session' />
 

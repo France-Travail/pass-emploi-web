@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { recupererListe } from 'services/listes.service'
 import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerSide'
 import { redirectedFromHome } from 'utils/helpers'
@@ -18,18 +19,13 @@ export async function generateMetadata({
 }: {
   searchParams?: EditionListeSearchParams
 }): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
   const { idListe } = (await searchParams) ?? {}
 
-  if (idListe) {
-    const liste = await recupererListe(idListe, accessToken)
-    if (!liste) notFound()
-    return {
-      title: `Modifier liste ${liste.titre} - Portefeuille`,
-    }
+  return {
+    title: idListe
+      ? 'Modifier liste - Portefeuille'
+      : 'Créer liste - Portefeuille',
   }
-
-  return { title: 'Créer liste - Portefeuille' }
 }
 
 export default async function EditionListe({
@@ -37,7 +33,7 @@ export default async function EditionListe({
 }: {
   searchParams?: EditionListeSearchParams
 }) {
-  const { accessToken } = await getMandatorySessionServerSide()
+  const { user, accessToken } = await getMandatorySessionServerSide()
 
   const referer = (await headers()).get('referer')
   const previousUrl =
@@ -50,6 +46,10 @@ export default async function EditionListe({
 
     return (
       <>
+        <TitrePage
+          titre={`Modifier liste ${liste.titre} - Portefeuille`}
+          structure={user.structure}
+        />
         <PageRetourPortal lien={previousUrl} />
         <PageHeaderPortal header='Modifier la liste' />
 

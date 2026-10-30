@@ -1,13 +1,13 @@
 import { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
-import { cache } from 'react'
 
 import PartageOffrePage from 'app/(connected)/(with-sidebar)/(without-chat)/offres/[typeOffre]/[idOffre]/partage/PartageOffrePage'
 import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { DetailOffre } from 'interfaces/offre'
 import { getImmersionServerSide } from 'services/immersions.service'
 import { getListesServerSide } from 'services/listes.service'
@@ -18,13 +18,8 @@ import { redirectedFromHome } from 'utils/helpers'
 
 type PartageOffreParams = Promise<{ typeOffre: string; idOffre: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: PartageOffreParams
-}): Promise<Metadata> {
-  const offre = await fetchOffre(params)
-  return { title: `Partage de l’offre ${offre.titre} - Recherche d’offres` }
+export const metadata: Metadata = {
+  title: 'Partage de l’offre - Recherche d’offres',
 }
 
 export default async function PartageOffre({
@@ -44,6 +39,10 @@ export default async function PartageOffre({
 
   return (
     <>
+      <TitrePage
+        titre={`Partage de l’offre ${offre.titre} - Recherche d’offres`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={redirectTo} />
       <PageHeaderPortal header='Partager une offre' />
 
@@ -52,12 +51,10 @@ export default async function PartageOffre({
   )
 }
 
-const fetchOffre = cache(async function fetchOffre(
+async function fetchOffre(
   params: PartageOffreParams,
-  accessToken?: string
+  token: string
 ): Promise<DetailOffre> {
-  const token =
-    accessToken ?? (await getMandatorySessionServerSide()).accessToken
   const { typeOffre, idOffre } = await params
 
   let offre: DetailOffre | undefined
@@ -78,4 +75,4 @@ const fetchOffre = cache(async function fetchOffre(
 
   if (!offre) notFound()
   return offre
-})
+}

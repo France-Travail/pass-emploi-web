@@ -9,6 +9,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { BeneficiaireFromListe } from 'interfaces/beneficiaire'
 import {
   estClos,
@@ -42,21 +43,13 @@ export async function generateMetadata({
 }: {
   searchParams?: EditionRdvSearchParams
 }): Promise<Metadata> {
-  const { evenement, evenementTypeAC, lectureSeule } =
-    await buildProps(searchParams)
+  const { idRdv, type } = (await searchParams) ?? {}
 
-  if (evenement) {
-    return {
-      title: lectureSeule
-        ? `Detail - ${evenement.titre} `
-        : `Modifier le rendez-vous ${evenement.titre}`,
-    }
-  }
+  if (idRdv) return { title: 'Détail de l’événement' }
 
   return {
-    title: evenementTypeAC
-      ? 'Créer une animation collective'
-      : 'Créer un rendez-vous',
+    title:
+      type === 'ac' ? 'Créer une animation collective' : 'Créer un rendez-vous',
   }
 }
 
@@ -65,6 +58,7 @@ export default async function EditionRdv({
 }: {
   searchParams?: EditionRdvSearchParams
 }) {
+  const { user } = await getMandatorySessionServerSide()
   const props = await buildProps(searchParams)
   const referer = (await headers()).get('referer')
   const redirectUrl = (await searchParams)?.redirectUrl
@@ -76,6 +70,14 @@ export default async function EditionRdv({
   if (props.evenement) {
     return (
       <>
+        <TitrePage
+          titre={
+            props.lectureSeule
+              ? `Détail - ${props.evenement.titre}`
+              : `Modifier le rendez-vous ${props.evenement.titre}`
+          }
+          structure={user.structure}
+        />
         <PageRetourPortal lien={returnTo} />
         <PageHeaderPortal
           header={

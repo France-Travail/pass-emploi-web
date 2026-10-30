@@ -59,10 +59,14 @@ describe('Page d’édition d’une liste', () => {
     )
 
     // Then
+    expect(recupererListe).toHaveBeenCalledTimes(1)
     expect(recupererListe).toHaveBeenCalledWith('id-liste-1', 'accessToken')
     expect(metadata).toEqual({
-      title: 'Modifier liste Liste export international - Portefeuille',
+      title: 'Modifier liste - Portefeuille',
     })
+    expect(document.title).toContain(
+      'Modifier liste Liste export international - Portefeuille'
+    )
     expect(EditionListePage).toHaveBeenCalledWith(
       {
         liste: liste,

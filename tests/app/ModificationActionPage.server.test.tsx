@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import ModificationActionPage from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/[idAction]/modification/ModificationActionPage'
 import ModificationAction, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(without-chat)/mes-jeunes/[idJeune]/actions/[idAction]/modification/page'
 import {
   desActionsPredefinies,
@@ -50,16 +50,13 @@ describe('ModificationActionPage server side', () => {
       ;(getAction as jest.Mock).mockResolvedValue(action)
 
       // When
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await ModificationAction({ params: Promise.resolve(params) }))
 
       // Then
-      expect(metadata).toEqual({
-        title:
-          'Modifier l’action Identifier ses atouts et ses compétences - Kenji Jirac',
-      })
+      expect(metadata).toEqual({ title: 'Modifier l’action - Actions' })
+      expect(document.title).toContain(
+        'Modifier l’action Identifier ses atouts et ses compétences - Kenji Jirac'
+      )
       expect(ModificationActionPage).toHaveBeenCalledWith(
         {
           action,

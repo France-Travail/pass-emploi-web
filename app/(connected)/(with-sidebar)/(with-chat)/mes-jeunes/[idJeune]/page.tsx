@@ -12,6 +12,7 @@ import {
   valeursOngletsPasMilo,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/mes-jeunes/[idJeune]/FicheBeneficiaireProps'
 import { PageFilArianePortal } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { MetadonneesFavoris } from 'interfaces/beneficiaire'
 import { Conseiller } from 'interfaces/conseiller'
 import { estConseilDepartemental, estMilo } from 'interfaces/structure'
@@ -39,18 +40,8 @@ type RouteProps = {
   searchParams?: FicheBeneficiaireSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idJeune } = await params
-  const jeune = await getJeuneDetails(idJeune, accessToken)
-  if (!jeune) notFound()
-
-  if (jeune.idConseiller !== user.id) {
-    return { title: `Établissement - ${jeune.prenom} ${jeune.nom}` }
-  }
-  return { title: `Portefeuille - ${jeune.prenom} ${jeune.nom}` }
+export const metadata: Metadata = {
+  title: 'Fiche bénéficiaire',
 }
 
 export default async function FicheBeneficiaire({
@@ -88,6 +79,10 @@ export default async function FicheBeneficiaire({
 
   return (
     <>
+      <TitrePage
+        titre={`${beneficiaire.idConseiller === user.id ? 'Portefeuille' : 'Établissement'} - ${beneficiaire.prenom} ${beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
 
       {estMilo(conseiller.structure) &&

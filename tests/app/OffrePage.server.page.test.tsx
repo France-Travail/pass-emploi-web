@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 
 import OffrePage from 'app/(connected)/(with-sidebar)/(with-chat)/offres/[typeOffre]/[idOffre]/OffrePage'
 import Offre, {
-  generateMetadata,
+  metadata,
 } from 'app/(connected)/(with-sidebar)/(with-chat)/offres/[typeOffre]/[idOffre]/page'
 import {
   unDetailImmersion,
@@ -26,6 +26,7 @@ jest.mock('services/services-civiques.service')
 describe('OffrePage server side', () => {
   beforeEach(() => {
     ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
+      user: { id: 'id-conseiller-1', structure: 'MILO' },
       accessToken: 'accessToken',
     })
   })
@@ -38,9 +39,6 @@ describe('OffrePage server side', () => {
 
       // When
       const params = { typeOffre: 'emploi', idOffre: 'id-offre' }
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await Offre({ params: Promise.resolve(params) }))
 
       // Then
@@ -49,8 +47,11 @@ describe('OffrePage server side', () => {
         'accessToken'
       )
       expect(metadata).toEqual({
-        title: "Détail de l’offre Offre d'emploi - Recherche d'offres",
+        title: 'Détail de l’offre - Recherche d’offres',
       })
+      expect(document.title).toContain(
+        "Détail de l’offre Offre d'emploi - Recherche d’offres"
+      )
       expect(OffrePage).toHaveBeenCalledWith(
         {
           offre: detailEmploi,
@@ -82,9 +83,6 @@ describe('OffrePage server side', () => {
 
       // When
       const params = { typeOffre: 'immersion', idOffre: 'id-offre' }
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await Offre({ params: Promise.resolve(params) }))
 
       // Then
@@ -92,10 +90,6 @@ describe('OffrePage server side', () => {
         'id-offre',
         'accessToken'
       )
-      expect(metadata).toEqual({
-        title:
-          "Détail de l’offre Études et développement informatique - Recherche d'offres",
-      })
       expect(OffrePage).toHaveBeenCalledWith(
         {
           offre: detailImmersion,
@@ -132,9 +126,6 @@ describe('OffrePage server side', () => {
 
       // When
       const params = { typeOffre: 'service-civique', idOffre: 'id-offre' }
-      const metadata = await generateMetadata({
-        params: Promise.resolve(params),
-      })
       render(await Offre({ params: Promise.resolve(params) }))
 
       // Then
@@ -142,9 +133,6 @@ describe('OffrePage server side', () => {
         'id-offre',
         'accessToken'
       )
-      expect(metadata).toEqual({
-        title: "Détail de l’offre unTitre - Recherche d'offres",
-      })
       expect(OffrePage).toHaveBeenCalledWith(
         {
           offre: detailServiceCivique,

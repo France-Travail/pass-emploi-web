@@ -1,12 +1,13 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import React, { cache } from 'react'
+import React from 'react'
 
 import OffrePage from 'app/(connected)/(with-sidebar)/(with-chat)/offres/[typeOffre]/[idOffre]/OffrePage'
 import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { DetailOffre } from 'interfaces/offre'
 import { getImmersionServerSide } from 'services/immersions.service'
 import { getOffreEmploiServerSide } from 'services/offres-emploi.service'
@@ -15,20 +16,20 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 
 type OffreParams = Promise<{ typeOffre: string; idOffre: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: OffreParams
-}): Promise<Metadata> {
-  const { offre } = await fetchOffre(params)
-  return { title: `Détail de l’offre ${offre.titre} - Recherche d'offres` }
+export const metadata: Metadata = {
+  title: 'Détail de l’offre - Recherche d’offres',
 }
 
 export default async function Offre({ params }: { params: OffreParams }) {
-  const { offre, header } = await fetchOffre(params)
+  const { user, accessToken } = await getMandatorySessionServerSide()
+  const { offre, header } = await fetchOffre(params, accessToken)
 
   return (
     <>
+      <TitrePage
+        titre={`Détail de l’offre ${offre.titre} - Recherche d’offres`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header={header} />
 
@@ -37,10 +38,10 @@ export default async function Offre({ params }: { params: OffreParams }) {
   )
 }
 
-const fetchOffre = cache(async function fetchOffre(
-  params: OffreParams
+async function fetchOffre(
+  params: OffreParams,
+  accessToken: string
 ): Promise<{ offre: DetailOffre; header: string }> {
-  const { accessToken } = await getMandatorySessionServerSide()
   const { idOffre, typeOffre } = await params
 
   let offre: DetailOffre | undefined
@@ -68,4 +69,4 @@ const fetchOffre = cache(async function fetchOffre(
 
   if (!offre) notFound()
   return { offre, header }
-})
+}

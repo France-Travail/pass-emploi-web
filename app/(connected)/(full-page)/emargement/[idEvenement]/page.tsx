@@ -5,6 +5,7 @@ import EmargementRdvPage, {
   EmargementRdvPageProps,
 } from 'app/(connected)/(full-page)/emargement/[idEvenement]/EmargementRdvPage'
 import { PageHeaderPortal } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { Evenement } from 'interfaces/evenement'
 import { Session } from 'interfaces/session'
 import { estMilo } from 'interfaces/structure'
@@ -20,19 +21,16 @@ type RouteProps = {
   searchParams?: EmargementRdvSearchParams
 }
 
-export async function generateMetadata(
-  routeProps: RouteProps
-): Promise<Metadata> {
-  const { titre } = await buildProps(routeProps)
-
-  return { title: titre }
+export const metadata: Metadata = {
+  title: 'Émargement',
 }
 
 export default async function EmargementRdv(routeProps: RouteProps) {
-  const { titre, ...props } = await buildProps(routeProps)
+  const { titre, structure, ...props } = await buildProps(routeProps)
 
   return (
     <>
+      <TitrePage titre={titre} structure={structure} />
       <PageHeaderPortal header={titre} />
 
       <EmargementRdvPage {...props} />
@@ -46,7 +44,7 @@ async function buildProps({
 }: {
   params: EmargementRdvParams
   searchParams?: EmargementRdvSearchParams
-}): Promise<{ titre: string } & EmargementRdvPageProps> {
+}): Promise<{ titre: string; structure: string } & EmargementRdvPageProps> {
   const { user, accessToken } = await getMandatorySessionServerSide()
   if (!estMilo(user.structure)) redirect('/mes-jeunes')
 
@@ -66,6 +64,7 @@ async function buildProps({
 
   return {
     titre: 'Emargement - ' + titreEvenement,
+    structure: user.structure,
     evenement,
     agence: conseiller.structureMilo?.nom,
   }

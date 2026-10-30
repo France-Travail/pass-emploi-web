@@ -7,6 +7,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { StatutAction } from 'interfaces/action'
 import { estMilo } from 'interfaces/structure'
 import {
@@ -19,18 +20,8 @@ import { unsafeRandomId } from 'utils/helpers'
 
 type ModificationActionParams = Promise<{ idAction: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: ModificationActionParams
-}): Promise<Metadata> {
-  const { accessToken } = await getMandatorySessionServerSide()
-  const { idAction } = await params
-  const action = await getAction(idAction, accessToken)
-
-  return {
-    title: `Modifier l’action ${action?.titre} - ${action?.beneficiaire.prenom} ${action?.beneficiaire.nom}`,
-  }
+export const metadata: Metadata = {
+  title: 'Modifier l’action - Actions',
 }
 
 export default async function ModificationAction({
@@ -56,6 +47,10 @@ export default async function ModificationAction({
   const returnTo = `/mes-jeunes/${action.beneficiaire.id}/actions/${action.id}?misc=${unsafeRandomId()}`
   return (
     <>
+      <TitrePage
+        titre={`Modifier l’action ${action.titre} - ${action.beneficiaire.prenom} ${action.beneficiaire.nom}`}
+        structure={user.structure}
+      />
       <PageHeaderPortal header='Modifier l’action' />
       <PageRetourPortal lien={returnTo} />
 

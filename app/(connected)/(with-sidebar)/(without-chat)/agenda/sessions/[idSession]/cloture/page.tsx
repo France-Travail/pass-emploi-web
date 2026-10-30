@@ -6,6 +6,7 @@ import {
   PageHeaderPortal,
   PageRetourPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { peutAccederAuxSessions } from 'interfaces/conseiller'
 import { estAClore } from 'interfaces/session'
 import { getConseillerServerSide } from 'services/conseiller.service'
@@ -19,20 +20,10 @@ type RouteProps = {
   searchParams?: ClotureSessionSearchParams
 }
 
-export async function generateMetadata({
-  params,
-}: RouteProps): Promise<Metadata> {
-  const { user, accessToken } = await getMandatorySessionServerSide()
-  const { idSession } = await params
-
-  const session = await getDetailsSession(user.id, idSession, accessToken)
-
-  if (!session) notFound()
-
-  return {
-    title: `Clore - Session ${session.offre.titre}`,
-  }
+export const metadata: Metadata = {
+  title: 'Clore - Session',
 }
+
 export default async function ClotureSession({
   params,
   searchParams,
@@ -57,6 +48,10 @@ export default async function ClotureSession({
 
   return (
     <>
+      <TitrePage
+        titre={`Clore - Session ${session.offre.titre}`}
+        structure={user.structure}
+      />
       <PageRetourPortal lien={returnTo} />
       <PageHeaderPortal header='Clôture de la session' />
 

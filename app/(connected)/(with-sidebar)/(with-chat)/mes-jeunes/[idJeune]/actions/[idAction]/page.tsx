@@ -9,6 +9,7 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { Action } from 'interfaces/action'
 import { estConseillerReferent } from 'interfaces/conseiller'
 import { estMilo } from 'interfaces/structure'
@@ -17,20 +18,8 @@ import getMandatorySessionServerSide from 'utils/auth/getMandatorySessionServerS
 
 type DetailActionParams = Promise<{ idJeune: string; idAction: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: DetailActionParams
-}): Promise<Metadata> {
-  const { action, user } = await buildProps(params)
-
-  return {
-    title: `${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - ${
-      estConseillerReferent(user, action.beneficiaire)
-        ? 'Portefeuille'
-        : 'Etablissement'
-    }`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail de l’action - Actions',
 }
 
 export default async function DetailAction({
@@ -38,7 +27,7 @@ export default async function DetailAction({
 }: {
   params: DetailActionParams
 }) {
-  const { action } = await buildProps(params)
+  const { action, user } = await buildProps(params)
 
   const referer = (await headers()).get('referer')
   const from =
@@ -46,6 +35,14 @@ export default async function DetailAction({
 
   return (
     <>
+      <TitrePage
+        titre={`${action.titre} - Actions de ${action.beneficiaire.prenom} ${action.beneficiaire.nom} - ${
+          estConseillerReferent(user, action.beneficiaire)
+            ? 'Portefeuille'
+            : 'Etablissement'
+        }`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header='Détails de l’action' />
 

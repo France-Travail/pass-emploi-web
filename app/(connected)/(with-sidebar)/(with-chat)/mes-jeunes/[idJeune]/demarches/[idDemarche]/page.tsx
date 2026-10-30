@@ -11,6 +11,7 @@ import {
   PageFilArianePortal,
   PageHeaderPortal,
 } from 'components/PageNavigationPortals'
+import TitrePage from 'components/TitrePage'
 import { estConseillerReferent } from 'interfaces/conseiller'
 import { estConseilDepartemental } from 'interfaces/structure'
 import {
@@ -22,20 +23,8 @@ import { toLongMonthDate } from 'utils/date'
 
 type DetailDemarcheParams = Promise<{ idJeune: string; idDemarche: string }>
 
-export async function generateMetadata({
-  params,
-}: {
-  params: DetailDemarcheParams
-}): Promise<Metadata> {
-  const { beneficiaire, demarche, user } = await getDemarcheProps(params)
-
-  return {
-    title: `${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - ${
-      estConseillerReferent(user, beneficiaire)
-        ? 'Portefeuille'
-        : 'Etablissement'
-    }`,
-  }
+export const metadata: Metadata = {
+  title: 'Détail de la démarche - Démarches',
 }
 
 export default async function DetailDemarche({
@@ -44,9 +33,18 @@ export default async function DetailDemarche({
   params: DetailDemarcheParams
 }) {
   const { user, ...props } = await getDemarcheProps(params)
+  const { beneficiaire, demarche } = props
 
   return (
     <>
+      <TitrePage
+        titre={`${demarche.titre} - Démarches de ${beneficiaire.prenom} ${beneficiaire.nom} - ${
+          estConseillerReferent(user, beneficiaire)
+            ? 'Portefeuille'
+            : 'Etablissement'
+        }`}
+        structure={user.structure}
+      />
       <PageFilArianePortal />
       <PageHeaderPortal header='Détails de la démarche' />
 
