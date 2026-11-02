@@ -6,9 +6,7 @@ export enum TypeOffre {
 }
 export type BaseOffre = BaseOffreEmploi | BaseServiceCivique | BaseImmersion
 export type DetailOffre =
-  | DetailOffreEmploi
-  | DetailServiceCivique
-  | DetailImmersion
+  DetailOffreEmploi | DetailServiceCivique | DetailImmersion
 
 export type BaseOffreEmploi = {
   type: TypeOffre.EMPLOI | TypeOffre.ALTERNANCE
