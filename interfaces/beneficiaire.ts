@@ -30,9 +30,7 @@ export enum Dispositif {
 }
 
 export type DispositifMilo =
-  | Dispositif.CEJ
-  | Dispositif.PACEA
-  | Dispositif.AUTRE
+  Dispositif.CEJ | Dispositif.PACEA | Dispositif.AUTRE
 
 export const DISPOSITIFS_MILO: DispositifMilo[] = [
   Dispositif.CEJ,

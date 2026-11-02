@@ -149,13 +149,11 @@ function jsonToListItem(
 }
 function parseBeneficiaires(
   beneficiaires:
-    | Array<IdentiteBeneficiaire & { futPresent?: boolean }>
-    | undefined
+    Array<IdentiteBeneficiaire & { futPresent?: boolean }> | undefined
 ): {
   labelBeneficiaires: string | undefined
   beneficiaires:
-    | Array<IdentiteBeneficiaire & { futPresent?: boolean }>
-    | undefined
+    Array<IdentiteBeneficiaire & { futPresent?: boolean }> | undefined
 } {
   return beneficiaires
     ? {

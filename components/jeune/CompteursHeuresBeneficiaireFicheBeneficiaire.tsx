@@ -14,6 +14,18 @@ import { toFrenchDateTime, toLongMonthDate } from 'utils/date'
 import { getComptageHeuresFicheBeneficiaire } from '../../services/beneficiaires.service'
 import ConfirmationActivationCompteurModal from '../ConfirmationActivationCompteurModal'
 
+async function chargerComptageHeures(
+  idBeneficiaire: string,
+  debut: DateTime,
+  fin: DateTime
+): Promise<CompteurHeuresFicheBeneficiaire | null> {
+  return await getComptageHeuresFicheBeneficiaire(idBeneficiaire, {
+    debut,
+    fin,
+    label: `du ${toLongMonthDate(debut)} au ${toLongMonthDate(fin)}`,
+  })
+}
+
 export function CompteursHeuresBeneficiaireFicheBeneficiaire({
   beneficiaire,
   debutDeLaSemaine,
@@ -27,17 +39,21 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
 
   const [loadingChangerVisibilite, setLoadingChangerVisibilite] =
     useState<boolean>(false)
+  const peutVoirLeComptageDesHeuresRecu =
+    beneficiaire.peutVoirLeComptageDesHeures ?? false
   const [peutVoirLeComptageDesHeures, setPeutVoirLeComptageDesHeures] =
-    useState<boolean>(beneficiaire.peutVoirLeComptageDesHeures ?? false)
+    useState<boolean>(peutVoirLeComptageDesHeuresRecu)
+  const [dernierPeutVoirRecu, setDernierPeutVoirRecu] = useState<boolean>(
+    peutVoirLeComptageDesHeuresRecu
+  )
   const [showModalActivation, setShowModalActivation] = useState<boolean>(false)
   const [comptageHeures, setComptageHeures] =
     useState<CompteurHeuresFicheBeneficiaire | null>(null)
 
-  useEffect(() => {
-    setPeutVoirLeComptageDesHeures(
-      beneficiaire.peutVoirLeComptageDesHeures ?? false
-    )
-  }, [beneficiaire.peutVoirLeComptageDesHeures])
+  if (peutVoirLeComptageDesHeuresRecu !== dernierPeutVoirRecu) {
+    setDernierPeutVoirRecu(peutVoirLeComptageDesHeuresRecu)
+    setPeutVoirLeComptageDesHeures(peutVoirLeComptageDesHeuresRecu)
+  }
 
   useEffect(() => {
     chargerComptageHeures(
@@ -73,18 +89,6 @@ export function CompteursHeuresBeneficiaireFicheBeneficiaire({
   async function confirmerActivation() {
     await handleChangerVisibilite()
     setShowModalActivation(false)
-  }
-
-  async function chargerComptageHeures(
-    idBeneficiaire: string,
-    debut: DateTime,
-    fin: DateTime
-  ): Promise<CompteurHeuresFicheBeneficiaire | null> {
-    return await getComptageHeuresFicheBeneficiaire(idBeneficiaire, {
-      debut,
-      fin,
-      label: `du ${toLongMonthDate(debut)} au ${toLongMonthDate(fin)}`,
-    })
   }
 
   return (

@@ -47,6 +47,9 @@ function DetailActionPage({ action, from }: DetailActionProps) {
   const [alerte, _] = useAlerte()
 
   const [statutAJour, setStatutAJour] = useState<StatutAction>(action.status)
+  const [dateFinReelle, setDateFinReelle] = useState<string | undefined>(
+    action.dateFinReelle
+  )
   const [showEchecMessage, setShowEchecMessage] = useState<boolean>(false)
   const [showSuppression, setShowSuppression] = useState<boolean>(false)
 
@@ -64,8 +67,7 @@ function DetailActionPage({ action, from }: DetailActionProps) {
     await modifierAction(action.id, { statut: statutChoisi })
     setStatutAJour(statutChoisi)
 
-    if (estTermine(statutChoisi))
-      action.dateFinReelle = DateTime.now().toISODate()
+    if (estTermine(statutChoisi)) setDateFinReelle(DateTime.now().toISODate())
   }
 
   async function supprimerAction(): Promise<void> {
@@ -233,7 +235,7 @@ function DetailActionPage({ action, from }: DetailActionProps) {
                 <span>Date de réalisation :</span>
               </dt>
               <dd className='text-base-regular pl-6'>
-                {toLongMonthDate(action.dateFinReelle!)}
+                {toLongMonthDate(dateFinReelle!)}
               </dd>
             </>
           )}

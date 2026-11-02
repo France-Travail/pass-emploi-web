@@ -37,21 +37,20 @@ export function ChatsProvider({
   const chatCredentials = useChatCredentials()
   const pathname = usePathname()
 
-  const [titleBackup, setTitleBackup] = useState<string | undefined>()
+  const titleBackup = useRef<string | undefined>(undefined)
   const [audio] = useState<HTMLAudioElement | null>(() =>
     globalThis.window === undefined ? null : new Audio(CHEMIN_DU_SON)
   )
 
-  const [chats, setChats] = useState<BeneficiaireEtChat[]>()
+  const [chats, setChats] = useState<BeneficiaireEtChat[] | undefined>(
+    chatsForTests
+  )
   const [hasMessageNonLu, setHasMessageNonLu] = useState<boolean>(false)
 
   const destructorRef = useRef<() => void>(() => undefined)
 
   useEffect(() => {
-    if (chatsForTests) {
-      setChats(chatsForTests)
-      return
-    }
+    if (chatsForTests) return
     if (!chatCredentials || !audio || !portefeuille) return
 
     observeConseillerChats(
@@ -92,20 +91,20 @@ export function ChatsProvider({
   }, [portefeuille, chatCredentials, audio, conseiller.notificationsSonores])
 
   useEffect(() => {
-    if (titleBackup) setTitleBackup(document.title)
+    if (titleBackup.current) titleBackup.current = document.title
   }, [pathname])
 
   useEffect(() => {
-    if (!hasMessageNonLu && titleBackup !== undefined) {
-      resetBrowserTab(titleBackup)
-      setTitleBackup(undefined)
+    if (!hasMessageNonLu && titleBackup.current !== undefined) {
+      resetBrowserTab(titleBackup.current)
+      titleBackup.current = undefined
     }
 
-    if (hasMessageNonLu && titleBackup === undefined) {
-      setTitleBackup(document.title)
+    if (hasMessageNonLu && titleBackup.current === undefined) {
+      titleBackup.current = document.title
       displayNotificationInBrowserTab(conseiller)
     }
-  }, [hasMessageNonLu, titleBackup])
+  }, [hasMessageNonLu])
 
   return <ChatsContext.Provider value={chats}>{children}</ChatsContext.Provider>
 }

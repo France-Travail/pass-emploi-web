@@ -1,11 +1,7 @@
 import IconComponent, { IconName } from './IconComponent'
 
 type TileIndicateurColor =
-  | 'PRIMARY'
-  | 'ALERT'
-  | 'WARNING'
-  | 'ACCENT_2'
-  | 'ACCENT_3'
+  'PRIMARY' | 'ALERT' | 'WARNING' | 'ACCENT_2' | 'ACCENT_3'
 type TileIndicateurProps = {
   valeur: string
   label: string

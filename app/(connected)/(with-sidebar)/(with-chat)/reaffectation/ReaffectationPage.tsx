@@ -346,6 +346,7 @@ function ReaffectationPage() {
 
   useEffect(() => {
     if (conseillerInitialDebounced)
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- chargement déclenché par la saisie debouncée ; le sortir de l'effet demande de déplacer le debounce dans le gestionnaire de saisie
       fetchListeBeneficiaires(conseillerInitialDebounced)
   }, [conseillerInitialDebounced])
 

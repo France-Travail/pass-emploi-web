@@ -15,6 +15,7 @@ import { deleteAction, modifierAction } from 'services/actions.service'
 import { commenterAction } from 'services/messages.service'
 import getByDescriptionTerm from 'tests/querySelector'
 import renderWithContexts from 'tests/renderWithContexts'
+import { toLongMonthDate } from 'utils/date'
 
 jest.mock('services/actions.service')
 jest.mock('services/messages.service')
@@ -116,7 +117,9 @@ describe('ActionPage client side', () => {
         await userEvent.click(statutRadio)
 
         // Then
-        expect(screen.getByText('Date de réalisation :')).toBeInTheDocument()
+        expect(getByDescriptionTerm('Date de réalisation :')).toHaveTextContent(
+          toLongMonthDate(DateTime.now())
+        )
       })
     })
 
