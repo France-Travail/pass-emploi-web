@@ -321,6 +321,7 @@ export function Conversation({
   }, [messagesByDay, nombrePagesChargees])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- réinitialise pièce jointe et saisie au changement de conversation ; l'alternative (key sur la conversation) remonte aussi l'abonnement Firebase et le scroll
     if (uploadedFileInfo) deleteFile()
     resetTextbox()
     const unsubscribe = observeJeuneReadingDate(

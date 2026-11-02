@@ -31,6 +31,18 @@ type PartageOffrePageProps = {
   readonly returnTo: string
 }
 
+function OffreCard({ offre }: { offre: DetailOffre }): ReactElement {
+  switch (offre.type) {
+    case TypeOffre.EMPLOI:
+    case TypeOffre.ALTERNANCE:
+      return <OffreEmploiCard offre={offre} />
+    case TypeOffre.SERVICE_CIVIQUE:
+      return <ServiceCiviqueCard offre={offre} />
+    case TypeOffre.IMMERSION:
+      return <ImmersionCard offre={offre} />
+  }
+}
+
 function PartageOffrePage({
   offre,
   listes = [],
@@ -50,6 +62,14 @@ function PartageOffrePage({
   const [errorDestinataires, setErrorDestinataires] = useState<
     string | undefined
   >(undefined)
+
+  const idsDestinataires = useMemo(() => {
+    const idsDesListes = listes
+      .filter((liste) => idsListes.includes(liste.id))
+      .flatMap((liste) => liste.beneficiaires.map((b) => b.id))
+
+    return Array.from(new Set([...idsBeneficiairesDirects, ...idsDesListes]))
+  }, [idsBeneficiairesDirects, idsListes, listes])
 
   function formIsValid(): boolean {
     const isValid = idsDestinataires.length > 0
@@ -91,14 +111,6 @@ function PartageOffrePage({
     }
   }
 
-  const idsDestinataires = useMemo(() => {
-    const idsDesListes = listes
-      .filter((liste) => idsListes.includes(liste.id))
-      .flatMap((liste) => liste.beneficiaires.map((b) => b.id))
-
-    return Array.from(new Set([...idsBeneficiairesDirects, ...idsDesListes]))
-  }, [idsBeneficiairesDirects, idsListes, listes])
-
   async function partager(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     if (!formIsValid()) return
@@ -123,23 +135,11 @@ function PartageOffrePage({
     }
   }
 
-  function OffreCard(): ReactElement {
-    switch (offre.type) {
-      case TypeOffre.EMPLOI:
-      case TypeOffre.ALTERNANCE:
-        return <OffreEmploiCard offre={offre} />
-      case TypeOffre.SERVICE_CIVIQUE:
-        return <ServiceCiviqueCard offre={offre} />
-      case TypeOffre.IMMERSION:
-        return <ImmersionCard offre={offre} />
-    }
-  }
-
   useMatomo('Partage offre', portefeuille.length > 0)
 
   return (
     <>
-      <OffreCard />
+      <OffreCard offre={offre} />
 
       <form onSubmit={partager} noValidate={true} className='mt-8'>
         <Etape numero={1} titre='Bénéficiaires'>

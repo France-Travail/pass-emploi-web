@@ -71,6 +71,13 @@ function ChatRoom(
   const [chatsFiltres, setChatsFiltres] = useState<
     BeneficiaireEtChat[] | undefined
   >(beneficiairesChats)
+  const [chatsAFiltrer, setChatsAFiltrer] = useState<
+    BeneficiaireEtChat[] | undefined
+  >(beneficiairesChats)
+  if (beneficiairesChats !== chatsAFiltrer) {
+    setChatsAFiltrer(beneficiairesChats)
+    setChatsFiltres(beneficiairesChats)
+  }
   const [afficherMenuActionsMessagerie, setAfficherMenuActionsMessagerie] =
     useState<boolean>(false)
   const [messageImportantPreRempli, setMessageImportantPreRempli] = useState<
@@ -87,10 +94,11 @@ function ChatRoom(
   const [afficherModaleMessageImportant, setAfficherModaleMessageImportant] =
     useState<boolean>(false)
 
-  const [
-    afficherNotificationMessageImportant,
-    setAfficherNotificationMessageImportant,
-  ] = useState<boolean>(false)
+  const afficherNotificationMessageImportant = Boolean(
+    messageImportantPreRempli?.dateFin &&
+    DateTime.fromISO(messageImportantPreRempli.dateFin).startOf('day') >=
+      DateTime.now().startOf('day')
+  )
 
   const [messagerieEstVisible, setMessagerieEstVisible] =
     useState<boolean>(true)
@@ -195,20 +203,6 @@ function ChatRoom(
       setMessageImportantPreRempli
     )
   }, [chatCredentials])
-
-  useEffect(() => {
-    setAfficherNotificationMessageImportant(
-      Boolean(
-        messageImportantPreRempli?.dateFin &&
-        DateTime.fromISO(messageImportantPreRempli.dateFin).startOf('day') >=
-          DateTime.now().startOf('day')
-      )
-    )
-  }, [messageImportantPreRempli])
-
-  useEffect(() => {
-    setChatsFiltres(beneficiairesChats)
-  }, [beneficiairesChats])
 
   useEffect(() => {
     if (isFirstRender.current) return

@@ -55,6 +55,22 @@ export default function TableauBeneficiairesMilo({
   const derniereActiviteColumn = 'Dernière activité'
   const comptageHeureToggle = 'Compteur'
 
+  const mapCompteursHeures = useMemo(() => {
+    const map = new Map<string, number>()
+    if (comptagesHeures?.comptages) {
+      comptagesHeures.comptages.forEach((c) =>
+        map.set(c.idBeneficiaire, c.nbHeuresDeclarees)
+      )
+    }
+    return map
+  }, [comptagesHeures])
+
+  const beneficiairesAffiches = useMemo(() => {
+    const start = NOMBRE_BENEFICIAIRES_PAR_PAGE * (page - 1)
+    const end = NOMBRE_BENEFICIAIRES_PAR_PAGE * page
+    return beneficiaires.slice(start, end)
+  }, [beneficiaires, page])
+
   function demarrerChargement(id: string) {
     setLoadingById((prev) => ({ ...prev, [id]: true }))
   }
@@ -85,21 +101,22 @@ export default function TableauBeneficiairesMilo({
     return mapCompteursHeures.get(idBeneficiaire) ?? 0
   }
 
-  const mapCompteursHeures = useMemo(() => {
-    const map = new Map<string, number>()
-    if (comptagesHeures?.comptages) {
-      comptagesHeures.comptages.forEach((c) =>
-        map.set(c.idBeneficiaire, c.nbHeuresDeclarees)
-      )
-    }
-    return map
-  }, [comptagesHeures])
+  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
+    demarrerChargement(id)
 
-  const beneficiairesAffiches = useMemo(() => {
-    const start = NOMBRE_BENEFICIAIRES_PAR_PAGE * (page - 1)
-    const end = NOMBRE_BENEFICIAIRES_PAR_PAGE * page
-    return beneficiaires.slice(start, end)
-  }, [beneficiaires, page])
+    const { getJeuneDetailsClientSide } =
+      await import('services/beneficiaires.service')
+    const details = await getJeuneDetailsClientSide(id)
+    if (!details) return notFound()
+
+    const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
+    if (compteurActif) {
+      activerCompteur(id)
+    } else {
+      desactiverCompteur(id)
+    }
+    arreterChargement(id)
+  }
 
   useEffect(() => {
     async function chargerEtatCompteurBeneficiaire() {
@@ -118,24 +135,7 @@ export default function TableauBeneficiairesMilo({
     }
 
     chargerEtatCompteurBeneficiaire()
-  }, [beneficiairesAffiches, mapCompteursHeures, visibilitesCompteur]) // peut etre retirer visibilitesCompteur
-
-  async function chargerLeBoutonDeCompteurPourUnBeneficiaire(id: string) {
-    demarrerChargement(id)
-
-    const { getJeuneDetailsClientSide } =
-      await import('services/beneficiaires.service')
-    const details = await getJeuneDetailsClientSide(id)
-    if (!details) return notFound()
-
-    const compteurActif = Boolean(details?.peutVoirLeComptageDesHeures)
-    if (compteurActif) {
-      activerCompteur(id)
-    } else {
-      desactiverCompteur(id)
-    }
-    arreterChargement(id)
-  }
+  }, [beneficiairesAffiches, mapCompteursHeures, visibilitesCompteur])
 
   useMatomo('Mes jeunes', total > 0)
 

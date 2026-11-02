@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 import IconComponent, { IconName } from 'components/ui/IconComponent'
 import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
@@ -27,16 +25,10 @@ export default function TableauBeneficiairesPasMilo({
   page,
   total,
 }: TableauBeneficiairesPasMiloProps) {
-  const [beneficiairesAffiches, setBeneficiairesAffiches] = useState<
-    BeneficiaireAvecInfosComplementaires[]
-  >([])
+  const beneficiairesAffiches = beneficiaires.slice(10 * (page - 1), 10 * page)
 
   const messagesColumn = 'Messages non lus par le béneficiaire'
   const derniereActiviteColumn = 'Dernière activité'
-
-  useEffect(() => {
-    setBeneficiairesAffiches(beneficiaires.slice(10 * (page - 1), 10 * page))
-  }, [beneficiaires, page])
 
   useMatomo('Mes jeunes', total > 0)
 
