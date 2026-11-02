@@ -6,6 +6,7 @@ import { init as initMatomo } from 'utils/analytics/matomo'
 
 jest.mock('utils/analytics/matomo')
 jest.mock('@elastic/apm-rum')
+jest.mock('next/web-vitals')
 jest.mock('next/headers', () => ({
   headers: jest.fn(async () => ({ get: jest.fn().mockReturnValue(null) })),
 }))
