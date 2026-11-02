@@ -20,7 +20,10 @@ const customJestConfig = {
 const jestConfig = async () => {
   const nextJestConfig = await createJestConfig(customJestConfig)()
   // https://github.com/vercel/next.js/issues/35634
-  nextJestConfig.transformIgnorePatterns = ['/node_modules/(?!@?firebase)']
+  // htmlparser2 >= 12 (via sanitize-html) et ses dépendances sont ESM-only : Jest 29 ne sait pas les require()
+  nextJestConfig.transformIgnorePatterns = [
+    '/node_modules/(?!(@?firebase|htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)/)',
+  ]
   return nextJestConfig
 }
 
