@@ -46,7 +46,7 @@
     "pino-http": "^11.0.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-router-dom": "^7.18.4",
+    "react-router-dom": "^7.18.5",
     "sanitize-html": "2.18.1",
     "sharp": "0.35.5",
     "tailwind-merge": "^3.7.0"
