@@ -102,11 +102,9 @@
     "resolutions": {
       "glob": "CVE-2025-64756 - Sans cette entrée, un consommateur transitif réintroduit glob 7.2.3. À retirer quand tous les consommateurs transitifs dépendent de glob >= 10.5.0",
       "test-exclude": "Pour compatibilité glob 10.5.0 - Sans cette entrée, test-exclude retombe en 6.0.0. À retirer en même temps que la résolution glob",
-      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - Plancher de sécurité : @firebase/firestore (transitif via firebase) demande ~1.9.0, qui résout aujourd'hui exactement 1.9.16. À retirer quand il demandera >= 1.9.16 explicitement",
-      "postcss": "GHSA-qx2v-qp2m-jg93 / GHSA-6g55-p6wh-862q / GHSA-r28c-9q8g-f849 - Sans cette entrée, l'arbre retombe en postcss 8.4.31 (vulnérable). À retirer quand les consommateurs transitifs dépendent de postcss >= 8.5.18"
-    },
-    "cvesAcceptees": {
-      "react-router": "GHSA-qwww-vcr4-c8h2 (high) - Risque accepté, non atteignable ici. Corrigé dans react-router 8.3.0 uniquement : react-router-dom s'arrête à 7.18.2 (shim qui épingle react-router en exact 7.18.2), aucun bump ne corrige. On ne déclare react-router-dom que pour la peer dep de @elastic/apm-rum-react, qui code en dur `import ... from 'react-router-dom'` (dist/es/get-apm-routes.js) et bloque la migration vers react-router v8. L'avis ne concerne que les API RSC instables : zéro import de react-router dans le code applicatif (Next.js App Router), et seul withTransaction est utilisé, jamais ApmRoutes. À revoir quand elastic/apm-agent-rum-js#1655 sera mergé et publié."
+      "@grpc/grpc-js": "GHSA-5375-pq7m-f5r2 / GHSA-99f4-grh7-6pcq - Plancher de sécurité : @firebase/firestore (transitif via firebase) demande ~1.9.0, qui retombe sans cette entrée sur une 1.9.x vulnérable. À retirer quand il demandera >= 1.9.16 explicitement",
+      "postcss": "GHSA-qx2v-qp2m-jg93 / GHSA-6g55-p6wh-862q / GHSA-r28c-9q8g-f849 - Sans cette entrée, l'arbre retombe en postcss 8.4.31 (vulnérable). À retirer quand les consommateurs transitifs dépendent de postcss >= 8.5.18",
+      "react-router": "GHSA-qwww-vcr4-c8h2 (high) - Pin forcé entre majeures : react-router-dom s'arrête à la v7 (shim qui épingle react-router en exact 7.x), le correctif n'existe qu'en react-router 8.3.0. Le shim se contente de réexporter react-router et react-router/dom, et les symboles qu'importe @elastic/apm-rum-react (dist/es/get-apm-routes.js) existent en v8. On ne déclare react-router-dom que pour la peer dep de @elastic/apm-rum-react, dont seul withTransaction est utilisé. En test, react-router v8 (ESM-only) est remplacé par assets/__mocks__/ReactRouterDomMock.js. À retirer quand elastic/apm-agent-rum-js#1655 sera publié et qu'on pourra déclarer react-router 8 directement"
     }
   },
   "browser": {
