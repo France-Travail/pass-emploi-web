@@ -21,9 +21,9 @@ function usePlatform(): Platform {
   )
 }
 
-export function useMobileStoreUrl(urls: UrlsStoresMobile): string | undefined {
+export function useMobileStoreUrl(urls?: UrlsStoresMobile): string | undefined {
   const platform = usePlatform()
-  return platform === 'desktop' ? undefined : urls[platform]
+  return platform === 'desktop' ? undefined : urls?.[platform]
 }
 
 export function useParcoursEmploiUrl(): string {

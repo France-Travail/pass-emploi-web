@@ -212,6 +212,33 @@ describe('AuthErrorPage', () => {
     })
   })
 
+  describe('migration AIJ / Avenir Pro vers 1j1s', () => {
+    it('affiche l’écran de migration jeune, sans bouton de téléchargement', async () => {
+      // Given
+      simulerUserAgent(USER_AGENT_ANDROID)
+      const searchParams = Promise.resolve({
+        reason: 'MIGRATION_AIJ_AVENIR_PRO',
+        typeUtilisateur: 'JEUNE',
+      })
+
+      // When
+      render(await AuthError({ searchParams }))
+
+      // Then
+      const mainContent = screen.getByRole('main', {
+        name: '[Titre en attente]',
+      })
+      expect(
+        within(mainContent).getByText('[Texte en attente]')
+      ).toBeInTheDocument()
+      expect(
+        within(mainContent).queryByRole('link', {
+          name: 'Télécharger l’application',
+        })
+      ).not.toBeInTheDocument()
+    })
+  })
+
   describe('population de migration non reconnue', () => {
     it('affiche l’ancienne page jeune pour une population inconnue', async () => {
       // Given
