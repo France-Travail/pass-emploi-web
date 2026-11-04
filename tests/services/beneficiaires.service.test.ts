@@ -52,7 +52,7 @@ import {
   rechercheBeneficiairesDeLEtablissement,
   renvoyerEmailActivation,
   supprimerJeuneInactif,
-  verifierEmailExistantBeneficiaire,
+  verifierAccompagnementBeneficiaire,
 } from 'services/beneficiaires.service'
 import { Periode } from 'types/dates'
 import { ApiError } from 'utils/httpClient'
@@ -880,8 +880,8 @@ describe('JeunesApiService', () => {
     })
   })
 
-  describe('.verifierEmailExistantBeneficiaire', () => {
-    it("retourne true si l'email existe déjà", async () => {
+  describe('.verifierAccompagnementBeneficiaire', () => {
+    it('retourne true si le bénéficiaire est déjà accompagné', async () => {
       // Given
       const email = 'test@example.com'
       ;(getSession as jest.Mock).mockResolvedValue({
@@ -889,22 +889,22 @@ describe('JeunesApiService', () => {
         accessToken: 'accessToken',
       })
       ;(apiPost as jest.Mock).mockResolvedValue({
-        content: { emailExistant: true },
+        content: { dejaAccompagne: true },
       })
 
       // When
-      const actual = await verifierEmailExistantBeneficiaire(email)
+      const actual = await verifierAccompagnementBeneficiaire(email)
 
       // Then
       expect(apiPost).toHaveBeenCalledWith(
-        '/conseillers/verifier-email-jeune',
+        '/conseillers/verifier-accompagnement-beneficiaire',
         { email },
         'accessToken'
       )
       expect(actual).toEqual(true)
     })
 
-    it("retourne false si l'email n'existe pas", async () => {
+    it("retourne false si le bénéficiaire n'est pas déjà accompagné", async () => {
       // Given
       const email = 'nouveau@example.com'
       ;(getSession as jest.Mock).mockResolvedValue({
@@ -912,15 +912,15 @@ describe('JeunesApiService', () => {
         accessToken: 'accessToken',
       })
       ;(apiPost as jest.Mock).mockResolvedValue({
-        content: { emailExistant: false },
+        content: { dejaAccompagne: false },
       })
 
       // When
-      const actual = await verifierEmailExistantBeneficiaire(email)
+      const actual = await verifierAccompagnementBeneficiaire(email)
 
       // Then
       expect(apiPost).toHaveBeenCalledWith(
-        '/conseillers/verifier-email-jeune',
+        '/conseillers/verifier-accompagnement-beneficiaire',
         { email },
         'accessToken'
       )

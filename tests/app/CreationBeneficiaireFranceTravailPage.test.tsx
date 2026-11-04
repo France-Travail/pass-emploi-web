@@ -169,10 +169,10 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
         it("affiche un message d'erreur", async () => {
           // Given
           const emailAutreConseiller = 'autre.conseiller@example.com'
-          const { verifierEmailExistantBeneficiaire } =
+          const { verifierAccompagnementBeneficiaire } =
             await import('services/beneficiaires.service')
           ;(
-            verifierEmailExistantBeneficiaire as jest.Mock
+            verifierAccompagnementBeneficiaire as jest.Mock
           ).mockResolvedValueOnce(true)
 
           const inputEmail = screen.getByLabelText(emailLabel)
@@ -205,10 +205,10 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
           // Given
           const emailAVerifier = 'test@example.com'
           const messageErreur = 'Erreur de connexion au serveur'
-          const { verifierEmailExistantBeneficiaire } =
+          const { verifierAccompagnementBeneficiaire } =
             await import('services/beneficiaires.service')
           ;(
-            verifierEmailExistantBeneficiaire as jest.Mock
+            verifierAccompagnementBeneficiaire as jest.Mock
           ).mockRejectedValueOnce(new Error(messageErreur))
 
           const inputEmail = screen.getByLabelText(emailLabel)
