@@ -139,16 +139,16 @@ export async function createCompteJeuneFranceTravail(newJeune: {
   return jsonToBaseBeneficiaire(content)
 }
 
-export async function verifierEmailExistantBeneficiaire(
+export async function verifierAccompagnementBeneficiaire(
   email: string
 ): Promise<boolean> {
   const session = await getSession()
-  const { content } = await apiPost<{ emailExistant: boolean }>(
-    `/conseillers/verifier-email-jeune`,
+  const { content } = await apiPost<{ dejaAccompagne: boolean }>(
+    `/conseillers/verifier-accompagnement-beneficiaire`,
     { email },
     session!.accessToken
   )
-  return content.emailExistant
+  return content.dejaAccompagne
 }
 
 export async function getIdJeuneMilo(
