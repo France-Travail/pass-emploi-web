@@ -3,6 +3,12 @@ export type UrlsStoresMobile = {
   android: string
 }
 
+export const URLS_1J1S: UrlsStoresMobile = {
+  ios: 'https://apps.apple.com/fr/app/id1581603519',
+  android:
+    'https://play.google.com/store/apps/details?id=fr.fabrique.social.gouv.passemploi',
+}
+
 export const URLS_PARCOURS_EMPLOI: UrlsStoresMobile & { desktop: string } = {
   ios: 'https://apps.apple.com/app/apple-store/id563863597?pt=1432235&ct=migration-cej&mt=8',
   android:

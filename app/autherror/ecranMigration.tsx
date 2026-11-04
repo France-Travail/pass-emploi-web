@@ -3,6 +3,7 @@ import { ReactElement } from 'react'
 import MigrationApplicationJeunePage from 'app/autherror/MigrationApplicationJeunePage'
 import MigrationConseillerPage from 'app/autherror/MigrationConseillerPage'
 import MigrationJeunePage from 'app/autherror/MigrationJeunePage'
+import MigrationPassEmploi1j1sPage from 'app/autherror/MigrationPassEmploi1j1sPage'
 import MigrationPassEmploiConseillerPage from 'app/autherror/MigrationPassEmploiConseillerPage'
 import { estPopulationDeMigrationPassEmploi } from 'app/autherror/populationsMigration'
 import { URLS_PARCOURS_EMPLOI } from 'app/autherror/urlsStores'
@@ -28,13 +29,8 @@ export function ecranMigration({
 }: ParametresMigration): ReactElement | undefined {
   switch (reason) {
     case 'MIGRATION_AIJ_AVENIR_PRO':
-      // TODO textes, illustration et stores de l'app 1j1s à fournir
       return (
-        <MigrationApplicationJeunePage
-          titre='[Titre en attente]'
-          texte='[Texte en attente]'
-          illustration={IllustrationName.MigrationPassEmploiJeune}
-        />
+        <MigrationPassEmploi1j1sPage nom={nom} prenom={prenom} email={email} />
       )
 
     case 'MIGRATION_PARCOURS_EMPLOI': {

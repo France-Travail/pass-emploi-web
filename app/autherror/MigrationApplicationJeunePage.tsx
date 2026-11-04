@@ -16,8 +16,7 @@ type MigrationApplicationJeunePageProps = {
   titre: string
   texte: string
   illustration: IllustrationName
-  // Sans stores, pas de bouton de téléchargement
-  urlsStores?: UrlsStoresMobile
+  urlsStores: UrlsStoresMobile
 }
 
 function MigrationApplicationJeunePage({

@@ -213,29 +213,73 @@ describe('AuthErrorPage', () => {
   })
 
   describe('migration AIJ / Avenir Pro vers 1j1s', () => {
-    it('affiche l’écran de migration jeune, sans bouton de téléchargement', async () => {
-      // Given
-      simulerUserAgent(USER_AGENT_ANDROID)
-      const searchParams = Promise.resolve({
+    const searchParams = () =>
+      Promise.resolve({
         reason: 'MIGRATION_AIJ_AVENIR_PRO',
         typeUtilisateur: 'JEUNE',
+        nom: 'Eventreur',
+        prenom: 'Jack',
+        email: 'jack@exemple.com',
       })
 
+    it('annonce le passage à 1 jeune 1 solution', async () => {
       // When
-      render(await AuthError({ searchParams }))
+      render(await AuthError({ searchParams: searchParams() }))
 
       // Then
       const mainContent = screen.getByRole('main', {
-        name: '[Titre en attente]',
+        name: 'pass emploi devient 1 jeune 1 solution',
       })
       expect(
-        within(mainContent).getByText('[Texte en attente]')
+        within(mainContent).getByText(
+          'Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
+        )
       ).toBeInTheDocument()
+    })
+
+    it.each([
+      ['iOS', USER_AGENT_IOS, 'https://apps.apple.com/fr/app/id1581603519'],
+      [
+        'Android',
+        USER_AGENT_ANDROID,
+        'https://play.google.com/store/apps/details?id=fr.fabrique.social.gouv.passemploi',
+      ],
+    ])('renvoie vers le store 1j1s sur %s', async (_, userAgent, urlStore) => {
+      // Given
+      simulerUserAgent(userAgent)
+
+      // When
+      render(await AuthError({ searchParams: searchParams() }))
+
+      // Then
       expect(
-        within(mainContent).queryByRole('link', {
-          name: 'Télécharger l’application',
-        })
+        screen.getByRole('link', { name: 'Télécharger l’application' })
+      ).toHaveAttribute('href', urlStore)
+    })
+
+    it('n’affiche pas de bouton de téléchargement sur ordinateur', async () => {
+      // When
+      render(await AuthError({ searchParams: searchParams() }))
+
+      // Then
+      expect(
+        screen.queryByRole('link', { name: 'Télécharger l’application' })
       ).not.toBeInTheDocument()
+    })
+
+    it('propose la suppression des données de pass emploi', async () => {
+      // When
+      render(await AuthError({ searchParams: searchParams() }))
+
+      // Then
+      const lien = screen.getByRole('link', {
+        name: 'Envoyer un email pour demander la suppression de vos données',
+      })
+      expect(lien.parentElement).toHaveTextContent(
+        "de l'application pass emploi par"
+      )
+      expect(lien.getAttribute('href')).toContain('Eventreur%20Jack')
+      expect(lien.getAttribute('href')).toContain('jack@exemple.com')
     })
   })
 
