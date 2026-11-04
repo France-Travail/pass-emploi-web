@@ -17,7 +17,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
 
     steps:
-      - uses: France-Travail/pass-emploi-tools/.github/actions/lint-and-typecheck@964c4aad57b98bc51c4312559bf56a59f16bc66f
+      - uses: France-Travail/pass-emploi-tools/.github/actions/lint-and-typecheck@fa25f0e00d1a842ac9007d3f0d56cc78911c542e
 
   test:
     name: Tests
@@ -25,7 +25,7 @@ jobs:
     if: ${{ !github.event.pull_request.draft }}
 
     steps:
-      - uses: France-Travail/pass-emploi-tools/.github/actions/test-and-upload@964c4aad57b98bc51c4312559bf56a59f16bc66f
+      - uses: France-Travail/pass-emploi-tools/.github/actions/test-and-upload@fa25f0e00d1a842ac9007d3f0d56cc78911c542e
 
   sonarqube:
     name: SonarQube Analysis
@@ -37,6 +37,6 @@ jobs:
       github.event.pull_request.user.id != 49699333
 
     steps:
-      - uses: France-Travail/pass-emploi-tools/.github/actions/sonarqube-scan@964c4aad57b98bc51c4312559bf56a59f16bc66f
+      - uses: France-Travail/pass-emploi-tools/.github/actions/sonarqube-scan@fa25f0e00d1a842ac9007d3f0d56cc78911c542e
         with:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
