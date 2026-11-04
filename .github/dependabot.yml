@@ -7,22 +7,33 @@ updates:
       interval: daily
       time: '07:00'
       timezone: Europe/Paris
-    open-pull-requests-limit: 15
+    open-pull-requests-limit: 20
     commit-message:
       prefix: 'chore(deps):'
-    # Majeures npm montées hors Dependabot : elles demandent souvent une refacto.
-    # Sans effet sur les security updates, créées quel que soit le type de montée.
-    allow:
-      - dependency-type: direct
-        update-types:
-          - version-update:semver-patch
-          - version-update:semver-minor
-    # Laisse à la communauté le temps de repérer une version compromise. Ne s'applique pas aux security updates.
+    # Laisse à la communauté le temps de repérer une version compromise, plus longtemps pour une majeure.
+    # Ne s'applique pas aux security updates.
     cooldown:
       default-days: 3
+      semver-major-days: 14
+    ignore:
+      # La majeure de @types/node suit celle de Node en prod, montée à la main avec le runtime.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       next:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+      next-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - 'next'
           - 'next-*'
@@ -30,6 +41,18 @@ updates:
           - 'eslint-config-next'
       eslint:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+      eslint-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - 'eslint'
           - 'eslint-*'
@@ -37,6 +60,18 @@ updates:
           - '@typescript-eslint/*'
       react:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      react-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - 'react'
           - 'react-dom'
@@ -44,17 +79,49 @@ updates:
           - '@types/react-dom'
       testing:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+      testing-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - 'jest*'
           - '@testing-library/*'
           - '@types/jest*'
       elastic-apm:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - '@elastic/*'
+          - 'elastic-apm-*'
+      elastic-apm-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - '@elastic/*'
           - 'elastic-apm-*'
       tailwind-css:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      tailwind-css-major:
+        applies-to: version-updates
+        update-types:
+          - major
         patterns:
           - 'tailwindcss'
           - '@tailwindcss/*'
@@ -88,12 +155,64 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+      prod-major:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - major
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
         update-types:
           - patch
           - minor
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      dev-major:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - major
         exclude-patterns:
           - 'next'
           - 'next-*'
