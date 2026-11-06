@@ -6,15 +6,10 @@ import { Structure, structuresFranceTravail } from 'interfaces/structure'
 // se recalcule depuis le profil à la frontière (session).
 
 export type StructureProfil =
-  | 'MILO'
-  | 'FRANCE_TRAVAIL'
-  | 'CONSEIL_DEPARTEMENTAL'
-  | 'INVITE'
+  'MILO' | 'FRANCE_TRAVAIL' | 'CONSEIL_DEPARTEMENTAL' | 'INVITE'
 
 export type DispositifProfil =
-  | Dispositif
-  | 'DEMANDEUR_D_EMPLOI'
-  | 'ESPACE_CANDIDAT'
+  Dispositif | 'DEMANDEUR_D_EMPLOI' | 'ESPACE_CANDIDAT'
 
 export type Profil = {
   structure: StructureProfil

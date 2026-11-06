@@ -33,8 +33,7 @@ type ResultatRechercheProps = MessageBeneficiaireProps & {
 }
 
 type DisplayMessageBeneficiaireProps =
-  | MessageBeneficiaireProps
-  | ResultatRechercheProps
+  MessageBeneficiaireProps | ResultatRechercheProps
 
 export default function DisplayMessageBeneficiaire(
   props: DisplayMessageBeneficiaireProps

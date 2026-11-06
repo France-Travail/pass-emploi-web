@@ -234,6 +234,7 @@ function Messages(props: FicheBeneficiaireProps): ReactElement {
   }
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lit le localStorage, absent au rendu serveur : le lire au rendu casserait l'hydratation
     setIsRenvoiEmailActivationDisabled(
       !peutRenvoyerEmailActivation(beneficiaire.id)
     )

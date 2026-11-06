@@ -58,15 +58,15 @@ function ChoixConseiller(
     onInput()
   }
 
-  useImperativeHandle(ref, () => ({
-    resetRechercheConseiller: resetRechercheConseiller,
-  }))
-
   function resetRechercheConseiller() {
     inputRef.current!.value = ''
     setChoixConseillers(undefined)
     setQueryConseiller({ value: '' })
   }
+
+  useImperativeHandle(ref, () => ({
+    resetRechercheConseiller: resetRechercheConseiller,
+  }))
 
   async function rechercherConseiller() {
     if (queryConseiller.value.length < 2) return

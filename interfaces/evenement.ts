@@ -15,10 +15,7 @@ export enum StatutEvenement {
 }
 
 export type EtatVisibilite =
-  | 'visible'
-  | 'non-visible'
-  | 'auto-inscription'
-  | 'auto-desinscription'
+  'visible' | 'non-visible' | 'auto-inscription' | 'auto-desinscription'
 export type AnimationCollective = {
   id: string
   type: string

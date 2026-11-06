@@ -1,78 +1,240 @@
 version: 2
 
 updates:
-  # ===========================================
-  # NPM Dependencies
-  # ===========================================
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: daily
       time: '07:00'
       timezone: Europe/Paris
-    open-pull-requests-limit: 15
+    open-pull-requests-limit: 20
     commit-message:
       prefix: 'chore(deps):'
+    # Laisse à la communauté le temps de repérer une version compromise, plus longtemps pour une majeure.
+    # Ne s'applique pas aux security updates.
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+    ignore:
+      # La majeure de @types/node suit celle de Node en prod, montée à la main avec le runtime.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
-      # Écosystèmes (prioritaires, couvrent tous les update-types)
       next:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "next"
-          - "next-*"
-          - "@next/*"
-          - "eslint-config-next"
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+      next-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
       eslint:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "eslint"
-          - "eslint-*"
-          - "@eslint/*"
-          - "@typescript-eslint/*"
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+      eslint-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
       react:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "react"
-          - "react-dom"
-          - "@types/react"
-          - "@types/react-dom"
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+      react-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
       testing:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "jest*"
-          - "@testing-library/*"
-          - "@types/jest*"
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+      testing-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
       elastic-apm:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "@elastic/*"
-          - "elastic-apm-*"
+          - '@elastic/*'
+          - 'elastic-apm-*'
+      elastic-apm-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - '@elastic/*'
+          - 'elastic-apm-*'
       tailwind-css:
         applies-to: version-updates
+        update-types:
+          - patch
+          - minor
         patterns:
-          - "tailwindcss"
-          - "@tailwindcss/*"
-          - "postcss"
-
-      # Production dependencies - patch and minor (auto-merge côté CI)
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      tailwind-css-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      # Dependabot range une dépendance dans le groupe le plus « spécifique », pas dans le premier déclaré :
+      # sans ces exclusions, un groupe sans `patterns` l'emporte sur un motif à joker comme `@nestjs/*`.
       prod-minor-patch:
         applies-to: version-updates
         dependency-type: production
         update-types:
           - patch
           - minor
-      # Development dependencies - patch and minor (auto-merge côté CI)
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      prod-major:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - major
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
         update-types:
           - patch
           - minor
-      # Majors hors écosystèmes : chaque dépendance a sa propre PR
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
+      dev-major:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - major
+        exclude-patterns:
+          - 'next'
+          - 'next-*'
+          - '@next/*'
+          - 'eslint-config-next'
+          - 'eslint'
+          - 'eslint-*'
+          - '@eslint/*'
+          - '@typescript-eslint/*'
+          - 'react'
+          - 'react-dom'
+          - '@types/react'
+          - '@types/react-dom'
+          - 'jest*'
+          - '@testing-library/*'
+          - '@types/jest*'
+          - '@elastic/*'
+          - 'elastic-apm-*'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+          - 'postcss'
 
-  # ===========================================
-  # GitHub Actions
-  # ===========================================
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -81,11 +243,11 @@ updates:
       timezone: Europe/Paris
     commit-message:
       prefix: 'ci(deps):'
+    cooldown:
+      default-days: 3
     groups:
-      # GitHub Actions - patch and minor (auto-merge côté CI)
       actions-minor-patch:
         applies-to: version-updates
         update-types:
           - patch
           - minor
-      # Majors : pas de groupe, chaque action a sa propre PR

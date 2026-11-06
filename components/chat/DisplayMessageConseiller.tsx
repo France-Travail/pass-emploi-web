@@ -42,8 +42,7 @@ type MessageConseillerProps = Base & {
 }
 
 type DisplayMessageConseillerProps =
-  | ResultatRechercheProps
-  | MessageConseillerProps
+  ResultatRechercheProps | MessageConseillerProps
 
 export default function DisplayMessageConseiller(
   props: DisplayMessageConseillerProps
