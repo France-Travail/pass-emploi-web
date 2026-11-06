@@ -40,7 +40,10 @@ export default function ConseillerIntrouvableSuggestionModal({
       <p className='mb-4 text-base-bold text-content-color text-center'>
         La conseillère ou le conseiller en question ne s’est peut-être jamais
         connecté(e) à l’Application{' '}
-        {estPassEmploi(conseiller.structure) ? 'pass emploi' : 'du CEJ'}.
+        {estPassEmploi(conseiller.structure)
+          ? 'pass emploi'
+          : '1jeune1solution'}
+        .
       </p>
       <p className='mb-12 text-base-regular text-content-color text-center'>
         Nous l’invitons à effectuer une première connexion pour apparaître dans

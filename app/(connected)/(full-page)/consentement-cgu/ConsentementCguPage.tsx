@@ -15,14 +15,14 @@ import { estPassEmploi } from 'interfaces/structure'
 import { modifierDateSignatureCGU } from 'services/conseiller.service'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
 
-const HeaderCGUConseillerCEJ = dynamic(
-  () => import('components/HeaderCGUConseillerCEJ')
+const HeaderCGUConseiller1j1s = dynamic(
+  () => import('components/HeaderCGUConseiller1j1s')
 )
 const HeaderCGUConseillerPassEmploi = dynamic(
   () => import('components/HeaderCGUConseillerPassEmploi')
 )
-const ContenuCGUConseillerCEJ = dynamic(
-  () => import('components/ContenuCGUConseillerCEJ')
+const ContenuCGUConseiller1j1s = dynamic(
+  () => import('components/ContenuCGUConseiller1j1s')
 )
 const ContenuCGUConseillerPassEmploi = dynamic(
   () => import('components/ContenuCGUConseillerPassEmploi')
@@ -65,11 +65,11 @@ function ConsentementCguPage({ returnTo }: ConsentementCguProps) {
   return (
     <>
       {estConseillerPassEmploi && <HeaderCGUConseillerPassEmploi />}
-      {!estConseillerPassEmploi && <HeaderCGUConseillerCEJ />}
+      {!estConseillerPassEmploi && <HeaderCGUConseiller1j1s />}
 
       <main role='main'>
         {estConseillerPassEmploi && <ContenuCGUConseillerPassEmploi />}
-        {!estConseillerPassEmploi && <ContenuCGUConseillerCEJ />}
+        {!estConseillerPassEmploi && <ContenuCGUConseiller1j1s />}
 
         <form onSubmit={validerLesCGU} className='flex flex-col mt-10'>
           <div className='mb-10'>

@@ -963,7 +963,7 @@ describe('HomePage client side', () => {
       )
       expect(
         screen.getByRole('heading', {
-          name: 'Bienvenue Nils dans votre espace conseiller CEJ',
+          name: 'Bienvenue Nils dans votre espace conseiller 1jeune1solution',
         })
       ).toBeInTheDocument()
       expect(() =>
@@ -1056,7 +1056,7 @@ describe('HomePage client side', () => {
         expect(
           screen.getByRole('heading', {
             level: 2,
-            name: 'Bienvenue Nils dans votre espace conseiller CEJ',
+            name: 'Bienvenue Nils dans votre espace conseiller 1jeune1solution',
           })
         ).toBeInTheDocument()
         expect(
@@ -1122,7 +1122,7 @@ describe('HomePage client side', () => {
         expect(
           screen.getByRole('heading', {
             level: 2,
-            name: 'Bienvenue Nils dans votre espace conseiller CEJ',
+            name: 'Bienvenue Nils dans votre espace conseiller 1jeune1solution',
           })
         ).toBeInTheDocument()
         expect(

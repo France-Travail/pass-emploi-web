@@ -1,6 +1,6 @@
 import React from 'react'
 
-import IllustrationLogoCEJ from 'assets/images/logo_app_cej.svg'
+import IllustrationLogo1j1s from 'assets/images/logo_1j1s.svg'
 import IllustrationLogoPassemploi from 'assets/images/logo_pass_emploi.svg'
 
 type LoginHeaderProps = {
@@ -11,7 +11,7 @@ export default function LoginHeader({ title, subtitle }: LoginHeaderProps) {
   return (
     <>
       <div className='flex justify-center gap-8'>
-        <IllustrationLogoCEJ
+        <IllustrationLogo1j1s
           className='h-[60px]'
           focusable={false}
           aria-hidden={true}

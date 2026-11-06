@@ -288,8 +288,8 @@ function PilotagePage({
           iconName={IconName.EventFill}
         />
         <Tab
-          label='Rdvs et AC app CEJ'
-          ariaLabel='Rendez-vous et animations collectives de l’application du CEJ'
+          label='Rdvs et AC app 1J1S'
+          ariaLabel='Rendez-vous et animations collectives de l’application 1jeune1solution'
           selected={currentTab === 'RDVS_ET_AC'}
           controls='liste-rdvs-et-ac-a-clore'
           onSelectTab={() => switchTab('RDVS_ET_AC')}

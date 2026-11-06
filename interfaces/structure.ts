@@ -10,7 +10,12 @@ export const structureAccompagnementGlobal = 'FT_ACCOMPAGNEMENT_GLOBAL'
 export const structureEquipEmploiRecrut = 'FT_EQUIP_EMPLOI_RECRUT'
 export const structureConseilDepartemental = 'CONSEIL_DEPT'
 
-const structuresCEJ = [structureMilo, structureFTCej] as const
+const structures1j1s = [
+  structureMilo,
+  structureFTCej,
+  structureAij,
+  structureAvenirPro,
+] as const
 
 export const structuresFranceTravail = [
   structureFTCej,
@@ -24,7 +29,7 @@ export const structuresFranceTravail = [
 
 /*** Types ***/
 
-type StructureCEJ = (typeof structuresCEJ)[number]
+type Structure1j1s = (typeof structures1j1s)[number]
 
 type StructureFTConnect = (typeof structuresFranceTravail)[number]
 
@@ -65,8 +70,8 @@ export function estBRSA(structure: string): structure is typeof structureBrsa {
 
 export function estPassEmploi(
   structure: string
-): structure is Exclude<Structure, StructureCEJ> {
-  return !([...structuresCEJ] as string[]).includes(structure)
+): structure is Exclude<Structure, Structure1j1s> {
+  return !([...structures1j1s] as string[]).includes(structure)
 }
 
 export function estFranceTravail(
@@ -101,10 +106,10 @@ export function getUrlSiteRessource(structure: Structure): string {
     case 'MILO':
       return process.env.NEXT_PUBLIC_FAQ_MILO_EXTERNAL_LINK as string
     case 'POLE_EMPLOI':
-      return process.env.NEXT_PUBLIC_FAQ_PE_EXTERNAL_LINK as string
-    case 'POLE_EMPLOI_BRSA':
     case 'POLE_EMPLOI_AIJ':
     case 'AVENIR_PRO':
+      return process.env.NEXT_PUBLIC_FAQ_PE_EXTERNAL_LINK as string
+    case 'POLE_EMPLOI_BRSA':
     case 'FT_ACCOMPAGNEMENT_INTENSIF':
     case 'FT_ACCOMPAGNEMENT_GLOBAL':
     case 'FT_EQUIP_EMPLOI_RECRUT':
@@ -120,14 +125,14 @@ export function getUrlFormulaireSupport(structure: Structure): string {
   switch (structure) {
     case 'MILO':
     case 'POLE_EMPLOI_BRSA':
-    case 'POLE_EMPLOI_AIJ':
     case 'CONSEIL_DEPT':
-    case 'AVENIR_PRO':
     case 'FT_ACCOMPAGNEMENT_INTENSIF':
     case 'FT_ACCOMPAGNEMENT_GLOBAL':
     case 'FT_EQUIP_EMPLOI_RECRUT':
       return urlSiteRessource + 'assistance/'
     case 'POLE_EMPLOI':
+    case 'POLE_EMPLOI_AIJ':
+    case 'AVENIR_PRO':
       return urlSiteRessource + 'formuler-une-demande/'
   }
 }

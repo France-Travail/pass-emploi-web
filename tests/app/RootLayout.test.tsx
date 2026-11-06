@@ -32,12 +32,12 @@ describe('RootLayout', () => {
   it('prépare les métadonnées de head', async () => {
     expect(metadata).toEqual({
       title: 'Espace conseiller',
-      description: 'Espace conseiller de l’outil du Contrat d’Engagement Jeune',
-      applicationName: 'CEJ conseiller',
+      description: 'Espace conseiller de l’application 1jeune1solution',
+      applicationName: '1jeune1solution conseiller',
       icons: {
-        icon: '/cej-favicon.png',
-        shortcut: '/cej-favicon.png',
-        apple: '/cej-favicon.png',
+        icon: '/1j1s-favicon.png',
+        shortcut: '/1j1s-favicon.png',
+        apple: '/1j1s-favicon.png',
       },
     })
     expect(viewport).toEqual({
