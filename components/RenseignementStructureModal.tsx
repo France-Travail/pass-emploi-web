@@ -25,9 +25,9 @@ export default function RenseignementStructureModal({
       onClose={onClose}
     >
       <p className='text-center'>
-        Afin de pouvoir accéder à tout le contenu du portail CEJ, vous devez
-        renseigner votre structure Mission Locale dans i-milo puis vous
-        déconnecter et vous reconnecter.
+        Afin de pouvoir accéder à tout le contenu du portail 1jeune1solution,
+        vous devez renseigner votre structure Mission Locale dans i-milo puis
+        vous déconnecter et vous reconnecter.
       </p>
       <p className='text-center'>
         Sinon, vous ne pourrez pas consulter les sessions de votre structure.

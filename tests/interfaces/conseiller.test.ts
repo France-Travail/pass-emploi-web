@@ -5,8 +5,10 @@ import { unProfilFT } from 'fixtures/profil'
 import {
   doitConfirmerSonDispositif,
   doitRenseignerSonAgence,
+  doitSignerLesCGU,
 } from 'interfaces/conseiller'
 import {
+  structureAij,
   structureAvenirPro,
   structureConseilDepartemental,
   structureFTCej,
@@ -131,5 +133,43 @@ describe('doitConfirmerSonDispositif', () => {
     })
 
     expect(doitConfirmerSonDispositif(conseiller)).toEqual(false)
+  })
+})
+
+describe('doitSignerLesCGU', () => {
+  const versionCGU1j1s = process.env.VERSION_CGU_CEJ_COURANTE
+  const versionCGUPassEmploi = process.env.VERSION_CGU_PASS_EMPLOI_COURANTE
+
+  beforeEach(() => {
+    process.env.VERSION_CGU_CEJ_COURANTE = '2024-06-01'
+    process.env.VERSION_CGU_PASS_EMPLOI_COURANTE = '2024-01-01'
+  })
+
+  afterEach(() => {
+    process.env.VERSION_CGU_CEJ_COURANTE = versionCGU1j1s
+    process.env.VERSION_CGU_PASS_EMPLOI_COURANTE = versionCGUPassEmploi
+  })
+
+  it.each([
+    structureMilo,
+    structureFTCej,
+    structureAij,
+    structureAvenirPro,
+  ] as const)('%s : suit la version des CGU 1jeune1solution', (structure) => {
+    const conseiller = unConseiller({
+      structure,
+      dateSignatureCGU: '2024-03-01T00:00:00.000Z',
+    })
+
+    expect(doitSignerLesCGU(conseiller)).toEqual(true)
+  })
+
+  it('POLE_EMPLOI_BRSA : suit la version des CGU pass emploi', () => {
+    const conseiller = unConseiller({
+      structure: 'POLE_EMPLOI_BRSA',
+      dateSignatureCGU: '2024-03-01T00:00:00.000Z',
+    })
+
+    expect(doitSignerLesCGU(conseiller)).toEqual(false)
   })
 })

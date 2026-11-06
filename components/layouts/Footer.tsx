@@ -7,7 +7,7 @@ import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import { Conseiller } from 'interfaces/conseiller'
 import { estPassEmploi } from 'interfaces/structure'
 import { trackPage } from 'utils/analytics/matomo'
-import { liensFooterCEJ, liensFooterPassEmploi } from 'utils/liensFooter'
+import { liensFooter1j1s, liensFooterPassEmploi } from 'utils/liensFooter'
 
 type FooterProps = {
   liens?: Array<{ url: string; label: string }>
@@ -26,7 +26,7 @@ export default function Footer({
     liens ??
     (conseiller && estPassEmploi(conseiller.structure)
       ? liensFooterPassEmploi
-      : liensFooterCEJ)
+      : liensFooter1j1s)
 
   function trackExternalLink(label: string) {
     trackPage({

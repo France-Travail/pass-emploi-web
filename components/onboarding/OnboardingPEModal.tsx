@@ -1,7 +1,7 @@
 import { StaticImport } from 'next/dist/shared/lib/get-img-props'
 import React, { FC, ReactNode, SVGProps, useRef, useState } from 'react'
 
-import illustrationLogoCEJ from 'assets/images/logo_app_cej.svg'
+import illustrationLogo1j1s from 'assets/images/logo_1j1s.svg'
 import illustrationLogoPassemploi from 'assets/images/logo_pass_emploi.svg'
 import onboardingMessageriePassEmploi from 'assets/images/onboarding_messagerie_pass-emploi.webp'
 import onboardingMessagerie from 'assets/images/onboarding_messagerie_pole-emploi.webp'
@@ -50,8 +50,8 @@ export default function OnboardingPEModal({
         messagerieImage: onboardingMessagerie,
         offresImage: onboardingOffres,
         portefeuilleImage: onboardingPortefeuille,
-        titreOnboarding: 'CEJ',
-        logoImage: illustrationLogoCEJ,
+        titreOnboarding: '1jeune1solution',
+        logoImage: illustrationLogo1j1s,
       }
 
   return (
