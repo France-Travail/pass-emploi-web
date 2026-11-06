@@ -3,7 +3,7 @@
 import { withTransaction } from '@elastic/apm-rum-react'
 import React, { useEffect } from 'react'
 
-import IllustrationLogoCEJ from 'assets/images/logo_app_cej.svg'
+import IllustrationLogo1j1s from 'assets/images/logo_1j1s.svg'
 import Table from 'components/ui/Table/Table'
 import TD from 'components/ui/Table/TD'
 import TH from 'components/ui/Table/TH'
@@ -48,12 +48,12 @@ function EmargementRdvPage({ evenement, agence }: EmargementRdvPageProps) {
 
   return (
     <>
-      <header className='bg-primary text-white flex justify-between py-12 px-8 mb-8 print:page-break-before'>
+      <header className='bg-primary text-white flex justify-between py-12 px-8 mb-8 print:page-break-before [print-color-adjust:exact]'>
         <div>
           <h1 className='text-l-bold'>Feuille d’émargement</h1>
           <h2>Mission Locale de {agence}</h2>
         </div>
-        <IllustrationLogoCEJ
+        <IllustrationLogo1j1s
           aria-hidden={true}
           focusable={false}
           className='h-[64px] w-[120px] fill-white'

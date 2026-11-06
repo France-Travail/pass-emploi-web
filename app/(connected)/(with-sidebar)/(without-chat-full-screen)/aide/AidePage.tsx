@@ -5,10 +5,10 @@ import React from 'react'
 
 import avecNosRessourcesImage from 'assets/images/avec_nos_ressources.webp'
 import avecNosRessourcesImagePassEmploi from 'assets/images/avec_nos_ressources_pass-emploi.webp'
-import QrcodeAppStoreCEJ from 'assets/images/qrcode_app_store.svg'
+import QrcodeAppStore1j1s from 'assets/images/qrcode_app_store.svg'
 import QrcodeAppStorePassEmploi from 'assets/images/qrcode_passemploi_app_store.svg'
 import QrcodePlayStorePassEmploi from 'assets/images/qrcode_passemploi_play_store.svg'
-import QrcodePlayStoreCEJ from 'assets/images/qrcode_play_store.svg'
+import QrcodePlayStore1j1s from 'assets/images/qrcode_play_store.svg'
 import { ButtonStyle } from 'components/ui/Button/Button'
 import ButtonLink from 'components/ui/Button/ButtonLink'
 import IconComponent, { IconName } from 'components/ui/IconComponent'
@@ -17,7 +17,6 @@ import IllustrationComponent, {
 } from 'components/ui/IllustrationComponent'
 import ExternalLink from 'components/ui/Navigation/ExternalLink'
 import {
-  estAvenirPro,
   estMilo,
   estPassEmploi,
   getUrlFormulaireSupport,
@@ -32,16 +31,15 @@ export default function AidePage() {
   const [conseiller] = useConseiller()
   const [portefeuille] = usePortefeuille()
 
-  const conseillerEstAvenirPro = estAvenirPro(conseiller.structure)
   const conseillerEstPassEmploi = estPassEmploi(conseiller.structure)
   const aDesBeneficiaires = portefeuille.length > 0
 
   const QrcodeAppStore = conseillerEstPassEmploi
     ? QrcodeAppStorePassEmploi
-    : QrcodeAppStoreCEJ
+    : QrcodeAppStore1j1s
   const QrcodePlayStore = conseillerEstPassEmploi
     ? QrcodePlayStorePassEmploi
-    : QrcodePlayStoreCEJ
+    : QrcodePlayStore1j1s
 
   const urlQrcodeAppStore = conseillerEstPassEmploi
     ? process.env.NEXT_PUBLIC_APP_STORE_PASS_EMPLOI
@@ -66,14 +64,7 @@ export default function AidePage() {
 
   const urlFAQ = `${urlSiteRessource}${conseillerEstPassEmploi ? 'foire-aux-questions/' : 'faq/'}`
 
-  function getURLEmbarquerBeneficiaires() {
-    let suffixe = 'embarquer-vos-jeunes/'
-
-    if (conseillerEstAvenirPro) suffixe = 'embarquement-avenirpro/'
-    else if (conseillerEstPassEmploi) suffixe = 'embarquer-vos-beneficiaires/'
-
-    return `${urlSiteRessource}${suffixe}`
-  }
+  const urlEmbarquerBeneficiaires = `${urlSiteRessource}${conseillerEstPassEmploi ? 'embarquer-vos-beneficiaires/' : 'embarquer-vos-jeunes/'}`
 
   async function trackEventAideEtRessources(action: string) {
     trackEvent({
@@ -170,10 +161,10 @@ export default function AidePage() {
                 <p>
                   Retrouvez toutes les ressources vidéos, guide, flyers, pour
                   aider votre bénéficiaire à prendre en main l’application{' '}
-                  {conseillerEstPassEmploi ? 'pass emploi' : 'du CEJ'}
+                  {conseillerEstPassEmploi ? 'pass emploi' : '1jeune1solution'}
                 </p>
                 <ButtonLink
-                  href={getURLEmbarquerBeneficiaires()}
+                  href={urlEmbarquerBeneficiaires}
                   style={ButtonStyle.PRIMARY}
                   externalIcon={IconName.OpenInNew}
                   label='Voir les ressources'
@@ -200,23 +191,23 @@ export default function AidePage() {
           <li className='flex flex-col w-full px-16 py-4'>
             <h4 className='text-m-bold mb-2'>
               Avec le mode démo{' '}
-              {conseillerEstPassEmploi ? 'pass emploi' : 'du CEJ'}
+              {conseillerEstPassEmploi
+                ? 'pass emploi'
+                : 'de l’application mobile 1jeune1solution'}
             </h4>
             <div className='flex gap-16'>
               <div className='flex flex-col justify-between'>
                 <p className='mb-2'>
                   Il vous permet de visualiser l’application{' '}
-                  {conseillerEstPassEmploi ? 'pass emploi' : 'du CEJ'} utilisée
-                  par vos bénéficiaires.
+                  {conseillerEstPassEmploi && 'pass emploi '}utilisée par vos
+                  bénéficiaires.
                 </p>
                 <p className='mb-2'>
                   Pour accéder au mode démo, vous devez télécharger
                   l’application sur le store de votre choix puis{' '}
                   <strong>appuyer 3 fois sur le logo</strong> ”
-                  {conseillerEstPassEmploi
-                    ? 'pass emploi'
-                    : 'Contrat d’Engagement Jeune'}
-                  ” sur l’écran de connexion.
+                  {conseillerEstPassEmploi ? 'pass emploi' : '1jeune1solution'}”
+                  sur l’écran de connexion.
                 </p>
                 <p className='mb-2'>
                   L’application est disponible sur les stores

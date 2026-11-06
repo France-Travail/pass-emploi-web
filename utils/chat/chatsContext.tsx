@@ -96,7 +96,7 @@ export function ChatsProvider({
 
   useEffect(() => {
     if (!hasMessageNonLu && titleBackup.current !== undefined) {
-      resetBrowserTab(titleBackup.current)
+      resetBrowserTab(titleBackup.current, conseiller)
       titleBackup.current = undefined
     }
 
@@ -143,16 +143,18 @@ function displayNotificationInBrowserTab(conseiller: Conseiller) {
   if (estPassEmploi(conseiller.structure)) {
     faviconLink.href = '/pass-emploi-favicon-notif.png'
   } else {
-    faviconLink.href = '/cej-favicon-notif.png'
+    faviconLink.href = '/1j1s-favicon-notif.png'
   }
 }
 
-function resetBrowserTab(backupTitle: string) {
+function resetBrowserTab(backupTitle: string, conseiller: Conseiller) {
   document.title = backupTitle
 
   const faviconLink =
     document.querySelector<HTMLLinkElement>("link[rel='icon']")
   if (!faviconLink) return
 
-  faviconLink.href = '/cej-favicon.png'
+  faviconLink.href = estPassEmploi(conseiller.structure)
+    ? '/pass-emploi-favicon.png'
+    : '/1j1s-favicon.png'
 }

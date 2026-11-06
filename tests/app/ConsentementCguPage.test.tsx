@@ -61,7 +61,7 @@ describe('ConsentementCGUPage client side', () => {
       })
     })
 
-    describe('Pour un conseiller CEJ', () => {
+    describe('Pour un conseiller 1jeune1solution', () => {
       const conseiller = unConseiller({
         structure: structureMilo,
       })
@@ -84,7 +84,7 @@ describe('ConsentementCGUPage client side', () => {
         // Then
         expect(
           screen.getByText(
-            /« Plateforme » : le back-office du CEJ dédiée aux conseillers France Travail et conseillers des Missions Locales ;/
+            /« Plateforme » : le back-office de l’application 1jeune1solution dédiée aux conseillers France Travail et conseillers des Missions Locales ;/
           )
         ).toBeInTheDocument()
         expect(() => screen.getByText('pass emploi')).toThrow()
