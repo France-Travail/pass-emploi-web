@@ -10,6 +10,8 @@ jest.mock('utils/monitoring/ecsHelpers', () => ({
     message: (e as any).message,
   })),
 }))
+jest.mock('utils/monitoring/elastic', () => ({ captureError: jest.fn() }))
+jest.mock('utils/navigation')
 
 import {
   ApiError,
@@ -17,6 +19,7 @@ import {
   fetchNoContent,
   UnexpectedError,
 } from 'utils/httpClient'
+import { navigateTo } from 'utils/navigation'
 
 describe('HttpClient', () => {
   describe('fetchJson', () => {
@@ -158,28 +161,12 @@ describe('HttpClient', () => {
     })
 
     describe('when authorization is expired', () => {
-      let assign: jest.Mock
-      let locationOriginal: Location
       beforeEach(() => {
-        // jsdom rend window.location.assign en lecture seule : on remplace
-        // l'objet location le temps du test.
-        locationOriginal = window.location
-        assign = jest.fn()
-        Object.defineProperty(window, 'location', {
-          configurable: true,
-          value: { ...locationOriginal, assign },
-        })
         ;(fetch as jest.Mock).mockResolvedValue({
           ok: false,
           status: 401,
           statusText: 'Unauthorized',
           json: jest.fn(async () => ({ statusCode: 401, message: 'expiré' })),
-        })
-      })
-      afterEach(() => {
-        Object.defineProperty(window, 'location', {
-          configurable: true,
-          value: locationOriginal,
         })
       })
 
@@ -192,7 +179,7 @@ describe('HttpClient', () => {
         }
 
         // Then
-        expect(assign).toHaveBeenCalledWith('/api/auth/federated-logout')
+        expect(navigateTo).toHaveBeenCalledWith('/api/auth/federated-logout')
       })
 
       it('ne déconnecte pas quand logoutOn401 vaut false et lève une ApiError', async () => {
@@ -207,7 +194,7 @@ describe('HttpClient', () => {
         }
 
         // Then
-        expect(assign).not.toHaveBeenCalled()
+        expect(navigateTo).not.toHaveBeenCalled()
         expect(error).toEqual(new ApiError(401, 'expiré'))
       })
     })

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { captureError } from 'utils/monitoring/elastic'
 import { rootLogger } from 'utils/monitoring/logger'
+import { navigateTo } from 'utils/navigation'
 
 // ── Types publics ────────────────────────────────────────────────────────────
 
@@ -156,9 +157,7 @@ async function handleHttpError(
   if (response.status === 401 && logoutOn401) {
     const logoutUrl = '/api/auth/federated-logout'
     if (typeof window !== 'undefined') {
-      // Route API qui redirige vers l'IdP : une navigation complète est voulue, pas une navigation client vers une page Next.
-      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.assign(logoutUrl)
+      navigateTo(logoutUrl)
     } else {
       redirect(logoutUrl)
     }
