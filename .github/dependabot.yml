@@ -49,6 +49,9 @@ updates:
           - 'eslint-*'
           - '@eslint/*'
           - '@typescript-eslint/*'
+          - 'prettier'
+        exclude-patterns:
+          - 'eslint-config-next'
       eslint-major:
         applies-to: version-updates
         update-types:
@@ -58,6 +61,9 @@ updates:
           - 'eslint-*'
           - '@eslint/*'
           - '@typescript-eslint/*'
+          - 'prettier'
+        exclude-patterns:
+          - 'eslint-config-next'
       react:
         applies-to: version-updates
         update-types:
@@ -126,6 +132,23 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+      pino:
+        applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+        patterns:
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
+      pino-major:
+        applies-to: version-updates
+        update-types:
+          - major
+        patterns:
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
       # Dependabot range une dépendance dans le groupe le plus « spécifique », pas dans le premier déclaré :
       # sans ces exclusions, un groupe sans `patterns` l'emporte sur un motif à joker comme `@nestjs/*`.
       prod-minor-patch:
@@ -155,6 +178,10 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+          - 'prettier'
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
       prod-major:
         applies-to: version-updates
         dependency-type: production
@@ -181,6 +208,10 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+          - 'prettier'
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
       dev-minor-patch:
         applies-to: version-updates
         dependency-type: development
@@ -208,6 +239,10 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+          - 'prettier'
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
       dev-major:
         applies-to: version-updates
         dependency-type: development
@@ -234,6 +269,10 @@ updates:
           - 'tailwindcss'
           - '@tailwindcss/*'
           - 'postcss'
+          - 'prettier'
+          - 'pino'
+          - 'pino-*'
+          - '@types/pino*'
 
   - package-ecosystem: github-actions
     directory: /
@@ -251,3 +290,7 @@ updates:
         update-types:
           - patch
           - minor
+      actions-major:
+        applies-to: version-updates
+        update-types:
+          - major
