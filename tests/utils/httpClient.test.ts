@@ -10,6 +10,7 @@ jest.mock('utils/monitoring/ecsHelpers', () => ({
     message: (e as any).message,
   })),
 }))
+jest.mock('utils/monitoring/elastic', () => ({ captureError: jest.fn() }))
 jest.mock('utils/navigation')
 
 import {
