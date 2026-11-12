@@ -113,7 +113,6 @@ describe('FicheBeneficiairePage server side', () => {
           }),
           historiqueConseillers: desConseillersBeneficiaire(),
           metadonneesFavoris: expect.objectContaining({}),
-          favorisOffres: expect.objectContaining({}),
           ongletInitial: 'actions',
           debutSemaineInitiale: undefined,
           categoriesActions: undefined,

@@ -14,7 +14,7 @@ const customJestConfig = {
   },
   restoreMocks: true,
   setupFilesAfterEnv: ['./setupTests.ts'],
-  testEnvironment: '<rootDir>/tests/jsdomWithFetchEnvironment.js',
+  testEnvironment: '<rootDir>/tests/jsdomWithFetchTypesEnvironment.js',
 }
 
 const jestConfig = async () => {
