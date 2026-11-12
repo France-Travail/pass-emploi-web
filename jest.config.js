@@ -14,13 +14,13 @@ const customJestConfig = {
   },
   restoreMocks: true,
   setupFilesAfterEnv: ['./setupTests.ts'],
-  testEnvironment: 'jest-environment-jsdom',
+  testEnvironment: '<rootDir>/tests/jsdomWithFetchEnvironment.js',
 }
 
 const jestConfig = async () => {
   const nextJestConfig = await createJestConfig(customJestConfig)()
   // https://github.com/vercel/next.js/issues/35634
-  // htmlparser2 >= 12 (via sanitize-html) et ses dépendances sont ESM-only : Jest 29 ne sait pas les require()
+  // htmlparser2 >= 12 (via sanitize-html) et ses dépendances sont ESM-only : Jest ne sait pas les require()
   nextJestConfig.transformIgnorePatterns = [
     '/node_modules/(?!(@?firebase|htmlparser2|domhandler|domutils|domelementtype|dom-serializer|entities)/)',
   ]
