@@ -10,6 +10,7 @@ import {
 import { ActualitesRaw, ArticleJson, TagJson } from 'interfaces/actualites'
 import { ActualiteJson } from 'interfaces/json/actualite'
 import {
+  structureAij,
   structureAvenirPro,
   structureBrsa,
   structureConseilDepartemental,
@@ -42,6 +43,7 @@ describe('ActualitesService', () => {
       process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_FT_CEJ_LINK = 'http://pe.url'
       process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_CD_LINK = 'http://cd.url'
       process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_AVENIR_PRO_LINK = 'http://ap.url'
+      process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_AIJ_LINK = 'http://aij.url'
       process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_ACCOMPAGNEMENTS_INTENSIFS_LINK =
         'http://intensif.url'
     })
@@ -248,6 +250,20 @@ describe('ActualitesService', () => {
 
       // Then
       expect(fetchJson).toHaveBeenCalledWith('http://ap.url')
+    })
+
+    it('utilise la bonne URL pour AIJ', async () => {
+      // Given
+      const tagsJson: TagJson[] = []
+      ;(fetchJson as jest.Mock).mockResolvedValueOnce({ content: tagsJson })
+      ;(fetchJson as jest.Mock).mockResolvedValueOnce({ content: [] })
+
+      // When
+      await getActualites(structureAij)
+
+      // Then
+      expect(fetchJson).toHaveBeenCalledWith('http://aij.url')
+      expect(fetchJson).not.toHaveBeenCalledWith('http://intensif.url')
     })
 
     it('utilise la bonne URL pour les accompagnements intensifs', async () => {
