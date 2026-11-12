@@ -3,7 +3,8 @@
 import Image from 'next/image'
 import React from 'react'
 
-import avecNosRessourcesImage from 'assets/images/avec_nos_ressources.webp'
+import avecNosRessourcesImageFranceTravail from 'assets/images/avec_nos_ressources_france-travail.webp'
+import avecNosRessourcesImageMilo from 'assets/images/avec_nos_ressources_milo.webp'
 import avecNosRessourcesImagePassEmploi from 'assets/images/avec_nos_ressources_pass-emploi.webp'
 import QrcodeAppStore1j1s from 'assets/images/qrcode_app_store.svg'
 import QrcodeAppStorePassEmploi from 'assets/images/qrcode_passemploi_app_store.svg'
@@ -40,6 +41,12 @@ export default function AidePage() {
   const QrcodePlayStore = conseillerEstPassEmploi
     ? QrcodePlayStorePassEmploi
     : QrcodePlayStore1j1s
+
+  const avecNosRessourcesImage = conseillerEstPassEmploi
+    ? avecNosRessourcesImagePassEmploi
+    : estMilo(conseiller.structure)
+      ? avecNosRessourcesImageMilo
+      : avecNosRessourcesImageFranceTravail
 
   const urlQrcodeAppStore = conseillerEstPassEmploi
     ? process.env.NEXT_PUBLIC_APP_STORE_PASS_EMPLOI
@@ -177,11 +184,7 @@ export default function AidePage() {
                 />
               </div>
               <Image
-                src={
-                  conseillerEstPassEmploi
-                    ? avecNosRessourcesImagePassEmploi
-                    : avecNosRessourcesImage
-                }
+                src={avecNosRessourcesImage}
                 alt=''
                 aria-hidden={true}
                 className='w-1/3 object-contain'
