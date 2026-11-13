@@ -35,7 +35,7 @@ export default function OnboardingMILOModal({
     <>
       {etape === 'ACCUEIL' && (
         <OnboardingMILOEtapeModal
-          titre={`Bienvenue ${conseiller.firstName} dans votre espace conseiller CEJ`}
+          titre={`Bienvenue ${conseiller.firstName} dans votre espace conseiller 1jeune1solution`}
           onClose={onClose}
           onContinue={() => setEtape('PORTEFEUIILLE-AGENDA')}
         >

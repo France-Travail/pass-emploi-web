@@ -1,6 +1,7 @@
+import Image from 'next/image'
 import React from 'react'
 
-import IllustrationLogoCEJ from 'assets/images/logo_app_cej.svg'
+import logo1j1sApp from 'assets/images/logo_1j1s_app.png'
 import IllustrationLogoPassemploi from 'assets/images/logo_pass_emploi.svg'
 
 type LoginHeaderProps = {
@@ -10,11 +11,13 @@ type LoginHeaderProps = {
 export default function LoginHeader({ title, subtitle }: LoginHeaderProps) {
   return (
     <>
-      <div className='flex justify-center gap-8'>
-        <IllustrationLogoCEJ
-          className='h-[60px]'
-          focusable={false}
+      <div className='flex items-start justify-center gap-8'>
+        {/* 54px : hauteur réelle du dessin pass emploi, son SVG a une marge en bas */}
+        <Image
+          src={logo1j1sApp}
+          alt=''
           aria-hidden={true}
+          className='h-[54px] w-auto rounded-base'
         />
 
         <IllustrationLogoPassemploi

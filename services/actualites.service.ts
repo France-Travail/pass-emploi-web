@@ -86,8 +86,9 @@ function getUrlActualites(structure: Structure): string {
       return process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_CD_LINK as string
     case 'AVENIR_PRO':
       return process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_AVENIR_PRO_LINK as string
-    case 'POLE_EMPLOI_BRSA':
     case 'POLE_EMPLOI_AIJ':
+      return process.env.NEXT_PUBLIC_WORDPRESS_ACTUS_AIJ_LINK as string
+    case 'POLE_EMPLOI_BRSA':
     case 'FT_ACCOMPAGNEMENT_GLOBAL':
     case 'FT_ACCOMPAGNEMENT_INTENSIF':
     case 'FT_EQUIP_EMPLOI_RECRUT':

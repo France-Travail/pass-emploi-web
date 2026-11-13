@@ -10,7 +10,7 @@ import { estMilo } from 'interfaces/structure'
 import { trackPage } from 'utils/analytics/matomo'
 import useMatomo from 'utils/analytics/useMatomo'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
-import { liensFooterCEJ, liensFooterPassEmploi } from 'utils/liensFooter'
+import { liensFooter1j1s, liensFooterPassEmploi } from 'utils/liensFooter'
 import { usePortefeuille } from 'utils/portefeuilleContext'
 
 function PlanDuSitePage() {
@@ -150,7 +150,7 @@ function LiensMilo({
         className='list-disc text-primary underline'
         aria-label='Liste de liens vers les pages externes'
       >
-        {liensFooterCEJ.map(({ url, label }) => (
+        {liensFooter1j1s.map(({ url, label }) => (
           <li
             key={label.toLowerCase().replace(/\s/g, '-')}
             className='hover:text-primary-darken'

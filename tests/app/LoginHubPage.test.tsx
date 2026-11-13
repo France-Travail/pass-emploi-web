@@ -45,7 +45,7 @@ describe('LoginHubPage client side', () => {
       expect(
         screen.getByRole('heading', {
           level: 1,
-          name: 'Bienvenue sur le portail CEJ et Pass emploi',
+          name: 'Bienvenue sur 1jeune1solution et Pass emploi',
         })
       ).toBeInTheDocument()
     })
