@@ -28,7 +28,7 @@ function LoginHubPage() {
   return (
     <>
       <LoginHeader
-        title='Bienvenue sur le portail CEJ et Pass emploi'
+        title='Bienvenue sur 1jeune1solution et Pass emploi'
         subtitle='À quelle structure appartenez-vous ?'
       />
 

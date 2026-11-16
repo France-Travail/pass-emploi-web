@@ -29,7 +29,8 @@ function MigrationConseillerPage() {
         {titleText}
       </h1>
       <div className='text-center text-base-bold text-primary'>
-        L&#39;accès à l&#39;application du CEJ n&#39;est plus disponible.
+        L&#39;accès à l&#39;application 1jeune1solution n&#39;est plus
+        disponible.
         <br />
         Pour échanger avec vos bénéficiaires, rendez-vous dans CVM - messagerie
         instantanée.

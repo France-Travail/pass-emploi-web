@@ -9,7 +9,7 @@ export const liensFooterLogin = [
   },
 ]
 
-export const liensFooterCEJ = [
+export const liensFooter1j1s = [
   liensFooterLogin[0],
   {
     url: 'https://doc.pass-emploi.beta.gouv.fr/legal/web_conditions_generales',

@@ -35,7 +35,8 @@ export default function ConfirmationUpdateRdvModal({
           Le créateur recevra un e-mail de modification de l’événement.
         </p>
         <p className='mt-6'>
-          Les bénéficiaires seront notifiés sur l’application CEJ.
+          Les bénéficiaires seront notifiés sur l’application mobile
+          1jeune1solution.
         </p>
       </div>
 

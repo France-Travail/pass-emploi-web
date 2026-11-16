@@ -26,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteTitle = titreSite(user.structure)
   const faviconPath = estUserPassEmploi
     ? '/pass-emploi-favicon.png'
-    : '/cej-favicon.png'
+    : '/1j1s-favicon.png'
 
   return {
     title: { template: '%s - ' + siteTitle, default: siteTitle },

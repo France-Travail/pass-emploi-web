@@ -7,15 +7,17 @@ const MESSAGE_PAR_DEFAUT_CONSEILLER = `Une erreur est survenue, veuillez fermer 
 const MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI =
   "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
 
+const MESSAGE_DEJA_FRANCE_TRAVAIL_1J1S =
+  'Veuillez vous connecter en choisissant France Travail sur l’application 1jeune1solution ou contacter votre conseiller pour recréer le compte.'
+
 const MESSAGES_BENEFICIAIRE: Record<string, string> = {
   UTILISATEUR_DEJA_MILO:
-    "Veuillez vous connecter en choisissant Mission Locale sur l'application du CEJ ou contacter votre conseiller pour recréer le compte.",
-  UTILISATEUR_DEJA_PE:
-    "Veuillez vous connecter en choisissant France Travail sur l'application CEJ ou contacter votre conseiller pour recréer le compte.",
+    'Veuillez vous connecter en choisissant Mission Locale sur l’application 1jeune1solution ou contacter votre conseiller pour recréer le compte.',
+  UTILISATEUR_DEJA_PE: MESSAGE_DEJA_FRANCE_TRAVAIL_1J1S,
   UTILISATEUR_DEJA_PE_BRSA: MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI,
-  UTILISATEUR_DEJA_PE_AIJ: MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI,
+  UTILISATEUR_DEJA_PE_AIJ: MESSAGE_DEJA_FRANCE_TRAVAIL_1J1S,
   UTILISATEUR_DEJA_CONSEIL_DEPT: MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI,
-  UTILISATEUR_DEJA_AVENIR_PRO: MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI,
+  UTILISATEUR_DEJA_AVENIR_PRO: MESSAGE_DEJA_FRANCE_TRAVAIL_1J1S,
   UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF:
     MESSAGE_DEJA_FRANCE_TRAVAIL_PASS_EMPLOI,
   UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL:

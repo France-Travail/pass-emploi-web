@@ -46,7 +46,7 @@ describe('AuthErrorPage', () => {
       expect(mainContent).toBeInTheDocument()
       expect(
         within(mainContent).getByText(
-          "L'application du CEJ n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
+          "L'application 1jeune1solution n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
         )
       ).toBeInTheDocument()
       expect(
@@ -222,17 +222,17 @@ describe('AuthErrorPage', () => {
         email: 'jack@exemple.com',
       })
 
-    it('annonce le passage à 1 jeune 1 solution', async () => {
+    it('annonce le passage à 1jeune1solution', async () => {
       // When
       render(await AuthError({ searchParams: searchParams() }))
 
       // Then
       const mainContent = screen.getByRole('main', {
-        name: 'pass emploi devient 1 jeune 1 solution',
+        name: 'pass emploi devient 1jeune1solution',
       })
       expect(
         within(mainContent).getByText(
-          'Téléchargez la nouvelle application 1 jeune 1 solution pour continuer à profiter de tous les services.'
+          'Téléchargez la nouvelle application 1jeune1solution pour continuer à profiter de tous les services.'
         )
       ).toBeInTheDocument()
     })
@@ -298,7 +298,7 @@ describe('AuthErrorPage', () => {
       // Then
       expect(
         screen.getByText(
-          "L'application du CEJ n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
+          "L'application 1jeune1solution n'est plus disponible. Vous devez désormais utiliser l'application Parcours Emploi."
         )
       ).toBeInTheDocument()
     })

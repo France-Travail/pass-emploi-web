@@ -59,6 +59,52 @@ describe('ChatsProvider', () => {
     document.title = 'Titre page'
   })
 
+  describe('onglet d’un conseiller pass emploi', () => {
+    it('garde le favicon pass emploi une fois les messages lus', async () => {
+      // Given
+      await act(async () =>
+        render(
+          <>
+            <link rel='icon' href='/pass-emploi-favicon.png' />
+            <ConseillerProvider
+              conseiller={unConseiller({ structure: 'POLE_EMPLOI_BRSA' })}
+            >
+              <PortefeuilleProvider portefeuille={portefeuille}>
+                <ChatCredentialsProvider
+                  credentials={{ token: 'token', cleChiffrement: 'cle' }}
+                >
+                  <ChatsProvider>
+                    <div />
+                  </ChatsProvider>
+                </ChatCredentialsProvider>
+              </PortefeuilleProvider>
+            </ConseillerProvider>
+          </>
+        )
+      )
+      expect(document.querySelector("link[rel='icon']")).toHaveProperty(
+        'href',
+        'http://localhost/pass-emploi-favicon-notif.png'
+      )
+
+      // When
+      await act(async () => {
+        updateChatsRef(
+          conversations.map((conversation) => ({
+            ...conversation,
+            seenByConseiller: true,
+          }))
+        )
+      })
+
+      // Then
+      expect(document.querySelector("link[rel='icon']")).toHaveProperty(
+        'href',
+        'http://localhost/pass-emploi-favicon.png'
+      )
+    })
+  })
+
   describe('cas nominal', () => {
     const conseiller = unConseiller({ notificationsSonores: true })
     const credentials = {
@@ -70,7 +116,7 @@ describe('ChatsProvider', () => {
       await act(async () =>
         render(
           <>
-            <link rel='icon' href='/cej-favicon.png' />
+            <link rel='icon' href='/1j1s-favicon.png' />
             <ConseillerProvider conseiller={conseiller}>
               <PortefeuilleProvider portefeuille={portefeuille}>
                 <ChatCredentialsProvider credentials={credentials}>
@@ -98,7 +144,7 @@ describe('ChatsProvider', () => {
       // Then
       expect(document.querySelector("link[rel='icon']")).toHaveProperty(
         'href',
-        'http://localhost/cej-favicon-notif.png'
+        'http://localhost/1j1s-favicon-notif.png'
       )
       expect(document.title).toMatch(/Nouveau\(x\) message\(s\) - /)
     })
@@ -154,7 +200,7 @@ describe('ChatsProvider', () => {
       await act(async () =>
         render(
           <>
-            <link rel='icon' href='/cej-favicon.png' />
+            <link rel='icon' href='/1j1s-favicon.png' />
             <ConseillerProvider conseiller={conseiller}>
               <PortefeuilleProvider portefeuille={portefeuille}>
                 <ChatCredentialsProvider credentials={credentials}>

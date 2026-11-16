@@ -4,7 +4,8 @@ import { estPassEmploi } from 'interfaces/structure'
 
 export function titreSite(structure: string): string {
   return (
-    'Espace conseiller ' + (estPassEmploi(structure) ? 'pass emploi' : 'CEJ')
+    'Espace conseiller ' +
+    (estPassEmploi(structure) ? 'pass emploi' : '1jeune1solution')
   )
 }
 

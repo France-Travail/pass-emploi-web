@@ -14,7 +14,7 @@ describe('LoginPage server side', () => {
     // Then
     expect(metadata).toEqual({
       title:
-        'Sélection de l’espace de connexion - Outil du Contrat d’Engagement Jeune et du pass emploi',
+        'Sélection de l’espace de connexion - 1jeune1solution et pass emploi',
     })
     expect(LoginHubPage).toHaveBeenCalledWith({}, undefined)
   })

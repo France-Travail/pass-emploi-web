@@ -2,7 +2,7 @@ import React from 'react'
 
 import InformationMessage from 'components/ui/Notifications/InformationMessage'
 
-export default function ContenuCGUConseillerCEJ() {
+export default function ContenuCGUConseiller1j1s() {
   return (
     <>
       <InformationMessage label='Nous mettons à jour nos conditions générales d’utilisation. Veuillez les lire, cochez la case et valider pour pouvoir continuer à utiliser l’application.' />
@@ -34,8 +34,9 @@ export default function ContenuCGUConseillerCEJ() {
       </p>
       <p className='mb-4'>
         « Conseiller » est tout agent public ou bénévole utilisant le
-        back-office du CEJ, accompagnant les Bénéficiaires dans leur recherche
-        professionnelle, ou dans la création de leur projet ;
+        back-office de l’application 1jeune1solution, accompagnant les
+        Bénéficiaires dans leur recherche professionnelle, ou dans la création
+        de leur projet ;
       </p>
       <p className='mb-4'>
         « DGEFP » : Délégation générale à l’emploi et à la formation
@@ -79,8 +80,8 @@ export default function ContenuCGUConseillerCEJ() {
         territoriales ;
       </p>
       <p className='mb-4'>
-        « Plateforme » : le back-office du CEJ dédiée aux conseillers France
-        Travail et conseillers des Missions Locales ;
+        « Plateforme » : le back-office de l’application 1jeune1solution dédiée
+        aux conseillers France Travail et conseillers des Missions Locales ;
       </p>
       <p className='mb-4'>
         « Services » : les fonctionnalités offertes par la plateforme pour
@@ -96,12 +97,13 @@ export default function ContenuCGUConseillerCEJ() {
       </p>
       <p className='mb-4'>
         « Usager » : est toute personne qui s’est vue créer un compte sur
-        l’application du CEJ et qui utilise l’application mobile du CEJ dans le
-        cadre de son accompagnement avec son conseiller
+        l’application 1jeune1solution et qui utilise l’application mobile
+        1jeune1solution dans le cadre de son accompagnement avec son conseiller
       </p>
       <p className='mb-4'>
         « Utilisateur » : est tout conseiller qui dispose d’un compte personnel
-        et accède aux fonctionnalités du back-office du CEJ
+        et accède aux fonctionnalités du back-office de l’application
+        1jeune1solution
       </p>
       <p className='mb-4'>
         « Superviseur » est un agent ayant un rôle d’encadrement et
@@ -230,7 +232,7 @@ export default function ContenuCGUConseillerCEJ() {
       <p className='mb-4'>
         - Créer un compte d’un bénéficiaire via la Plateforme afin qu’il
         apparaît dans son portefeuille et que le bénéficiaire puisse utiliser
-        l’application du CEJ ;
+        l’application 1jeune1solution ;
       </p>
       <p className='mb-4'>
         - Accéder aux fiches des bénéficiaires qu’ils suivent pour
@@ -337,7 +339,7 @@ export default function ContenuCGUConseillerCEJ() {
       <p className='mb-4'>
         Depuis i-milo, tous les rendez-vous individuels planifiés par le
         conseiller depuis i-milo sont visibles dans dans la Plateforme et dans
-        l’application du CEJ pour les Usagers.
+        l’application 1jeune1solution pour les Usagers.
       </p>
       <p className='mb-4'>
         Depuis la Plateforme, les Utilisateurs peuvent prendre des rendez-vous
@@ -383,7 +385,7 @@ export default function ContenuCGUConseillerCEJ() {
         Lorsque le conseiller saisit un atelier ou une information collective
         depuis la Plateforme, celle-ci sera visible pour l’ensemble des
         Utilisateurs de la mission locale ainsi que des Usagers depuis
-        l’application du CEJ.
+        l’application 1jeune1solution.
       </p>
 
       <h3 className='mb-2 mt-2 text-s-bold text-accent-2'>

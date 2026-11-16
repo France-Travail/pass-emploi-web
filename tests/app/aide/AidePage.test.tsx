@@ -5,7 +5,12 @@ import React from 'react'
 import AidePage from 'app/(connected)/(with-sidebar)/(without-chat-full-screen)/aide/AidePage'
 import { unConseiller } from 'fixtures/conseiller'
 import { Conseiller } from 'interfaces/conseiller'
-import { structureFTCej, structureMilo } from 'interfaces/structure'
+import {
+  structureAij,
+  structureAvenirPro,
+  structureFTCej,
+  structureMilo,
+} from 'interfaces/structure'
 import renderWithContexts from 'tests/renderWithContexts'
 
 describe('Aide client side', () => {
@@ -77,7 +82,7 @@ describe('Aide client side', () => {
       ).toHaveAttribute('href', 'http://perdu.com/faq/')
     })
 
-    it('affiche un wording CEJ', () => {
+    it('affiche un wording 1jeune1solution', () => {
       expect(() => screen.getByText('pass emploi')).toThrow()
     })
   })
@@ -108,10 +113,51 @@ describe('Aide client side', () => {
       ).toBeInTheDocument()
     })
 
-    it('affiche un wording CEJ', () => {
+    it('affiche un wording 1jeune1solution', () => {
       expect(() => screen.getByText('pass emploi')).toThrow()
     })
   })
+
+  describe.each([structureAij, structureAvenirPro] as const)(
+    'conseiller %s',
+    (structure) => {
+      beforeEach(async () => {
+        await renderWithContexts(<AidePage />, {
+          customConseiller: { structure },
+        })
+      })
+
+      it('renvoie vers les ressources 1jeune1solution', () => {
+        expect(
+          screen.getByRole('link', { name: /Nous contacter/ })
+        ).toHaveAttribute('href', 'http://perdu.com/formuler-une-demande/')
+        expect(
+          screen.getByRole('link', { name: /Voir le guide/ })
+        ).toHaveAttribute(
+          'href',
+          'http://perdu.com/ressources-documentaires/guides-dutilisation/'
+        )
+        expect(
+          screen.getByRole('link', { name: /Voir les ressources/ })
+        ).toHaveAttribute('href', 'http://perdu.com/embarquer-vos-jeunes/')
+      })
+
+      it('affiche un wording 1jeune1solution', () => {
+        expect(
+          screen.getByRole('heading', {
+            name: 'Avec le mode démo de l’application mobile 1jeune1solution',
+          })
+        ).toBeInTheDocument()
+        expect(
+          screen.getByText(
+            'Il vous permet de visualiser l’application utilisée par vos bénéficiaires.'
+          )
+        ).toBeInTheDocument()
+        expect(screen.getByText(/1jeune1solution” sur/)).toBeInTheDocument()
+        expect(() => screen.getByText(/pass emploi/)).toThrow()
+      })
+    }
+  )
 
   describe('conseiller France Travail BRSA', () => {
     beforeEach(async () => {

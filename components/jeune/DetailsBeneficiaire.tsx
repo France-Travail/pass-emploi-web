@@ -19,7 +19,6 @@ import {
   getLabelDispositif,
   IndicateursSemaine,
 } from 'interfaces/beneficiaire'
-import { Fonctionnalite } from 'interfaces/fonctionnalite'
 import { MotifSuppressionBeneficiaire } from 'interfaces/referentiel'
 import { estFranceTravail, estMilo, structureFTCej } from 'interfaces/structure'
 import { AlerteParam } from 'referentiel/alerteParam'
@@ -51,7 +50,6 @@ export default function DetailsBeneficiaire({
   withCreations,
   demarches,
   indicateursSemaine,
-  fonctionnalites = [],
   onSupprimerBeneficiaire,
   className,
 }: Readonly<DetailsBeneficiaireProps>) {
@@ -150,13 +148,8 @@ export default function DetailsBeneficiaire({
     modalDispositifRef.current!.closeModal()
   }
 
-  const peutChoisirDispositifAutre = fonctionnalites.includes(
-    Fonctionnalite.DISPOSITIF_AUTRE
-  )
   const dispositifsCiblesMilo = DISPOSITIFS_MILO.filter(
-    (dispositifMilo) =>
-      dispositifMilo !== dispositifActuel &&
-      (peutChoisirDispositifAutre || dispositifMilo !== Dispositif.AUTRE)
+    (dispositifMilo) => dispositifMilo !== dispositifActuel
   )
 
   // Un bénéficiaire en réaffectation temporaire garde le dispositif de son conseiller initial

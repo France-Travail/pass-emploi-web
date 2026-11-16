@@ -122,7 +122,7 @@ const ALERTES: DictAlertes = {
     title: 'Actions qualifiées en SNP !',
     sub:
       'Vous pouvez encore modifier ces actions, uniquement dans i-milo.\n' +
-      'Délai d’actualisation entre l’app CEJ et i-milo : environ 24h.',
+      'Délai d’actualisation entre l’app 1jeune1solution et i-milo : environ 24h.',
   },
   multiQualificationNonSNP: {
     title: 'Actions enregistrées en non-SNP',

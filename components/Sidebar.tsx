@@ -1,6 +1,6 @@
 import React from 'react'
 
-import IllustrationLogoCEJ from 'assets/images/logo_app_cej.svg'
+import IllustrationLogo1j1s from 'assets/images/logo_1j1s.svg'
 import IllustrationLogoPassemploi from 'assets/images/logo_pass_emploi.svg'
 import { ID_MENU } from 'components/globals'
 import NavLinks, { NavItem } from 'components/NavLinks'
@@ -24,10 +24,10 @@ export default function Sidebar() {
       )}
 
       {!aThemePassEmploi && (
-        <IllustrationLogoCEJ
+        <IllustrationLogo1j1s
           aria-hidden={true}
           focusable={false}
-          className='mx-auto mb-8 min-h-[64px] w-[120px]'
+          className='mx-auto mb-8 min-h-[64px] w-[120px] fill-white'
         />
       )}
 

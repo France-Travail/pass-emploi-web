@@ -239,12 +239,12 @@ describe('<DossierMilo', () => {
       )
     }
 
-    it('ne propose pas Autre sans la fonctionnalité', async () => {
+    it('propose Autre même sans la fonctionnalité', async () => {
       // WHEN
       await renderDossier([])
 
       // THEN
-      expect(screen.queryByRole('radio', { name: 'Autre' })).toBeNull()
+      expect(screen.getByRole('radio', { name: 'Autre' })).toBeInTheDocument()
       expect(screen.getByRole('radio', { name: /PACEA/ })).toBeInTheDocument()
     })
 

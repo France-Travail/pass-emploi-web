@@ -19,11 +19,11 @@ export default function OnboardingModal(
 ): ReactElement {
   switch (props.conseiller.structure) {
     case 'POLE_EMPLOI':
+    case 'POLE_EMPLOI_AIJ':
+    case 'AVENIR_PRO':
       return <OnboardingPEModal {...props} />
     case 'POLE_EMPLOI_BRSA':
-    case 'POLE_EMPLOI_AIJ':
     case 'CONSEIL_DEPT':
-    case 'AVENIR_PRO':
     case 'FT_ACCOMPAGNEMENT_INTENSIF':
     case 'FT_ACCOMPAGNEMENT_GLOBAL':
     case 'FT_EQUIP_EMPLOI_RECRUT':

@@ -150,7 +150,7 @@ function DetailActionPage({ action, from }: DetailActionProps) {
             <div className='mb-6'>
               <InformationMessage label={`Action qualifiée.`}>
                 Vous pouvez modifier cette action dans i-milo. <br /> Délai
-                d’actualisation entre l’app CEJ et i-milo : 24h.
+                d’actualisation entre l’app 1jeune1solution et i-milo : 24h.
               </InformationMessage>
             </div>
           )}

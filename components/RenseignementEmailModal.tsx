@@ -22,9 +22,9 @@ export default function RenseignementEmailModal({
       onClose={onClose}
     >
       <p className='text-center'>
-        Afin de pouvoir bénéficier de toutes les fonctionnalités du portail CEJ,
-        renseignez votre adresse email dans l’encart ”Contacts personnels” de
-        votre profil i-milo.
+        Afin de pouvoir bénéficier de toutes les fonctionnalités du portail
+        1jeune1solution, renseignez votre adresse email dans l’encart ”Contacts
+        personnels” de votre profil i-milo.
       </p>
 
       <div className='flex justify-center mt-4'>

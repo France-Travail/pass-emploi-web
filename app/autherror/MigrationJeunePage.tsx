@@ -45,8 +45,8 @@ function MigrationJeunePage({
         {titleText}
       </h1>
       <p className='text text-base text-primary'>
-        L&apos;application du CEJ n&apos;est plus disponible. Vous devez
-        désormais utiliser l&apos;application Parcours Emploi.
+        L&apos;application 1jeune1solution n&apos;est plus disponible. Vous
+        devez désormais utiliser l&apos;application Parcours Emploi.
       </p>
       <ButtonLink
         href={urlParcoursEmploi}
@@ -56,7 +56,7 @@ function MigrationJeunePage({
         Télécharger l&apos;application
       </ButtonLink>
       <LienSuppressionDonnees
-        nomApplication='du CEJ'
+        nomApplication='1jeune1solution'
         nom={nom}
         prenom={prenom}
         email={email}

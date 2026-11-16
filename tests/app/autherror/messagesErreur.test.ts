@@ -85,15 +85,29 @@ describe('messagesErreur', () => {
 
     it.each([
       'UTILISATEUR_DEJA_PE_BRSA',
-      'UTILISATEUR_DEJA_PE_AIJ',
       'UTILISATEUR_DEJA_CONSEIL_DEPT',
-      'UTILISATEUR_DEJA_AVENIR_PRO',
       'UTILISATEUR_DEJA_ACCOMPAGNEMENT_INTENSIF',
       'UTILISATEUR_DEJA_ACCOMPAGNEMENT_GLOBAL',
       'UTILISATEUR_DEJA_EQUIP_EMPLOI_RECRUT',
     ])('%s : renvoie vers France Travail sur Pass Emploi', (reason) => {
       expect(erreurBeneficiaire(reason)).toEqual(
         "Veuillez vous connecter en choisissant France Travail sur l'application Pass Emploi ou contacter votre conseiller pour recréer le compte."
+      )
+    })
+
+    it.each([
+      'UTILISATEUR_DEJA_PE',
+      'UTILISATEUR_DEJA_PE_AIJ',
+      'UTILISATEUR_DEJA_AVENIR_PRO',
+    ])('%s : renvoie vers France Travail sur 1jeune1solution', (reason) => {
+      expect(erreurBeneficiaire(reason)).toEqual(
+        'Veuillez vous connecter en choisissant France Travail sur l’application 1jeune1solution ou contacter votre conseiller pour recréer le compte.'
+      )
+    })
+
+    it('UTILISATEUR_DEJA_MILO : renvoie vers Mission Locale sur 1jeune1solution', () => {
+      expect(erreurBeneficiaire('UTILISATEUR_DEJA_MILO')).toEqual(
+        'Veuillez vous connecter en choisissant Mission Locale sur l’application 1jeune1solution ou contacter votre conseiller pour recréer le compte.'
       )
     })
 

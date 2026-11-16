@@ -614,7 +614,7 @@ describe('FicheBeneficiairePage client side', () => {
       })
     })
 
-    describe('changement de dispositif sans la fonctionnalité Autre', () => {
+    describe('changement de dispositif sans la fonctionnalité Autre active', () => {
       beforeEach(async () => {
         // Given
         ;(useRouter as jest.Mock).mockReturnValue({
@@ -635,33 +635,13 @@ describe('FicheBeneficiairePage client side', () => {
         )
       })
 
-      it('ne propose pas Autre', () => {
+      it('propose quand même Autre', () => {
         // Then
         expect(
-          screen.queryByRole('radio', {
+          screen.getByRole('radio', {
             name: "Fin d'un accompagnement CEJ et poursuite en Autre",
           })
-        ).toBeNull()
-      })
-
-      it('bascule directement vers PACEA en cas d’erreur de sélection', async () => {
-        // When
-        await userEvent.click(
-          screen.getByRole('radio', {
-            name: 'Le dispositif CEJ a été sélectionné par erreur',
-          })
-        )
-        await userEvent.click(
-          screen.getByRole('button', {
-            name: 'Confirmer le passage du bénéficiaire en PACEA',
-          })
-        )
-
-        // Then
-        expect(modifierDispositif).toHaveBeenCalledWith(
-          'id-beneficiaire-1',
-          'PACEA'
-        )
+        ).toBeInTheDocument()
       })
     })
 

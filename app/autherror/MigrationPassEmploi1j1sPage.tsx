@@ -18,7 +18,7 @@ type MigrationPassEmploi1j1sPageProps = {
   email?: string
 }
 
-const TITRE = 'pass emploi devient 1 jeune 1 solution'
+const TITRE = 'pass emploi devient 1jeune1solution'
 const TITLE_ID = 'error-title-jeune'
 
 function MigrationPassEmploi1j1sPage({
@@ -51,8 +51,8 @@ function MigrationPassEmploi1j1sPage({
             {TITRE}
           </h1>
           <p className='text-base text-primary-darken'>
-            Téléchargez la nouvelle application 1 jeune 1 solution pour
-            continuer à profiter de tous les services.
+            Téléchargez la nouvelle application 1jeune1solution pour continuer à
+            profiter de tous les services.
           </p>
           {urlTelechargement && (
             <ButtonLink
