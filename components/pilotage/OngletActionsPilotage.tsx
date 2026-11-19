@@ -1,6 +1,10 @@
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 
+import {
+  LIBELLE_ERREUR_QUALIFICATION,
+  libelleActionsEnErreur,
+} from 'components/action/libellesQualification'
 import EmptyState from 'components/EmptyState'
 import TableauActionsAQualifier from 'components/pilotage/TableauActionsAQualifier'
 import { IllustrationName } from 'components/ui/IllustrationComponent'
@@ -50,6 +54,7 @@ export default function OngletActionsPilotage({
   const [erreurQualification, setErreurQualification] = useState<
     string | undefined
   >()
+  const [idsActionsEnErreur, setIdsActionsEnErreur] = useState<string[]>([])
 
   const aucuneActionAQualifier =
     filtres.length === 0 && metadonnees.nombreTotal === 0
@@ -110,6 +115,7 @@ export default function OngletActionsPilotage({
       }))
     }
     setErreurQualification(undefined)
+    setIdsActionsEnErreur([])
     try {
       const { idsActionsEnErreur } = await _qualifierActions(
         actionsPayload,
@@ -117,8 +123,12 @@ export default function OngletActionsPilotage({
       )
 
       if (idsActionsEnErreur.length) {
+        setIdsActionsEnErreur(idsActionsEnErreur)
         setErreurQualification(
-          'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
+          libelleActionsEnErreur(
+            idsActionsEnErreur.length,
+            actionsSelectionnees.length
+          )
         )
       } else
         setAlerte(
@@ -126,17 +136,20 @@ export default function OngletActionsPilotage({
             ? AlerteParam.multiQualificationSNP
             : AlerteParam.multiQualificationNonSNP
         )
-
-      await rafraichirActions({ page, tri, filtres })
-
-      router.refresh()
     } catch (error) {
       setErreurQualification(
         error instanceof ApiError && error.statusCode !== 500
           ? error.message
-          : 'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
+          : LIBELLE_ERREUR_QUALIFICATION
       )
       document.querySelector('header')?.scrollIntoView({ behavior: 'smooth' })
+    }
+
+    try {
+      await rafraichirActions({ page, tri, filtres })
+      router.refresh()
+    } catch {
+      setErreurQualification((erreur) => erreur ?? LIBELLE_ERREUR_QUALIFICATION)
     }
   }
 
@@ -166,6 +179,7 @@ export default function OngletActionsPilotage({
             onFiltres={filtrerActions}
             onLienExterne={onLienExterne}
             onQualification={qualifierActions}
+            idsActionsEnErreur={idsActionsEnErreur}
           />
           {metadonnees.nombrePages > 1 && (
             <div className='mt-6'>

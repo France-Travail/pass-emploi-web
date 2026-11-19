@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
@@ -18,6 +18,7 @@ import {
 } from 'services/actions.service'
 import { getIndicateursBeneficiaire } from 'services/beneficiaires.service'
 import renderWithContexts from 'tests/renderWithContexts'
+import { ApiError } from 'utils/httpClient'
 
 jest.mock('services/beneficiaires.service')
 jest.mock('services/favoris.service')
@@ -195,6 +196,70 @@ describe('Actions dans la fiche jeune', () => {
             [{ codeQualification: 'NON_SNP', idAction: actions[3].id }],
             false
           )
+        })
+      })
+
+      describe('quand la qualification échoue', () => {
+        async function qualifierEnSNP() {
+          await userEvent.click(
+            screen.getByRole('checkbox', {
+              name: /Sélection Consulter les offres d'emploi/,
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier les actions en SNP',
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier et envoyer à i-milo',
+            })
+          )
+        }
+
+        it('signale l’action non qualifiée', async () => {
+          // Given
+          ;(qualifierActions as jest.Mock).mockResolvedValue({
+            idsActionsEnErreur: [actions[3].id],
+          })
+
+          // When
+          await qualifierEnSNP()
+
+          // Then
+          expect(
+            screen.getByText(
+              'L’action n’a pas pu être qualifiée. Vous pouvez réessayer.'
+            )
+          ).toBeInTheDocument()
+          const ligne = screen
+            .getByText(actions[3].titre)
+            .closest('tr') as HTMLElement
+          expect(
+            within(ligne).getByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).toBeInTheDocument()
+        })
+
+        it('affiche une erreur et rafraîchit les actions quand l’appel échoue', async () => {
+          // Given
+          ;(qualifierActions as jest.Mock).mockRejectedValue(
+            new ApiError(500, 'internal server error')
+          )
+          ;(getActionsBeneficiaire as jest.Mock).mockClear()
+
+          // When
+          await qualifierEnSNP()
+
+          // Then
+          expect(
+            screen.getByText(
+              'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
+            )
+          ).toBeInTheDocument()
+          expect(getActionsBeneficiaire).toHaveBeenCalledTimes(1)
         })
       })
     })

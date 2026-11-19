@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 
+import {
+  LIBELLE_ERREUR_QUALIFICATION,
+  libelleActionsEnErreur,
+} from 'components/action/libellesQualification'
 import TableauActionsBeneficiaire from 'components/action/TableauActionsBeneficiaire'
 import EmptyState from 'components/EmptyState'
 import { IconName } from 'components/ui/IconComponent'
@@ -17,6 +21,7 @@ import { CODE_QUALIFICATION_NON_SNP } from 'interfaces/json/action'
 import { AlerteParam } from 'referentiel/alerteParam'
 import { useAlerte } from 'utils/alerteContext'
 import { useConseiller } from 'utils/conseiller/conseillerContext'
+import { ApiError } from 'utils/httpClient'
 
 interface OngletActionsProps {
   beneficiaire: DetailBeneficiaire
@@ -25,6 +30,7 @@ interface OngletActionsProps {
   onLienExterne: (label: string) => void
   actions: Action[]
   updateActions: (actions: Action[]) => void
+  rafraichirActions: () => Promise<void>
   labelSemaine: string
   isLoading: boolean
 }
@@ -36,6 +42,7 @@ export default function OngletActions({
   onLienExterne,
   actions,
   updateActions,
+  rafraichirActions,
   labelSemaine,
   isLoading,
 }: OngletActionsProps) {
@@ -43,8 +50,10 @@ export default function OngletActions({
   const [conseiller] = useConseiller()
   const lectureSeule = !estConseillerReferent(conseiller, beneficiaire)
 
-  const [qualificationEnErreur, setQualificationEnErreur] =
-    useState<boolean>(false)
+  const [erreurQualification, setErreurQualification] = useState<
+    string | undefined
+  >()
+  const [idsActionsEnErreur, setIdsActionsEnErreur] = useState<string[]>([])
 
   async function qualifierActions(
     qualificationSNP: boolean,
@@ -52,7 +61,8 @@ export default function OngletActions({
   ) {
     document.querySelector('header')?.scrollIntoView()
 
-    setQualificationEnErreur(false)
+    setErreurQualification(undefined)
+    setIdsActionsEnErreur([])
     const { qualifierActions: _qualifierActions } =
       await import('services/actions.service')
 
@@ -63,16 +73,29 @@ export default function OngletActions({
         codeQualification: CODE_QUALIFICATION_NON_SNP,
       }))
     }
-    const { idsActionsEnErreur } = await _qualifierActions(
-      actionsPayload,
-      qualificationSNP
-    )
+
+    let idsEnErreur: string[]
+    try {
+      const resultat = await _qualifierActions(actionsPayload, qualificationSNP)
+      idsEnErreur = resultat.idsActionsEnErreur
+    } catch (error) {
+      setErreurQualification(
+        error instanceof ApiError && error.statusCode !== 500
+          ? error.message
+          : LIBELLE_ERREUR_QUALIFICATION
+      )
+      await rafraichirActions().catch(() => {})
+      return
+    }
 
     let actionsQualifiees = actionsSelectionnees
-    if (idsActionsEnErreur.length) {
-      setQualificationEnErreur(true)
+    if (idsEnErreur.length) {
+      setIdsActionsEnErreur(idsEnErreur)
+      setErreurQualification(
+        libelleActionsEnErreur(idsEnErreur.length, actionsSelectionnees.length)
+      )
       actionsQualifiees = actionsSelectionnees.filter(
-        (action) => !idsActionsEnErreur.some((id) => id === action.idAction)
+        (action) => !idsEnErreur.includes(action.idAction)
       )
     } else {
       setAlerte(
@@ -116,10 +139,10 @@ export default function OngletActions({
         />
       )}
 
-      {qualificationEnErreur && (
+      {erreurQualification && (
         <FailureAlert
-          label='Certaines actions n’ont pas pu être qualifiées.'
-          onAcknowledge={() => setQualificationEnErreur(false)}
+          label={erreurQualification}
+          onAcknowledge={() => setErreurQualification(undefined)}
         />
       )}
 
@@ -135,6 +158,7 @@ export default function OngletActions({
               ? {
                   onLienExterne,
                   onQualification: qualifierActions,
+                  idsActionsEnErreur,
                 }
               : undefined
           }

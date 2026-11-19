@@ -205,6 +205,9 @@ export default function OngletsBeneficiaireMilo({
             labelSemaine={semaine.label}
             actions={actions}
             updateActions={setActions}
+            rafraichirActions={() =>
+              getActionsBeneficiaire(beneficiaire.id, semaine).then(setActions)
+            }
             isLoading={isLoading}
           />
         </div>
