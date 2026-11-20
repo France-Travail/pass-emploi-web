@@ -460,6 +460,46 @@ describe('PilotagePage client side - Actions', () => {
               true
             )
           })
+
+          it('affiche un chargement sur les boutons pendant la qualification', async () => {
+            // Given
+            let terminerQualification: () => void = () => {}
+            ;(qualifierActions as jest.Mock).mockImplementation(
+              () =>
+                new Promise((resolve) => {
+                  terminerQualification = () =>
+                    resolve({ idsActionsEnErreur: [] })
+                })
+            )
+
+            // When
+            await userEvent.click(
+              screen.getByRole('button', {
+                name: 'Qualifier et envoyer à i-milo',
+              })
+            )
+
+            // Then
+            expect(screen.getByText('Chargement en cours')).toBeInTheDocument()
+            expect(
+              screen.getByRole('button', {
+                name: /Qualifier les actions en SNP/,
+              })
+            ).toBeDisabled()
+            expect(
+              screen.getByRole('button', {
+                name: /Enregistrer les actions en non SNP/,
+              })
+            ).toBeDisabled()
+
+            // When
+            await act(async () => terminerQualification())
+
+            // Then
+            expect(
+              screen.queryByText('Chargement en cours')
+            ).not.toBeInTheDocument()
+          })
         })
 
         describe('quand le conseiller enregisre en non SNP', () => {
