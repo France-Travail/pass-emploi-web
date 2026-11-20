@@ -36,6 +36,7 @@ interface TableauActionsBeneficiaireProps {
       }>
     ) => Promise<void>
     onLienExterne: (label: string) => void
+    idsActionsEnErreur?: string[]
   }
 }
 
@@ -323,6 +324,10 @@ export default function TableauActionsBeneficiaire({
                     avecQualification && {
                       isChecked: selectionContientId(action.id),
                       onSelection: selectionnerAction,
+                      qualificationEnErreur:
+                        avecQualification.idsActionsEnErreur?.includes(
+                          action.id
+                        ),
                     }
                   }
                 />

@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { act, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DateTime } from 'luxon'
 import { useRouter } from 'next/navigation'
@@ -18,6 +18,7 @@ import {
 } from 'services/actions.service'
 import { getIndicateursBeneficiaire } from 'services/beneficiaires.service'
 import renderWithContexts from 'tests/renderWithContexts'
+import { ApiError } from 'utils/httpClient'
 
 jest.mock('services/beneficiaires.service')
 jest.mock('services/favoris.service')
@@ -195,6 +196,150 @@ describe('Actions dans la fiche jeune', () => {
             [{ codeQualification: 'NON_SNP', idAction: actions[3].id }],
             false
           )
+        })
+      })
+
+      describe('quand la qualification échoue', () => {
+        async function qualifierEnSNP() {
+          await userEvent.click(
+            screen.getByRole('checkbox', {
+              name: /Sélection Consulter les offres d'emploi/,
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier les actions en SNP',
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier et envoyer à i-milo',
+            })
+          )
+        }
+
+        it('signale l’action non qualifiée', async () => {
+          // Given
+          ;(qualifierActions as jest.Mock).mockResolvedValue({
+            idsActionsEnErreur: [actions[3].id],
+          })
+
+          // When
+          await qualifierEnSNP()
+
+          // Then
+          expect(
+            screen.getByText(
+              'L’action n’a pas pu être qualifiée. Vous pouvez réessayer.'
+            )
+          ).toBeInTheDocument()
+          const ligne = screen
+            .getByText(actions[3].titre)
+            .closest('tr') as HTMLElement
+          expect(
+            within(ligne).getByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).toBeInTheDocument()
+        })
+
+        it('affiche une erreur et rafraîchit les actions quand l’appel échoue', async () => {
+          // Given
+          ;(qualifierActions as jest.Mock).mockRejectedValue(
+            new ApiError(500, 'internal server error')
+          )
+          ;(getActionsBeneficiaire as jest.Mock).mockClear()
+
+          // When
+          await qualifierEnSNP()
+
+          // Then
+          expect(
+            screen.getByText(
+              'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
+            )
+          ).toBeInTheDocument()
+          expect(getActionsBeneficiaire).toHaveBeenCalledTimes(1)
+        })
+
+        describe('quand une action est signalée en erreur', () => {
+          const nomIconeErreur =
+            'La qualification de cette action a échoué. Vous pouvez réessayer.'
+
+          beforeEach(async () => {
+            ;(qualifierActions as jest.Mock).mockResolvedValue({
+              idsActionsEnErreur: [actions[3].id],
+            })
+            await qualifierEnSNP()
+          })
+
+          it("efface le signalement quand le conseiller ferme l'alerte", async () => {
+            // When
+            await userEvent.click(
+              screen.getByRole('button', { name: "J'ai compris" })
+            )
+
+            // Then
+            expect(
+              screen.queryByRole('img', { name: nomIconeErreur })
+            ).not.toBeInTheDocument()
+          })
+
+          it('efface le signalement quand le conseiller change de semaine', async () => {
+            // When
+            await userEvent.click(
+              screen.getByRole('button', {
+                name: /Aller à la période suivante/,
+              })
+            )
+
+            // Then
+            expect(screen.getByText(actions[3].titre)).toBeInTheDocument()
+            expect(
+              screen.queryByRole('img', { name: nomIconeErreur })
+            ).not.toBeInTheDocument()
+            expect(
+              screen.queryByText(
+                'L’action n’a pas pu être qualifiée. Vous pouvez réessayer.'
+              )
+            ).not.toBeInTheDocument()
+          })
+        })
+
+        it('ignore le rafraîchissement d’une semaine quittée entre-temps', async () => {
+          // Given
+          ;(qualifierActions as jest.Mock).mockRejectedValue(
+            new ApiError(500, 'internal server error')
+          )
+          let resoudreRafraichissement: (actions: Action[]) => void = () => {}
+          ;(getActionsBeneficiaire as jest.Mock).mockImplementationOnce(
+            () =>
+              new Promise<Action[]>((resolve) => {
+                resoudreRafraichissement = resolve
+              })
+          )
+          await qualifierEnSNP()
+
+          // When
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: /Aller à la période suivante/,
+            })
+          )
+          await act(async () =>
+            resoudreRafraichissement([
+              uneAction({
+                id: 'id-action-perimee',
+                titre: 'Action de la semaine quittée',
+              }),
+            ])
+          )
+
+          // Then
+          expect(
+            screen.queryByText('Action de la semaine quittée')
+          ).not.toBeInTheDocument()
+          expect(screen.getByText(actions[3].titre)).toBeInTheDocument()
         })
       })
     })

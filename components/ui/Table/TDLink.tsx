@@ -9,10 +9,12 @@ export default function TDLink({
   href,
   labelPrefix,
   className,
+  alerte,
 }: {
   href: string
   labelPrefix: string
   className?: string
+  alerte?: string
 }) {
   const tdRef = useRef<HTMLTableCellElement>(null)
   const [label, setLabel] = useState<string>(labelPrefix)
@@ -27,25 +29,43 @@ export default function TDLink({
     setLabel(labelPrefix + ' ' + rowVisibleText.join(' '))
   }, [])
 
+  const lien = (
+    <Link
+      href={href}
+      className='block before:absolute before:inset-0 before:z-10 cursor-pointer'
+      title={label}
+    >
+      <IconComponent
+        name={IconName.ChevronRight}
+        focusable={false}
+        role='img'
+        aria-labelledby={labelId}
+        className=' w-6 h-6 fill-white rounded-full bg-primary mx-auto'
+      />
+      <span id={labelId} className='sr-only'>
+        {label}
+      </span>
+    </Link>
+  )
+
   // a11y card : https://kittygiraudel.com/2022/04/02/accessible-cards/
   return (
     <TD ref={tdRef} className={className}>
-      <Link
-        href={href}
-        className='block before:absolute before:inset-0 before:z-10 cursor-pointer'
-        title={label}
-      >
-        <IconComponent
-          name={IconName.ChevronRight}
-          focusable={false}
-          role='img'
-          aria-labelledby={labelId}
-          className=' w-6 h-6 fill-white rounded-full bg-primary mx-auto'
-        />
-        <span id={labelId} className='sr-only'>
-          {label}
-        </span>
-      </Link>
+      {!alerte && lien}
+      {alerte && (
+        <div className='flex items-center justify-center gap-2'>
+          <span className='pointer-events-none shrink-0' title={alerte}>
+            <IconComponent
+              name={IconName.Error}
+              focusable={false}
+              role='img'
+              aria-label={alerte}
+              className='w-6 h-6 fill-warning'
+            />
+          </span>
+          {lien}
+        </div>
+      )}
     </TD>
   )
 }

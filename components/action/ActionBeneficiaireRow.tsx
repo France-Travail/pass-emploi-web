@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 
+import { LIBELLE_ACTION_EN_ERREUR } from 'components/action/libellesQualification'
 import TagStatutAction from 'components/action/TagStatutAction'
 import { TagCategorie } from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
@@ -15,6 +16,7 @@ type ActionBeneficiaireRowProps = {
   avecQualification?: {
     isChecked: boolean
     onSelection: (action: Action) => void
+    qualificationEnErreur?: boolean
   }
 }
 
@@ -81,6 +83,11 @@ export default function ActionBeneficiaireRow({
       <TDLink
         href={`${pathPrefix}/${action.beneficiaire.id}/actions/${action.id}`}
         labelPrefix='Voir le détail de l’action'
+        alerte={
+          avecQualification?.qualificationEnErreur
+            ? LIBELLE_ACTION_EN_ERREUR
+            : undefined
+        }
       />
     </TR>
   )

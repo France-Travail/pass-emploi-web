@@ -460,6 +460,46 @@ describe('PilotagePage client side - Actions', () => {
               true
             )
           })
+
+          it('affiche un chargement sur les boutons pendant la qualification', async () => {
+            // Given
+            let terminerQualification: () => void = () => {}
+            ;(qualifierActions as jest.Mock).mockImplementation(
+              () =>
+                new Promise((resolve) => {
+                  terminerQualification = () =>
+                    resolve({ idsActionsEnErreur: [] })
+                })
+            )
+
+            // When
+            await userEvent.click(
+              screen.getByRole('button', {
+                name: 'Qualifier et envoyer à i-milo',
+              })
+            )
+
+            // Then
+            expect(screen.getByText('Chargement en cours')).toBeInTheDocument()
+            expect(
+              screen.getByRole('button', {
+                name: /Qualifier les actions en SNP/,
+              })
+            ).toBeDisabled()
+            expect(
+              screen.getByRole('button', {
+                name: /Enregistrer les actions en non SNP/,
+              })
+            ).toBeDisabled()
+
+            // When
+            await act(async () => terminerQualification())
+
+            // Then
+            expect(
+              screen.queryByText('Chargement en cours')
+            ).not.toBeInTheDocument()
+          })
         })
 
         describe('quand le conseiller enregisre en non SNP', () => {
@@ -574,7 +614,7 @@ describe('PilotagePage client side - Actions', () => {
 
       describe('quand milo est down', () => {
         beforeEach(async () => {
-          ;(qualifierActions as jest.Mock).mockResolvedValue(
+          ;(qualifierActions as jest.Mock).mockRejectedValue(
             new ApiError(500, 'internal server error')
           )
 
@@ -583,22 +623,21 @@ describe('PilotagePage client side - Actions', () => {
               name: `Sélection ${actions[0].titre} ${actions[0].categorie?.libelle ?? ''}`,
             })
           )
+          ;(getActionsAQualifierClientSide as jest.Mock).mockClear()
+
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier les actions en SNP',
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Qualifier et envoyer à i-milo',
+            })
+          )
         })
 
         it('affiche le message d’error customisé', async () => {
-          //when
-          await userEvent.click(
-            screen.getByRole('button', {
-              name: 'Qualifier les actions en SNP',
-            })
-          )
-          await userEvent.click(
-            screen.getByRole('button', {
-              name: 'Qualifier et envoyer à i-milo',
-            })
-          )
-
-          //then
           expect(
             screen.getByText(
               'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
@@ -606,11 +645,34 @@ describe('PilotagePage client side - Actions', () => {
           ).toBeInTheDocument()
         })
 
-        it('affiche un message d’erreur quand des actions ne sont pas qualifiées', async () => {
-          //when
+        it('rafraîchit les actions pour afficher celles qui ont été qualifiées', async () => {
+          expect(getActionsAQualifierClientSide).toHaveBeenCalledWith(
+            'id-conseiller-1',
+            { page: 1, tri: 'REALISATION_CHRONOLOGIQUE', filtres: [] }
+          )
+        })
+      })
+
+      describe('quand une partie des actions n’est pas qualifiée', () => {
+        beforeEach(async () => {
           ;(qualifierActions as jest.Mock).mockResolvedValue({
-            idsActionsEnErreur: [1, 2],
+            idsActionsEnErreur: [actions[1].id],
           })
+          ;(getActionsAQualifierClientSide as jest.Mock).mockResolvedValue({
+            actions: [actions[1]],
+            metadonnees: { nombrePages: 1, nombreTotal: 1 },
+          })
+
+          await userEvent.click(
+            screen.getByRole('checkbox', {
+              name: `Sélection ${actions[1].titre} ${actions[1].categorie?.libelle ?? ''}`,
+            })
+          )
+          await userEvent.click(
+            screen.getByRole('checkbox', {
+              name: `Sélection ${actions[2].titre} ${actions[2].categorie?.libelle ?? ''}`,
+            })
+          )
           await userEvent.click(
             screen.getByRole('button', {
               name: 'Qualifier les actions en SNP',
@@ -621,11 +683,56 @@ describe('PilotagePage client side - Actions', () => {
               name: 'Qualifier et envoyer à i-milo',
             })
           )
+        })
+
+        it('affiche le nombre d’actions non qualifiées', () => {
           expect(
             screen.getByText(
-              'Suite à un problème inconnu la qualification a échoué. Vous pouvez réessayer.'
+              '1 action sur 2 n’a pas pu être qualifiée. Vous pouvez réessayer.'
             )
           ).toBeInTheDocument()
+        })
+
+        it('signale l’action en erreur dans la liste', () => {
+          const ligne = screen
+            .getByText(actions[1].titre)
+            .closest('tr') as HTMLElement
+          expect(
+            within(ligne).getByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).toBeInTheDocument()
+        })
+
+        it("efface le signalement quand le conseiller ferme l'alerte", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', { name: "J'ai compris" })
+          )
+
+          // Then
+          expect(
+            screen.queryByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).not.toBeInTheDocument()
+        })
+
+        it('efface le signalement quand le conseiller trie la liste', async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Afficher la liste des actions triées par bénéficiaire par ordre alphabétique',
+            })
+          )
+
+          // Then
+          expect(screen.getByText(actions[1].titre)).toBeInTheDocument()
+          expect(
+            screen.queryByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).not.toBeInTheDocument()
         })
       })
     })

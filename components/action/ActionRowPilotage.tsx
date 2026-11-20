@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { LIBELLE_ACTION_EN_ERREUR } from 'components/action/libellesQualification'
 import { TagCategorie } from 'components/ui/Indicateurs/Tag'
 import TD from 'components/ui/Table/TD'
 import TDLink from 'components/ui/Table/TDLink'
@@ -11,12 +12,14 @@ interface ActionRowPilotageProps {
   action: ActionPilotage
   isChecked: boolean
   onSelection: (action: ActionPilotage) => void
+  qualificationEnErreur?: boolean
 }
 
 export default function ActionRowPilotage({
   action,
   isChecked,
   onSelection,
+  qualificationEnErreur,
 }: ActionRowPilotageProps) {
   const dateFinReelle = toLongMonthDate(action.dateFinReelle)
 
@@ -54,6 +57,7 @@ export default function ActionRowPilotage({
       <TDLink
         href={`/mes-jeunes/${action.beneficiaire.id}/actions/${action.id}`}
         labelPrefix='Accéder au détail de l’action de'
+        alerte={qualificationEnErreur ? LIBELLE_ACTION_EN_ERREUR : undefined}
       />
     </TR>
   )

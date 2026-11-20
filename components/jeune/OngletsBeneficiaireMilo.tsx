@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 import dynamic from 'next/dynamic'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
   FicheMiloProps,
@@ -72,6 +72,7 @@ export default function OngletsBeneficiaireMilo({
   const [shouldFocus, setShouldFocus] = useState<boolean>(false)
 
   const [currentTab, setCurrentTab] = useState<OngletMilo>(ongletInitial)
+  const affichageCourantRef = useRef({ semaine, currentTab })
   const [focusCurrentTabContent, setFocusCurrentTabContent] =
     useState<boolean>(false)
 
@@ -101,6 +102,24 @@ export default function OngletsBeneficiaireMilo({
       table?.focus()
     }
   }, [currentTab, focusCurrentTabContent])
+
+  async function rafraichirActions() {
+    const semaineDemandee = semaine
+    const actionsAJour = await getActionsBeneficiaire(
+      beneficiaire.id,
+      semaineDemandee
+    )
+    const affichageCourant = affichageCourantRef.current
+    if (
+      affichageCourant.semaine === semaineDemandee &&
+      affichageCourant.currentTab === 'actions'
+    )
+      setActions(actionsAJour)
+  }
+
+  useEffect(() => {
+    affichageCourantRef.current = { semaine, currentTab }
+  }, [semaine, currentTab])
 
   useEffect(() => {
     switch (currentTab) {
@@ -205,6 +224,7 @@ export default function OngletsBeneficiaireMilo({
             labelSemaine={semaine.label}
             actions={actions}
             updateActions={setActions}
+            rafraichirActions={rafraichirActions}
             isLoading={isLoading}
           />
         </div>

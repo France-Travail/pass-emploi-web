@@ -32,15 +32,23 @@ export default function EncartQualificationActions({
     afficherModaleMultiQualificationNonSNP,
     setAfficherModaleMultiQualificationNonSNP,
   ] = useState<boolean>(false)
+  const [qualificationEnCours, setQualificationEnCours] = useState<
+    'SNP' | 'NON_SNP' | undefined
+  >()
 
   async function qualifier(enSNP: boolean) {
-    await onQualification(
-      enSNP,
-      actionsSelectionnees as Array<{
-        idAction: string
-        codeQualification: string
-      }>
-    )
+    setQualificationEnCours(enSNP ? 'SNP' : 'NON_SNP')
+    try {
+      await onQualification(
+        enSNP,
+        actionsSelectionnees as Array<{
+          idAction: string
+          codeQualification: string
+        }>
+      )
+    } finally {
+      setQualificationEnCours(undefined)
+    }
   }
 
   return (
@@ -60,7 +68,8 @@ export default function EncartQualificationActions({
             onClick={() => setAfficherModaleMultiQualificationNonSNP(true)}
             style={ButtonStyle.SECONDARY}
             label='Enregistrer les actions en non SNP'
-            disabled={boutonsDisabled}
+            disabled={boutonsDisabled || qualificationEnCours === 'SNP'}
+            isLoading={qualificationEnCours === 'NON_SNP'}
             type='button'
           >
             Enregistrer les actions en non SNP
@@ -69,7 +78,8 @@ export default function EncartQualificationActions({
             onClick={() => setAfficherModaleMultiQualification(true)}
             style={ButtonStyle.PRIMARY}
             label='Qualifier les actions en SNP'
-            disabled={boutonsDisabled}
+            disabled={boutonsDisabled || qualificationEnCours === 'NON_SNP'}
+            isLoading={qualificationEnCours === 'SNP'}
             type='button'
           >
             Qualifier les actions en SNP

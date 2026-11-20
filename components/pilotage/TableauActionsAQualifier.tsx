@@ -30,6 +30,7 @@ type TableauActionsConseillerProps = {
     qualificationSNP: boolean,
     actionsSelectionnees: Array<{ idAction: string; codeQualification: string }>
   ) => Promise<void>
+  idsActionsEnErreur?: string[]
 }
 
 export default function TableauActionsAQualifier({
@@ -40,6 +41,7 @@ export default function TableauActionsAQualifier({
   onFiltres,
   onLienExterne,
   onQualification,
+  idsActionsEnErreur = [],
 }: TableauActionsConseillerProps) {
   const listeActionsRef = useRef<HTMLTableElement>(null)
   const filtresRef = useRef<HTMLButtonElement>(null)
@@ -313,6 +315,7 @@ export default function TableauActionsAQualifier({
                   key={action.id}
                   isChecked={selectionContientId(action.id)}
                   onSelection={selectionnerAction}
+                  qualificationEnErreur={idsActionsEnErreur.includes(action.id)}
                 />
               ))}
             </tbody>
