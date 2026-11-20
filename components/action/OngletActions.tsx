@@ -54,6 +54,16 @@ export default function OngletActions({
     string | undefined
   >()
   const [idsActionsEnErreur, setIdsActionsEnErreur] = useState<string[]>([])
+  const [semaineAffichee, setSemaineAffichee] = useState<string>(labelSemaine)
+  if (semaineAffichee !== labelSemaine) {
+    setSemaineAffichee(labelSemaine)
+    effacerErreursQualification()
+  }
+
+  function effacerErreursQualification() {
+    setErreurQualification(undefined)
+    setIdsActionsEnErreur([])
+  }
 
   async function qualifierActions(
     qualificationSNP: boolean,
@@ -61,8 +71,7 @@ export default function OngletActions({
   ) {
     document.querySelector('header')?.scrollIntoView()
 
-    setErreurQualification(undefined)
-    setIdsActionsEnErreur([])
+    effacerErreursQualification()
     const { qualifierActions: _qualifierActions } =
       await import('services/actions.service')
 
@@ -142,7 +151,7 @@ export default function OngletActions({
       {erreurQualification && (
         <FailureAlert
           label={erreurQualification}
-          onAcknowledge={() => setErreurQualification(undefined)}
+          onAcknowledge={effacerErreursQualification}
         />
       )}
 

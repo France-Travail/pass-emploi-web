@@ -81,12 +81,19 @@ export default function OngletActionsPilotage({
     setMetadonnees(update.metadonnees)
   }
 
+  function effacerErreursQualification() {
+    setErreurQualification(undefined)
+    setIdsActionsEnErreur([])
+  }
+
   async function trierActions(nouveauTri: TriActionsAQualifier) {
+    setIdsActionsEnErreur([])
     setTri(nouveauTri)
     await rafraichirActions({ page, tri: nouveauTri, filtres })
   }
 
   async function filtrerActions(categoriesSelectionnees: string[]) {
+    setIdsActionsEnErreur([])
     setPage(1)
     setFiltres(categoriesSelectionnees)
     await rafraichirActions({ page: 1, tri, filtres: categoriesSelectionnees })
@@ -94,6 +101,7 @@ export default function OngletActionsPilotage({
 
   async function changerPage(nouvellePage: number) {
     if (nouvellePage < 1 || nouvellePage > metadonnees.nombrePages) return
+    setIdsActionsEnErreur([])
     setPage(nouvellePage)
     await rafraichirActions({ page: nouvellePage, tri, filtres })
   }
@@ -114,8 +122,7 @@ export default function OngletActionsPilotage({
         codeQualification: CODE_QUALIFICATION_NON_SNP,
       }))
     }
-    setErreurQualification(undefined)
-    setIdsActionsEnErreur([])
+    effacerErreursQualification()
     try {
       const { idsActionsEnErreur } = await _qualifierActions(
         actionsPayload,
@@ -158,7 +165,7 @@ export default function OngletActionsPilotage({
       {erreurQualification && (
         <FailureAlert
           label={erreurQualification}
-          onAcknowledge={() => setErreurQualification(undefined)}
+          onAcknowledge={effacerErreursQualification}
         />
       )}
 

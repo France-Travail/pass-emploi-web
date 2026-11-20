@@ -663,6 +663,37 @@ describe('PilotagePage client side - Actions', () => {
             })
           ).toBeInTheDocument()
         })
+
+        it("efface le signalement quand le conseiller ferme l'alerte", async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', { name: "J'ai compris" })
+          )
+
+          // Then
+          expect(
+            screen.queryByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).not.toBeInTheDocument()
+        })
+
+        it('efface le signalement quand le conseiller trie la liste', async () => {
+          // When
+          await userEvent.click(
+            screen.getByRole('button', {
+              name: 'Afficher la liste des actions triées par bénéficiaire par ordre alphabétique',
+            })
+          )
+
+          // Then
+          expect(screen.getByText(actions[1].titre)).toBeInTheDocument()
+          expect(
+            screen.queryByRole('img', {
+              name: 'La qualification de cette action a échoué. Vous pouvez réessayer.',
+            })
+          ).not.toBeInTheDocument()
+        })
       })
     })
 

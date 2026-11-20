@@ -53,8 +53,8 @@ export default function TDLink({
     <TD ref={tdRef} className={className}>
       {!alerte && lien}
       {alerte && (
-        <div className='flex items-center justify-center'>
-          <span className='absolute z-20 -translate-x-8' title={alerte}>
+        <div className='flex items-center justify-center gap-2'>
+          <span className='pointer-events-none shrink-0' title={alerte}>
             <IconComponent
               name={IconName.Error}
               focusable={false}
