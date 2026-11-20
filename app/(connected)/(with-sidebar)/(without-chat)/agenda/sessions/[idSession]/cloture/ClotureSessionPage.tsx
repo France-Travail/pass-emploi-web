@@ -182,7 +182,7 @@ function ClotureSessionPage({
 
   return (
     <>
-      <h2 className='text-m-bold'>Emarger la présence des bénéficiaires</h2>
+      <h2 className='text-m-bold'>Émarger la présence des bénéficiaires</h2>
       <p className='mt-6'>
         Vous devez valider la présence des bénéficiaires à la session en cochant
         dans la liste le nom des bénéficiaires

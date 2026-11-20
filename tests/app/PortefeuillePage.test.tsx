@@ -887,7 +887,7 @@ describe('PortefeuillePage client side', () => {
       // Then
       expect(
         screen.getByRole('columnheader', {
-          name: 'Messages non lus par le béneficiaire',
+          name: 'Messages non lus par le bénéficiaire',
         })
       ).toBeInTheDocument()
     })

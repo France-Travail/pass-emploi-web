@@ -19,7 +19,7 @@ function Accueil(): ReactElement {
           aria-hidden={true}
           className='shrink-0 w-5 h-5 fill-primary mr-3'
         />
-        Un accès dedié à vos conversations
+        Un accès dédié à vos conversations
       </h3>
       <p className='mt-4'>
         Retrouvez l&apos;ensemble de vos conversations avec les bénéficiaires de
