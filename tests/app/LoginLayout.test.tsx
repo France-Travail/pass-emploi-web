@@ -131,7 +131,7 @@ describe('LoginLayout client side', () => {
       ).toHaveAccessibleName('Un accès dédié à vos conversations')
       expect(
         await screen.findByText(
-          "Retrouvez l'ensemble de vos conversations avec les bénéficiaires de votre portefeuile."
+          "Retrouvez l'ensemble de vos conversations avec les bénéficiaires de votre portefeuille."
         )
       ).toBeInTheDocument()
       expect(

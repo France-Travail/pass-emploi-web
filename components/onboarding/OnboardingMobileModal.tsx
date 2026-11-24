@@ -23,7 +23,7 @@ function Accueil(): ReactElement {
       </h3>
       <p className='mt-4'>
         Retrouvez l&apos;ensemble de vos conversations avec les bénéficiaires de
-        votre portefeuile.
+        votre portefeuille.
       </p>
       <p className='mt-4'>
         À ce jour, seul l&apos;accès à la messagerie est disponible sur
