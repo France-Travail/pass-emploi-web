@@ -80,7 +80,7 @@ export function erreurConseiller(
       return { erreur: erreurIdp(structureUtilisateur) }
     case 'VerificationConseillerDepartemental':
       return {
-        erreur: `Vous n'êtes pas autorisé à vous connecter. Veuiller contacter le support.`,
+        erreur: `Vous n'êtes pas autorisé à vous connecter. Veuillez contacter le support.`,
       }
     default:
       return { erreur: MESSAGE_PAR_DEFAUT_CONSEILLER }

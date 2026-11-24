@@ -27,7 +27,7 @@ export default function TableauBeneficiairesPasMilo({
 }: TableauBeneficiairesPasMiloProps) {
   const beneficiairesAffiches = beneficiaires.slice(10 * (page - 1), 10 * page)
 
-  const messagesColumn = 'Messages non lus par le béneficiaire'
+  const messagesColumn = 'Messages non lus par le bénéficiaire'
   const derniereActiviteColumn = 'Dernière activité'
 
   useMatomo('Mes jeunes', total > 0)

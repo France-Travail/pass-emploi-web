@@ -128,10 +128,10 @@ describe('LoginLayout client side', () => {
       ).toBeInTheDocument()
       expect(
         await screen.findByRole('heading', { level: 3 })
-      ).toHaveAccessibleName('Un accès dedié à vos conversations')
+      ).toHaveAccessibleName('Un accès dédié à vos conversations')
       expect(
         await screen.findByText(
-          "Retrouvez l'ensemble de vos conversations avec les bénéficiaires de votre portefeuile."
+          "Retrouvez l'ensemble de vos conversations avec les bénéficiaires de votre portefeuille."
         )
       ).toBeInTheDocument()
       expect(
