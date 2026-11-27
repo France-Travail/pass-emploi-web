@@ -74,6 +74,22 @@ describe('CreationBeneficiaireMiloPage client side', () => {
     })
   })
 
+  describe('quand un dossier Milo est fourni', () => {
+    it('pré-remplit le numéro de dossier', async () => {
+      // When
+      await renderWithContexts(
+        <CreationBeneficiaireMiloPage dossierMilo='123456' />
+      )
+
+      // Then
+      expect(
+        screen.getByRole('textbox', {
+          name: 'Numéro de dossier Exemple : 123456',
+        })
+      ).toHaveValue('123456')
+    })
+  })
+
   describe('quand le bénéficiaire recherché existe déjà dans le portefeuille', () => {
     const portefeuille = desItemsBeneficiaires().map(
       extractBeneficiaireWithActivity

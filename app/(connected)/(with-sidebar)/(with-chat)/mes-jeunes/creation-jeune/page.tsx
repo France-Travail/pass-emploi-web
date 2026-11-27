@@ -26,9 +26,14 @@ export const metadata: Metadata = {
   title: 'Créer compte bénéficiaire - Portefeuille',
 }
 
-export default async function CreationBeneficiaire() {
+export default async function CreationBeneficiaire({
+  searchParams,
+}: Readonly<{
+  searchParams?: Promise<Partial<{ dossierMilo: string }>>
+}>) {
   const { user, accessToken } = await getMandatorySessionServerSide()
   const conseiller = await getConseillerServerSide(user, accessToken)
+  const { dossierMilo } = (await searchParams) ?? {}
 
   const header =
     'Créer un compte bénéficiaire' +
@@ -60,7 +65,10 @@ export default async function CreationBeneficiaire() {
       <PageHeaderPortal header={header} />
 
       {estMilo(conseiller.structure) && (
-        <CreationBeneficiaireMiloPage fonctionnalites={fonctionnalites} />
+        <CreationBeneficiaireMiloPage
+          fonctionnalites={fonctionnalites}
+          dossierMilo={dossierMilo}
+        />
       )}
       {!estMilo(conseiller.structure) && (
         <CreationBeneficiaireFranceTravailPage listes={listes} />

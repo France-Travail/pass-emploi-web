@@ -969,6 +969,76 @@ describe('PortefeuillePage client side', () => {
     })
   })
 
+  describe('quand un dossier Milo sans compte est fourni', () => {
+    beforeEach(async () => {
+      // Given
+      const modalRoot = document.createElement('div')
+      modalRoot.setAttribute('id', 'modal-root')
+      document.body.appendChild(modalRoot)
+      jest.spyOn(window.history, 'replaceState')
+
+      // When
+      await renderWithContexts(
+        <PortefeuillePage
+          conseillerJeunes={jeunes}
+          isFromEmail={false}
+          page={1}
+          dossierMiloSansCompte='123456'
+        />,
+        { customConseiller: { structure: structureMilo } }
+      )
+    })
+
+    afterEach(() => {
+      document.getElementById('modal-root')?.remove()
+    })
+
+    it('a11y', async () => {
+      const modale = await screen.findByRole('dialog')
+      let results: AxeResults
+
+      await act(async () => {
+        results = await axe(modale)
+      })
+
+      expect(results!).toHaveNoViolations()
+    })
+
+    it('propose de créer le compte du bénéficiaire', async () => {
+      // Then
+      expect(
+        await screen.findByRole('heading', {
+          name: 'Créez le compte de ce jeune',
+        })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          /pas encore de compte sur l’application 1jeune1solution/
+        )
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('link', { name: 'Créer le compte' })
+      ).toHaveAttribute('href', '/mes-jeunes/creation-jeune?dossierMilo=123456')
+    })
+
+    it('ferme la modale et nettoie l’URL au clic sur Plus tard', async () => {
+      // When
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Plus tard' })
+      )
+
+      // Then
+      expect(
+        screen.queryByRole('heading', { name: 'Créez le compte de ce jeune' })
+      ).not.toBeInTheDocument()
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        null,
+        '',
+        '/mes-jeunes'
+      )
+    })
+  })
+
   describe('quand un message informatif est fourni', () => {
     it('affiche le bandeau avec le titre et le contenu du message', async () => {
       // GIVEN

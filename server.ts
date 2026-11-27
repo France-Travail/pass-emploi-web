@@ -30,7 +30,9 @@ const pinoMiddleware = pinoHttp({
   customSuccessMessage: () => 'request_completed',
   customErrorMessage: () => 'request_failed',
   autoLogging: {
-    ignore: (req) => req.url === '/api/health',
+    ignore: (req) =>
+      req.url === '/api/health' ||
+      Boolean(req.url?.startsWith('/_next/static/')),
   },
   serializers: pinoSerializers,
   customSuccessObject: (_req, res, val) => ({

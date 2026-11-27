@@ -29,7 +29,7 @@ import { rootLogger } from 'utils/monitoring/logger'
 export const metadata: Metadata = { title: 'Portefeuille' }
 
 type PortfeuilleSearchParams = Promise<
-  Partial<{ source: string; page: string }>
+  Partial<{ source: string; page: string; dossierMilo: string }>
 >
 export default async function Portefeuille({
   searchParams,
@@ -42,7 +42,7 @@ export default async function Portefeuille({
     getBeneficiairesDuConseillerServerSide(user.id, accessToken),
     getMessageInformatifServerSide(user.id, accessToken),
   ])
-  const { source, page } = (await searchParams) ?? {}
+  const { source, page, dossierMilo } = (await searchParams) ?? {}
 
   const parsedPage = page ? parseInt(page, 10) : 1
 
@@ -107,6 +107,9 @@ export default async function Portefeuille({
         page={parsedPage || 1}
         listes={listes}
         messageInformatif={messageInformatif}
+        dossierMiloSansCompte={
+          estMilo(conseiller.structure) ? dossierMilo : undefined
+        }
       />
     </>
   )

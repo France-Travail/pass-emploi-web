@@ -26,8 +26,10 @@ interface EmailExistantError {
 
 function CreationBeneficiaireMiloPage({
   fonctionnalites,
+  dossierMilo,
 }: {
   fonctionnalites?: string[]
+  dossierMilo?: string
 }) {
   const router = useRouter()
   const [_, setAlerte] = useAlerte()
@@ -159,7 +161,7 @@ function CreationBeneficiaireMiloPage({
         <div className='mt-4'>
           <FormulaireRechercheDossier
             onRechercheDossier={rechercherDossier}
-            idDossier={dossier?.id}
+            idDossier={dossier?.id ?? dossierMilo}
           />
         </div>
       )}

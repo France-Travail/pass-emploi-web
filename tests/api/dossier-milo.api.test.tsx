@@ -74,7 +74,7 @@ describe('GET /api/milo/[numeroDossier]', () => {
     })
 
     describe("Quand le jeune n'existe pas", () => {
-      it('redirige vers la liste des jeunes', async () => {
+      it('redirige vers la liste des jeunes en proposant de créer son compte', async () => {
         // Given
         ;(getIdJeuneMilo as jest.Mock).mockResolvedValue(undefined)
         ;(headers as jest.Mock).mockReturnValue(
@@ -88,10 +88,10 @@ describe('GET /api/milo/[numeroDossier]', () => {
 
         // Then
         await expect(promise).rejects.toEqual(
-          new Error('NEXT_REDIRECT /mes-jeunes')
+          new Error('NEXT_REDIRECT /mes-jeunes?dossierMilo=123456')
         )
         expect(getIdJeuneMilo).toHaveBeenCalledWith('123456', undefined)
-        expect(redirect).toHaveBeenCalledWith('/mes-jeunes')
+        expect(redirect).toHaveBeenCalledWith('/mes-jeunes?dossierMilo=123456')
         expect(trackSSR).toHaveBeenCalledWith({
           structure: 'MILO',
           customTitle: 'Détail jeune par numéro dossier en erreur',
