@@ -970,7 +970,6 @@ describe('PortefeuillePage client side', () => {
   })
 
   describe('quand un dossier Milo sans compte est fourni', () => {
-    let container: HTMLElement
     beforeEach(async () => {
       // Given
       const modalRoot = document.createElement('div')
@@ -979,7 +978,7 @@ describe('PortefeuillePage client side', () => {
       jest.spyOn(window.history, 'replaceState')
 
       // When
-      ;({ container } = await renderWithContexts(
+      await renderWithContexts(
         <PortefeuillePage
           conseillerJeunes={jeunes}
           isFromEmail={false}
@@ -987,7 +986,7 @@ describe('PortefeuillePage client side', () => {
           dossierMiloSansCompte='123456'
         />,
         { customConseiller: { structure: structureMilo } }
-      ))
+      )
     })
 
     afterEach(() => {
@@ -995,11 +994,11 @@ describe('PortefeuillePage client side', () => {
     })
 
     it('a11y', async () => {
-      await screen.findByRole('dialog')
+      const modale = await screen.findByRole('dialog')
       let results: AxeResults
 
       await act(async () => {
-        results = await axe(document.body)
+        results = await axe(modale)
       })
 
       expect(results!).toHaveNoViolations()

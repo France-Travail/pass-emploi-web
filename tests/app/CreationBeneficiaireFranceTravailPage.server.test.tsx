@@ -44,7 +44,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
     ])
 
     // When
-    render(await CreationBeneficiaire())
+    render(await CreationBeneficiaire({}))
 
     // Then
     expect(metadata).toEqual({
@@ -96,7 +96,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
     )
 
     // When
-    render(await CreationBeneficiaire())
+    render(await CreationBeneficiaire({}))
 
     // Then
     expect(metadata).toEqual({
@@ -122,7 +122,7 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
     ;(getListesServerSide as jest.Mock).mockResolvedValue(listes)
 
     // When
-    render(await CreationBeneficiaire())
+    render(await CreationBeneficiaire({}))
 
     // Then
     expect(metadata).toEqual({
