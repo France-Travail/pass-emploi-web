@@ -7,8 +7,8 @@
   },
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json server.ts | pino-pretty",
-    "dev:local": "dotenv -e .env.api-local -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
-    "dev:staging": "dotenv -e .env.api-staging -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
+    "dev:local": "dotenv-cli -e .env.api-local -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
+    "dev:staging": "dotenv-cli -e .env.api-staging -e .env.local -- ts-node --project tsconfig.server.json server.ts | pino-pretty",
     "watch": "yarn dev",
     "build": "NODE_ENV=production; next build --webpack && tsc --project tsconfig.server.json && rm -rf .next/cache",
     "build-source-map": "NODE_ENV=production next build --webpack && source-map-explorer .next/static/**/*.js",
