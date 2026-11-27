@@ -36,8 +36,10 @@ const TutorielAjoutBeneficiaireFranceTravail = dynamic(
   () => import('components/mes-jeunes/TutorielAjoutBeneficiaireFranceTravail')
 )
 
+// Monter la modale après l'hydratation : sinon A11yPageTitle (layout) lui reprend le focus initial.
 const BeneficiaireSansCompteModal = dynamic(
-  () => import('components/BeneficiaireSansCompteModal')
+  () => import('components/BeneficiaireSansCompteModal'),
+  { ssr: false }
 )
 
 type PortefeuilleProps = {
