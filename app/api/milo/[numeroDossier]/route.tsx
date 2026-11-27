@@ -28,6 +28,8 @@ export async function GET(
     refererUrl: refererUrl,
   })
 
-  const destination = idJeune ? `/mes-jeunes/${idJeune}` : '/mes-jeunes'
+  const destination = idJeune
+    ? `/mes-jeunes/${idJeune}`
+    : `/mes-jeunes?dossierMilo=${encodeURIComponent(numeroDossier)}`
   redirect(destination)
 }

@@ -60,6 +60,31 @@ describe('CreationBeneficiaireFranceTravailPage client side', () => {
     )
   })
 
+  it('transmet le dossier Milo à pré-remplir', async () => {
+    // Given
+    ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
+      user: { id: 'id-conseiller', structure: structureMilo },
+      accessToken: 'accessToken',
+    })
+    ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+      unConseiller({ structure: structureMilo })
+    )
+    ;(getFonctionnalitesConseillerServerSide as jest.Mock).mockResolvedValue([])
+
+    // When
+    render(
+      await CreationBeneficiaire({
+        searchParams: Promise.resolve({ dossierMilo: '123456' }),
+      })
+    )
+
+    // Then
+    expect(CreationBeneficiaireMiloPage).toHaveBeenCalledWith(
+      expect.objectContaining({ dossierMilo: '123456' }),
+      undefined
+    )
+  })
+
   it('prépare la page pour un conseiller FT', async () => {
     // Given
     ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({

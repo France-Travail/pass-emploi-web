@@ -127,6 +127,56 @@ describe('PortefeuillePage server side', () => {
     })
   })
 
+  describe('quand un dossier Milo sans compte est fourni', () => {
+    beforeEach(() => {
+      // Given
+      ;(getMandatorySessionServerSide as jest.Mock).mockResolvedValue({
+        user: { id: 'id-conseiller-1', structure: 'MILO' },
+        accessToken: 'accessToken',
+      })
+    })
+
+    it('le transmet à la page pour un conseiller Milo', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: 'MILO' })
+      )
+
+      // When
+      render(
+        await Portefeuille({
+          searchParams: Promise.resolve({ dossierMilo: '123456' }),
+        })
+      )
+
+      // Then
+      expect(PortefeuillePage).toHaveBeenCalledWith(
+        expect.objectContaining({ dossierMiloSansCompte: '123456' }),
+        undefined
+      )
+    })
+
+    it('l’ignore pour un conseiller pas Milo', async () => {
+      // Given
+      ;(getConseillerServerSide as jest.Mock).mockResolvedValue(
+        unConseiller({ structure: 'POLE_EMPLOI' })
+      )
+
+      // When
+      render(
+        await Portefeuille({
+          searchParams: Promise.resolve({ dossierMilo: '123456' }),
+        })
+      )
+
+      // Then
+      expect(PortefeuillePage).toHaveBeenCalledWith(
+        expect.objectContaining({ dossierMiloSansCompte: undefined }),
+        undefined
+      )
+    })
+  })
+
   describe('pour un conseiller pas France Travail', () => {
     beforeEach(async () => {
       // Given

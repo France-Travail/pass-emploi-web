@@ -36,12 +36,17 @@ const TutorielAjoutBeneficiaireFranceTravail = dynamic(
   () => import('components/mes-jeunes/TutorielAjoutBeneficiaireFranceTravail')
 )
 
+const BeneficiaireSansCompteModal = dynamic(
+  () => import('components/BeneficiaireSansCompteModal')
+)
+
 type PortefeuilleProps = {
   conseillerJeunes: BeneficiaireAvecCompteursActionsRdvs[]
   isFromEmail: boolean
   page: number
   listes?: Liste[]
   messageInformatif?: MessageInformatif
+  dossierMiloSansCompte?: string
 }
 
 function PortefeuillePage({
@@ -50,6 +55,7 @@ function PortefeuillePage({
   page,
   listes,
   messageInformatif,
+  dossierMiloSansCompte,
 }: PortefeuilleProps) {
   const chatCredentials = useChatCredentials()
   const [alerte, setAlerte] = useAlerte()
@@ -66,6 +72,14 @@ function PortefeuillePage({
   ] = useState<boolean>(false)
 
   const refTableau = useRef<HTMLTableElement>(null)
+
+  const [afficherModaleSansCompte, setAfficherModaleSansCompte] =
+    useState<boolean>(Boolean(dossierMiloSansCompte))
+
+  function fermerModaleSansCompte() {
+    setAfficherModaleSansCompte(false)
+    window.history.replaceState(null, '', '/mes-jeunes')
+  }
 
   let initialTracking = 'Mes jeunes'
   if (conseillerJeunes.length === 0) initialTracking += ' - Aucun jeune'
@@ -248,6 +262,13 @@ function PortefeuillePage({
             />
           )}
         </>
+      )}
+
+      {afficherModaleSansCompte && dossierMiloSansCompte && (
+        <BeneficiaireSansCompteModal
+          dossierMilo={dossierMiloSansCompte}
+          onClose={fermerModaleSansCompte}
+        />
       )}
     </>
   )
