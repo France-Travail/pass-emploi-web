@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
 import { getSession } from 'next-auth/react'
+import { cache } from 'react'
 
 import { apiDelete, apiGet, apiPatch, apiPost } from 'clients/api.client'
 import {
@@ -64,12 +65,13 @@ export async function getIdentitesBeneficiairesClientSide(
   )
 }
 
-export async function getBeneficiairesDuConseillerServerSide(
-  idConseiller: string,
-  accessToken: string
-): Promise<BeneficiaireFromListe[]> {
-  return getBeneficiairesDuConseiller(idConseiller, accessToken)
-}
+export const getBeneficiairesDuConseillerServerSide = cache(
+  (
+    idConseiller: string,
+    accessToken: string
+  ): Promise<BeneficiaireFromListe[]> =>
+    getBeneficiairesDuConseiller(idConseiller, accessToken)
+)
 
 export async function getBeneficiairesDuConseillerClientSide(): Promise<
   BeneficiaireFromListe[]

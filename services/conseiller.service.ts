@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { Session } from 'next-auth'
 import { getSession } from 'next-auth/react'
+import { cache } from 'react'
 
 import { apiDelete, apiGet, apiPost, apiPut } from 'clients/api.client'
 import {
@@ -26,14 +27,21 @@ import {
 import { toEcsError } from 'utils/monitoring/ecsHelpers'
 import { rootLogger } from 'utils/monitoring/logger'
 
+const getConseillerJson = cache(
+  async (idConseiller: string, accessToken: string) => {
+    const { content } = await apiGet<ConseillerJson>(
+      `/conseillers/${idConseiller}`,
+      accessToken
+    )
+    return content
+  }
+)
+
 export async function getConseillerServerSide(
   user: Session.HydratedUser,
   accessToken: string
 ): Promise<Conseiller> {
-  const { content: conseillerJson } = await apiGet<ConseillerJson>(
-    `/conseillers/${user.id}`,
-    accessToken
-  )
+  const conseillerJson = await getConseillerJson(user.id, accessToken)
   return jsonToConseiller(conseillerJson, user)
 }
 
