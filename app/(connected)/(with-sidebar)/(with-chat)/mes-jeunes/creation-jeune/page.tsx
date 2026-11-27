@@ -28,9 +28,9 @@ export const metadata: Metadata = {
 
 export default async function CreationBeneficiaire({
   searchParams,
-}: {
+}: Readonly<{
   searchParams?: Promise<Partial<{ dossierMilo: string }>>
-}) {
+}>) {
   const { user, accessToken } = await getMandatorySessionServerSide()
   const conseiller = await getConseillerServerSide(user, accessToken)
   const { dossierMilo } = (await searchParams) ?? {}

@@ -15,7 +15,7 @@ type BeneficiaireSansCompteModalProps = {
 export default function BeneficiaireSansCompteModal({
   dossierMilo,
   onClose,
-}: BeneficiaireSansCompteModalProps) {
+}: Readonly<BeneficiaireSansCompteModalProps>) {
   const [conseiller] = useConseiller()
   const modalRef = useRef<ModalHandles>(null)
 
